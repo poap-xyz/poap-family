@@ -1,0 +1,57 @@
+{
+  "name": "@poap-xyz/poap-family",
+  "version": "1.0.0",
+  "author": {
+    "name": "POAP",
+    "url": "https://poap.xyz"
+  },
+  "license": "MIT",
+  "homepage": "https://poap.family",
+  "bugs": {
+    "url": "https://github.com/poap-xyz/poap-family/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:poap-xyz/poap-family.git"
+  },
+  "dependencies": {
+    "@datapunt/matomo-tracker-react": "^0.5.1",
+    "@ethersproject/address": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@mapbox/to-color": "^2.0.0",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.7",
+    "downloadjs": "^1.4.7",
+    "iconoir-react": "^6.8.0",
+    "numbro": "^2.3.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-lazy-images": "^1.1.0",
+    "react-modal": "^3.16.1",
+    "react-router-dom": "^6.11.1",
+    "react-scripts": "5.0.1"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

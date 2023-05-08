@@ -1,0 +1,66 @@
+.addresses {
+  display: flex;
+  flex-direction: column;
+}
+
+.addresses-errors {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.addresses table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 .5rem;
+}
+
+.addresses table thead .collector-head {
+  text-align: left;
+}
+
+.addresses table tbody tr {
+  outline: thin dotted;
+  border: 1px dotted #B5AEFF;
+}
+
+.addresses table tbody td {
+  padding: .5rem;
+}
+
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+  .addresses table, .addresses thead, .addresses tbody, .addresses th, .addresses td, .addresses tr {
+    display: block;
+  }
+  .addresses thead tr {
+    display: none;
+  }
+  .addresses tr {
+    margin: 0 0 1rem 0;
+  }
+  .addresses tbody td {
+    padding-left: 50%;
+  }
+  .addresses tfoot .collector-cell-power .shadow-text {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 420px) {
+  .addresses tfoot .address-add-input {
+    width: 100%;
+  }
+}
+
+
+.addresses span.status-error-message {
+  margin-left: .5rem;
+}
+
+.addresses .collector-cell-power {
+  text-align: center;
+}
+
+.addresses .collector-cell-actions {
+  margin-right: 1rem;
+}

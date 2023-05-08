@@ -1,0 +1,94 @@
+.link-button {
+  position: relative;
+  display: inline-block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 .4rem;
+  text-align: center;
+  text-decoration: none;
+  outline: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.link-button.primary::before {
+  content: "";
+  position: absolute;
+  top: .4rem;
+  left: -.4rem;
+  height: 3.2rem;
+  width: 100%;
+  border-radius: 3.2rem;
+  background-color: #5e58a5;
+  transition: background-color .3s ease-out;
+}
+
+.link-button:hover {
+  text-decoration: none;
+}
+
+.link-button.primary:hover .link-button-content {
+  background-color: #7d73e2;
+}
+
+.link-button.primary:active .link-button-content {
+  transform: translateX(-.2rem) translateY(.2rem);
+}
+
+.link-button .link-button-content {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 3.2rem;
+  align-items: center;
+  padding: 1.2rem 1.6rem;
+  border: .1rem solid transparent;
+  border-radius: 3.2rem;
+}
+
+.link-button.primary .link-button-content {
+  color: white;
+  background-color: #968cff;
+  border-color: #473e6b;
+  transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
+}
+
+.link-button .link-button-content .external {
+  margin-right: .5rem;
+}
+
+.link-button.secondary {
+  margin: 0;
+  top: .4rem;
+}
+
+.link-button.secondary::before {
+  height: 2.4rem;
+  border-radius: .4rem;
+  background-color: transparent;
+}
+
+.link-button.secondary .link-button-content {
+  font-size: 80%;
+  font-weight: 700;
+  text-transform: uppercase;
+  height: 2.4rem;
+  border-radius: .4rem;
+  padding: 0 .8rem;
+  background-color: white;
+  color: #7c72e2;
+  border: .1rem solid #dddaff;
+  transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
+}
+
+.link-button.secondary:hover .link-button-content {
+  background-color: #968cff;
+  color: white;
+  border-color: #5e58a5;
+}
+
+.link-button .link-button-content .link-button-icon {
+  position: relative;
+  top: 2px;
+  margin-right: .1rem;
+}

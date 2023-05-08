@@ -1,0 +1,58 @@
+.stats {
+  display: inline-block;
+  border: .5rem solid white;
+  border-radius: 1.62rem;
+  margin-top: .4rem;
+}
+
+.stats.highlighted {
+  border-color: #efeeff;
+}
+
+.stats .stats-content {
+  margin: -.5rem;
+  display: flex;
+}
+
+.stat {
+  padding: .5rem 0;
+  border: .5rem solid transparent;
+  border-radius: 1.62rem;
+  align-self: center;
+}
+
+.stat.highlight {
+  padding-left: .5rem;
+  padding-right: .5rem;
+  border-color: #efeeff;
+  background-color: #efeeff;
+}
+
+.stat .stat-content {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  min-width: 60px;
+  gap: .1rem;
+}
+
+.stat .shadow-text {
+  margin: 0 auto;
+}
+
+.stat .stat-name {
+  margin-top: .8rem;
+  background-color: white;
+  padding: 1px 3px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.stat .stat-name-small {
+  margin-top: .5rem;
+}
+
+.stat .stat-name[title] {
+  cursor: help;
+  text-decoration: underline dotted;
+}

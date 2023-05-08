@@ -1,0 +1,58 @@
+.feedback {
+  position: fixed;
+  right: 0;
+  top: 35%;
+  z-index: 101;
+  background-color: orange;
+}
+
+.feedback .feedback-content {
+  display: flex;
+}
+
+.feedback .feedback-ribbon {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: bold;
+  padding: .5rem;
+  cursor: default;
+  display: block;
+}
+
+.feedback .feedback-ribbon:hover {
+  text-decoration: none;
+}
+
+.feedback-form {
+  display: none;
+  padding: .5rem;
+  margin: .5rem .5rem .5rem 0;
+  border-radius: 7px;
+  background-color: white;
+}
+
+.feedback:hover .feedback-form {
+  display: block;
+}
+
+.feedback .feedback-form textarea {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  resize: none;
+  outline: 0;
+  border-width: 0;
+}
+
+.feedback .feedback-form .button {
+  margin: .5rem;
+}
+
+.feedback .feedback-thankyou {
+  padding: 2rem;
+  text-align: center;
+}
+
+.feedback-sent .feedback-form {
+  display: block;
+}

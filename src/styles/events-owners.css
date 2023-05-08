@@ -1,0 +1,26 @@
+.events-owners .in-common-owners {
+  display: flex;
+  flex-direction: row;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+
+.events-owners .in-common-owners ul.owners {
+  list-style-type: none;
+  flex: 0 0 auto;
+  margin-bottom: .5rem;
+}
+
+.events-owners .in-common-owners ul.owners:not(:last-child) {
+  border-right: 1px dotted black;
+  margin-right: .5rem;
+}
+
+.events-owners .in-common-owners ul.owners li {
+  margin: .1rem .1rem .1rem 0;
+  padding: .2rem .4rem;
+}
+
+.events-owners .in-common-owners ul.owners li.owners-item:hover {
+  background-color: #EEE;
+}

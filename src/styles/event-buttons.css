@@ -1,0 +1,19 @@
+.event-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: .5rem;
+}
+
+.event-buttons.right {
+  flex-direction: row-reverse;
+}
+
+.event-buttons.right .view-in-gallery {
+  margin-left: 1rem;
+}
+
+.event-buttons .buttons {
+  display: flex;
+  gap: .5rem;
+}

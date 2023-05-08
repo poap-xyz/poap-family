@@ -1,0 +1,43 @@
+.menu-item {
+  position: relative;
+  text-align: center;
+  margin-top: .2rem;
+}
+
+.menu-button {
+  appearance: none;
+  outline: none;
+  background-color: #eee;
+  padding: .4rem;
+  border: 1px solid transparent;
+  border-radius: 3.25rem;
+  cursor: pointer;
+  width: 2.1rem;
+  height: 2.1rem;
+  overflow: hidden;
+}
+
+.menu-button:hover {
+  background-color: white;
+  border-color: #5e58a5;
+}
+
+.menu-item.active .menu-button {
+  color: white;
+  background: linear-gradient(85deg, #5e58a5 30%, #968cff 100%);
+}
+
+.menu-button-label {
+  font-weight: 700;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.menu-item-content {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  background-color: white;
+  padding: .4rem;
+  border: 1px solid #5e58a5;
+  border-radius: .4rem;
+}

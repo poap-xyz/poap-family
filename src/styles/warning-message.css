@@ -1,0 +1,25 @@
+.warning-message {
+  position: relative;
+  margin: 1rem;
+  display: inline-block;
+}
+
+.warning-message::before {
+  content: "";
+  position: absolute;
+  top: .8rem;
+  left: -.6rem;
+  height: 100%;
+  width: 100%;
+  border-radius: 3.2rem;
+  background-color: gray;
+  opacity: .25;
+}
+
+.warning-message-content {
+  position: relative;
+  background-color: #F4E2A1;
+  border: 1px solid #D4BE74;
+  padding: 1.5rem;
+  border-radius: 3.2rem;
+}

@@ -1,0 +1,19 @@
+.button-close {
+  margin-left: .5rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  padding: .1rem;
+}
+
+.button-close svg {
+  position: relative;
+  top: 2px;
+  text-align: center;
+}
+
+.button-close:hover {
+  background-color: #eee;
+  border-color: black;
+  cursor: pointer;
+}

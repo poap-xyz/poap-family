@@ -1,0 +1,42 @@
+.token-image-zoom-in-button {
+  appearance: none;
+  outline: none;
+  border-width: 0;
+  background-color: transparent;
+  cursor: zoom-in;
+}
+
+.token-image-zoom-out-button {
+  appearance: none;
+  outline: none;
+  border-width: 0;
+  background-color: transparent;
+  cursor: zoom-out;
+}
+
+.token-image-zoom-modal {
+  height: 100%;
+}
+
+.token-image-zoom-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.token-image-zoom-container .button-close {
+  position: absolute;
+  top: 12px;
+  right: 24px;
+}
+
+.token-image-zoom-loading .loading {
+  position: absolute;
+  top: 256px;
+  left: 256px;
+}
+
+.token-image-zoom-error .error-message {
+  margin: 0 auto;
+}

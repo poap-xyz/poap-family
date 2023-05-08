@@ -1,0 +1,32 @@
+.drop-lists {
+  display: flex;
+}
+
+.footer {
+  display: flex;
+  gap: .5rem;
+  margin: 1rem;
+  justify-content: center;
+}
+
+.footer .dot {
+  display: inline;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.footer .version {
+  color: #a1a1a1;
+}
+
+.footer .link, .footer .text {
+  font-size: 12px;
+}
+
+.footer .link, .footer .link:active {
+  color: blue;
+}
+
+.footer .link:hover {
+  text-decoration: underline;
+}

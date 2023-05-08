@@ -1,0 +1,105 @@
+.loading {
+  position: relative;
+}
+
+.loading .show-details {
+  appearance: none;
+  outline: none;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  font-size: 15px;
+  border-width: 0;
+}
+
+.loading.big .loading-inner {
+  margin: 2rem;
+}
+
+.loading .progress, .loading .count {
+  z-index: 5;
+  display: block;
+  position: absolute;
+  top: 30px;
+  text-align: center;
+  width: 100%;
+  margin-left: 4px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.loading .total {
+  z-index: 5;
+  display: block;
+  position: absolute;
+  top: 48px;
+  text-align: center;
+  width: 100%;
+  margin-left: 4px;
+  text-decoration: overline;
+}
+
+.loading .details {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -50%;
+}
+
+.loading .details .eta, .loading .details .rate {
+  white-space: nowrap;
+  display: block;
+  text-align: center;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  transform: translateX(-6px) translateY(-6px);
+}
+
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #473E6B;
+  border-color: #473E6B transparent #473E6B transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading.small {
+  margin: 0;
+}
+
+.loading.small .count {
+  top: 10px;
+}
+
+.loading.small .total {
+  top: 18px;
+}
+
+.loading.small .lds-dual-ring {
+  width: 30px;
+  height: 30px;
+}
+
+.loading.small .lds-dual-ring:after {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}

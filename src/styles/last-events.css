@@ -1,0 +1,9 @@
+.last-events {
+  padding: .1rem;
+}
+
+.last-events .button-refresh {
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+}

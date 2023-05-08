@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'Rubik';
+  src: local('Rubik Regular'), url('../fonts/Rubik-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Rubik';
+  src: local('Rubik Regular Italic'), url('../fonts/Rubik-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Rubik';
+  src: local('Rubik Bold'), url('../fonts/Rubik-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Rubik Mono One';
+  src: local('Rubik Mono One Regular'), url('../fonts/RubikMonoOne-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Share Tech Mono';
+  src: local('Share Tech Mono Regular'), url('../fonts/ShareTechMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}

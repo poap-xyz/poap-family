@@ -1,0 +1,72 @@
+.events {
+  display: flex;
+  flex-direction: column;
+}
+
+.events table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 .5rem;
+}
+
+.events table thead .event-head {
+  text-align: left;
+}
+
+.events table thead .event-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .25rem;
+  padding-right: 3rem;
+}
+
+.events table tbody tr {
+  outline: thin dotted;
+  border: 1px dotted #B5AEFF;
+}
+
+.events table tbody td {
+  padding: .5rem;
+}
+
+.event-cell-info {
+  display: flex;
+}
+
+.event-cell-info .event-data {
+  margin-left: 1rem;
+}
+
+.events span.status-error-message {
+  margin-left: .5rem;
+}
+
+.events p.status-error-message {
+  margin-top: .2rem;
+  margin-bottom: .2rem;
+  color: #e6698c;
+}
+
+.events p.status-cached-ts {
+  white-space: nowrap;
+}
+
+.event-cell-owners {
+  text-align: center;
+}
+
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+  .events table, .events thead, .events tbody, .events th, .events td, .events tr {
+    display: block;
+  }
+  .events thead tr {
+    display: none;
+  }
+  .events tr {
+    margin: 0 0 1rem 0;
+  }
+  .events td {
+    padding-left: 50%;
+  }
+}

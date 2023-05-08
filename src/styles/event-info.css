@@ -1,0 +1,11 @@
+.event-info {
+  display: flex;
+}
+
+.event-info .event-data {
+  margin-left: 1rem;
+}
+
+.event-info .event-buttons {
+  margin-top: .4rem;
+}

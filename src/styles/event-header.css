@@ -1,0 +1,16 @@
+.event-header {
+  display: flex;
+  gap: .5rem;
+}
+
+.event-header .event-id {
+  font-weight: bold;
+  line-height: 1.6;
+}
+
+.event-header h2 {
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

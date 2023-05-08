@@ -1,0 +1,15 @@
+.owner {
+  display: flex;
+  gap: .5rem;
+}
+
+.owner .owner-name {
+  flex-grow: 1;
+  width: 22.5rem;
+}
+
+.owner-event-empty {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}

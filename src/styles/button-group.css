@@ -1,0 +1,16 @@
+.button-group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: .5rem;
+}
+
+.button-group.right {
+  flex-direction: row-reverse;
+}
+
+.button-group .button-expand a {
+  position: relative;
+  top: 0;
+}

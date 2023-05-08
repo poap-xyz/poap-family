@@ -1,0 +1,45 @@
+.shadow-text {
+  display: flex;
+}
+
+.shadow-text .shadow-text-content.grow {
+  flex-grow: 1;
+}
+
+.shadow-text .shadow-text-content.small {
+  font-size: 3.4rem;
+  letter-spacing: -.3rem;
+}
+
+.shadow-text .shadow-text-content {
+  margin-top: -.5rem;
+  position: relative;
+  font-size: 4.8rem;
+  line-height: 1;
+  letter-spacing: -.4rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.shadow-text .shadow-text-content.small .shadow {
+  transform: translate(-.2rem, .3rem);
+}
+
+.shadow-text .shadow-text-content.small .text {
+  stroke-width: .35rem;
+}
+
+.shadow-text .shadow-text-content .shadow {
+  position: absolute;
+  user-select: none;
+  transform: translate(-.3rem, .5rem);
+  color: #473e6b;
+}
+
+.shadow-text .shadow-text-content .text {
+  position: relative;
+  display: inline-block;
+  stroke: #5e58a5;
+  stroke-width: .5rem;
+  color: #eac9f8;
+}

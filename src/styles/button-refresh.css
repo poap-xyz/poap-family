@@ -1,0 +1,32 @@
+.button-refresh button {
+  appearance: none;
+  outline: none;
+  background-color: transparent;
+  border-width: 0;
+  padding-inline: 0;
+}
+
+.button-refresh button svg {
+  stroke: black;
+}
+
+.button-refresh button.active svg {
+  animation: rotating 2s linear infinite;
+}
+
+.button-refresh button.inactive {
+  cursor: pointer;
+}
+
+.button-refresh button.inactive:hover svg {
+  stroke: rebeccapurple;
+}
+
+@keyframes rotating {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,57 @@
+.progress {
+  display: inline-block;
+  line-height: 2;
+}
+.progress.block {
+  display: flex;
+  align-items: center;
+}
+
+.progress .progress-inline {
+  white-space: nowrap;
+}
+
+.progress progress[value] {
+  display: inline-block;
+}
+.progress progress[value]::-webkit-progress-bar {
+  background-color: #473e6b;
+  width: 100%;
+}
+.progress progress[value] {
+  background-color: #473e6b;
+}
+.progress progress[value]::-webkit-progress-value {
+  background-color: #7d73e2 !important;
+}
+.progress progress[value]::-moz-progress-bar {
+  background-color: #7d73e2 !important;
+}
+.progress progress[value] {
+  accent-color: #473e6b;
+  color: #7d73e2;
+  appearance: none;
+  border-radius: 7px;
+}
+
+.progress .progress-values, .progress .progress-percent {
+  margin-left: .1rem;
+}
+
+.progress .progress-percent {
+  margin-bottom: .25rem;
+}
+
+.progress .show-details {
+  appearance: none;
+  outline: none;
+  background-color: white;
+  color: black;
+  font-size: 13px;
+  border-width: 0;
+}
+
+.progress .details .eta, .progress .details .rate {
+  white-space: nowrap;
+  display: block;
+}

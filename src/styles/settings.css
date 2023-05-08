@@ -1,0 +1,16 @@
+.setting {
+  margin: .5rem;
+  display: table;
+  width: 100%;
+}
+
+.setting .label {
+  display: table-cell;
+  padding-right: 1rem;
+  vertical-align: middle;
+  min-width: 12rem;
+}
+
+.setting .input {
+  text-align: right;
+}

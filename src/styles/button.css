@@ -1,0 +1,80 @@
+.button {
+  position: relative;
+  border-width: 0;
+  background-color: white;
+  display: inline-block;
+}
+
+.button.primary::before {
+  content: "";
+  position: absolute;
+  top: .4rem;
+  left: -.4rem;
+  height: 2.4rem;
+  width: 100%;
+  border-radius: .4rem;
+  background-color: #5e58a5;
+  transition: background-color .3s ease-out;
+}
+
+.button.primary .button-content {
+  background-color: #968cff;
+  color: white;
+  border-color: #5e58a5;
+}
+
+.button.primary:hover .button-content {
+  background-color: #7d73e2;
+}
+
+.button.secondary:hover .button-content {
+  background-color: #968cff;
+  color: white;
+  border-color: #5e58a5;
+}
+
+.button.active .button-content {
+  background-color: #968cff;
+  color: white;
+  font-weight: 700;
+  border-color: #5e58a5;
+}
+
+.button.disabled .button-content, .button.disabled:hover .button-content {
+  background-color: #f5f4ff;
+  border-color: #dddaff;
+  color: lightslategray;
+  opacity: .8;
+  cursor: default;
+}
+
+.button.primary.disabled::before {
+  content: unset;
+}
+
+.button .button-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2.4rem;
+  border-radius: .4rem;
+  padding: 0 .8rem;
+  cursor: pointer;
+  background-color: white;
+  color: #7c72e2;
+  border: .1rem solid #dddaff;
+  font-weight: 700;
+  transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
+  text-transform: uppercase;
+}
+
+.button.borderless .button-content {
+  border-color: transparent;
+}
+
+.button .button-content .button-content-icon {
+  position: relative;
+  top: 2px;
+  margin-right: .1rem;
+}

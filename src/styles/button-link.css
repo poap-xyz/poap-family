@@ -1,0 +1,10 @@
+.button-link {
+  background-color: transparent;
+  border-width: 0;
+  color: blue;
+  cursor: pointer;
+}
+
+.button-link:hover {
+  text-decoration: underline;
+}
