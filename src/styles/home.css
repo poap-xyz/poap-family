@@ -15,8 +15,12 @@
   line-height: 1;
 }
 
-.footer .version {
+.footer .version, .footer .version a {
   color: #a1a1a1;
+}
+.footer .version a:hover {
+  color: #666;
+  text-decoration: none;
 }
 
 .footer .link, .footer .text {
