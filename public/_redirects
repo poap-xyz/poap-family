@@ -1,2 +1,4 @@
+/event/*		/.netlify/functions/renderEvent/:route		200!
+/events/*		/.netlify/functions/renderEvents/:route		200!
 /faq	https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc		301
 /*		/index.html		200
