@@ -70,3 +70,7 @@
     padding-left: 50%;
   }
 }
+
+.events .in-common .active-events {
+  top: 100%;
+}
