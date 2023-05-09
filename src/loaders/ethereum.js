@@ -41,11 +41,16 @@ async function resolveEnsNames(addresses, limit = 300) {
   const resolvedAddresses = {}
   for (let i = 0; i < addresses.length; i += limit) {
     const chunk = addresses.slice(i, i + limit)
-    const names = await ensReverseRecordsContract.getNames(chunk)
-    for (let i = 0; i < names.length; i++) {
-      if (names[i] !== '') {
-        resolvedAddresses[chunk[i]] = names[i]
+    try {
+      const names = await ensReverseRecordsContract.getNames(chunk)
+      for (let i = 0; i < names.length; i++) {
+        if (names[i] !== '') {
+          resolvedAddresses[chunk[i]] = names[i]
+        }
       }
+    } catch (err) {
+      i = i - limit + 1
+      continue
     }
   }
   return resolvedAddresses
