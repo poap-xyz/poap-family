@@ -369,9 +369,12 @@ async function getFeedback(passphrase, page = 1, qty = 3) {
   }
 }
 
-async function delFeedback(id) {
+async function delFeedback(id, passphrase) {
   const response = await fetch(`${FAMILY_API_URL}/feedback/${id}`, {
     method: 'DELETE',
+    headers: {
+      'x-api-key': passphrase,
+    },
   })
   if (response.status !== 200) {
     throw new Error(`Feedback delete failed (status ${response.status})`)
