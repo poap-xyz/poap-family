@@ -85,7 +85,7 @@ function FeedbackList({ qty = 10 }) {
       }
       return newFeedback
     })
-    delFeedback(id).then(
+    delFeedback(id, passphrase).then(
       () => {},
       (err) => {
         setError(err)
