@@ -28,6 +28,10 @@
   border-color: #5e58a5;
 }
 
+.menu-link:hover {
+  text-decoration: none;
+}
+
 .menu-item.active .menu-button, .menu-item.active .menu-link {
   color: white;
   background: linear-gradient(85deg, #5e58a5 30%, #968cff 100%);
@@ -35,7 +39,7 @@
 
 .menu-button-label, .menu-link-label {
   font-weight: 700;
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: 'Rubik Mono One', monospace;
 }
 
 .menu-item-content {
