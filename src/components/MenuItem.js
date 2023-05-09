@@ -8,9 +8,10 @@ function MenuItem({
   title,
   href,
   to,
-  children,
   opened = false,
-  onClick = () => {},
+  onClick,
+  children,
+  ...props
 }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(opened)
@@ -20,9 +21,8 @@ function MenuItem({
     if (children) {
       setOpen((o) => !o)
     }
-    onClick()
-    if (href) {
-      window.location.href = href
+    if (onClick) {
+      onClick()
     }
     if (to) {
       navigate(to)
@@ -31,11 +31,19 @@ function MenuItem({
 
   return (
     <div className={`menu-item${open ? ' active' : ''}`}>
-      <button className="menu-button" onClick={handleClick}>
+      {href && !to && !onClick && !children ? (
+        <a href={href} className="menu-link" {...props}>
         {icon
-          ? <span className="menu-button-icon" title={title ?? label}>{icon}</span>
-          : <span className="menu-button-label" title={title}>{label}</span>}
-      </button>
+          ? <span className="menu-link-icon" title={title ?? label}>{icon}</span>
+          : <span className="menu-link-label" title={title}>{label}</span>}
+        </a>
+      ) : (
+        <button className="menu-button" onClick={handleClick} {...props}>
+          {icon
+            ? <span className="menu-button-icon" title={title ?? label}>{icon}</span>
+            : <span className="menu-button-label" title={title}>{label}</span>}
+        </button>
+      )}
       {children && (
         <div className="menu-item-content" style={{ display: open ? 'block' : 'none' }}>
           {children}
