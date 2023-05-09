@@ -14,6 +14,10 @@
   right: 1rem;
 }
 
+.page-content {
+  flex-grow: 1;
+}
+
 .corner-bg {
   position: absolute;
   right: 0;
