@@ -4,7 +4,8 @@
   margin-top: .2rem;
 }
 
-.menu-button {
+.menu-button, .menu-link {
+  display: inline-block;
   appearance: none;
   outline: none;
   background-color: #eee;
@@ -15,19 +16,24 @@
   width: 2.1rem;
   height: 2.1rem;
   overflow: hidden;
+  font-size: 80%;
 }
 
-.menu-button:hover {
+.menu-button, .menu-link {
+  color: black;
+}
+
+.menu-button:hover, .menu-link:hover {
   background-color: white;
   border-color: #5e58a5;
 }
 
-.menu-item.active .menu-button {
+.menu-item.active .menu-button, .menu-item.active .menu-link {
   color: white;
   background: linear-gradient(85deg, #5e58a5 30%, #968cff 100%);
 }
 
-.menu-button-label {
+.menu-button-label, .menu-link-label {
   font-weight: 700;
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

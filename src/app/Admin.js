@@ -1,5 +1,6 @@
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
+import { HTMLContext } from '../stores/html'
 import { AdminContext } from '../stores/admin'
 import CenterPage from '../components/CenterPage'
 import Card from '../components/Card'
@@ -9,7 +10,15 @@ import Loading from '../components/Loading'
 import ButtonLink from '../components/ButtonLink'
 
 function Admin() {
+  const { setTitle } = useContext(HTMLContext)
   const { authenticate, authenticated, passphrase, error, loading, reset } = useContext(AdminContext)
+
+  useEffect(
+    () => {
+      setTitle('Enter Admin Passphrase')
+    },
+    [setTitle]
+  )
 
   if (!passphrase) {
     return (
