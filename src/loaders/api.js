@@ -1,11 +1,15 @@
 import axios from 'axios'
-import { FAMILY_API_URL } from '../models/api'
+import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates, Event } from '../models/event'
 
 async function putEventAndOwners(event, owners) {
+  if (!FAMILY_API_KEY) {
+    return
+  }
   const response = await fetch(`${FAMILY_API_URL}/event/${event.id}`, {
     method: 'PUT',
     headers: {
+      'x-api-key': FAMILY_API_KEY,
       'content-type': 'application/json',
     },
     body: JSON.stringify({ event, owners }),
@@ -16,7 +20,14 @@ async function putEventAndOwners(event, owners) {
 }
 
 async function getEventAndOwners(eventId, includeMetrics = true) {
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}`)
+  if (!FAMILY_API_KEY) {
+    return null
+  }
+  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}`, {
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
+  })
   if (response.status === 404) {
     return null
   }
@@ -72,9 +83,13 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
 }
 
 async function patchEvents(events) {
+  if (!FAMILY_API_KEY) {
+    return
+  }
   const response = await fetch(`${FAMILY_API_URL}/events`, {
     method: 'PATCH',
     headers: {
+      'x-api-key': FAMILY_API_KEY,
       'content-type': 'application/json',
     },
     body: JSON.stringify(events),
@@ -85,9 +100,13 @@ async function patchEvents(events) {
 }
 
 async function putEventInCommon(eventId, inCommon) {
+  if (!FAMILY_API_KEY) {
+    return
+  }
   const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
     method: 'PUT',
     headers: {
+      'x-api-key': FAMILY_API_KEY,
       'content-type': 'application/json',
     },
     body: JSON.stringify(inCommon),
@@ -98,8 +117,14 @@ async function putEventInCommon(eventId, inCommon) {
 }
 
 async function getInCommonEvents(eventId, abortSignal) {
+  if (!FAMILY_API_KEY) {
+    return null
+  }
   const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
   })
   if (response.status === 404) {
     return null
@@ -128,10 +153,16 @@ async function getInCommonEvents(eventId, abortSignal) {
 }
 
 async function getInCommonEventsWithProgress(eventId, abortSignal, onProgress) {
+  if (!FAMILY_API_KEY) {
+    return null
+  }
   try {
     const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
       signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
       onDownloadProgress: onProgress,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
     })
     if (response.status === 404) {
       return null
@@ -168,7 +199,14 @@ async function getInCommonEventsWithProgress(eventId, abortSignal, onProgress) {
 }
 
 async function getLastEvents(page = 1, qty = 3) {
-  const response = await fetch(`${FAMILY_API_URL}/events/last?page=${encodeURIComponent(page)}&qty=${encodeURIComponent(qty)}`)
+  if (!FAMILY_API_KEY) {
+    return null
+  }
+  const response = await fetch(`${FAMILY_API_URL}/events/last?page=${encodeURIComponent(page)}&qty=${encodeURIComponent(qty)}`, {
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
+  })
   if (response.status !== 200) {
     throw new Error(`Last events failed to fetch (status ${response.status})`)
   }
@@ -189,7 +227,14 @@ async function getLastEvents(page = 1, qty = 3) {
 }
 
 async function getEvents(eventIds) {
-  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`)
+  if (!FAMILY_API_KEY) {
+    return null
+  }
+  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`, {
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
+  })
   if (response.status === 404) {
     return null
   }
@@ -216,13 +261,16 @@ async function getEvents(eventIds) {
 }
 
 async function getEventsOwners(eventIds, abortSignal, expiryDates) {
+  if (!FAMILY_API_KEY) {
+    return null
+  }
   const queryString = expiryDates ? encodeExpiryDates(expiryDates) : ''
-  const response = await fetch(
-    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners${queryString ? `?${queryString}` : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    }
-  )
+  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners${queryString ? `?${queryString}` : ''}`, {
+    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
+  })
   if (response.status === 404) {
     return null
   }
@@ -249,9 +297,13 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
 }
 
 async function putEventOwners(eventId, owners) {
+  if (!FAMILY_API_KEY) {
+    return
+  }
   const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/owners`, {
     method: 'PUT',
     headers: {
+      'x-api-key': FAMILY_API_KEY,
       'content-type': 'application/json',
     },
     body: JSON.stringify(owners),
@@ -262,8 +314,14 @@ async function putEventOwners(eventId, owners) {
 }
 
 async function getEventMetrics(eventId, abortSignal, refresh = false) {
+  if (!FAMILY_API_KEY) {
+    throw new Error(`Event ${eventId} metrics could not be fetched, configure Family API key`)
+  }
   const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/metrics?refresh=${encodeURIComponent(refresh)}`, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
   })
   if (response.status === 404) {
     return null
@@ -291,8 +349,14 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
 }
 
 async function getEventsMetrics(eventIds, abortSignal) {
+  if (!FAMILY_API_KEY) {
+    throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
+  }
   const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+    headers: {
+      'x-api-key': FAMILY_API_KEY,
+    },
   })
   if (response.status === 404) {
     return null
