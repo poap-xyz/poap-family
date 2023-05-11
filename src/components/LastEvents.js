@@ -40,7 +40,7 @@ function LastEvents({ currentPage = 1, onPageChange = (page) => {}, qty = 3, sho
           setLoading(false)
         },
         (err) => {
-          const error = new Error('Cache server down')
+          const error = new Error('Unavailable')
           error.reason = err
           console.error(err)
           setError(error)
@@ -73,7 +73,7 @@ function LastEvents({ currentPage = 1, onPageChange = (page) => {}, qty = 3, sho
                   setLoading(false)
                 },
                 (err) => {
-                  const error = new Error('Cache server down')
+                  const error = new Error('Unavailable')
                   error.reason = err
                   console.error(err)
                   setError(error)
