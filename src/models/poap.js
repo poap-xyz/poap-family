@@ -15,4 +15,12 @@ function POAP(poap) {
   }
 }
 
-export { POAP_FETCH_RETRIES, POAP_API_URL, POAP_API_KEY, POAP }
+const POAP_SCAN_URL = 'https://app.poap.xyz/scan'
+
+export {
+  POAP_FETCH_RETRIES,
+  POAP_API_URL,
+  POAP_API_KEY,
+  POAP,
+  POAP_SCAN_URL,
+}

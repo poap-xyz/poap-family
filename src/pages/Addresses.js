@@ -4,7 +4,7 @@ import { formatStat } from '../utils/number'
 import { parseAddress, parseAddresses } from '../models/address'
 import { parseEventIds } from '../models/event'
 import { HTMLContext } from '../stores/html'
-import { EnsContext, ReverseEnsContext } from '../stores/ethereum'
+import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
 import { getEventsOwners } from '../loaders/api'
 import AddressesForm from '../components/AddressesForm'
@@ -35,7 +35,7 @@ function Addresses() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { resolveAddress, addresses: addressByEnsName } = useContext(EnsContext)
+  const { resolveAddress, addresses: addressByEnsName } = useContext(ResolverEnsContext)
   const { resolveEnsNames, setEnsName, ensNames, isNotFound } = useContext(ReverseEnsContext)
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState(STATE_INIT_PARSING)

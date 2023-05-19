@@ -1,23 +1,20 @@
-import { useContext } from 'react'
-import { ReverseEnsContext } from '../stores/ethereum'
+import { POAP_SCAN_URL } from '../models/poap'
+import POAP_Stamp from '../images/POAP_Stamp.svg'
 import TokenImage from './TokenImage'
+import ButtonAddressProfile from './ButtonAddressProfile'
 import '../styles/owner.css'
 
-function AddressOwner({ owner, ownerEvents, eventIds, linkToScan = true }) {
-  const { ensNames } = useContext(ReverseEnsContext)
-
+function AddressOwner({ owner, ownerEvents, eventIds, linkToScan = false }) {
   return (
     <div className="owner">
       <div className="owner-name">
-        {linkToScan
-          ? (
-            <a href={`https://app.poap.xyz/scan/${owner}`}>
-              {owner in ensNames ? <span className="ens" title={owner}>{ensNames[owner]}</span> : <code>{owner}</code>}
-            </a>
-          )
-          : (owner in ensNames ? <span className="ens" title={owner}>{ensNames[owner]}</span> : <code>{owner}</code>)
-        }
+        <ButtonAddressProfile address={owner} />
       </div>
+      {linkToScan && (
+        <a className="owner-scan" href={`${POAP_SCAN_URL}/${owner}`} target="_blank" rel="noopener noreferrer">
+          <img src={POAP_Stamp} alt={`Scan ${owner}`} />
+        </a>
+      )}
       {ownerEvents && typeof ownerEvents === 'object' && eventIds && Array.isArray(eventIds) && (
         <div className="owner-events">
           {eventIds.map(

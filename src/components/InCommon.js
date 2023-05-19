@@ -204,7 +204,10 @@ function InCommon({
                         onMouseEnter={() => onOwnerEnter(activeEventId, owner)}
                         onMouseLeave={() => onOwnerLeave(activeEventId, owner)}
                       >
-                        <AddressOwner owner={owner} />
+                        <AddressOwner
+                          owner={owner}
+                          linkToScan={!ownerHighlighted || ownerHighlighted === owner}
+                        />
                       </li>
                     )}
                   </ul>
