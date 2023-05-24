@@ -10,7 +10,7 @@ body, input, button, select, option, textarea {
 }
 
 code, .mono {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'Space Mono', monospace;
 }
 
 html, body, #root, .app {
