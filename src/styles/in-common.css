@@ -1,3 +1,7 @@
+.in-common {
+  width: 100%;
+}
+
 .in-common .event-button {
   background: transparent;
   border-width: 0;
