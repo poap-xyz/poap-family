@@ -2,21 +2,14 @@ import { Link } from 'react-router-dom'
 import TokenImage from './TokenImage'
 import '../styles/event-header.css'
 
-function EventHeader({ event, linkToEvent = false }) {
+function EventHeader({ event, size = 48 }) {
   return (
     <div className="event-header">
       <div className="event-header-image">
-        {linkToEvent
-          ? (
-            <Link to={`/event/${event.id}`}>
-              <TokenImage event={event} size={48} resize={true} />
-            </Link>
-          )
-          : <TokenImage event={event} size={48} resize={true} />
-        }
+        <TokenImage event={event} size={size} resize={true} />
       </div>
       <div className="event-header-info">
-        <div className="event-id">#{event.id}</div>
+        <Link className="event-id">#{event.id}</Link>
         <h2 title={event.name}>{event.name}</h2>
       </div>
     </div>
