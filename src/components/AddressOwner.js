@@ -1,3 +1,6 @@
+import { useContext } from 'react'
+import { SettingsContext } from '../stores/cache'
+import { ReverseEnsContext } from '../stores/ethereum'
 import { POAP_SCAN_URL } from '../models/poap'
 import POAP_Stamp from '../images/POAP_Stamp.svg'
 import TokenImage from './TokenImage'
@@ -11,16 +14,31 @@ function AddressOwner({
   inCommonEventIds = [],
   linkToScan = false,
 }) {
+  const { ensNames } = useContext(ReverseEnsContext)
+  const { settings } = useContext(SettingsContext)
+
   return (
     <div className="owner">
       <div className="owner-name">
-        <ButtonAddressProfile
-          address={address}
-          events={events}
-          inCommonEventIds={inCommonEventIds}
-        />
+        {settings && settings.openProfiles
+          ? (
+            <ButtonAddressProfile
+              address={address}
+              events={events}
+              inCommonEventIds={inCommonEventIds}
+            />
+          )
+          : (
+            <a href={`${POAP_SCAN_URL}/${address}`} target="_blank" rel="noopener noreferrer">
+              {address in ensNames
+                ? <span className="ens" title={address}>{ensNames[address]}</span>
+                : <code>{address}</code>
+              }
+            </a>
+          )
+        }
       </div>
-      {linkToScan && (
+      {linkToScan && (!settings || settings.openProfiles) && (
         <a className="owner-scan" href={`${POAP_SCAN_URL}/${address}`} target="_blank" rel="noopener noreferrer">
           <img src={POAP_Stamp} alt={`Scan ${address}`} />
         </a>
