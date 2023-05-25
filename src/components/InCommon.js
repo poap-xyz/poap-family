@@ -160,6 +160,7 @@ function InCommon({
                     : <EventCount event={events[eventId]} count={addresses.length} size={64} />
                   }
                 </button>
+                <Link to={`/event/${eventId}`} className="event-id">#{eventId}</Link>
               </div>
             )
           )}
