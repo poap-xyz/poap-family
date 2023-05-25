@@ -73,6 +73,7 @@ function EventsOwners({
                         address={address}
                         events={events}
                         eventIds={Object.keys(owners)}
+                        ownerEventIds={eventIds}
                         inCommonEventIds={getAddressInCommonEventIds(inCommonEntries, address)}
                         linkToScan={false}
                       />
