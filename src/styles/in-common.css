@@ -31,7 +31,7 @@
 .in-common .active-events {
   display: flex;
   overflow-x: auto;
-  position: absolute;
+  /* position: absolute; */
   left: 0;
   right: 0;
 }
