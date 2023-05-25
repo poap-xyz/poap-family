@@ -30,11 +30,10 @@
 @media only screen and (min-width: 1024px) {
   .page-aside {
     position: inherit;
-    margin-top: .5rem;
-    margin-right: 1rem;
+    margin: .5rem 1rem 0 0;
   }
   .page-content {
-    width: calc(100% - 4.2rem);
+    width: calc(100% - 5.2rem);
   }
   .logo-menu-card {
     background-color: transparent !important;
