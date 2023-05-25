@@ -129,12 +129,14 @@ function FeedbackList({ qty = 10 }) {
             </ul>
           )}
           {error && <ErrorMessage style={{ marginTop: '1rem' }}>{error.message ?? 'Unknown error'}</ErrorMessage>}
-          {pages > 1 && <Pagination
-            page={page}
-            pages={pages}
-            total={total}
-            onPage={onPageChange}
-          />}
+          {pages > 1 && (
+            <Pagination
+              page={page}
+              pages={pages}
+              total={total}
+              onPage={onPageChange}
+            />
+          )}
         </Card>
       </div>
     </Page>

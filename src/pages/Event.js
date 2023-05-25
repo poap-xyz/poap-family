@@ -319,7 +319,9 @@ function Event() {
                       eta={loadedProgress.estimated}
                       rate={loadedProgress.rate}
                     />
-                  : <Loading />)}
+                  : <Loading />
+                )
+              }
               <AddressErrorList errors={errors} onRetry={retryAddress} />
             </Card>
           :

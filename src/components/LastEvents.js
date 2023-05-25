@@ -84,10 +84,12 @@ function LastEvents({ currentPage = 1, onPageChange = (page) => {}, qty = 3, sho
           />
         )}
         {loading && <Loading />}
-        {cachedEvents.length > 0 && !loading && <CachedEventList
-          cachedEvents={cachedEvents}
-          showClear={false}
-        />}
+        {cachedEvents.length > 0 && !loading && (
+          <CachedEventList
+            cachedEvents={cachedEvents}
+            showClear={false}
+          />
+        )}
         {error &&
           <ErrorMessage style={{ marginTop: '1rem' }}>
             <span title={error.reason ? `${error.reason}` : undefined}>
@@ -95,15 +97,17 @@ function LastEvents({ currentPage = 1, onPageChange = (page) => {}, qty = 3, sho
             </span>
           </ErrorMessage>
         }
-        {pages > 1 && !loading && <Pagination
-          page={page}
-          pages={pages}
-          total={total}
-          onPage={(newPage) => {
-            setPage(newPage)
-            onPageChange(newPage)
-          }}
-        />}
+        {pages > 1 && !loading && (
+          <Pagination
+            page={page}
+            pages={pages}
+            total={total}
+            onPage={(newPage) => {
+              setPage(newPage)
+              onPageChange(newPage)
+            }}
+          />
+        )}
       </Card>
     </div>
   )

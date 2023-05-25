@@ -48,7 +48,8 @@ function Home() {
                 v{packageJson.version.split('.').slice(0, -1).join('.')}
               </a>
             )
-            : `v${packageJson.version.split('.').slice(0, -1).join('.')}`}
+            : `v${packageJson.version.split('.').slice(0, -1).join('.')}`
+          }
         </span>
       </div>
     </CenterPage>
