@@ -142,20 +142,25 @@ function InCommon({
         <div className={`in-common-events${showAll ? ' show-all' : ''}`}>
           {inCommonEntries.map(
             ([eventId, addresses]) => (
-              <button
-                key={eventId}
-                className={`event-button${activeEventIds.indexOf(eventId) !== -1 ? ' selected' : ''}${showCount > 0 && showCount === addresses.length ? ' perfect' : ''}`}
-                onClick={() => toggleActiveEventId(eventId)}
+              <div
+                className={`in-common-event${activeEventIds.indexOf(eventId) !== -1 ? ' selected' : ''}${showCount > 0 && showCount === addresses.length ? ' perfect' : ''}`}
+                title={events[eventId].name}
               >
-                {showCount > 0 && showCount === addresses.length
-                  ? (
-                    <div className="event-image">
-                      <TokenImage event={events[eventId]} size={64} />
-                    </div>
-                  )
-                  : <EventCount event={events[eventId]} count={addresses.length} />
-                }
-              </button>
+                <button
+                  key={eventId}
+                  className="event-button"
+                  onClick={() => toggleActiveEventId(eventId)}
+                >
+                  {showCount > 0 && showCount === addresses.length
+                    ? (
+                      <div className="event-image">
+                        <TokenImage event={events[eventId]} size={64} />
+                      </div>
+                    )
+                    : <EventCount event={events[eventId]} count={addresses.length} size={64} />
+                  }
+                </button>
+              </div>
             )
           )}
           {hasMore && (
