@@ -1,6 +1,7 @@
 .owner {
   display: flex;
   gap: .5rem;
+  justify-content: space-between;
 }
 
 .owner .owner-name {
@@ -12,4 +13,44 @@
   display: inline-block;
   width: 18px;
   height: 18px;
+}
+
+.owner-scan {
+  width: 16px;
+  height: 16px;
+  background:
+    linear-gradient(to right, #020202 2px, transparent 2px) 0 0,
+    linear-gradient(to right, #020202 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, #020202 2px, transparent 2px) 100% 0,
+    linear-gradient(to left, #020202 2px, transparent 2px) 100% 100%,
+    linear-gradient(to bottom, #020202 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, #020202 2px, transparent 2px) 100% 0,
+    linear-gradient(to top, #020202 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, #020202 2px, transparent 2px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: pointer;
+}
+
+.owner-scan:hover {
+  background:
+    linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 0,
+    linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, #7d73e2 2px, transparent 2px) 100% 0,
+    linear-gradient(to left, #7d73e2 2px, transparent 2px) 100% 100%,
+    linear-gradient(to bottom, #7d73e2 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, #7d73e2 2px, transparent 2px) 100% 0,
+    linear-gradient(to top, #7d73e2 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, #7d73e2 2px, transparent 2px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+}
+
+.owner-scan img {
+  position: relative;
+  top: 1px;
+  left: 1px;
+  margin: 0 auto;
+  width: 14px;
+  height: 14px;
 }

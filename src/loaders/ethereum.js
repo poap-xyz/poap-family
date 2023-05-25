@@ -1,17 +1,16 @@
-import { CloudflareProvider, InfuraProvider } from '@ethersproject/providers'
+import { InfuraProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
-import { INFURA_API_KEY, MAINNET_ENS_REVERSE_RECORDS } from '../models/ethereum'
+import {
+  INFURA_API_KEY,
+  MAINNET_ENS_REVERSE_RECORDS,
+  ENS_REVERSE_RECORDS_BATCH_SIZE,
+  ENS_RESOLVE_MAX_ERRORS,
+} from '../models/ethereum'
 
-function getMainnetProvider() {
-  return new CloudflareProvider('mainnet')
-}
-
-function getMainnetEnsProvider() {
-  return new InfuraProvider('mainnet', INFURA_API_KEY)
-}
-
-function getMainnetEnsReverseRecordsABI() {
-  return [
+const ensProvider = new InfuraProvider('mainnet', INFURA_API_KEY)
+const ensReverseRecordsContract = new Contract(
+  MAINNET_ENS_REVERSE_RECORDS,
+  [
     {
       inputs: [{ internalType: 'contract ENS', name: '_ens', type: 'address' }],
       stateMutability: 'nonpayable',
@@ -24,31 +23,39 @@ function getMainnetEnsReverseRecordsABI() {
       stateMutability: 'view',
       type: 'function',
     },
-  ]
-}
+  ],
+  ensProvider
+)
 
-function getMainnetEnsReverseRecordsContract() {
-  return new Contract(
-    MAINNET_ENS_REVERSE_RECORDS,
-    getMainnetEnsReverseRecordsABI(),
-    getMainnetEnsProvider()
-  )
-}
-
-const ensReverseRecordsContract = getMainnetEnsReverseRecordsContract()
-
-async function resolveEnsNames(addresses, limit = 300) {
+async function resolveEnsNames(
+  addresses,
+  onProgress = (resolved) => {},
+  limit = ENS_REVERSE_RECORDS_BATCH_SIZE,
+  maxErrors = ENS_RESOLVE_MAX_ERRORS,
+) {
   const resolvedAddresses = {}
+  let errorsTotal = 0
   for (let i = 0; i < addresses.length; i += limit) {
     const chunk = addresses.slice(i, i + limit)
     try {
       const names = await ensReverseRecordsContract.getNames(chunk)
+      const resolved = {}
       for (let i = 0; i < names.length; i++) {
         if (names[i] !== '') {
           resolvedAddresses[chunk[i]] = names[i]
+          resolved[chunk[i]] = names[i]
         }
       }
+      if (Object.keys(resolved).length > 0) {
+        onProgress(resolved)
+      }
     } catch (err) {
+      errorsTotal += 1
+      if (errorsTotal > maxErrors) {
+        throw new Error(
+          'Cannot continue retrieving ENS names as the maximum number of error was reached'
+        )
+      }
       i = i - limit + 1
       continue
     }
@@ -56,10 +63,12 @@ async function resolveEnsNames(addresses, limit = 300) {
   return resolvedAddresses
 }
 
-const provider = getMainnetProvider()
-
 async function resolveAddress(ensName) {
-  return await provider.resolveName(ensName)
+  return await ensProvider.resolveName(ensName)
 }
 
-export { resolveEnsNames, resolveAddress }
+async function resolveEnsAvatar(ensName) {
+  return await ensProvider.getAvatar(ensName)
+}
+
+export { resolveEnsNames, resolveAddress, resolveEnsAvatar }

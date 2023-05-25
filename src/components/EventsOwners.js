@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { chunks } from '../utils/array'
+import { getAddressInCommonEventIds } from '../models/in-common'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
 import AddressOwner from './AddressOwner'
@@ -27,6 +28,7 @@ function inverseOwnersSortedEntries(owners) {
 function EventsOwners({
   children,
   owners = {},
+  inCommon = {},
   events = {},
   all = false,
 }) {
@@ -52,6 +54,7 @@ function EventsOwners({
   }
 
   const ownersEntriesChunks = chunks(ownersEntries, 10)
+  const inCommonEntries = Object.entries(inCommon)
 
   return (
     <div className="events-owners">
@@ -67,9 +70,11 @@ function EventsOwners({
                   ([address, eventIds]) => (
                     <li key={address} className="owners-item">
                       <AddressOwner
-                        owner={address}
-                        ownerEvents={eventIds.reduce((ownerEvents, eventId) => ({ ...ownerEvents, [eventId]: events[eventId] }), {})}
+                        address={address}
+                        events={events}
                         eventIds={Object.keys(owners)}
+                        inCommonEventIds={getAddressInCommonEventIds(inCommonEntries, address)}
+                        linkToScan={false}
                       />
                     </li>
                   )

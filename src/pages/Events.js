@@ -292,9 +292,19 @@ function Events() {
               if (newOwners) {
                 setOwners((oldOwners) => ({ ...oldOwners, ...newOwners }))
                 if (Object.keys(newOwners).length === eventIds.length) {
-                  resolveEnsNames([...new Set(
-                    Object.values(newOwners).reduce((allOwners, eventOwners) => ([ ...allOwners, ...eventOwners ]), []),
-                  )])
+                  resolveEnsNames(
+                    [
+                      ...new Set(
+                        Object.values(newOwners).reduce(
+                          (allOwners, eventOwners) => ([
+                            ...allOwners,
+                            ...eventOwners,
+                          ]),
+                          []
+                        ),
+                      ),
+                    ]
+                  )
                   setStatus(STATUS_LOADING_SCANS)
                 } else {
                   setStatus(STATUS_LOADING_OWNERS)
@@ -412,9 +422,16 @@ function Events() {
     () => {
       if (status === STATUS_INITIAL) {
         if (Object.keys(events).length === Object.keys(owners).length) {
-          resolveEnsNames([...new Set(
-            Object.values(owners).reduce((allOwners, eventOwners) => ([ ...allOwners, ...eventOwners ]), []),
-          )])
+          resolveEnsNames(
+            [
+              ...new Set(
+                Object.values(owners).reduce(
+                  (allOwners, eventOwners) => ([ ...allOwners, ...eventOwners ]),
+                  []
+                ),
+              )
+            ]
+          )
           setStatus(STATUS_LOADING_SCANS)
         }
       } else if (status === STATUS_LOADING_OWNERS) {
@@ -583,6 +600,11 @@ function Events() {
     inCommon = mergeEventsInCommon(eventData, searchParams.get('all') === 'true')
   }
 
+  const allEvents = Object.values(eventData).reduce(
+    (allEvents, data) => ({ ...allEvents, ...data.events }),
+    {}
+  )
+
   const refreshCache = () => {
     setSearchParams({ force: true })
     setOwners({})
@@ -737,12 +759,13 @@ function Events() {
           <>
             <EventsOwners
               owners={owners}
-              events={events}
+              inCommon={inCommon}
+              events={allEvents}
               all={searchParams.get('all') === 'true'}
             />
             <InCommon
               inCommon={inCommon}
-              events={Object.values(eventData).reduce((allEvents, data) => ({ ...allEvents, ...data.events }), {})}
+              events={allEvents}
               createButtons={(eventIds) => ([
                 <Button
                   key="add-all"

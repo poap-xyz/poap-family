@@ -16,7 +16,7 @@ import Admin from './Admin'
 import Addresses from '../pages/Addresses'
 import { AdminProvider } from '../stores/admin'
 import { SettingsProvider } from '../stores/cache'
-import { EnsProvider, ReverseEnsProvider } from '../stores/ethereum'
+import { EnsProvider } from '../stores/ethereum'
 import { HTMLProvider } from '../stores/html'
 import '../styles/fonts.css'
 import '../styles/app.css'
@@ -28,67 +28,65 @@ function App() {
         <Analytics>
           <AdminProvider>
             <SettingsProvider>
-              <ReverseEnsProvider>
-                <EnsProvider>
-                  <RouterProvider
-                    router={createBrowserRouter([
-                      {
-                        path: '/',
-                        element: <Root />,
-                        errorElement: <PageError />,
-                        children: [
-                          {
-                            index: true,
-                            element: <Home />,
-                          },
-                          {
-                            path: '/r/event/:eventId',
-                            loader: eventRedirect,
-                          },
-                          {
-                            path: '/event/:eventId',
-                            loader: eventLoader,
-                            element: <Event />,
-                            errorElement: <PageError />,
-                          },
-                          {
-                            path: '/r/events/:eventIds',
-                            loader: eventsRedirect,
-                          },
-                          {
-                            path: '/events/:eventIds',
-                            loader: eventsLoader,
-                            element: <Events />,
-                            errorElement: <EventsPageError />,
-                          },
-                          {
-                            path: '/addresses',
-                            element: <Addresses />,
-                          },
-                          {
-                            path: '/last',
-                            element: <Last />,
-                          },
-                          {
-                            path: '/settings',
-                            element: <Settings />,
-                          },
-                          {
-                            element: <Admin />,
-                            children: [
-                              {
-                                path: '/feedback',
-                                element: <FeedbackList />,
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ])}
-                    fallbackElement={<CenterPage><Loading /></CenterPage>}
-                  />
-                </EnsProvider>
-              </ReverseEnsProvider>
+              <EnsProvider>
+                <RouterProvider
+                  router={createBrowserRouter([
+                    {
+                      path: '/',
+                      element: <Root />,
+                      errorElement: <PageError />,
+                      children: [
+                        {
+                          index: true,
+                          element: <Home />,
+                        },
+                        {
+                          path: '/r/event/:eventId',
+                          loader: eventRedirect,
+                        },
+                        {
+                          path: '/event/:eventId',
+                          loader: eventLoader,
+                          element: <Event />,
+                          errorElement: <PageError />,
+                        },
+                        {
+                          path: '/r/events/:eventIds',
+                          loader: eventsRedirect,
+                        },
+                        {
+                          path: '/events/:eventIds',
+                          loader: eventsLoader,
+                          element: <Events />,
+                          errorElement: <EventsPageError />,
+                        },
+                        {
+                          path: '/addresses',
+                          element: <Addresses />,
+                        },
+                        {
+                          path: '/last',
+                          element: <Last />,
+                        },
+                        {
+                          path: '/settings',
+                          element: <Settings />,
+                        },
+                        {
+                          element: <Admin />,
+                          children: [
+                            {
+                              path: '/feedback',
+                              element: <FeedbackList />,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ])}
+                  fallbackElement={<CenterPage><Loading /></CenterPage>}
+                />
+              </EnsProvider>
             </SettingsProvider>
           </AdminProvider>
         </Analytics>
