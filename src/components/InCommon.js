@@ -182,7 +182,7 @@ function InCommon({
           {activeEventIds.map((activeEventId) =>
             <div className="active-event" key={activeEventId}>
               <Card>
-                <EventHeader event={events[activeEventId]} linkToEvent={true} />
+                <EventHeader event={events[activeEventId]} size={48} />
                 <div className="active-event-actions">
                   {createActiveTopButtons(activeEventId)}
                   <ButtonClose onClose={() => removeActiveEventId(activeEventId)} />
