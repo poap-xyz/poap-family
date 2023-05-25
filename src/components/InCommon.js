@@ -143,11 +143,11 @@ function InCommon({
           {inCommonEntries.map(
             ([eventId, addresses]) => (
               <div
+                key={eventId}
                 className={`in-common-event${activeEventIds.indexOf(eventId) !== -1 ? ' selected' : ''}${showCount > 0 && showCount === addresses.length ? ' perfect' : ''}`}
                 title={events[eventId].name}
               >
                 <button
-                  key={eventId}
                   className="event-button"
                   onClick={() => toggleActiveEventId(eventId)}
                 >
