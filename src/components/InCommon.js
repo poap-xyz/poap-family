@@ -2,7 +2,7 @@ import toColor from '@mapbox/to-color'
 import { createRef, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SettingsContext } from '../stores/cache'
-import { filterAndSortInCommonEntries, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
+import { filterAndSortInCommon, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { intersection } from '../utils/array'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
@@ -32,7 +32,7 @@ function InCommon({
   const [ownerHighlighted, setOwnerHighlighted] = useState(null)
   const [liRefs, setLiRefs] = useState({})
 
-  let inCommonEntries = filterAndSortInCommonEntries(Object.entries(inCommon))
+  let inCommonEntries = filterAndSortInCommon(Object.entries(inCommon))
   let inCommonLimit = INCOMMON_EVENTS_LIMIT
 
   if (showCount > 0) {

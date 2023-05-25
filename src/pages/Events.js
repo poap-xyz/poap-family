@@ -5,7 +5,7 @@ import { HTMLContext } from '../stores/html'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, patchEvents, putEventInCommon, putEventOwners } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
-import { filterAndSortInCommonEntries, mergeEventsInCommon } from '../models/in-common'
+import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
 import { filterCacheEventsByInCommonEventIds, parseEventIds, parseExpiryDates } from '../models/event'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
@@ -441,7 +441,7 @@ function Events() {
             eventsLoaded++
             if (eventId in eventData && !eventData[eventId].ts && !(eventId in errors) && !(eventId in loading)) {
               const inCommonProcessed = Object.fromEntries(
-                filterAndSortInCommonEntries(
+                filterAndSortInCommon(
                   Object.entries(eventData[eventId].inCommon)
                 )
               )
