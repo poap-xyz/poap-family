@@ -11,7 +11,7 @@ import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
 import EventButtons from '../components/EventButtons'
 import Page from '../components/Page'
-import TokenImage from '../components/TokenImage'
+import TokenImageZoom from '../components/TokenImageZoom'
 import Status from '../components/Status'
 import Loading from '../components/Loading'
 import ShadowText from '../components/ShadowText'
@@ -628,7 +628,7 @@ function Events() {
                     <td>
                       <div className="event-cell-info">
                         <div className="event-image">
-                          <TokenImage event={event} size={48} resize={true} />
+                          <TokenImageZoom event={event} zoomSize={512} size={48} />
                           <Link to={`/event/${event.id}`} className="event-id">#{event.id}</Link>
                         </div>
                         <div className="event-data">
