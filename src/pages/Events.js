@@ -639,7 +639,9 @@ function Events() {
                       </div>
                     </td>
                     <td className="event-cell-owners">
-                      {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && <Loading small={true} />}
+                      {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && (
+                        <Loading small={true} />
+                      )}
                       {event.id in owners && (
                         <ShadowText grow={true} small={true}>
                           {formatStat(owners[event.id].length)}
@@ -669,19 +671,25 @@ function Events() {
                       </div>
                     </td>
                     <td>
-                      {event.id in loadedProgress && <Progress
-                        value={loadedProgress[event.id].progress}
-                        max={1}
-                        showPercent={true}
-                        eta={loadedProgress[event.id].estimated}
-                        rate={loadedProgress[event.id].rate}
-                      />}
-                      {event.id in progress && <Progress
-                        value={loadedCount[event.id]}
-                        max={owners[event.id].length}
-                        showValue={loadedCount[event.id] > 0}
-                      />}
-                      {event.id in loading && loading[event.id] === LOADING_CACHING && <Progress />}
+                      {event.id in loadedProgress && (
+                        <Progress
+                          value={loadedProgress[event.id].progress}
+                          max={1}
+                          showPercent={true}
+                          eta={loadedProgress[event.id].estimated}
+                          rate={loadedProgress[event.id].rate}
+                        />
+                      )}
+                      {event.id in progress && (
+                        <Progress
+                          value={loadedCount[event.id]}
+                          max={owners[event.id].length}
+                          showValue={loadedCount[event.id] > 0}
+                        />
+                      )}
+                      {event.id in loading && loading[event.id] === LOADING_CACHING && (
+                        <Progress />
+                      )}
                       {event.id in eventOwnerErrors && Object.entries(eventOwnerErrors[event.id]).map(
                         ([address, error]) => (
                           <p key={address} className="status-error-message">
