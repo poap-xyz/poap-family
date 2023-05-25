@@ -81,11 +81,36 @@ function Events() {
     })
   }
 
+  const removeErrors = (eventId) => {
+    setErrors((alsoErrors) => {
+      const newErrors = {}
+      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
+        if (String(eventId) !== String(errorEventId)) {
+          newErrors[errorEventId] = error
+        }
+      }
+      return newErrors
+    })
+  }
+
+  const removeEventOwnerErrors = (eventId) => {
+    setEventOwnerErrors((alsoErrors) => {
+      const newErrors = {}
+      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
+        if (String(eventId) !== String(errorEventId)) {
+          newErrors[errorEventId] = error
+        }
+      }
+      return newErrors
+    })
+  }
+
   const loadOwners = useCallback(
     (eventId, abortSignal) => {
       if (eventId in owners) {
         return Promise.resolve()
       }
+      removeErrors(eventId)
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
       return fetchPOAPs(eventId, abortSignal).then(
         (eventOwnerTokens) => {
@@ -116,6 +141,7 @@ function Events() {
       if (eventId in owners) {
         return Promise.resolve()
       }
+      removeErrors(eventId)
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
       return Promise.allSettled([
         fetchPOAPs(eventId, abortSignal),
@@ -160,19 +186,30 @@ function Events() {
   )
 
   const processEventAddress = useCallback(
-    (eventId, address, abortSignal) => scanAddress(address, abortSignal).then(
-      (ownerTokens) => {
-        for (const ownerToken of ownerTokens) {
-          const ownerTokenEventId = ownerToken.event.id
-          setEventData((prevEventData) => {
-            if (eventId in prevEventData) {
-              if (ownerTokenEventId in prevEventData[eventId].inCommon) {
-                if (prevEventData[eventId].inCommon[ownerTokenEventId].indexOf(address) === -1) {
+    (eventId, address, abortSignal) => {
+    removeEventOwnerErrors(eventId)
+      return scanAddress(address, abortSignal).then(
+        (ownerTokens) => {
+          for (const ownerToken of ownerTokens) {
+            const ownerTokenEventId = ownerToken.event.id
+            setEventData((prevEventData) => {
+              if (eventId in prevEventData) {
+                if (ownerTokenEventId in prevEventData[eventId].inCommon) {
+                  if (prevEventData[eventId].inCommon[ownerTokenEventId].indexOf(address) === -1) {
+                    return {
+                      ...prevEventData,
+                      [eventId]: {
+                        events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
+                        inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [...prevEventData[eventId].inCommon[ownerTokenEventId], address] },
+                        ts: null,
+                      },
+                    }
+                  }
                   return {
                     ...prevEventData,
                     [eventId]: {
                       events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                      inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [...prevEventData[eventId].inCommon[ownerTokenEventId], address] },
+                      inCommon: prevEventData[eventId].inCommon,
                       ts: null,
                     },
                   }
@@ -181,7 +218,7 @@ function Events() {
                   ...prevEventData,
                   [eventId]: {
                     events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                    inCommon: prevEventData[eventId].inCommon,
+                    inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [address] },
                     ts: null,
                   },
                 }
@@ -189,39 +226,31 @@ function Events() {
               return {
                 ...prevEventData,
                 [eventId]: {
-                  events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                  inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [address] },
+                  events: { [ownerTokenEventId]: ownerToken.event },
+                  inCommon: { [ownerTokenEventId]: [address] },
                   ts: null,
                 },
               }
-            }
-            return {
-              ...prevEventData,
-              [eventId]: {
-                events: { [ownerTokenEventId]: ownerToken.event },
-                inCommon: { [ownerTokenEventId]: [address] },
-                ts: null,
-              },
-            }
-          })
+            })
+          }
+          setLoadedCount((prevLoadedCount) => ({ ...prevLoadedCount, [eventId]: (prevLoadedCount[eventId] ?? 0) + 1 }))
+          return Promise.resolve()
+        },
+        (err) => {
+          setEventOwnerErrors((oldEventOwnerErrors) => ({
+            ...oldEventOwnerErrors,
+            [eventId]: {
+              ...(oldEventOwnerErrors[eventId] ?? {}),
+              [address]: err,
+            },
+          }))
+          if (!err.aborted) {
+            return Promise.reject(err)
+          }
+          return Promise.resolve()
         }
-        setLoadedCount((prevLoadedCount) => ({ ...prevLoadedCount, [eventId]: (prevLoadedCount[eventId] ?? 0) + 1 }))
-        return Promise.resolve()
-      },
-      (err) => {
-        setEventOwnerErrors((oldEventOwnerErrors) => ({
-          ...oldEventOwnerErrors,
-          [eventId]: {
-            ...(oldEventOwnerErrors[eventId] ?? {}),
-            [address]: err,
-          },
-        }))
-        if (!err.aborted) {
-          return Promise.reject(err)
-        }
-        return Promise.resolve()
-      }
-    ),
+      )
+    },
     []
   )
 
@@ -468,6 +497,7 @@ function Events() {
                   eventData[eventId].events,
                   inCommonProcessedEventIds
                 )
+                removeErrors(eventId)
                 setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_CACHING }))
                 Promise
                 .all([
@@ -513,15 +543,7 @@ function Events() {
   )
 
   const retryLoadOwners = (eventId) => {
-    setErrors((prevErrors) => {
-      const newErrors = {}
-      for (const [errorEventId, error] of Object.entries(prevErrors)) {
-        if (String(errorEventId) !== String(eventId)) {
-          newErrors[errorEventId] = error
-        }
-      }
-      return newErrors
-    })
+    removeErrors(eventId)
     loadOwners(eventId)
   }
 
