@@ -34,6 +34,19 @@
   display: flex;
 }
 
+.event-cell-info .event-image {
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 72px;
+}
+
+.event-cell-info .event-id {
+  display: block;
+  cursor: pointer;
+  font-size: 80%;
+  margin: 4px;
+}
+
 .event-cell-info .event-data {
   margin-left: 1rem;
 }

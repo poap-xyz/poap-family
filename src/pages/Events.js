@@ -627,9 +627,10 @@ function Events() {
                   <tr key={event.id}>
                     <td>
                       <div className="event-cell-info">
-                        <Link to={`/event/${event.id}`}>
+                        <div className="event-image">
                           <TokenImage event={event} size={48} resize={true} />
-                        </Link>
+                          <Link to={`/event/${event.id}`} className="event-id">#{event.id}</Link>
+                        </div>
                         <div className="event-data">
                           <h2>{event.name}</h2>
                           <div className="event-date">{event.start_date}</div>
