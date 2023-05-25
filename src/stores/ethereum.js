@@ -32,6 +32,8 @@ function ResolverEnsProvider({ children }) {
       const address = await ethereumResolveAddress(ensName)
       if (address) {
         setAddressByEnsName((oldAddressByEnsName) => ({ ...oldAddressByEnsName, [ensName]: address }))
+      } else {
+        setAddressByEnsName((oldAddressByEnsName) => ({ ...oldAddressByEnsName, [ensName]: null }))
       }
       return address
     },
@@ -45,6 +47,8 @@ function ResolverEnsProvider({ children }) {
       const avatar = await ethereumResolveEnsAvatar(ensName)
       if (avatar) {
         setAvatarByEnsName((oldAvatarByEnsName) => ({ ...oldAvatarByEnsName, [ensName]: avatar }))
+      } else {
+        setAvatarByEnsName((oldAvatarByEnsName) => ({ ...oldAvatarByEnsName, [ensName]: null }))
       }
       return avatar
     },

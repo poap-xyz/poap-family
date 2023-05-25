@@ -10,6 +10,7 @@ import '../styles/button-address-profile.css'
 function ButtonAddressProfile({
   address,
   events = {},
+  inCommonEventIds = [],
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
   const [showModal, setShowModal] = useState(false)
@@ -36,7 +37,11 @@ function ButtonAddressProfile({
         <div className="button-address-profile-container">
           <Card>
             <ButtonClose onClose={() => setShowModal(false)} />
-            <AddressProfile address={address} events={events} />
+            <AddressProfile
+              address={address}
+              events={events}
+              inCommonEventIds={inCommonEventIds}
+            />
           </Card>
         </div>
       </ReactModal>

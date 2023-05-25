@@ -5,13 +5,13 @@ const POAP_FETCH_RETRIES = 5
 const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
 const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY
 
-function POAP(poap) {
+function POAP(token) {
   return {
-    id: poap.id,
+    id: token.tokenId,
     owner: {
-      id: poap.owner.id,
+      id: typeof token.owner === 'object' ? token.owner.id : token.owner,
     },
-    event: !poap.event ? undefined : Event(poap.event),
+    event: !token.event ? undefined : Event(token.event),
   }
 }
 

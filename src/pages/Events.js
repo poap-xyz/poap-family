@@ -600,6 +600,11 @@ function Events() {
     inCommon = mergeEventsInCommon(eventData, searchParams.get('all') === 'true')
   }
 
+  const allEvents = Object.values(eventData).reduce(
+    (allEvents, data) => ({ ...allEvents, ...data.events }),
+    {}
+  )
+
   const refreshCache = () => {
     setSearchParams({ force: true })
     setOwners({})
@@ -754,12 +759,13 @@ function Events() {
           <>
             <EventsOwners
               owners={owners}
-              events={events}
+              inCommon={inCommon}
+              events={allEvents}
               all={searchParams.get('all') === 'true'}
             />
             <InCommon
               inCommon={inCommon}
-              events={Object.values(eventData).reduce((allEvents, data) => ({ ...allEvents, ...data.events }), {})}
+              events={allEvents}
               createButtons={(eventIds) => ([
                 <Button
                   key="add-all"

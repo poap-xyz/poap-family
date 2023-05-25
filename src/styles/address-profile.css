@@ -27,3 +27,13 @@
 .profile-address svg {
   margin-left: .25rem;
 }
+
+.profile-poaps, .profile-in-common {
+  margin-top: 2rem;
+  min-width: 100%;
+  max-width: 32rem;
+}
+
+.profile-poaps img, .profile-in-common img {
+  margin: .1rem;
+}
