@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import TokenImage from './TokenImage'
+import TokenImageZoom from './TokenImageZoom'
 import '../styles/event-header.css'
 
 function EventHeader({ event, size = 48 }) {
   return (
     <div className="event-header">
       <div className="event-header-image">
-        <TokenImage event={event} size={size} resize={true} />
+        <TokenImageZoom event={event} zoomSize={512} size={size} />
       </div>
       <div className="event-header-info">
         <Link className="event-id">#{event.id}</Link>

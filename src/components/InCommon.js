@@ -214,13 +214,6 @@ function InCommon({
                   viewInGallery={true}
                   buttons={createActiveBottomButtons(activeEventId)}
                 />
-                <p>
-                  <small>
-                    Or view{' '}
-                    <Link to={`/event/${activeEventId}`}>in common</Link>
-                    {' '}POAPs.
-                  </small>
-                </p>
               </Card>
             </div>
           )}
