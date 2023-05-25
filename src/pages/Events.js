@@ -5,7 +5,7 @@ import { HTMLContext } from '../stores/html'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, patchEvents, putEventInCommon, putEventOwners } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
-import { filterAndSortInCommonEntries, mergeEventsInCommon } from '../models/in-common'
+import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
 import { filterCacheEventsByInCommonEventIds, parseEventIds, parseExpiryDates } from '../models/event'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
@@ -441,7 +441,7 @@ function Events() {
             eventsLoaded++
             if (eventId in eventData && !eventData[eventId].ts && !(eventId in errors) && !(eventId in loading)) {
               const inCommonProcessed = Object.fromEntries(
-                filterAndSortInCommonEntries(
+                filterAndSortInCommon(
                   Object.entries(eventData[eventId].inCommon)
                 )
               )
@@ -639,7 +639,9 @@ function Events() {
                       </div>
                     </td>
                     <td className="event-cell-owners">
-                      {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && <Loading small={true} />}
+                      {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && (
+                        <Loading small={true} />
+                      )}
                       {event.id in owners && (
                         <ShadowText grow={true} small={true}>
                           {formatStat(owners[event.id].length)}
@@ -669,19 +671,25 @@ function Events() {
                       </div>
                     </td>
                     <td>
-                      {event.id in loadedProgress && <Progress
-                        value={loadedProgress[event.id].progress}
-                        max={1}
-                        showPercent={true}
-                        eta={loadedProgress[event.id].estimated}
-                        rate={loadedProgress[event.id].rate}
-                      />}
-                      {event.id in progress && <Progress
-                        value={loadedCount[event.id]}
-                        max={owners[event.id].length}
-                        showValue={loadedCount[event.id] > 0}
-                      />}
-                      {event.id in loading && loading[event.id] === LOADING_CACHING && <Progress />}
+                      {event.id in loadedProgress && (
+                        <Progress
+                          value={loadedProgress[event.id].progress}
+                          max={1}
+                          showPercent={true}
+                          eta={loadedProgress[event.id].estimated}
+                          rate={loadedProgress[event.id].rate}
+                        />
+                      )}
+                      {event.id in progress && (
+                        <Progress
+                          value={loadedCount[event.id]}
+                          max={owners[event.id].length}
+                          showValue={loadedCount[event.id] > 0}
+                        />
+                      )}
+                      {event.id in loading && loading[event.id] === LOADING_CACHING && (
+                        <Progress />
+                      )}
                       {event.id in eventOwnerErrors && Object.entries(eventOwnerErrors[event.id]).map(
                         ([address, error]) => (
                           <p key={address} className="status-error-message">

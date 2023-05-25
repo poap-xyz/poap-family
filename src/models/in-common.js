@@ -1,6 +1,6 @@
 import { equals, intersection } from '../utils/array'
 
-function filterAndSortInCommonEntries(inCommonEntries) {
+function filterAndSortInCommon(inCommonEntries) {
   let entries = inCommonEntries.filter(([eventId, addresses]) => addresses.length > 1)
   entries.sort(
     ([aEventId, aAddresses], [bEventId, bAddresses]) => bAddresses.length - aAddresses.length
@@ -30,4 +30,8 @@ function mergeEventsInCommon(eventData, all = false) {
 
 const INCOMMON_EVENTS_LIMIT = 20
 
-export { filterAndSortInCommonEntries, mergeEventsInCommon, INCOMMON_EVENTS_LIMIT }
+export {
+  filterAndSortInCommon,
+  mergeEventsInCommon,
+  INCOMMON_EVENTS_LIMIT,
+}

@@ -8,7 +8,7 @@ import { ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
 import { getInCommonEventsWithProgress, patchEvents, putEventInCommon } from '../loaders/api'
 import { filterCacheEventsByInCommonEventIds, parseEventIds } from '../models/event'
-import { filterAndSortInCommonEntries } from '../models/in-common'
+import { filterAndSortInCommon } from '../models/in-common'
 import Timestamp from '../components/Timestamp'
 import Page from '../components/Page'
 import Card from '../components/Card'
@@ -99,7 +99,7 @@ function Event() {
     () => {
       if (loadedCount === owners.length && !cachedTs) {
         const inCommonProcessed = Object.fromEntries(
-          filterAndSortInCommonEntries(
+          filterAndSortInCommon(
             Object.entries(inCommon)
           )
         )
@@ -319,7 +319,9 @@ function Event() {
                       eta={loadedProgress.estimated}
                       rate={loadedProgress.rate}
                     />
-                  : <Loading />)}
+                  : <Loading />
+                )
+              }
               <AddressErrorList errors={errors} onRetry={retryAddress} />
             </Card>
           :
