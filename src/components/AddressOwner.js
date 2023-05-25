@@ -11,6 +11,7 @@ function AddressOwner({
   address,
   events,
   eventIds,
+  ownerEventIds = [],
   inCommonEventIds = [],
   linkToScan = false,
 }) {
@@ -46,7 +47,7 @@ function AddressOwner({
       {events && typeof events === 'object' && eventIds && Array.isArray(eventIds) && (
         <div className="owner-events">
           {eventIds.map(
-            (eventId) => eventId in events
+            (eventId) => eventId in events && ownerEventIds.indexOf(eventId) !== -1
               ? <TokenImage key={eventId} event={events[eventId]} size={18} resize={true} />
               : <div key={eventId} className="owner-event-empty">{' '}</div>
           )}
