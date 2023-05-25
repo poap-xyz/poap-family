@@ -116,13 +116,18 @@ function InCommon({
       for (const eventId of activeEventIds) {
         if (
           eventId !== activeEventId &&
+          eventId && liRefs &&
           owner in liRefs[eventId] &&
           liRefs[eventId][owner].current
         ) {
           liRefs[eventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
       }
-      if (owner in liRefs[activeEventId] && liRefs[activeEventId][owner].current) {
+      if (
+        activeEventId in liRefs &&
+        owner in liRefs[activeEventId] &&
+        liRefs[activeEventId][owner].current
+      ) {
         liRefs[activeEventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     }

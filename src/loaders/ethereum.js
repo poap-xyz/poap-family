@@ -4,6 +4,7 @@ import {
   INFURA_API_KEY,
   MAINNET_ENS_REVERSE_RECORDS,
   ENS_REVERSE_RECORDS_BATCH_SIZE,
+  ENS_RESOLVE_MAX_ERRORS,
 } from '../models/ethereum'
 
 const ensProvider = new InfuraProvider('mainnet', INFURA_API_KEY)
@@ -29,9 +30,11 @@ const ensReverseRecordsContract = new Contract(
 async function resolveEnsNames(
   addresses,
   onProgress = (resolved) => {},
-  limit = ENS_REVERSE_RECORDS_BATCH_SIZE
+  limit = ENS_REVERSE_RECORDS_BATCH_SIZE,
+  maxErrors = ENS_RESOLVE_MAX_ERRORS,
 ) {
   const resolvedAddresses = {}
+  let errorsTotal = 0
   for (let i = 0; i < addresses.length; i += limit) {
     const chunk = addresses.slice(i, i + limit)
     try {
@@ -47,6 +50,12 @@ async function resolveEnsNames(
         onProgress(resolved)
       }
     } catch (err) {
+      errorsTotal += 1
+      if (errorsTotal > maxErrors) {
+        throw new Error(
+          'Cannot continue retrieving ENS names as the maximum number of error was reached'
+        )
+      }
       i = i - limit + 1
       continue
     }
