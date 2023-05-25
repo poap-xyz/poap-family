@@ -6,6 +6,7 @@
 .event-header .event-id {
   font-weight: bold;
   line-height: 1.6;
+  color: black;
 }
 
 .event-header h2 {

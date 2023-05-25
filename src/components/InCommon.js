@@ -143,11 +143,11 @@ function InCommon({
           {inCommonEntries.map(
             ([eventId, addresses]) => (
               <div
+                key={eventId}
                 className={`in-common-event${activeEventIds.indexOf(eventId) !== -1 ? ' selected' : ''}${showCount > 0 && showCount === addresses.length ? ' perfect' : ''}`}
                 title={events[eventId].name}
               >
                 <button
-                  key={eventId}
                   className="event-button"
                   onClick={() => toggleActiveEventId(eventId)}
                 >
@@ -160,6 +160,7 @@ function InCommon({
                     : <EventCount event={events[eventId]} count={addresses.length} size={64} />
                   }
                 </button>
+                <Link to={`/event/${eventId}`} className="event-id">#{eventId}</Link>
               </div>
             )
           )}
@@ -182,7 +183,7 @@ function InCommon({
           {activeEventIds.map((activeEventId) =>
             <div className="active-event" key={activeEventId}>
               <Card>
-                <EventHeader event={events[activeEventId]} linkToEvent={true} />
+                <EventHeader event={events[activeEventId]} size={48} />
                 <div className="active-event-actions">
                   {createActiveTopButtons(activeEventId)}
                   <ButtonClose onClose={() => removeActiveEventId(activeEventId)} />
