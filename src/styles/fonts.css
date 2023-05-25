@@ -39,3 +39,10 @@
   font-weight: 400;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'Noto Sans Mono';
+  src: local('Noto Sans Mono Regular'), url('../fonts/NotoSansMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
