@@ -115,7 +115,7 @@ function EventsOwners({
               link={true}
               title={`Expands${showAll ? ' all' : ''} collectors${showAll ? '' : ' in common'} between drop${Object.keys(events).length === 1 ? '' : 's'} #${Object.keys(events).join(', #')}`}
               addresses={ownersEntries.map(([ownerAddress]) => ownerAddress)}
-              eventIds={Object.keys(events)}
+              eventIds={Object.keys(owners)}
             />
           </ButtonGroup>
         )}
