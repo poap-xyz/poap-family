@@ -1,0 +1,39 @@
+.address-profile {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+
+.profile-avatar {
+  border-radius: 1rem;
+  border-width: 0;
+  width: 128px;
+  height: 128px;
+  background-color: #efefef;
+}
+
+.profile-avatar .loading {
+  position: relative;
+  top: 48px;
+  left: 48px;
+}
+
+.profile-ens {
+  font-size: 160%;
+}
+
+.profile-address svg {
+  margin-left: .25rem;
+}
+
+.profile-poaps, .profile-in-common {
+  margin-top: 2rem;
+  min-width: 100%;
+  max-width: 32rem;
+}
+
+.profile-poaps img, .profile-in-common img {
+  margin: .1rem;
+}

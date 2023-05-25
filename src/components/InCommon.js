@@ -2,7 +2,7 @@ import toColor from '@mapbox/to-color'
 import { createRef, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SettingsContext } from '../stores/cache'
-import { filterAndSortInCommon, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
+import { filterAndSortInCommon, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { intersection } from '../utils/array'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
@@ -32,11 +32,15 @@ function InCommon({
   const [ownerHighlighted, setOwnerHighlighted] = useState(null)
   const [liRefs, setLiRefs] = useState({})
 
-  let inCommonEntries = filterAndSortInCommon(Object.entries(inCommon))
+  const inCommonEntries = filterAndSortInCommon(
+    Object.entries(inCommon)
+  )
+
+  let inCommonEventsAddresses = inCommonEntries.slice()
   let inCommonLimit = INCOMMON_EVENTS_LIMIT
 
   if (showCount > 0) {
-    inCommonLimit = inCommonEntries.reduce(
+    inCommonLimit = inCommonEventsAddresses.reduce(
       (limit, [_, addresses]) => {
         if (addresses.length === showCount) {
           return limit + 1
@@ -47,11 +51,11 @@ function InCommon({
     )
   }
 
-  const inCommonTotal = inCommonEntries.length
+  const inCommonTotal = inCommonEventsAddresses.length
   const hasMore = inCommonTotal > inCommonLimit
 
   if (hasMore && !showAll) {
-    inCommonEntries = inCommonEntries.slice(0, inCommonLimit)
+    inCommonEventsAddresses = inCommonEventsAddresses.slice(0, inCommonLimit)
   }
 
   const removeActiveEventId = (eventId) => {
@@ -112,13 +116,18 @@ function InCommon({
       for (const eventId of activeEventIds) {
         if (
           eventId !== activeEventId &&
+          eventId && liRefs &&
           owner in liRefs[eventId] &&
           liRefs[eventId][owner].current
         ) {
           liRefs[eventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
       }
-      if (owner in liRefs[activeEventId] && liRefs[activeEventId][owner].current) {
+      if (
+        activeEventId in liRefs &&
+        owner in liRefs[activeEventId] &&
+        liRefs[activeEventId][owner].current
+      ) {
         liRefs[activeEventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     }
@@ -140,7 +149,7 @@ function InCommon({
           <h4>{showCount > 0 && `${inCommonLimit} of `}{inCommonTotal} drop{inCommonTotal === 1 ? '' : 's'} in common</h4>
         )}
         <div className={`in-common-events${showAll ? ' show-all' : ''}`}>
-          {inCommonEntries.map(
+          {inCommonEventsAddresses.map(
             ([eventId, addresses]) => (
               <div
                 key={eventId}
@@ -204,7 +213,12 @@ function InCommon({
                         onMouseEnter={() => onOwnerEnter(activeEventId, owner)}
                         onMouseLeave={() => onOwnerLeave(activeEventId, owner)}
                       >
-                        <AddressOwner owner={owner} />
+                        <AddressOwner
+                          address={owner}
+                          events={events}
+                          inCommonEventIds={getAddressInCommonEventIds(inCommonEntries, owner)}
+                          linkToScan={!ownerHighlighted || ownerHighlighted === owner}
+                        />
                       </li>
                     )}
                   </ul>

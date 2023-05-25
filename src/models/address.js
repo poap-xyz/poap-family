@@ -17,4 +17,10 @@ function parseAddress(address) {
   }
 }
 
-export { parseAddresses, parseAddress }
+const PROFILE_EVENTS_LIMIT = 20
+
+export {
+  parseAddresses,
+  parseAddress,
+  PROFILE_EVENTS_LIMIT,
+}

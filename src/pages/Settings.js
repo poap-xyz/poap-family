@@ -18,6 +18,9 @@ function Settings() {
   const handleAutoScrollCollectors = (event) => {
     set('autoScrollCollectors', !!event.target.checked)
   }
+  const handleOpenProfiles = (event) => {
+    set('openProfiles', !!event.target.checked)
+  }
   useEffect(
     () => {
       setTitle('Settings')
@@ -38,6 +41,12 @@ function Settings() {
           <label className="label">Auto scroll collectors</label>
           <div className="input">
             <Switch checked={settings && settings.autoScrollCollectors} onChange={handleAutoScrollCollectors} />
+          </div>
+        </div>
+        <div className="setting">
+          <label className="label">Open profiles</label>
+          <div className="input">
+            <Switch checked={settings && settings.openProfiles} onChange={handleOpenProfiles} />
           </div>
         </div>
       </Card>
