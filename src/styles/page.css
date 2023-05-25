@@ -3,6 +3,7 @@
   flex-direction: row-reverse;
   overflow: scroll;
   height: 100vh;
+  width: 100vw;
 }
 
 .page-aside {
@@ -16,6 +17,7 @@
 
 .page-content {
   flex-grow: 1;
+  width: 100%;
 }
 
 .corner-bg {
@@ -30,6 +32,9 @@
     position: inherit;
     margin-top: .5rem;
     margin-right: 1rem;
+  }
+  .page-content {
+    width: calc(100% - 4.2rem);
   }
   .logo-menu-card {
     background-color: transparent !important;
