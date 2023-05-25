@@ -30,6 +30,18 @@
   height: 64px;
 }
 
+.in-common .in-common-event .event-id {
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  font-size: 80%;
+  margin: .1rem;
+}
+
+.in-common .in-common-event.selected .event-id {
+  color: white;
+}
+
 .in-common .show-more {
   display: inline-block;
   margin-left: .5rem;
