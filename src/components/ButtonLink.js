@@ -1,9 +1,9 @@
 import '../styles/button-link.css'
 
-function ButtonLink({ onClick, className, children }) {
+function ButtonLink({ title, onClick, className, children }) {
   return (
     <button className={`button-link${className ? ` ${className}` : ''}`} onClick={onClick}>
-      <span className="button-link-content">{children}</span>
+      <span title={title} className="button-link-content">{children}</span>
     </button>
   )
 }
