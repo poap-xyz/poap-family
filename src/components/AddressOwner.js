@@ -30,9 +30,9 @@ function AddressOwner({
             />
           )
           : (
-            <a href={`${POAP_SCAN_URL}/${address}`} target="_blank" rel="noopener noreferrer">
+            <a href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
               {address in ensNames
-                ? <span className="ens" title={address}>{ensNames[address]}</span>
+                ? <span className="ens">{ensNames[address]}</span>
                 : <code>{address}</code>
               }
             </a>
@@ -40,7 +40,7 @@ function AddressOwner({
         }
       </div>
       {linkToScan && (!settings || settings.openProfiles) && (
-        <a className="owner-scan" href={`${POAP_SCAN_URL}/${address}`} target="_blank" rel="noopener noreferrer">
+        <a className="owner-scan" href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
           <img src={POAP_Stamp} alt={`Scan ${address}`} />
         </a>
       )}
