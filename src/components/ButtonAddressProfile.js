@@ -19,10 +19,11 @@ function ButtonAddressProfile({
     <>
       <ButtonLink
         className="button-address-profile"
+        title={`Open ${address in ensNames ? ensNames[address] : address} profile`}
         onClick={() => setShowModal((show) => !show)}
       >
         {address in ensNames
-          ? <span className="ens" title={address}>{ensNames[address]}</span>
+          ? <span className="ens">{ensNames[address]}</span>
           : <code>{address}</code>
         }
       </ButtonLink>
