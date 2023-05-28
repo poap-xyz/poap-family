@@ -130,7 +130,7 @@ function AddressProfile({
               )}
             />
           )}
-          <a className="profile-address" href={`${POAP_SCAN_URL}/${address}`} target="_blank" rel="noopener noreferrer">
+          <a className="profile-address" href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
             <code>{address}</code>
             <OpenNewWindow width={11} height={11} />
           </a>
