@@ -47,7 +47,10 @@ function AddressProfile({
     () => {
       if (
         address in ensNames &&
-        avatars[ensNames[address]] === undefined &&
+        (
+          !(ensNames[address] in avatars) ||
+          avatars[ensNames[address]] === undefined
+        ) &&
         !error
       ) {
         setLoading((prevLoading) => prevLoading + 1)

@@ -117,7 +117,7 @@ function ReverseEnsProvider({
     async (addresses, resolve = false) => {
       const oldAddresses = Object.keys(ensByAddress)
       const givenOldAddresses = oldAddresses.filter((address) => oldAddresses.indexOf(address) !== -1)
-      if (givenOldAddresses.length > 0) {
+      if (givenOldAddresses.length > 0 && resolve) {
         resolveNames(givenOldAddresses.map((address) => ensByAddress[address]))
       }
       const newAddresses = addresses.filter((address) => oldAddresses.indexOf(address) === -1)
