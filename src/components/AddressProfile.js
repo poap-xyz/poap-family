@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import { OpenNewWindow } from 'iconoir-react'
-import { POAP_SCAN_URL } from '../models/poap'
+import { formatMonthYear } from '../utils/date'
+import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
 import { INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { PROFILE_EVENTS_LIMIT } from '../models/address'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
@@ -24,6 +25,7 @@ function AddressProfile({
   const [loading, setLoading] = useState(0)
   const [error, setError] = useState(null)
   const [poaps, setPOAPs] = useState(null)
+  const [since, setSince] = useState(null)
 
   const inCommonTotal = inCommonEventIds.length
   const inCommonHasMore = inCommonTotal > INCOMMON_EVENTS_LIMIT
@@ -47,7 +49,10 @@ function AddressProfile({
     () => {
       if (
         address in ensNames &&
-        avatars[ensNames[address]] === undefined &&
+        (
+          !(ensNames[address] in avatars) ||
+          avatars[ensNames[address]] === undefined
+        ) &&
         !error
       ) {
         setLoading((prevLoading) => prevLoading + 1)
@@ -78,6 +83,9 @@ function AddressProfile({
           (foundPOAPs) => {
             setLoading((prevLoading) => prevLoading - 1)
             setPOAPs(foundPOAPs)
+            if (Array.isArray(foundPOAPs) && foundPOAPs.length > 0) {
+              setSince(findInitialPOAPDate(foundPOAPs))
+            }
           },
           (err) => {
             setLoading((prevLoading) => prevLoading - 1)
@@ -107,7 +115,7 @@ function AddressProfile({
       )}
       {!loading && !error && (
         <>
-          {address in ensNames && avatars[ensNames[address]] && avatars[ensNames[address]].startsWith('http') && (
+          {address in ensNames && avatars[ensNames[address]] && avatars[ensNames[address]].startsWith('http') && !avatars[ensNames[address]].endsWith('json') && (
             <LazyImage
               className="profile-avatar"
               src={avatars[ensNames[address]]}
@@ -139,7 +147,11 @@ function AddressProfile({
           )}
           {poaps !== null && Array.isArray(poaps) && poaps.length > 0 && (
             <div className={`profile-poaps${showAllPOAPs ? ' show-all' : ''}`}>
-              <h4>{poapsTotal} collected drops</h4>
+              <h4>{poapsTotal} collected drops
+                {since && (
+                  <span className="profile-since"> since {formatMonthYear(since)}</span>
+                )}
+              </h4>
               {poapsVisible.map((token) => (
                 token.id && token.event && (
                   <TokenImage key={token.id} event={token.event} size={18} resize={true} />
