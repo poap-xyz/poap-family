@@ -14,3 +14,7 @@ export function secondsInTheFuture(secs) {
   const ts = Date.now() + (secs * 1000)
   return dayjs(ts).fromNow()
 }
+
+export function formatMonthYear(d) {
+  return dayjs(d).format('MMM YY')
+}

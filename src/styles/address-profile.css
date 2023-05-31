@@ -28,6 +28,10 @@
   margin-left: .25rem;
 }
 
+.profile-since {
+  font-weight: 400;
+}
+
 .profile-poaps, .profile-in-common {
   margin-top: 2rem;
   min-width: 100%;
