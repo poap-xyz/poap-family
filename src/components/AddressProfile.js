@@ -110,7 +110,7 @@ function AddressProfile({
       )}
       {!loading && !error && (
         <>
-          {address in ensNames && avatars[ensNames[address]] && avatars[ensNames[address]].startsWith('http') && (
+          {address in ensNames && avatars[ensNames[address]] && avatars[ensNames[address]].startsWith('http') && !avatars[ensNames[address]].endsWith('json') && (
             <LazyImage
               className="profile-avatar"
               src={avatars[ensNames[address]]}
