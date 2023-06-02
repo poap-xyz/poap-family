@@ -19,8 +19,14 @@ function parseAddress(address) {
 
 const PROFILE_EVENTS_LIMIT = 20
 
+const IGNORED_OWNERS = [
+  '0x000000000000000000000000000000000000dead',
+  '0x0000000000000000000000000000000000000000',
+]
+
 export {
   parseAddresses,
   parseAddress,
   PROFILE_EVENTS_LIMIT,
+  IGNORED_OWNERS,
 }
