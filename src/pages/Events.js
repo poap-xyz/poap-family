@@ -5,6 +5,7 @@ import { HTMLContext } from '../stores/html'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, patchEvents, putEventInCommon, putEventOwners } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
+import { IGNORED_OWNERS } from '../models/address'
 import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
 import { filterCacheEventsByInCommonEventIds, parseEventIds, parseExpiryDates } from '../models/event'
 import Timestamp from '../components/Timestamp'
@@ -117,8 +118,9 @@ function Events() {
           removeLoading(eventId)
           if (eventOwnerTokens) {
             const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
-            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwners }))
-            putEventOwners(eventId, newOwners)
+            const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
+            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
+            putEventOwners(eventId, newOwnersFilters)
             return Promise.resolve()
           }
           return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
