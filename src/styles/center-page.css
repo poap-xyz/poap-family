@@ -2,8 +2,16 @@
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
+  overflow: scroll;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+}
+
+@media only screen and (max-width: 500px) {
+  .center-page {
+    align-items: start;
+    justify-content: start;
+  }
 }
