@@ -244,7 +244,7 @@ async function eventsLoader({ params, request }) {
     if (Object.keys(errorsByEventId).length > 0) {
       const response = JSON.stringify({
         errorsByEventId: Object.fromEntries(
-          Object.entries(eventsNotFound).map(
+          Object.entries(errorsByEventId).map(
             ([eventId, error]) => ([
               eventId,
               {

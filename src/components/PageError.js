@@ -28,7 +28,14 @@ function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
         {isRouteErrorResponse(error) && typeof error.data.errorsByEventId === 'object' && (
           <>
             {onRemoveAllEvents && (
-                <>{' '}<ButtonLink onClick={() => onRemoveAllEvents(Object.keys(error.data.errorsByEventId))}>remove all</ButtonLink></>
+              <>
+                {' '}
+                <ButtonLink
+                  onClick={() => onRemoveAllEvents(Object.keys(error.data.errorsByEventId))}
+                >
+                  remove all
+                </ButtonLink>
+              </>
             )}
             {Object.entries(error.data.errorsByEventId).map(
               ([eventId, error]) => (
