@@ -1,3 +1,11 @@
+.event-header {
+  width: 100%;
+  position: relative;
+  overflow-x: auto;
+  left: 0;
+  right: 0;
+}
+
 .event-info {
   display: flex;
 }
