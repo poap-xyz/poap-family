@@ -487,7 +487,12 @@ function Events() {
         for (const eventId of eventIds) {
           if ((loadedCount[eventId] ?? 0) === owners[eventId].length) {
             eventsLoaded++
-            if (eventId in eventData && !eventData[eventId].ts && !(eventId in errors) && !(eventId in loading)) {
+            if (
+              eventId in eventData &&
+              !eventData[eventId].ts &&
+              !(eventId in errors) &&
+              !(eventId in loading)
+            ) {
               const inCommonProcessed = Object.fromEntries(
                 filterAndSortInCommon(
                   Object.entries(eventData[eventId].inCommon)
@@ -531,7 +536,12 @@ function Events() {
                 )
               }
             }
-          } else if (!(eventId in loading) && eventId in eventData && eventId in eventData[eventId].inCommon && eventData[eventId].inCommon[eventId].length < owners[eventId].length) {
+          } else if (
+            !(eventId in loading) &&
+            eventId in eventData &&
+            eventId in eventData[eventId].inCommon &&
+            eventData[eventId].inCommon[eventId].length !== owners[eventId].length
+          ) {
             eventsLoaded++
             setStaleEvents((oldStaleEvents) => ([...new Set([...oldStaleEvents, eventId])]))
           }
