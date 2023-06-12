@@ -236,12 +236,21 @@ function Event() {
   return (
     <Page>
       <div className="event">
-        <EventInfo
-          event={event}
-          stats={{
-            'collectors': metrics && metrics.emailReservations > 0
-              ? formatStat(owners.length + metrics.emailReservations)
-              : (
+        <div className="event-header">
+          <EventInfo
+            event={event}
+            stats={{
+              'collectors': metrics && metrics.emailReservations > 0
+                ? formatStat(owners.length + metrics.emailReservations)
+                : (
+                  ts === null
+                    ? formatStat(owners.length)
+                    : {
+                      text: formatStat(owners.length),
+                      title: `Cached ${formatDateAgo(ts)}`,
+                    }
+                ),
+              'mints': !metrics || metrics.emailReservations === 0 ? undefined : (
                 ts === null
                   ? formatStat(owners.length)
                   : {
@@ -249,65 +258,58 @@ function Event() {
                     title: `Cached ${formatDateAgo(ts)}`,
                   }
               ),
-            'mints': !metrics || metrics.emailReservations === 0 ? undefined : (
-              ts === null
-                ? formatStat(owners.length)
-                : {
-                  text: formatStat(owners.length),
-                  title: `Cached ${formatDateAgo(ts)}`,
+              'reservations': metrics && metrics.emailReservations > 0
+                ? {
+                  text: formatStat(metrics.emailReservations),
+                  title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
                 }
-            ),
-            'reservations': metrics && metrics.emailReservations > 0
-              ? {
-                text: formatStat(metrics.emailReservations),
-                title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
-              }
-              : undefined,
-            'email conversion': metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0
-              ? {
-                text: formatStat(metrics.emailClaimsMinted),
-                title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
-              }
-              : undefined,
-          }}
-          highlightStat="collectors"
-          buttons={[
-            <ButtonExportAddressCsv
-              key="export-csv"
-              filename={`collectors-${event.id}`}
-              name={event.name}
-              addresses={owners}
-              secondary={true}
-              title={`Generates CSV file with collectors of drop #${event.id}`}
-            >
-              export csv
-            </ButtonExportAddressCsv>,
-          ]}
-        >
-          {caching &&
-            <div className="caching">
-              Caching{' '}<Progress />
-            </div>
-          }
-          {cachingError &&
-            <div className="caching-error" title={cachingError.reason ? `${cachingError.reason}` : undefined}>
-              <span className="caching-error-label">Error</span>
-              {cachingError.message}
-            </div>
-          }
-          {cachedTs && !caching &&
-            <div className="cached">
-              Cached <Timestamp ts={cachedTs} />,{' '}
-              <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-            </div>
-          }
-          {!cachedTs && !caching && metrics && metrics.ts &&
-            <div className="cached">
-              Cached <Timestamp ts={metrics.ts} />,{' '}
-              <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-            </div>
-          }
-        </EventInfo>
+                : undefined,
+              'email conversion': metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0
+                ? {
+                  text: formatStat(metrics.emailClaimsMinted),
+                  title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
+                }
+                : undefined,
+            }}
+            highlightStat="collectors"
+            buttons={[
+              <ButtonExportAddressCsv
+                key="export-csv"
+                filename={`collectors-${event.id}`}
+                name={event.name}
+                addresses={owners}
+                secondary={true}
+                title={`Generates CSV file with collectors of drop #${event.id}`}
+              >
+                export csv
+              </ButtonExportAddressCsv>,
+            ]}
+          >
+            {caching &&
+              <div className="caching">
+                Caching{' '}<Progress />
+              </div>
+            }
+            {cachingError &&
+              <div className="caching-error" title={cachingError.reason ? `${cachingError.reason}` : undefined}>
+                <span className="caching-error-label">Error</span>
+                {cachingError.message}
+              </div>
+            }
+            {cachedTs && !caching &&
+              <div className="cached">
+                Cached <Timestamp ts={cachedTs} />,{' '}
+                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
+              </div>
+            }
+            {!cachedTs && !caching && metrics && metrics.ts &&
+              <div className="cached">
+                Cached <Timestamp ts={metrics.ts} />,{' '}
+                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
+              </div>
+            }
+          </EventInfo>
+        </div>
         {loading
           ?
             <Card>
