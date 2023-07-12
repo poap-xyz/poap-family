@@ -1,4 +1,4 @@
-import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
+import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom'
 import ButtonLink from './ButtonLink'
 import CenterPage from './CenterPage'
 import '../styles/page-error.css'
@@ -10,6 +10,7 @@ const errorClasses = {
 }
 
 function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
+  const navigate = useNavigate()
   const error = useRouteError()
   const errorType = errorClasses[error.status] ?? 'unknown'
   const errors = [error]
@@ -19,12 +20,16 @@ function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
     }
   }
   console.error(...errors)
+  const reload = () => {
+    navigate(0)
+  }
   return (
     <CenterPage>
       <div className={`page-error ${errorType}`}>
         <i className="icon warning"></i>
         {error.statusText && <p>{error.statusText}</p>}
         {error.message && <p>{error.message}</p>}
+        <ButtonLink onClick={() => reload()}>reload</ButtonLink>
         {isRouteErrorResponse(error) && typeof error.data.errorsByEventId === 'object' && (
           <>
             {onRemoveAllEvents && (
