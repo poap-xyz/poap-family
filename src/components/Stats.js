@@ -20,13 +20,23 @@ function Stats({ stats, highlight }) {
               {typeof stat === 'object'
                 ? (
                   <>
-                    <ShadowText medium={highlight && highlight !== statName}>{stat.text}</ShadowText>
-                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`} title={stat.title}>{statName}</span>
+                    <ShadowText
+                      medium={highlight && highlight !== statName && !stat.small}
+                      small={stat.small}
+                    >
+                      {stat.text}
+                    </ShadowText>
+                    <span
+                      className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                      title={stat.title}
+                    >
+                      {statName}
+                    </span>
                   </>
                 ) : (
                   <>
                     <ShadowText medium={highlight && highlight !== statName}>{stat}</ShadowText>
-                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`}>{statName}</span>
+                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-medium' : ''}`}>{statName}</span>
                   </>
                 )
               }

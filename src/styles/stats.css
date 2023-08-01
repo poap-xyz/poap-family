@@ -48,8 +48,12 @@
   white-space: nowrap;
 }
 
-.stat .stat-name-small {
+.stat .stat-name-medium {
   margin-top: .5rem;
+}
+
+.stat .stat-name-small {
+  margin-top: .2rem;
 }
 
 .stat .stat-name[title] {
