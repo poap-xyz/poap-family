@@ -1,8 +1,9 @@
 .stats {
   display: inline-block;
-  border: .5rem solid white;
+  border: .35rem solid white;
   border-radius: 1.62rem;
   margin-top: .4rem;
+  background-color: white;
 }
 
 .stats.highlighted {
@@ -10,13 +11,13 @@
 }
 
 .stats .stats-content {
-  margin: -.5rem;
+  margin: -.35rem;
   display: flex;
 }
 
 .stat {
-  padding: .5rem 0;
-  border: .5rem solid transparent;
+  padding: .35rem 0;
+  border: .35rem solid transparent;
   border-radius: 1.62rem;
   align-self: center;
 }
