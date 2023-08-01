@@ -55,6 +55,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
     !('emailReservations' in body.metrics) || typeof body.metrics.emailReservations !== 'number' ||
     !('emailClaimsMinted' in body.metrics) || typeof body.metrics.emailClaimsMinted !== 'number' ||
     !('emailClaims' in body.metrics) || typeof body.metrics.emailClaims !== 'number' ||
+    !('momentsUploaded' in body.metrics) || typeof body.metrics.momentsUploaded !== 'number' ||
     !('ts' in body.metrics) || (typeof body.metrics.ts !== 'number' && body.metrics.ts !== null)
   ) {
     return {
@@ -65,6 +66,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
         emailReservations: 0,
         emailClaimsMinted: 0,
         emailClaims: 0,
+        momentsUploaded: 0,
         ts: null,
       },
     }
@@ -77,6 +79,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
       emailReservations: body.metrics.emailReservations,
       emailClaimsMinted: body.metrics.emailClaimsMinted,
       emailClaims: body.metrics.emailClaims,
+      momentsUploaded: body.metrics.momentsUploaded,
       ts: body.metrics.ts,
     },
   }
@@ -336,6 +339,7 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
     !('emailReservations' in metrics) || typeof metrics.emailReservations !== 'number' ||
     !('emailClaimsMinted' in metrics) || typeof metrics.emailClaimsMinted !== 'number' ||
     !('emailClaims' in metrics) || typeof metrics.emailClaims !== 'number' ||
+    !('momentsUploaded' in metrics) || typeof metrics.momentsUploaded !== 'number' ||
     !('ts' in metrics) || (typeof metrics.ts !== 'number' && metrics.ts !== null)
   ) {
     return null
@@ -344,6 +348,7 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
     emailReservations: metrics.emailReservations,
     emailClaimsMinted: metrics.emailClaimsMinted,
     emailClaims: metrics.emailClaims,
+    momentsUploaded: metrics.momentsUploaded,
     ts: metrics.ts,
   }
 }

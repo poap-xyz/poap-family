@@ -46,10 +46,15 @@
   padding: 1px 3px;
   border-radius: 7px;
   white-space: nowrap;
+  color: black;
+}
+
+.stat .stat-name-medium {
+  margin-top: .5rem;
 }
 
 .stat .stat-name-small {
-  margin-top: .5rem;
+  margin-top: .2rem;
 }
 
 .stat .stat-name[title] {
