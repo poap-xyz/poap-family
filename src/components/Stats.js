@@ -20,12 +20,12 @@ function Stats({ stats, highlight }) {
               {typeof stat === 'object'
                 ? (
                   <>
-                    <ShadowText small={highlight && highlight !== statName}>{stat.text}</ShadowText>
+                    <ShadowText medium={highlight && highlight !== statName}>{stat.text}</ShadowText>
                     <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`} title={stat.title}>{statName}</span>
                   </>
                 ) : (
                   <>
-                    <ShadowText small={highlight && highlight !== statName}>{stat}</ShadowText>
+                    <ShadowText medium={highlight && highlight !== statName}>{stat}</ShadowText>
                     <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`}>{statName}</span>
                   </>
                 )

@@ -699,7 +699,7 @@ function Events() {
                         <Loading small={true} />
                       )}
                       {event.id in owners && (
-                        <ShadowText grow={true} small={true}>
+                        <ShadowText grow={true} medium={true}>
                           {formatStat(owners[event.id].length)}
                           {event.id in metrics && metrics[event.id] && typeof metrics[event.id].emailReservations === 'number' && metrics[event.id].emailReservations > 0 && ` + ${formatStat(metrics[event.id].emailReservations)}`}
                         </ShadowText>

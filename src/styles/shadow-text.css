@@ -6,7 +6,7 @@
   flex-grow: 1;
 }
 
-.shadow-text .shadow-text-content.small {
+.shadow-text .shadow-text-content.medium {
   font-size: 3.4rem;
   letter-spacing: -.3rem;
 }
@@ -21,11 +21,11 @@
   white-space: nowrap;
 }
 
-.shadow-text .shadow-text-content.small .shadow {
+.shadow-text .shadow-text-content.medium .shadow {
   transform: translate(-.2rem, .3rem);
 }
 
-.shadow-text .shadow-text-content.small .text {
+.shadow-text .shadow-text-content.medium .text {
   stroke-width: .35rem;
 }
 
