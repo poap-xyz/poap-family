@@ -9,6 +9,7 @@ import { scanAddress } from '../loaders/poap'
 import { getInCommonEventsWithProgress, patchEvents, putEventInCommon } from '../loaders/api'
 import { filterCacheEventsByInCommonEventIds, parseEventIds } from '../models/event'
 import { filterAndSortInCommon } from '../models/in-common'
+import { POAP_MOMENTS_URL } from '../models/poap'
 import Timestamp from '../components/Timestamp'
 import Page from '../components/Page'
 import Card from '../components/Card'
@@ -268,6 +269,13 @@ function Event() {
                 ? {
                   text: formatStat(metrics.emailClaimsMinted),
                   title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
+                }
+                : undefined,
+              'moments': metrics && metrics.momentsUploaded > 0
+                ? {
+                  text: formatStat(metrics.momentsUploaded),
+                  link: `${POAP_MOMENTS_URL}/drop/${event.id}`,
+                  external: true,
                 }
                 : undefined,
             }}

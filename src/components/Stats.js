@@ -10,7 +10,7 @@ function Stats({ stats, highlight }) {
         {entries.map(([statName, stat], index) => (
           <div
             key={statName}
-            className={`stat${highlight === statName ? ' highlight' : ''}`}
+            className={`stat ${highlight === statName ? 'highlight' : 'common'}`}
             style={{
               paddingLeft: highlight !== statName && index === 0 ? '.5rem' : undefined,
               paddingRight: highlight !== statName && index + 1 === entries.length ? '.5rem' : undefined,
@@ -20,13 +20,38 @@ function Stats({ stats, highlight }) {
               {typeof stat === 'object'
                 ? (
                   <>
-                    <ShadowText small={highlight && highlight !== statName}>{stat.text}</ShadowText>
-                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`} title={stat.title}>{statName}</span>
+                    <ShadowText
+                      medium={highlight && highlight !== statName && !stat.small}
+                      small={stat.small}
+                    >
+                      {stat.text}
+                    </ShadowText>
+                    {stat.link
+                      ? (
+                        <a
+                          href={stat.link}
+                          target={stat.external ? '_blank' : undefined}
+                          rel={stat.external ? 'noopener noreferrer' : undefined}
+                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          title={stat.title}
+                        >
+                          {statName}
+                        </a>
+                      )
+                      : (
+                        <span
+                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          title={stat.title}
+                        >
+                          {statName}
+                        </span>
+                      )
+                    }
                   </>
                 ) : (
                   <>
-                    <ShadowText small={highlight && highlight !== statName}>{stat}</ShadowText>
-                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-small' : ''}`}>{statName}</span>
+                    <ShadowText medium={highlight && highlight !== statName}>{stat}</ShadowText>
+                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-medium' : ''}`}>{statName}</span>
                   </>
                 )
               }

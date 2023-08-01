@@ -607,7 +607,7 @@ function Addresses() {
                       !((address ?? collectors[index]) in loadingByAddress) &&
                       !((address ?? collectors[index]) in errorsByAddress) &&
                       (
-                        <ShadowText grow={true} small={true}>{formatStat(powers[(address ?? collectors[index])])}</ShadowText>
+                        <ShadowText grow={true} medium={true}>{formatStat(powers[(address ?? collectors[index])])}</ShadowText>
                       )
                     }
                   </td>
@@ -639,7 +639,7 @@ function Addresses() {
                 <td></td>
                 <td className="collector-cell-power">
                   {state === STATE_END_RESULTS && totalPower > 0 && (
-                    <ShadowText small={true} grow={true}>
+                    <ShadowText grow={true} medium={true}>
                       {formatStat(totalPower)}
                     </ShadowText>
                   )}

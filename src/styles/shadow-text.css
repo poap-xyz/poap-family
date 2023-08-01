@@ -6,9 +6,14 @@
   flex-grow: 1;
 }
 
-.shadow-text .shadow-text-content.small {
+.shadow-text .shadow-text-content.medium {
   font-size: 3.4rem;
   letter-spacing: -.3rem;
+}
+
+.shadow-text .shadow-text-content.small {
+  font-size: 2.2rem;
+  letter-spacing: -.2rem;
 }
 
 .shadow-text .shadow-text-content {
@@ -21,12 +26,20 @@
   white-space: nowrap;
 }
 
-.shadow-text .shadow-text-content.small .shadow {
+.shadow-text .shadow-text-content.medium .shadow {
   transform: translate(-.2rem, .3rem);
 }
 
-.shadow-text .shadow-text-content.small .text {
+.shadow-text .shadow-text-content.medium .text {
   stroke-width: .35rem;
+}
+
+.shadow-text .shadow-text-content.small .shadow {
+  transform: translate(-.1rem, .2rem);
+}
+
+.shadow-text .shadow-text-content.small .text {
+  stroke-width: .2rem;
 }
 
 .shadow-text .shadow-text-content .shadow {

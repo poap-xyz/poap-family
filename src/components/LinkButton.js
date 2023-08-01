@@ -1,8 +1,14 @@
 import '../styles/link-button.css'
 
-function LinkButton({ icon, href, children, external = false, secondary = false }) {
+function LinkButton({ title, icon, href, children, external = false, secondary = false }) {
   return (
-    <a href={href} className={`link-button ${secondary ? 'secondary' : 'primary'}`} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+    <a
+      href={href}
+      title={title}
+      className={`link-button ${secondary ? 'secondary' : 'primary'}`}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
       <span className="link-button-content">
         {icon && (
           <span className="link-button-icon">
