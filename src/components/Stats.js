@@ -10,7 +10,7 @@ function Stats({ stats, highlight }) {
         {entries.map(([statName, stat], index) => (
           <div
             key={statName}
-            className={`stat${highlight === statName ? ' highlight' : ''}`}
+            className={`stat ${highlight === statName ? 'highlight' : 'common'}`}
             style={{
               paddingLeft: highlight !== statName && index === 0 ? '.5rem' : undefined,
               paddingRight: highlight !== statName && index + 1 === entries.length ? '.5rem' : undefined,
