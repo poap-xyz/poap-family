@@ -26,12 +26,27 @@ function Stats({ stats, highlight }) {
                     >
                       {stat.text}
                     </ShadowText>
-                    <span
-                      className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
-                      title={stat.title}
-                    >
-                      {statName}
-                    </span>
+                    {stat.link
+                      ? (
+                        <a
+                          href={stat.link}
+                          target={stat.external ? '_blank' : undefined}
+                          rel={stat.external ? 'noopener noreferrer' : undefined}
+                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          title={stat.title}
+                        >
+                          {statName}
+                        </a>
+                      )
+                      : (
+                        <span
+                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          title={stat.title}
+                        >
+                          {statName}
+                        </span>
+                      )
+                    }
                   </>
                 ) : (
                   <>

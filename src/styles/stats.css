@@ -46,6 +46,7 @@
   padding: 1px 3px;
   border-radius: 7px;
   white-space: nowrap;
+  color: black;
 }
 
 .stat .stat-name-medium {
