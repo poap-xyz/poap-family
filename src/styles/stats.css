@@ -33,6 +33,10 @@
   background-color: #efeeff;
 }
 
+.stat.with-link:hover a.stat-name {
+  text-decoration: underline;
+}
+
 .stat .stat-content {
   display: flex;
   flex-direction: column;
