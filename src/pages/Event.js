@@ -275,8 +275,8 @@ function Event() {
               'moments': metrics && metrics.momentsUploaded > 0
                 ? {
                   text: formatStat(metrics.momentsUploaded),
-                  title: `View uploaded moments on ${event.name}`,
-                  link: `${POAP_MOMENTS_URL}/drop/${event.id}`,
+                  title: `Upload moment on ${event.name}`,
+                  link: `${POAP_MOMENTS_URL}/upload?drop=${event.id}`,
                   external: true,
                 }
                 : undefined,
@@ -294,9 +294,9 @@ function Event() {
                 export csv
               </ButtonExportAddressCsv>,
               <LinkButton
-                key="upload-moment"
-                title={`Upload moment on ${event.name}`}
-                href={`https://moments.poap.xyz/upload?drop=${event.id}`}
+                key="moments"
+                title={`View uploaded moments on ${event.name}`}
+                href={`${POAP_MOMENTS_URL}/drop/${event.id}`}
                 external={true}
                 secondary={true}
                 icon={(
