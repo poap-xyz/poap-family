@@ -14,8 +14,3 @@
   flex-direction: column;
   gap: .5rem;
 }
-
-.button-group .button-expand a {
-  position: relative;
-  top: 0;
-}
