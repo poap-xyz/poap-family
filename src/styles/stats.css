@@ -14,6 +14,14 @@
   margin-left: .5rem;
 }
 
+.stats.highlighted .stat.common:first-child {
+  padding-left: .5rem;
+}
+
+.stats.highlighted .stat.common:last-child {
+  padding-right: .5rem;
+}
+
 .stats .stats-content {
   margin: -.35rem;
   display: flex;

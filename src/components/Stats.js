@@ -11,10 +11,6 @@ function Stats({ stats, highlight }) {
           <div
             key={statName}
             className={`stat ${highlight === statName ? 'highlight' : 'common'}${typeof stat === 'object' && stat.link ? ' with-link' : ''}`}
-            style={{
-              paddingLeft: highlight !== statName && index === 0 ? '.5rem' : undefined,
-              paddingRight: highlight !== statName && index + 1 === entries.length ? '.5rem' : undefined,
-            }}
           >
             <div className="stat-content">
               {typeof stat === 'object'
