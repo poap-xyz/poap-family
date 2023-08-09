@@ -17,3 +17,7 @@
   display: flex;
   gap: .5rem;
 }
+
+.event-buttons .buttons a.link-button.secondary {
+  margin-top: -.4rem;
+}

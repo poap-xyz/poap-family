@@ -2,7 +2,7 @@ import { OpenNewWindow } from 'iconoir-react'
 import '../styles/link-button.css'
 
 function LinkButton({ title, icon, href, children, external = false, secondary = false }) {
-  if (external) {
+  if (external && !icon) {
     icon = <OpenNewWindow width={16} height={16} />
   }
   return (
