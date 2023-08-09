@@ -10,6 +10,10 @@
   border-color: #efeeff;
 }
 
+.stats.highlighted .stat.common {
+  margin-left: .5rem;
+}
+
 .stats .stats-content {
   margin: -.35rem;
   display: flex;
