@@ -84,11 +84,13 @@
 .link-button.secondary:hover .link-button-content {
   background-color: #968cff;
   color: white;
+  stroke: white;
+  fill: white;
   border-color: #5e58a5;
 }
 
 .link-button .link-button-content .link-button-icon {
   position: relative;
   top: 2px;
-  margin-right: .1rem;
+  margin-right: .25rem;
 }
