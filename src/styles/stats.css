@@ -10,6 +10,18 @@
   border-color: #efeeff;
 }
 
+.stats.highlighted .stat.common {
+  margin-left: .5rem;
+}
+
+.stats.highlighted .stat.common:first-child {
+  padding-left: .5rem;
+}
+
+.stats.highlighted .stat.common:last-child {
+  padding-right: .5rem;
+}
+
 .stats .stats-content {
   margin: -.35rem;
   display: flex;
@@ -27,6 +39,10 @@
   padding-right: .5rem;
   border-color: #efeeff;
   background-color: #efeeff;
+}
+
+.stat.with-link:hover a.stat-name {
+  text-decoration: underline;
 }
 
 .stat .stat-content {
@@ -58,7 +74,7 @@
   margin-top: .2rem;
 }
 
-.stat .stat-name[title] {
+.stat span.stat-name[title] {
   cursor: help;
   text-decoration: underline dotted;
 }

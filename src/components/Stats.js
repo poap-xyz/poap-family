@@ -10,12 +10,7 @@ function Stats({ stats, highlight }) {
         {entries.map(([statName, stat], index) => (
           <div
             key={statName}
-            className={`stat ${highlight === statName ? 'highlight' : 'common'}`}
-            style={{
-              paddingLeft: highlight !== statName && index === 0 ? '.5rem' : undefined,
-              paddingRight: highlight !== statName && index + 1 === entries.length ? '.5rem' : undefined,
-              marginLeft: highlight && highlight !== statName ? '.5rem' : undefined,
-            }}
+            className={`stat ${highlight === statName ? 'highlight' : 'common'}${typeof stat === 'object' && stat.link ? ' with-link' : ''}`}
           >
             <div className="stat-content">
               {typeof stat === 'object'
