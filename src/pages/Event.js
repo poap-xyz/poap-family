@@ -275,8 +275,8 @@ function Event() {
               'moments': metrics && metrics.momentsUploaded > 0
                 ? {
                   text: formatStat(metrics.momentsUploaded),
-                  title: `Upload moment on ${event.name}`,
-                  link: `${POAP_MOMENTS_URL}/upload?drop=${event.id}`,
+                  title: `View uploaded moments on ${event.name}`,
+                  link: `${POAP_MOMENTS_URL}/drop/${event.id}`,
                   external: true,
                 }
                 : undefined,
