@@ -48,6 +48,8 @@
 
 .link-button.primary .link-button-content {
   color: white;
+  stroke: white;
+  fill: white;
   background-color: #968cff;
   border-color: #473e6b;
   transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
@@ -77,6 +79,8 @@
   padding: 0 .8rem;
   background-color: white;
   color: #7c72e2;
+  stroke: #7c72e2;
+  fill: #7c72e2;
   border: .1rem solid #dddaff;
   transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
 }

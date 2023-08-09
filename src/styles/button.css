@@ -20,6 +20,8 @@
 .button.primary .button-content {
   background-color: #968cff;
   color: white;
+  stroke: white;
+  fill: white;
   border-color: #5e58a5;
 }
 
@@ -30,12 +32,16 @@
 .button.secondary:hover .button-content {
   background-color: #968cff;
   color: white;
+  stroke: white;
+  fill: white;
   border-color: #5e58a5;
 }
 
 .button.active .button-content {
   background-color: #968cff;
   color: white;
+  stroke: white;
+  fill: white;
   font-weight: 700;
   border-color: #5e58a5;
 }
@@ -44,6 +50,8 @@
   background-color: #f5f4ff;
   border-color: #dddaff;
   color: lightslategray;
+  stroke: lightslategray;
+  fill: lightslategray;
   opacity: .8;
   cursor: default;
 }
@@ -63,6 +71,8 @@
   cursor: pointer;
   background-color: white;
   color: #7c72e2;
+  stroke: #7c72e2;
+  fill: #7c72e2;
   border: .1rem solid #dddaff;
   font-weight: 700;
   transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
