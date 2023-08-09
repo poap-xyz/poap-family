@@ -10,7 +10,7 @@
   flex-direction: row-reverse;
 }
 
-.button-group .button-expand a {
-  position: relative;
-  top: 0;
+.button-group.vertical {
+  flex-direction: column;
+  gap: .5rem;
 }

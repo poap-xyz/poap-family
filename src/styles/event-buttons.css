@@ -1,7 +1,7 @@
 .event-buttons {
   display: flex;
   justify-content: flex-start;
-  align-items: baseline;
+  align-items: center;
   gap: .5rem;
 }
 
@@ -16,8 +16,4 @@
 .event-buttons .buttons {
   display: flex;
   gap: .5rem;
-}
-
-.event-buttons .buttons a.link-button.secondary {
-  margin-top: -.4rem;
 }
