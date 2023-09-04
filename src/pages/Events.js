@@ -789,6 +789,25 @@ function Events() {
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
+        {status !== STATUS_LOADING_COMPLETE && (
+          <Card style={{ flexShink: 1 }}>
+            <Loading
+              title={
+                status === STATUS_INITIAL ?
+                  'Loading cache' : (
+                  status === STATUS_LOADING_OWNERS ?
+                    'Loading collectors' : (
+                      status === STATUS_LOADING_SCANS ?
+                        'Loading drops' :
+                        undefined
+                    )
+                )
+              }
+              count={Object.values(loadedCount).length}
+              total={Object.values(events).length}
+            />
+          </Card>
+        )}
         {status === STATUS_LOADING_COMPLETE && (
           <>
             <EventsOwners
