@@ -103,3 +103,18 @@
   height: 28px;
   border-width: 3px;
 }
+
+.loading h4:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  animation: ellipsis steps(4, end) 900ms infinite;
+  content: "\2026";
+  width: 0;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1rem;
+  }
+}
