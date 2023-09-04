@@ -189,7 +189,7 @@ function Events() {
 
   const processEventAddress = useCallback(
     (eventId, address, abortSignal) => {
-    removeEventOwnerErrors(eventId)
+      removeEventOwnerErrors(eventId)
       return scanAddress(address, abortSignal).then(
         (ownerTokens) => {
           for (const ownerToken of ownerTokens) {
