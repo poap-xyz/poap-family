@@ -1,5 +1,6 @@
 .loading {
   position: relative;
+  display: inline-block;
 }
 
 .loading .show-details {
