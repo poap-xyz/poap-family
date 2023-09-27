@@ -7,6 +7,7 @@ function Pagination({
   pages,
   total,
   onPage = (newPage) => {},
+  children,
 }) {
   const items = []
   const elements = []
@@ -72,6 +73,7 @@ function Pagination({
   return (
     <div className="pagination">
       {elements}
+      {children}
     </div>
   )
 }
