@@ -29,8 +29,11 @@ function Home() {
       <div className="drop-lists">
         {settings && settings.showLastEvents && (
           <LastEvents
-            qty={3}
+            perPage={3}
             showRefresh={true}
+            showMore={true}
+            maxPages={3}
+            moreQty={10}
           />
         )}
       </div>

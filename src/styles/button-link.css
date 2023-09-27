@@ -8,3 +8,12 @@
 .button-link:hover {
   text-decoration: underline;
 }
+
+.button-link[disabled] {
+  color: black;
+  cursor: default;
+}
+
+.button-link[disabled]:hover {
+  text-decoration: none;
+}

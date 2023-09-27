@@ -7,3 +7,13 @@
   top: 1rem;
   right: 2rem;
 }
+
+.last-events .per-page {
+  text-align: right;
+}
+
+.last-events .per-page .label {
+  text-transform: lowercase;
+  font-size: 80%;
+  vertical-align: middle;
+}
