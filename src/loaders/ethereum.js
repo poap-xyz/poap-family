@@ -1,13 +1,13 @@
-import { InfuraProvider } from '@ethersproject/providers'
+import { StaticJsonRpcProvider } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
 import {
-  INFURA_API_KEY,
+  MAINNET_PROVIDER_URL,
   MAINNET_ENS_REVERSE_RECORDS,
   ENS_REVERSE_RECORDS_BATCH_SIZE,
   ENS_RESOLVE_MAX_ERRORS,
 } from '../models/ethereum'
 
-const ensProvider = new InfuraProvider('mainnet', INFURA_API_KEY)
+const ensProvider = new StaticJsonRpcProvider(MAINNET_PROVIDER_URL, 'mainnet')
 const ensReverseRecordsContract = new Contract(
   MAINNET_ENS_REVERSE_RECORDS,
   [
