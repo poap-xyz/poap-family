@@ -35,11 +35,23 @@ async function resolveEnsNames(
 ) {
   const resolvedAddresses = {}
   let errorsTotal = 0
+  let errors = 0
   for (let i = 0; i < addresses.length; i += limit) {
-    const chunk = addresses.slice(i, i + limit)
+    const resolved = {}
+    let chunk = addresses.slice(i, i + limit)
     try {
-      const names = await ensReverseRecordsContract.getNames(chunk)
-      const resolved = {}
+      let names = await ensReverseRecordsContract.getNames(chunk)
+      if (errors > 0) {
+        const errorsChunk = addresses.slice(i - errors, i - 1)
+        try {
+          const errorsNames = await ensReverseRecordsContract.getNames(errorsChunk)
+          chunk = [...errorsChunk, ...chunk]
+          names = [...errorsNames, ...names]
+        } catch (err) {
+          console.error('resolveEnsNames', err)
+        }
+      }
+      errors = 0
       for (let i = 0; i < names.length; i++) {
         if (names[i] !== '') {
           resolvedAddresses[chunk[i]] = names[i]
@@ -51,7 +63,9 @@ async function resolveEnsNames(
       }
     } catch (err) {
       errorsTotal += 1
+      errors += 1
       if (errorsTotal > maxErrors) {
+        console.error('resolveEnsNames', err)
         throw new Error(
           'Cannot continue retrieving ENS names as the maximum number of error was reached'
         )
