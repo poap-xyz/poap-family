@@ -20,7 +20,7 @@
     "@ethersproject/contracts": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@mapbox/to-color": "^2.0.0",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "dayjs": "^1.11.9",
     "downloadjs": "^1.4.7",
     "iconoir-react": "^6.11.0",
