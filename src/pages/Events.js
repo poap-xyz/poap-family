@@ -758,7 +758,7 @@ function Events() {
                         <p className="status-cached-ts">
                           Cached <Timestamp ts={eventData[event.id].ts} />
                           {!(event.id in loading) && event.id in eventData && event.id in eventData[event.id].inCommon && eventData[event.id].inCommon[event.id].length < owners[event.id].length && (
-                            <>{' '}<WarningIcon title="There has been new mints since this POAP was cached" /></>
+                            <>{' '}<WarningIcon title="There have been new mints since this POAP was cached" /></>
                           )}
                         </p>
                       )}
@@ -785,7 +785,7 @@ function Events() {
         </div>
         {staleEvents && staleEvents.length > 0 && (
           <WarningMessage>
-            There has been new mints in {staleEvents.length} POAP{staleEvents.length === 1 ? '' : 's'} since cached,{' '}
+            There have been new mints in {staleEvents.length} POAP{staleEvents.length === 1 ? '' : 's'} since cached,{' '}
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}

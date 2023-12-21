@@ -373,7 +373,7 @@ function Event() {
             <>
               {cachedTs && (!ts || ts > cachedTs) && event.id in inCommon && inCommon[event.id].length < owners.length && (
                 <WarningMessage>
-                  There has been new mints since this POAP was cached,{' '}
+                  There have been new mints since this POAP was cached,{' '}
                   <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
                 </WarningMessage>
               )}
