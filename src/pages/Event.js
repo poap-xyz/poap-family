@@ -274,6 +274,9 @@ function Event() {
                   title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
                 }
                 : undefined,
+              'collections': metrics && metrics.collectionsIncludes > 1
+                ? formatStat(metrics.collectionsIncludes)
+                : undefined,
               'moments': metrics && metrics.momentsUploaded > 0
                 ? {
                   text: formatStat(metrics.momentsUploaded),
