@@ -1,5 +1,4 @@
 .loading {
-  position: relative;
   display: inline-block;
 }
 
@@ -14,7 +13,8 @@
 }
 
 .loading.big .loading-inner {
-  margin: 2rem;
+  padding: 2rem;
+  position: relative;
 }
 
 .loading .progress, .loading .count {
@@ -45,7 +45,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -50%;
+  bottom: -12px;
 }
 
 .loading .details .eta, .loading .details .rate {
