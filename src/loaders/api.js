@@ -56,6 +56,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
     !('emailClaimsMinted' in body.metrics) || typeof body.metrics.emailClaimsMinted !== 'number' ||
     !('emailClaims' in body.metrics) || typeof body.metrics.emailClaims !== 'number' ||
     !('momentsUploaded' in body.metrics) || typeof body.metrics.momentsUploaded !== 'number' ||
+    !('collectionsIncludes' in body.metrics) || typeof body.metrics.collectionsIncludes !== 'number' ||
     !('ts' in body.metrics) || (typeof body.metrics.ts !== 'number' && body.metrics.ts !== null)
   ) {
     return {
@@ -67,6 +68,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
         emailClaimsMinted: 0,
         emailClaims: 0,
         momentsUploaded: 0,
+        collectionsIncludes: 0,
         ts: null,
       },
     }
@@ -80,6 +82,7 @@ async function getEventAndOwners(eventId, includeMetrics = true) {
       emailClaimsMinted: body.metrics.emailClaimsMinted,
       emailClaims: body.metrics.emailClaims,
       momentsUploaded: body.metrics.momentsUploaded,
+      collectionsIncludes: body.metrics.collectionsIncludes,
       ts: body.metrics.ts,
     },
   }
@@ -340,6 +343,7 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
     !('emailClaimsMinted' in metrics) || typeof metrics.emailClaimsMinted !== 'number' ||
     !('emailClaims' in metrics) || typeof metrics.emailClaims !== 'number' ||
     !('momentsUploaded' in metrics) || typeof metrics.momentsUploaded !== 'number' ||
+    !('collectionsIncludes' in metrics) || typeof metrics.collectionsIncludes !== 'number' ||
     !('ts' in metrics) || (typeof metrics.ts !== 'number' && metrics.ts !== null)
   ) {
     return null
@@ -349,6 +353,7 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
     emailClaimsMinted: metrics.emailClaimsMinted,
     emailClaims: metrics.emailClaims,
     momentsUploaded: metrics.momentsUploaded,
+    collectionsIncludes: metrics.collectionsIncludes,
     ts: metrics.ts,
   }
 }

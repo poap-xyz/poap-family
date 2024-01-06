@@ -179,6 +179,7 @@ async function eventLoader({ params, request }) {
       emailClaimsMinted: 0,
       emailClaims: 0,
       momentsUploaded: 0,
+      collectionsIncludes: 0,
       ts: null,
     },
   }
