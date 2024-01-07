@@ -4,6 +4,7 @@ const DEFAULT_SETTINGS = {
   showLastEvents: true,
   autoScrollCollectors: true,
   openProfiles: true,
+  showCollections: true,
 }
 
 export { DEFAULT_SETTINGS }
