@@ -16,5 +16,5 @@ export function secondsInTheFuture(secs) {
 }
 
 export function formatMonthYear(d) {
-  return dayjs(d).format('MMM YY')
+  return dayjs(d).format('MMM \'YY')
 }
