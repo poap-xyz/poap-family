@@ -274,7 +274,7 @@ function Event() {
                   title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
                 }
                 : undefined,
-              'collections': metrics && metrics.collectionsIncludes > 1
+              'collections': metrics && metrics.collectionsIncludes > 0
                 ? formatStat(metrics.collectionsIncludes)
                 : undefined,
               'moments': metrics && metrics.momentsUploaded > 0
@@ -385,57 +385,59 @@ function Event() {
                   <AddressErrorList errors={errors} onRetry={retryAddress} />
                 </Card>
               )}
-              <InCommon
-                inCommon={inCommon}
-                events={events}
-                createButtons={(eventIds) => (Object.keys(events).length === 1 && String(Object.keys(events)[0]) === String(event.id) ? [] : [
-                  <Button
-                    key="add-all"
-                    disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
-                    onClick={() => addEvents(eventIds)}
-                  >
-                    Add selected
-                  </Button>,
-                  <Button
-                    key="open-all"
-                    secondary={true}
-                    disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
-                    onClick={() => openEvents(eventIds)}
-                  >
-                    Open
-                  </Button>,
-                ])}
-                createActiveTopButtons={(eventId) => (String(eventId) === String(event.id) ? [] : [
-                  <ButtonAdd
-                    key="add"
-                    onAdd={() => addEvent(eventId)}
-                    secondary={true}
-                    borderless={true}
-                    title={`Combines drop #${eventId}`}
-                  />,
-                ])}
-                createActiveBottomButtons={(eventId) => ([
-                  <ButtonExportAddressCsv
-                    key="export-csv"
-                    filename={
-                      String(eventId) === String(event.id)
-                        ? `collectors-${eventId}-in-common`
-                        : `collectors-${eventId}-in-common-drop-${event.id}`
-                    }
-                    name={String(eventId) === String(event.id) ? event.name : undefined}
-                    addresses={inCommon[eventId]}
-                    secondary={true}
-                    title={`Generates CSV file with collectors in common between drops #${eventId} and #${event.id}`}
-                  >
-                    export csv
-                  </ButtonExportAddressCsv>,
-                  <ButtonExpand
-                    key="expand"
-                    title={`Expands collectors in common between drops #${eventId} and #${event.id}`}
-                    addresses={inCommon[eventId]}
-                  />,
-                ])}
-              />
+              {cachedTs && (
+                <InCommon
+                  inCommon={inCommon}
+                  events={events}
+                  createButtons={(eventIds) => (Object.keys(events).length === 1 && String(Object.keys(events)[0]) === String(event.id) ? [] : [
+                    <Button
+                      key="add-all"
+                      disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
+                      onClick={() => addEvents(eventIds)}
+                    >
+                      Add selected
+                    </Button>,
+                    <Button
+                      key="open-all"
+                      secondary={true}
+                      disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
+                      onClick={() => openEvents(eventIds)}
+                    >
+                      Open
+                    </Button>,
+                  ])}
+                  createActiveTopButtons={(eventId) => (String(eventId) === String(event.id) ? [] : [
+                    <ButtonAdd
+                      key="add"
+                      onAdd={() => addEvent(eventId)}
+                      secondary={true}
+                      borderless={true}
+                      title={`Combines drop #${eventId}`}
+                    />,
+                  ])}
+                  createActiveBottomButtons={(eventId) => ([
+                    <ButtonExportAddressCsv
+                      key="export-csv"
+                      filename={
+                        String(eventId) === String(event.id)
+                          ? `collectors-${eventId}-in-common`
+                          : `collectors-${eventId}-in-common-drop-${event.id}`
+                      }
+                      name={String(eventId) === String(event.id) ? event.name : undefined}
+                      addresses={inCommon[eventId]}
+                      secondary={true}
+                      title={`Generates CSV file with collectors in common between drops #${eventId} and #${event.id}`}
+                    >
+                      export csv
+                    </ButtonExportAddressCsv>,
+                    <ButtonExpand
+                      key="expand"
+                      title={`Expands collectors in common between drops #${eventId} and #${event.id}`}
+                      addresses={inCommon[eventId]}
+                    />,
+                  ])}
+                />
+              )}
             </>
         }
       </div>
