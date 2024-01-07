@@ -21,6 +21,9 @@ function Settings() {
   const handleOpenProfiles = (event) => {
     set('openProfiles', !!event.target.checked)
   }
+  const handleShowCollections = (event) => {
+    set('showCollections', !!event.target.checked)
+  }
   useEffect(
     () => {
       setTitle('Settings')
@@ -47,6 +50,12 @@ function Settings() {
           <label className="label">Open profiles</label>
           <div className="input">
             <Switch checked={settings && settings.openProfiles} onChange={handleOpenProfiles} />
+          </div>
+        </div>
+        <div className="setting">
+          <label className="label">Show collections</label>
+          <div className="input">
+            <Switch checked={settings && settings.showCollections} onChange={handleShowCollections} />
           </div>
         </div>
       </Card>
