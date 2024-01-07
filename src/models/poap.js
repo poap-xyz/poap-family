@@ -18,6 +18,7 @@ function POAP(token) {
 
 const POAP_SCAN_URL = 'https://app.poap.xyz/scan'
 const POAP_MOMENTS_URL = 'https://moments.poap.xyz'
+const POAP_COLLECTIONS_URL = 'https://collections.poap.xyz'
 
 function findInitialPOAPDate(tokens) {
   return tokens.reduce(
@@ -49,5 +50,6 @@ export {
   POAP,
   POAP_SCAN_URL,
   POAP_MOMENTS_URL,
+  POAP_COLLECTIONS_URL,
   findInitialPOAPDate,
 }
