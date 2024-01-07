@@ -8,6 +8,7 @@ import { SettingsContext } from '../stores/cache'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
 import { getInCommonEventsWithProgress, patchEvents, putEventInCommon } from '../loaders/api'
+import { findEventsCollections } from '../loaders/collection'
 import { filterCacheEventsByInCommonEventIds, parseEventIds } from '../models/event'
 import { filterAndSortInCommon } from '../models/in-common'
 import { POAP_MOMENTS_URL } from '../models/poap'
@@ -18,8 +19,10 @@ import Button from '../components/Button'
 import Loading from '../components/Loading'
 import InCommon from '../components/InCommon'
 import EventInfo from '../components/EventInfo'
+import CollectionSet from '../components/CollectionSet'
 import AddressErrorList from '../components/AddressErrorList'
 import WarningMessage from '../components/WarningMessage'
+import ErrorMessage from '../components/ErrorMessage'
 import ButtonLink from '../components/ButtonLink'
 import Progress from '../components/Progress'
 import ButtonExportAddressCsv from '../components/ButtonExportAddressCsv'
@@ -39,12 +42,15 @@ function Event() {
   const [cachedTs, setCachedTs] = useState(null)
   const [inCommon, setInCommon] = useState({})
   const [events, setEvents] = useState({})
+  const [collectionData, setCollectionData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [loadedCount, setLoadedCount] = useState(0)
   const [loadedProgress, setLoadedProgress] = useState(null)
+  const [loadingCollections, setLoadingCollections] = useState(false)
   const [errors, setErrors] = useState([])
   const [caching, setCaching] = useState(false)
   const [cachingError, setCachingError] = useState(null)
+  const [collectionsError, setCollectionsError] = useState(null)
 
   const processAddress = useCallback(
     (address, abortSignal) => scanAddress(address, abortSignal).then(
@@ -167,6 +173,7 @@ function Event() {
               if (event.id in result.inCommon) {
                 setLoadedCount(result.inCommon[event.id].length)
               }
+              setCollectionData(null)
               setLoading(false)
             }
           },
@@ -193,6 +200,45 @@ function Event() {
     [event.name, setTitle]
   )
 
+  const loadCollections = useCallback(
+    () => {
+      setLoadingCollections(true)
+      ;(
+        metrics && metrics.collectionsIncludes > 0
+          ? findEventsCollections([event.id])
+          : Promise.resolve({
+            collections: [],
+            includes: [],
+          })
+      ).then((eventCollectionsData) => {
+        setCollectionData(eventCollectionsData)
+        setLoadingCollections(false)
+      }).catch((err) => {
+        setCollectionsError(err?.message ?? 'Could not load collections')
+        setLoadingCollections(false)
+      })
+    },
+    [metrics, event.id]
+  )
+
+  useEffect(
+    () => {
+      if (
+        settings.showCollections &&
+        !loading &&
+        Object.keys(events).length > 0
+      ) {
+        loadCollections()
+      }
+    },
+    [
+      settings.showCollections,
+      loading,
+      events,
+      loadCollections,
+    ]
+  )
+
   const retryAddress = (address) => {
     setErrors((prevErrors) => {
       const newErrors = []
@@ -212,6 +258,7 @@ function Event() {
     setEvents({})
     setInCommon({})
     setLoadedCount(0)
+    setCollectionData(null)
   }
 
   const addEvent = (eventId) => {
@@ -384,6 +431,32 @@ function Event() {
                 <Card>
                   <AddressErrorList errors={errors} onRetry={retryAddress} />
                 </Card>
+              )}
+              {settings.showCollections && (
+                <>
+                  {loadingCollections && !collectionsError && (
+                    <Card>
+                      <h4>Collections</h4>
+                      <Loading />
+                    </Card>
+                  )}
+                  {!loadingCollections && collectionsError && (
+                    <Card>
+                      <h4>Collections</h4>
+                      <ErrorMessage>
+                        <p>{collectionsError}</p>
+                      </ErrorMessage>
+                    </Card>
+                  )}
+                  {!loadingCollections && !collectionsError && collectionData && (
+                    <CollectionSet
+                      showEmpty={metrics && metrics.collectionsIncludes > 0}
+                      collectionMap={{
+                        [`${collectionData.collections.length} collections`]: collectionData.collections,
+                      }}
+                    />
+                  )}
+                </>
               )}
               {cachedTs && (
                 <InCommon
