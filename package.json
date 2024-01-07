@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.6.16",
+  "version": "1.6.17",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -36,6 +36,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "eslintConfig": {
     "extends": [
