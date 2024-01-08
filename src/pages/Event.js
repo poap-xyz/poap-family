@@ -451,6 +451,7 @@ function Event() {
                   {!loadingCollections && !collectionsError && collectionData && (
                     <CollectionSet
                       showEmpty={metrics && metrics.collectionsIncludes > 0}
+                      emptyMessage={`No collections found that includes ${event.name}`}
                       collectionMap={{
                         [`${collectionData.collections.length} collections`]: collectionData.collections,
                       }}

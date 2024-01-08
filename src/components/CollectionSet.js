@@ -6,6 +6,7 @@ import WarningMessage from './WarningMessage'
 function CollectionSet({
   collectionMap,
   showEmpty = true,
+  emptyMessage = 'No collections',
 }) {
   const total = Object.values(collectionMap).reduce(
     (n, collections) => n + collections.length,
@@ -18,7 +19,7 @@ function CollectionSet({
     }
     return (
       <WarningMessage>
-        <h4>No collections</h4>
+        {emptyMessage}
       </WarningMessage>
     )
   }
