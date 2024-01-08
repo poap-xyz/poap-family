@@ -1,10 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from '../utils/number'
+import { SettingsContext } from '../stores/cache'
 import { HTMLContext } from '../stores/html'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, patchEvents, putEventInCommon, putEventOwners } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
+import { findEventsCollections } from '../loaders/collection'
 import { IGNORED_OWNERS } from '../models/address'
 import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
 import { filterCacheEventsByInCommonEventIds, parseEventIds, parseExpiryDates } from '../models/event'
@@ -19,11 +21,13 @@ import ShadowText from '../components/ShadowText'
 import ButtonLink from '../components/ButtonLink'
 import Progress from '../components/Progress'
 import InCommon from '../components/InCommon'
+import CollectionSet from '../components/CollectionSet'
 import EventsOwners from '../components/EventsOwners'
 import Button from '../components/Button'
 import Switch from '../components/Switch'
 import WarningIcon from '../components/WarningIcon'
 import WarningMessage from '../components/WarningMessage'
+import ErrorMessage from '../components/ErrorMessage'
 import ButtonExportAddressCsv from '../components/ButtonExportAddressCsv'
 import ButtonAdd from '../components/ButtonAdd'
 import ButtonDelete from '../components/ButtonDelete'
@@ -44,15 +48,19 @@ function Events() {
   const events = useLoaderData()
   const { eventIds: rawEventIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: false })
+  const { settings } = useContext(SettingsContext)
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const [owners, setOwners] = useState({})
   const [metrics, setMetrics] = useState({})
   const [status, setStatus] = useState(STATUS_INITIAL)
   const [errors, setErrors] = useState({})
+  const [collectionsError, setCollectionsError] = useState(null)
   const [loading, setLoading] = useState({})
+  const [loadingCollections, setLoadingCollections] = useState(false)
   const [eventData, setEventData] = useState({})
   const [eventOwnerErrors, setEventOwnerErrors] = useState({})
+  const [collectionData, setCollectionData] = useState(null)
   const [loadedCount, setLoadedCount] = useState({})
   const [loadedProgress, setLoadedProgress] = useState({})
   const [progress, setProgress] = useState({})
@@ -294,6 +302,20 @@ function Events() {
       return promise
     },
     [owners, processEventAddress]
+  )
+
+  const loadCollections = useCallback(
+    () => {
+      setLoadingCollections(true)
+      findEventsCollections(Object.keys(events)).then((eventCollectionsData) => {
+        setCollectionData(eventCollectionsData)
+        setLoadingCollections(false)
+      }).catch((err) => {
+        setCollectionsError(err?.message ?? 'Could not load collections')
+        setLoadingCollections(false)
+      })
+    },
+    [events]
   )
 
   useEffect(
@@ -554,6 +576,22 @@ function Events() {
     [status, events, loadedCount, owners, errors, eventData, loading]
   )
 
+  useEffect(
+    () => {
+      if (
+        settings.showCollections &&
+        status === STATUS_LOADING_COMPLETE
+      ) {
+        loadCollections()
+      }
+    },
+    [
+      settings.showCollections,
+      status,
+      loadCollections,
+    ]
+  )
+
   const retryLoadOwners = (eventId) => {
     removeErrors(eventId)
     loadOwners(eventId)
@@ -629,6 +667,10 @@ function Events() {
     setSearchParams({ all: event.target.checked })
   }
 
+  const handleViewAll = () => {
+    setSearchParams({ all: true })
+  }
+
   let inCommon = {}
   if (status === STATUS_LOADING_COMPLETE) {
     inCommon = mergeEventsInCommon(eventData, searchParams.get('all') === 'true')
@@ -652,6 +694,8 @@ function Events() {
     setLoadedProgress({})
     setProgress({})
     setStaleEvents([])
+    setCollectionData(null)
+    setCollectionsError(null)
   }
 
   return (
@@ -810,6 +854,39 @@ function Events() {
         )}
         {status === STATUS_LOADING_COMPLETE && (
           <>
+            {settings.showCollections && (
+              <>
+                {loadingCollections && !collectionsError && (
+                  <Card>
+                    <h4>Collections</h4>
+                    <Loading />
+                  </Card>
+                )}
+                {!loadingCollections && collectionsError && (
+                  <Card>
+                    <h4>Collections</h4>
+                    <ErrorMessage>
+                      <p>{collectionsError}</p>
+                    </ErrorMessage>
+                  </Card>
+                )}
+                {!loadingCollections && !collectionsError && collectionData && (
+                  <CollectionSet
+                    showEmpty={metrics && Object.values(metrics).reduce((total, metric) => total + metric.collectionsIncludes, 0) > 0}
+                    emptyMessage={(
+                      <>
+                        No collections found that includes exactly all {Object.keys(events).length} POAPs,{' '}
+                        <ButtonLink onClick={handleViewAll}>view related collections</ButtonLink>.
+                      </>
+                    )}
+                    collectionMap={{
+                      [`${collectionData.collections.length} collections`]: collectionData.collections,
+                      [`${collectionData.includes.length} related collections`]: searchParams.get('all') === 'true' ? collectionData.includes : [],
+                    }}
+                  />
+                )}
+              </>
+            )}
             <EventsOwners
               owners={owners}
               inCommon={inCommon}
