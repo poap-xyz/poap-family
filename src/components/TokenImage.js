@@ -21,7 +21,21 @@ function TokenImage({ event, size, resize = true, imgix = false, ...props }) {
         imageUrl = url.toString()
       }
     } else {
-      imageUrl += '?size=small'
+      let poapSize = 'small'
+
+      if (size <= 64) {
+        poapSize = 'xsmall'
+      } else if (size > 64 && size <= 128) {
+        poapSize = 'small'
+      } else if (size > 128 && size <= 256) {
+        poapSize = 'medium'
+      } else if (size > 256 && size <= 512) {
+        poapSize = 'large'
+      } else if (size > 512) {
+        poapSize = 'xlarge'
+      }
+
+      imageUrl += `?size=${poapSize}`
     }
   }
   return (
