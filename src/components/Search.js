@@ -230,7 +230,7 @@ function Search() {
   }
 
   function onQueryChange() {
-    const value = queryRef.current ? queryRef.current.value : ''
+    const value = queryRef.current ? String(queryRef.current.value).trim() : ''
     if (loadingSearchCollections.state) {
       loadingSearchCollections.controller.abort()
     }
@@ -248,7 +248,7 @@ function Search() {
       setTimeoutId(setTimeout(
         () => {
           search(value, 1)
-          if (!isNaN(parseInt(value))) {
+          if (/^[0-9]+$/.test(value)) {
             findEvent(value)
           } else {
             setErrorById(null)
