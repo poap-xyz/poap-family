@@ -248,7 +248,7 @@ function Search() {
       setTimeoutId(setTimeout(
         () => {
           search(value, 1)
-          if (!isNaN(parseInt(value))) {
+          if (/^[0-9]+$/.test(value)) {
             findEvent(value)
           } else {
             setErrorById(null)
