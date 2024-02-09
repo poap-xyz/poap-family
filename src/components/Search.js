@@ -4,7 +4,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import { SettingsContext } from '../stores/cache'
 import { fetchEvent, searchEvents } from '../loaders/event'
 import { searchCollections } from '../loaders/collection'
-import { joinEventIds, SEARCH_LIMIT } from '../models/event'
+import { joinEventIds, parseEventIds, SEARCH_LIMIT } from '../models/event'
 import { resizeCollectionImageUrl } from '../models/collection'
 import Card from '../components/Card'
 import TokenImage from './TokenImage'
@@ -206,6 +206,13 @@ function Search() {
       const subValue = value.substring(1)
       if (/^[0-9]+$/.test(subValue)) {
         navigate(`/event/${subValue}`)
+        return
+      }
+    }
+    if (/^[0-9]+(, *[0-9]+)*$/.test(value)) {
+      const rawEventIds = parseEventIds(value)
+      if (rawEventIds.length > 0) {
+        navigate(`/events/${joinEventIds(rawEventIds)}`)
         return
       }
     }
