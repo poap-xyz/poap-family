@@ -206,8 +206,6 @@ function Search() {
       setErrorSubmit(new Error('Select any POAP drop to continue'))
     } else if (value.length === 0) {
       setErrorSubmit(new Error('Search and select any POAP drop to continue'))
-    } else {
-      setErrorSubmit(new Error('Nothing to submit'))
     }
   }
 
