@@ -22,6 +22,55 @@ function Collections(collections) {
   return collections.map((collection) => Collection(collection))
 }
 
+function CollectionWithDrops(collectionWithDrops) {
+  const collection = Collection(collectionWithDrops)
+
+  if (
+    !('collections_items' in collectionWithDrops) &&
+    !Array.isArray(collectionWithDrops.collections_items) &&
+    !collectionWithDrops.collections_items.every((collectionItem) =>
+      typeof collectionItem === 'object' &&
+      'drop_id' in collectionItem &&
+      typeof collectionItem.drop_id === 'number'
+    )
+  ) {
+    throw new Error(`Collection ${collection.id} with invalid drops`)
+  }
+
+  return {
+    id: collection.id,
+    slug: collection.slug,
+    title: collection.title,
+    banner_image_url: collection.banner_image_url,
+    logo_image_url: collection.logo_image_url,
+    dropIds: collectionWithDrops.collections_items.map(
+      (collectionItem) => collectionItem.drop_id
+    ),
+  }
+}
+
+function CollectionsWithDrops(collections) {
+  if (!Array.isArray(collections)) {
+    throw new Error('Invalid collections')
+  }
+  return collections.map((collection) => CollectionWithDrops(collection))
+}
+
+function CollectionsCount(data) {
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !('aggregate' in data) ||
+    !data.aggregate ||
+    typeof data.aggregate !== 'object' ||
+    !('count' in data.aggregate) ||
+    typeof data.aggregate.count !== 'number'
+  ) {
+    throw new Error('Invalid collection count')
+  }
+  return data.aggregate.count
+}
+
 const COLLECTIONS_LIMIT = 7
 
 function getRandomInt(min, max) {
@@ -101,6 +150,9 @@ function resizeCollectionImageUrl(imageUrl, size) {
 export {
   Collection,
   Collections,
+  CollectionWithDrops,
+  CollectionsWithDrops,
+  CollectionsCount,
   COLLECTIONS_LIMIT,
   resizeCollectionImageUrl,
 }
