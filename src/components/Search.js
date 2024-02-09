@@ -202,6 +202,13 @@ function Search() {
       navigate(`/event/${value}`)
       return
     }
+    if (value.startsWith('#')) {
+      const subValue = value.substring(1)
+      if (/^[0-9]+$/.test(subValue)) {
+        navigate(`/event/${subValue}`)
+        return
+      }
+    }
     if (queryCollections.length > 0 || queryEvents.length > 0) {
       setErrorSubmit(new Error('Select any POAP drop to continue'))
     } else if (value.length === 0) {
