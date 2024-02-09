@@ -197,10 +197,17 @@ function Search() {
       navigate(`/event/${eventById.id}`)
       return
     }
-    const value = queryRef.current ? queryRef.current.value : ''
+    const value = queryRef.current ? String(queryRef.current.value).trim() : ''
     if (/^[0-9]+$/.test(value)) {
       navigate(`/event/${value}`)
       return
+    }
+    if (value.startsWith('#')) {
+      const subValue = value.substring(1)
+      if (/^[0-9]+$/.test(subValue)) {
+        navigate(`/event/${subValue}`)
+        return
+      }
     }
     if (/^[0-9]+(, *[0-9]+)*$/.test(value)) {
       const rawEventIds = parseEventIds(value)
@@ -213,8 +220,6 @@ function Search() {
       setErrorSubmit(new Error('Select any POAP drop to continue'))
     } else if (value.length === 0) {
       setErrorSubmit(new Error('Search and select any POAP drop to continue'))
-    } else {
-      setErrorSubmit(new Error('Nothing to submit'))
     }
   }
 
