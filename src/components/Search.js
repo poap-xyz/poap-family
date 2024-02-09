@@ -230,7 +230,7 @@ function Search() {
   }
 
   function onQueryChange() {
-    const value = queryRef.current ? queryRef.current.value : ''
+    const value = queryRef.current ? String(queryRef.current.value).trim() : ''
     if (loadingSearchCollections.state) {
       loadingSearchCollections.controller.abort()
     }
