@@ -197,7 +197,7 @@ function Search() {
       navigate(`/event/${eventById.id}`)
       return
     }
-    const value = queryRef.current ? queryRef.current.value : ''
+    const value = queryRef.current ? String(queryRef.current.value).trim() : ''
     if (/^[0-9]+$/.test(value)) {
       navigate(`/event/${value}`)
       return
