@@ -1,24 +1,27 @@
 import { COMPASS_KEY, COMPASS_URL } from '../models/compass'
 
-async function queryCompass(name, models, query, variables, offlimits) {
+async function queryCompass(name, models, query, variables, offlimits, abortSignal) {
   const results = {}
   let numResults
 
   do {
     numResults = 0
 
-    for (const [offsetKey, limit] of Object.entries(offlimits)) {
-      if (!limit) {
-        continue
-      }
-      if (offsetKey in variables) {
-        variables[offsetKey] += limit
-      } else {
-        variables[offsetKey] = 0
+    if (offlimits) {
+      for (const [offsetKey, limit] of Object.entries(offlimits)) {
+        if (!limit) {
+          continue
+        }
+        if (offsetKey in variables) {
+          variables[offsetKey] += limit
+        } else {
+          variables[offsetKey] = 0
+        }
       }
     }
 
     const response = await fetch(COMPASS_URL, {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -76,14 +79,17 @@ async function queryCompass(name, models, query, variables, offlimits) {
           } else {
             results[modelName] = nextResult
           }
-        } else if (nextResult) {
+        } else if (nextResult != null) {
           numResults++
           if (modelName in results) {
             if (Array.isArray(results[modelName])) {
               results[modelName].push(nextResult)
+            } else if (typeof results[modelName] === 'number') {
+              results[modelName] += nextResult
+            } else if (results[modelName] != null) {
+              results[modelName] = [results[modelName], nextResult]
             } else {
-              const prevResult = results[modelName]
-              results[modelName] = [prevResult, nextResult]
+              results[modelName] = nextResult
             }
           } else {
             results[modelName] = nextResult
@@ -93,7 +99,7 @@ async function queryCompass(name, models, query, variables, offlimits) {
         throw new Error(`Invalid ${name} model ${modelName}: ${err}`)
       }
     }
-  } while (numResults > 0)
+  } while (numResults > 0 && offlimits)
 
   return results
 }

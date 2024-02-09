@@ -28,6 +28,10 @@ function parseEventIds(rawIds) {
   return eventIds
 }
 
+function joinEventIds(eventIds) {
+  return parseEventIds(eventIds.join(',')).join(',')
+}
+
 function parseExpiryDates(events) {
   return Object.fromEntries(
     Object.entries(events).map(
@@ -58,6 +62,7 @@ export {
   Event,
   filterCacheEventsByInCommonEventIds,
   parseEventIds,
+  joinEventIds,
   parseExpiryDates,
   encodeExpiryDates,
   SEARCH_LIMIT,

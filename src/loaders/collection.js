@@ -1,4 +1,4 @@
-import { Collections } from '../models/collection'
+import { Collections, CollectionsCount, CollectionsWithDrops } from '../models/collection'
 import { DEFAULT_COMPASS_LIMIT } from '../models/compass'
 import { queryCompass } from './compass'
 
@@ -94,7 +94,58 @@ async function findEventsInCollections(eventIds, limit = DEFAULT_COMPASS_LIMIT) 
   return results.collections
 }
 
+async function searchCollections(search, offset = 0, limit = DEFAULT_COMPASS_LIMIT, abortSignal) {
+  const results = await queryCompass(
+    'search collections',
+    {
+      search_collections: CollectionsWithDrops,
+      search_collections_aggregate: CollectionsCount,
+    },
+    `
+      query SearchCollections($search: String!, $offset: Int!, $limit: Int!) {
+        search_collections(
+          args: {
+            search: $search
+          }
+          offset: $offset
+          limit: $limit
+        ) {
+          id
+          title
+          slug
+          banner_image_url
+          logo_image_url
+          collections_items {
+            drop_id
+          }
+        }
+        search_collections_aggregate(
+          args: {
+            search: $search
+          }
+        ) {
+          aggregate {
+            count
+          }
+        }
+      }
+    `,
+    {
+      search,
+      offset,
+      limit,
+    },
+    null,
+    abortSignal
+  )
+  return {
+    items: results.search_collections,
+    total: results.search_collections_aggregate,
+  }
+}
+
 export {
   findEventsCollections,
   findEventsInCollections,
+  searchCollections,
 }
