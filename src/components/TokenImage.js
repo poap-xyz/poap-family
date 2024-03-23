@@ -6,11 +6,11 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 }
 
-function TokenImage({ event, size, resize = true, imgix = false, ...props }) {
-  let imageUrl = event.image_url
+function TokenImage({ event, size, resize = true, imgix = false, original = false, ...props }) {
+  let imageUrl = original ? event.original_url ?? event.image_url : event.image_url
   if (resize) {
     if (imgix) {
-      const url = new URL(event.image_url)
+      const url = new URL(imageUrl)
       url.host = `poap${Math.trunc(getRandomInt(0, 10))}.imgix.net`
       if (url.pathname.startsWith('/assets.poap.xyz')) {
         url.pathname = url.pathname.substring('/assets.poap.xyz'.length)

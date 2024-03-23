@@ -3,6 +3,12 @@ function Event(event) {
     id: event.id,
     name: event.name,
     image_url: event.image_url,
+    original_url: event.original_url
+      ?? event.drop_image?.gateways?.reduce(
+        (original, gateway) => gateway.type === 'ORIGINAL' ? gateway.url : original,
+        event.image_url
+      )
+      ?? event.image_url,
     city: event.city,
     country: event.country,
     start_date: event.start_date,
