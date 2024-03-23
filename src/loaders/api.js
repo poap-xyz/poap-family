@@ -265,7 +265,7 @@ async function getEvents(eventIds) {
   }
   return Object.fromEntries(
     Object.entries(body).map(
-      ([eventId, event]) => [event, Event(event)]
+      ([eventId, event]) => [eventId, Event(event)]
     )
   )
 }
