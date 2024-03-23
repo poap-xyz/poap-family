@@ -43,7 +43,21 @@ async function searchEvents(query, abortSignal, offset = 0, limit = 10) {
   if (!data) {
     throw new Error(`Search events response was empty`)
   }
-  return data
+  if (
+    !data || typeof data !== 'object' ||
+    !('items' in data) || !Array.isArray(data.items) ||
+    !('total' in data) || typeof data.total !== 'number' ||
+    !('offset' in data) || typeof data.offset !== 'number' ||
+    !('limit' in data) || typeof data.limit !== 'number'
+  ) {
+    throw new Error(`Search events response malformed`)
+  }
+  return {
+    items: data.items.map((item) => Event(item)),
+    total: data.total,
+    offset: data.offset,
+    limit: data.limit,
+  }
 }
 
 async function fetchEventsOrErrors(eventIds, limit = 100) {

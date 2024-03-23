@@ -263,7 +263,11 @@ async function getEvents(eventIds) {
   if (typeof body !== 'object') {
     return null
   }
-  return body
+  return Object.fromEntries(
+    Object.entries(body).map(
+      ([eventId, event]) => [event, Event(event)]
+    )
+  )
 }
 
 async function getEventsOwners(eventIds, abortSignal, expiryDates) {
