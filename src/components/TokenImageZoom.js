@@ -42,6 +42,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
                     event={event}
                     size={size}
                     resize={true}
+                    original={true}
                     style={{ width: `${zoomSize}px`, height: `${zoomSize}px` }}
                   />
                 </button>
@@ -60,6 +61,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
                     event={event}
                     size={zoomSize}
                     resize={false}
+                    original={true}
                   />
                 </button>
               </Card>
@@ -78,6 +80,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
                     event={event}
                     size={size}
                     resize={true}
+                    original={true}
                     style={{ width: `${zoomSize}px`, height: `${zoomSize}px` }}
                   />
                 </button>
