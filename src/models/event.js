@@ -17,14 +17,6 @@ function Event(event) {
   }
 }
 
-function filterCacheEventsByInCommonEventIds(events, inCommonEventIds) {
-  return Object.fromEntries(
-    Object.entries(events).filter(
-      ([eventId, inCommonEvent]) => inCommonEventIds.indexOf(String(inCommonEvent.id)) !== -1
-    )
-  )
-}
-
 function parseEventIds(rawIds) {
   let eventIds = (rawIds ?? '').split(',')
     .filter((value, index, all) => all.indexOf(value) === index)
@@ -57,8 +49,14 @@ function encodeExpiryDates(expiryDates) {
   }
   return Object.entries(expiryDates)
     .map(
-      ([eventId, expiryDate]) => `expiry[${encodeURIComponent(eventId)}]=${encodeURIComponent(Math.trunc(expiryDate.getTime() / 1000))}`
+      ([eventId, expiryDate]) => {
+        if (!(expiryDate instanceof Date) || isNaN(expiryDate.getTime())) {
+          return null
+        }
+        return `expiry[${encodeURIComponent(eventId)}]=${encodeURIComponent(Math.trunc(expiryDate.getTime() / 1000))}`
+      }
     )
+    .filter((param) => param != null)
     .join('&')
 }
 
@@ -66,7 +64,6 @@ const SEARCH_LIMIT = 10
 
 export {
   Event,
-  filterCacheEventsByInCommonEventIds,
   parseEventIds,
   joinEventIds,
   parseExpiryDates,

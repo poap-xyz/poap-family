@@ -2,30 +2,7 @@ import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates, Event } from '../models/event'
 
-async function putEventAndOwners(event, owners) {
-  if (!FAMILY_API_KEY) {
-    return
-  }
-  const response = await fetch(`${FAMILY_API_URL}/event/${event.id}`, {
-    method: 'PUT',
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ event, owners }),
-  })
-  if (response.status === 400) {
-    throw new Error(`Event ${event.id} save failed: incorrect data given`)
-  }
-  if (response.status === 503) {
-    throw new Error(`Event ${event.id} save failed: server cannot fetch data`)
-  }
-  if (response.status !== 200 && response.status !== 201) {
-    throw new Error(`Event ${event.id} save failed (status ${response.status})`)
-  }
-}
-
-async function getEventAndOwners(eventId, includeMetrics = true, fresh = true) {
+async function getEventAndOwners(eventId, abortSignal, includeMetrics = true, fresh = true) {
   if (!FAMILY_API_KEY) {
     return null
   }
@@ -33,6 +10,7 @@ async function getEventAndOwners(eventId, includeMetrics = true, fresh = true) {
     `${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}` +
     `${fresh ? '&fresh=true' : ''}`,
     {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
       headers: {
         'x-api-key': FAMILY_API_KEY,
       },
@@ -95,29 +73,6 @@ async function getEventAndOwners(eventId, includeMetrics = true, fresh = true) {
       collectionsIncludes: body.metrics.collectionsIncludes,
       ts: body.metrics.ts,
     },
-  }
-}
-
-async function patchEvents(events) {
-  if (!FAMILY_API_KEY) {
-    return
-  }
-  const response = await fetch(`${FAMILY_API_URL}/events`, {
-    method: 'PATCH',
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(events),
-  })
-  if (response.status === 400) {
-    throw new Error(`Events save failed: incorrect data given`)
-  }
-  if (response.status === 503) {
-    throw new Error(`Events save failed: server cannot fetch data`)
-  }
-  if (response.status !== 200 && response.status !== 201) {
-    throw new Error(`Events save failed (status ${response.status})`)
   }
 }
 
@@ -331,29 +286,6 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true)
   return body
 }
 
-async function putEventOwners(eventId, owners) {
-  if (!FAMILY_API_KEY) {
-    return
-  }
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/owners`, {
-    method: 'PUT',
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(owners),
-  })
-  if (response.status === 400) {
-    throw new Error(`Event ${eventId} save owners failed: incorrect data given`)
-  }
-  if (response.status === 503) {
-    throw new Error(`Event ${eventId} save owners failed: server cannot fetch data`)
-  }
-  if (response.status !== 200 && response.status !== 201) {
-    throw new Error(`Event ${eventId} save owners failed (status ${response.status})`)
-  }
-}
-
 async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Event ${eventId} metrics could not be fetched, configure Family API key`)
@@ -491,16 +423,13 @@ async function delFeedback(id, passphrase) {
 }
 
 export {
-  putEventAndOwners,
   getEventAndOwners,
-  patchEvents,
   putEventInCommon,
   getInCommonEventsWithProgress,
   getInCommonEvents,
   getLastEvents,
   getEvents,
   getEventsOwners,
-  putEventOwners,
   getEventMetrics,
   getEventsMetrics,
   auth,

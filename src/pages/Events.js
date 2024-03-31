@@ -4,12 +4,12 @@ import { formatStat } from '../utils/number'
 import { SettingsContext } from '../stores/cache'
 import { HTMLContext } from '../stores/html'
 import { ReverseEnsContext } from '../stores/ethereum'
-import { getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, patchEvents, putEventInCommon, putEventOwners } from '../loaders/api'
+import { getEventAndOwners, getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
 import { findEventsCollections } from '../loaders/collection'
 import { IGNORED_OWNERS } from '../models/address'
 import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
-import { filterCacheEventsByInCommonEventIds, parseEventIds, parseExpiryDates } from '../models/event'
+import { parseEventIds, parseExpiryDates } from '../models/event'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
 import EventButtons from '../components/EventButtons'
@@ -114,26 +114,21 @@ function Events() {
     })
   }
 
-  const loadOwners = useCallback(
+  const loadCahedOwnersAndMetrics = useCallback(
     (eventId, abortSignal) => {
       if (eventId in owners) {
         return Promise.resolve()
       }
       removeErrors(eventId)
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
-      return fetchPOAPs(eventId, abortSignal).then(
-        (eventOwnerTokens) => {
+      return getEventAndOwners(eventId, abortSignal, /*includeMetrics*/true, /*fresh*/true).then(
+        (eventAndOwners) => {
           removeLoading(eventId)
-          if (eventOwnerTokens) {
-            const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
-            const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
-            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
-            putEventOwners(eventId, newOwnersFilters).catch((err) => {
-              console.error(err)
-            })
-            return Promise.resolve()
+          setOwners((prevOwners) => ({ ...prevOwners, [eventId]: eventAndOwners.owners }))
+          if (eventAndOwners.metrics) {
+            setMetrics((oldReservations) => ({ ...oldReservations, [eventId]: eventAndOwners.metrics }))
           }
-          return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
+          return Promise.resolve()
         },
         (err) => {
           removeLoading(eventId)
@@ -165,10 +160,8 @@ function Events() {
             const eventOwnerTokens = eventOwnerTokensResult.value
             if (Array.isArray(eventOwnerTokens)) {
               const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
-              setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwners }))
-              putEventOwners(eventId, newOwners).catch((err) => {
-                console.error(err)
-              })
+              const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
+              setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
             } else {
               return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
             }
@@ -339,7 +332,7 @@ function Events() {
           const controller = new AbortController()
           const expiryDates = parseExpiryDates(events)
           Promise.all([
-            getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/true),
+            getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/false),
             getEventsMetrics(eventIds, controller.signal),
           ]).then(
             ([newOwners, eventsMetrics]) => {
@@ -384,8 +377,8 @@ function Events() {
         for (const eventId of eventIds) {
           const controller = new AbortController()
           promise = promise.then(
-            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadOwners(eventId, controller.signal),
-            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadOwners(eventId, controller.signal)
+            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal),
+            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal)
           )
           requests.push(controller)
         }
@@ -398,7 +391,7 @@ function Events() {
         }
       }
     },
-    [events, status, loadOwners, loadOwnersAndMetrics, resolveEnsNames, searchParams]
+    [events, status, loadCahedOwnersAndMetrics, loadOwnersAndMetrics, resolveEnsNames, searchParams]
   )
 
   useEffect(
@@ -526,15 +519,8 @@ function Events() {
               )
               const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
               if (inCommonProcessedEventIds.length > 0) {
-                const eventsProcessed = filterCacheEventsByInCommonEventIds(
-                  eventData[eventId].events,
-                  inCommonProcessedEventIds
-                )
                 removeErrors(eventId)
                 setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_CACHING }))
-                patchEvents(Object.values(eventsProcessed)).catch((err) => {
-                  console.error(err)
-                })
                 putEventInCommon(eventId, inCommonProcessed).then(
                   () => {
                     setEventData((prevEventData) => ({
@@ -596,7 +582,7 @@ function Events() {
 
   const retryLoadOwners = (eventId) => {
     removeErrors(eventId)
-    loadOwners(eventId)
+    loadCahedOwnersAndMetrics(eventId)
   }
 
   const retryEventAddress = (eventId, address) => {
