@@ -7,9 +7,9 @@ import { HTMLContext } from '../stores/html'
 import { SettingsContext } from '../stores/cache'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
-import { getInCommonEventsWithProgress, patchEvents, putEventInCommon } from '../loaders/api'
+import { getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
 import { findEventsCollections } from '../loaders/collection'
-import { filterCacheEventsByInCommonEventIds, parseEventIds } from '../models/event'
+import { parseEventIds } from '../models/event'
 import { filterAndSortInCommon } from '../models/in-common'
 import { POAP_MOMENTS_URL } from '../models/poap'
 import Timestamp from '../components/Timestamp'
@@ -115,15 +115,8 @@ function Event() {
         )
         const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
         if (inCommonProcessedEventIds.length > 0) {
-          const eventsProcessed = filterCacheEventsByInCommonEventIds(
-            events,
-            inCommonProcessedEventIds
-          )
           setCaching(true)
           setCachingError(null)
-          patchEvents(Object.values(eventsProcessed)).catch((err) => {
-            console.error(err)
-          })
           putEventInCommon(event.id, inCommonProcessed).then(
             () => {
               setCaching(false)
