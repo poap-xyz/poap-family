@@ -121,12 +121,10 @@ function Event() {
           )
           setCaching(true)
           setCachingError(null)
-          Promise
-          .all([
-            patchEvents(Object.values(eventsProcessed)),
-            putEventInCommon(event.id, inCommonProcessed),
-          ])
-          .then(
+          patchEvents(Object.values(eventsProcessed)).catch((err) => {
+            console.error(err)
+          })
+          putEventInCommon(event.id, inCommonProcessed).then(
             () => {
               setCaching(false)
               setCachedTs(Math.trunc(Date.now() / 1000))

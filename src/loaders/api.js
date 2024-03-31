@@ -14,6 +14,12 @@ async function putEventAndOwners(event, owners) {
     },
     body: JSON.stringify({ event, owners }),
   })
+  if (response.status === 400) {
+    throw new Error(`Event ${event.id} save failed: incorrect data given`)
+  }
+  if (response.status === 503) {
+    throw new Error(`Event ${event.id} save failed: server cannot fetch data`)
+  }
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Event ${event.id} save failed (status ${response.status})`)
   }
@@ -104,6 +110,12 @@ async function patchEvents(events) {
     },
     body: JSON.stringify(events),
   })
+  if (response.status === 400) {
+    throw new Error(`Events save failed: incorrect data given`)
+  }
+  if (response.status === 503) {
+    throw new Error(`Events save failed: server cannot fetch data`)
+  }
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Events save failed (status ${response.status})`)
   }
@@ -331,6 +343,12 @@ async function putEventOwners(eventId, owners) {
     },
     body: JSON.stringify(owners),
   })
+  if (response.status === 400) {
+    throw new Error(`Event ${eventId} save owners failed: incorrect data given`)
+  }
+  if (response.status === 503) {
+    throw new Error(`Event ${eventId} save owners failed: server cannot fetch data`)
+  }
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Event ${eventId} save owners failed (status ${response.status})`)
   }
