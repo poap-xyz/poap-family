@@ -110,6 +110,12 @@ async function patchEvents(events) {
     },
     body: JSON.stringify(events),
   })
+  if (response.status === 400) {
+    throw new Error(`Events save failed: incorrect data given`)
+  }
+  if (response.status === 503) {
+    throw new Error(`Events save failed: server cannot fetch data`)
+  }
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Events save failed (status ${response.status})`)
   }

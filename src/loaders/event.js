@@ -307,7 +307,9 @@ async function eventsLoader({ params, request }) {
       })
     }
   }
-  patchEvents(Object.values(events))
+  patchEvents(Object.values(events)).catch((err) => {
+    console.error(err)
+  })
   return events
 }
 

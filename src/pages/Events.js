@@ -532,12 +532,10 @@ function Events() {
                 )
                 removeErrors(eventId)
                 setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_CACHING }))
-                Promise
-                .all([
-                  patchEvents(Object.values(eventsProcessed)),
-                  putEventInCommon(eventId, inCommonProcessed),
-                ])
-                .then(
+                patchEvents(Object.values(eventsProcessed)).catch((err) => {
+                  console.error(err)
+                })
+                putEventInCommon(eventId, inCommonProcessed).then(
                   () => {
                     setEventData((prevEventData) => ({
                       ...prevEventData,
