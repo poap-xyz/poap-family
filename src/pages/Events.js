@@ -869,7 +869,7 @@ function Events() {
                     )}
                     collectionMap={{
                       [`${collectionData.collections.length} collections`]: collectionData.collections,
-                      [`${collectionData.includes.length} related collections`]: searchParams.get('all') === 'true' ? collectionData.includes : [],
+                      [`${collectionData.related.length} related collections`]: searchParams.get('all') === 'true' ? collectionData.related : [],
                     }}
                   />
                 )}
