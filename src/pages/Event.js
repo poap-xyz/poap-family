@@ -199,7 +199,7 @@ function Event() {
           ? findEventsCollections([event.id])
           : Promise.resolve({
             collections: [],
-            includes: [],
+            related: [],
           })
       ).then((eventCollectionsData) => {
         setCollectionData(eventCollectionsData)

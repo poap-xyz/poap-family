@@ -15,13 +15,6 @@ function Collection(collection) {
   }
 }
 
-function Collections(collections) {
-  if (!Array.isArray(collections)) {
-    throw new Error('Invalid collections')
-  }
-  return collections.map((collection) => Collection(collection))
-}
-
 function CollectionWithDrops(collectionWithDrops) {
   const collection = Collection(collectionWithDrops)
 
@@ -47,28 +40,6 @@ function CollectionWithDrops(collectionWithDrops) {
       (collectionItem) => collectionItem.drop_id
     ),
   }
-}
-
-function CollectionsWithDrops(collections) {
-  if (!Array.isArray(collections)) {
-    throw new Error('Invalid collections')
-  }
-  return collections.map((collection) => CollectionWithDrops(collection))
-}
-
-function CollectionsCount(data) {
-  if (
-    !data ||
-    typeof data !== 'object' ||
-    !('aggregate' in data) ||
-    !data.aggregate ||
-    typeof data.aggregate !== 'object' ||
-    !('count' in data.aggregate) ||
-    typeof data.aggregate.count !== 'number'
-  ) {
-    throw new Error('Invalid collection count')
-  }
-  return data.aggregate.count
 }
 
 const COLLECTIONS_LIMIT = 7
@@ -149,10 +120,7 @@ function resizeCollectionImageUrl(imageUrl, size) {
 
 export {
   Collection,
-  Collections,
   CollectionWithDrops,
-  CollectionsWithDrops,
-  CollectionsCount,
   COLLECTIONS_LIMIT,
   resizeCollectionImageUrl,
 }
