@@ -5,7 +5,7 @@ const FAMILY_API_URL = 'https://api.poap.family'
 const IS_BOT = /(bot|check|cloud|crawler|download|monitor|preview|scan|spider|google|qwantify|yahoo|facebookexternalhit|flipboard|tumblr|vkshare|whatsapp|curl|perl|python|wget|heritrix|ia_archiver)/i
 
 async function getEventInfo(eventId) {
-  const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}?metrics=true`)
+  const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}?metrics=true&fresh=true`)
   const event = response.data
   if (
     typeof event !== 'object' ||
