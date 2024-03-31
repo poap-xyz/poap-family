@@ -128,7 +128,9 @@ function Events() {
             const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
             const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
             setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
-            putEventOwners(eventId, newOwnersFilters)
+            putEventOwners(eventId, newOwnersFilters).catch((err) => {
+              console.error(err)
+            })
             return Promise.resolve()
           }
           return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
@@ -164,7 +166,9 @@ function Events() {
             if (Array.isArray(eventOwnerTokens)) {
               const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
               setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwners }))
-              putEventOwners(eventId, newOwners)
+              putEventOwners(eventId, newOwners).catch((err) => {
+                console.error(err)
+              })
             } else {
               return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
             }
