@@ -1,7 +1,7 @@
 import { IGNORED_OWNERS } from '../models/address'
 import { Event, parseEventIds } from '../models/event'
 import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
-import { getEventAndOwners, getEventMetrics, getEvents, patchEvents, putEventAndOwners } from './api'
+import { getEventAndOwners, getEventMetrics, getEvents } from './api'
 import { fetchPOAPs } from './poap'
 
 async function searchEvents(query, abortSignal, offset = 0, limit = 10) {
@@ -149,7 +149,7 @@ async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
   if (!force) {
     try {
-      const eventAndOwners = await getEventAndOwners(params.eventId, /*includeMetrics*/true, /*fresh*/true)
+      const eventAndOwners = await getEventAndOwners(params.eventId, /*abortSignal*/undefined, /*includeMetrics*/true, /*fresh*/true)
       if (eventAndOwners) {
         return {
           event: eventAndOwners.event,
@@ -183,9 +183,6 @@ async function eventLoader({ params, request }) {
   const owners = tokens.map((token) => token.owner.id)
   const uniqueOwners = owners.filter((value, index, all) => all.indexOf(value) === index)
   const filteredOwners = uniqueOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
-  putEventAndOwners(event, filteredOwners).catch((err) => {
-    console.error(err)
-  })
   return {
     event,
     owners: filteredOwners,
@@ -307,9 +304,6 @@ async function eventsLoader({ params, request }) {
       })
     }
   }
-  patchEvents(Object.values(events)).catch((err) => {
-    console.error(err)
-  })
   return events
 }
 
