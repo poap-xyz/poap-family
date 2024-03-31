@@ -335,7 +335,7 @@ function Events() {
           const controller = new AbortController()
           const expiryDates = parseExpiryDates(events)
           Promise.all([
-            getEventsOwners(eventIds, controller.signal, expiryDates),
+            getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/true),
             getEventsMetrics(eventIds, controller.signal),
           ]).then(
             ([newOwners, eventsMetrics]) => {

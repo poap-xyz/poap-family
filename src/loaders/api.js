@@ -19,15 +19,19 @@ async function putEventAndOwners(event, owners) {
   }
 }
 
-async function getEventAndOwners(eventId, includeMetrics = true) {
+async function getEventAndOwners(eventId, includeMetrics = true, fresh = true) {
   if (!FAMILY_API_KEY) {
     return null
   }
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}`, {
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}` +
+    `${fresh ? '&fresh=true' : ''}`,
+    {
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }
@@ -232,15 +236,19 @@ async function getLastEvents(page = 1, qty = 3) {
   }
 }
 
-async function getEvents(eventIds) {
+async function getEvents(eventIds, fresh = true) {
   if (!FAMILY_API_KEY) {
     return null
   }
-  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`, {
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+      `${fresh ? '?fresh=true' : ''}`,
+    {
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }
@@ -270,17 +278,22 @@ async function getEvents(eventIds) {
   )
 }
 
-async function getEventsOwners(eventIds, abortSignal, expiryDates) {
+async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true) {
   if (!FAMILY_API_KEY) {
     return null
   }
   const queryString = expiryDates ? encodeExpiryDates(expiryDates) : ''
-  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners${queryString ? `?${queryString}` : ''}`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${FAMILY_API_URL}/events` +
+      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+      `/owners${queryString ? `?${queryString}${fresh ? '&fresh=true' : ''}` : fresh ? '?fresh=true' : ''}`,
+    {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }

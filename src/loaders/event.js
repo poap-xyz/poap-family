@@ -149,7 +149,7 @@ async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
   if (!force) {
     try {
-      const eventAndOwners = await getEventAndOwners(params.eventId, /*includeMetrics*/true)
+      const eventAndOwners = await getEventAndOwners(params.eventId, /*includeMetrics*/true, /*fresh*/true)
       if (eventAndOwners) {
         return {
           event: eventAndOwners.event,
@@ -228,8 +228,32 @@ async function eventsLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
   if (!force) {
     try {
-      const events = await getEvents(eventIds)
+      const events = await getEvents(eventIds, /*fresh*/true)
       if (events) {
+        const notFoundEventIds = []
+        for (const eventId of eventIds) {
+          if (!(eventId in events)) {
+            notFoundEventIds.push(eventId)
+          }
+        }
+        if (notFoundEventIds.length > 0) {
+          throw new Response(JSON.stringify({
+            errorsByEventId: notFoundEventIds.reduce((errorsByEventId, notFoundEventId) => ({
+              ...errorsByEventId,
+              [notFoundEventId]: {
+                message: `The event ${notFoundEventId} was not found`,
+                status: 404,
+                statusText: 'Event not found',
+              },
+            }), {}),
+          }), {
+            status: 503,
+            statusText: 'Fetch events not found',
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+        }
         return events
       }
     } catch (err) {

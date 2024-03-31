@@ -36,7 +36,7 @@ async function getEventsInfo(eventIds) {
 }
 
 async function getEvents(eventIds) {
-  const response = await axios.get(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`)
+  const response = await axios.get(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}?fresh=true`)
   const events = response.data
   if (typeof events !== 'object') {
     throw new Error(`Events invalid response (type ${typeof events} expected object)`)
@@ -45,7 +45,7 @@ async function getEvents(eventIds) {
 }
 
 async function getOwners(eventIds) {
-  const response = await axios.get(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners`)
+  const response = await axios.get(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners?fresh=true`)
   const owners = response.data
   if (typeof owners !== 'object') {
     throw new Error(`Events owners invalid response (type ${typeof owners} expected object)`)
