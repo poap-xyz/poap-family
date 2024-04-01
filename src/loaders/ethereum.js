@@ -78,11 +78,19 @@ async function resolveEnsNames(
 }
 
 async function resolveAddress(ensName) {
-  return await ensProvider.resolveName(ensName)
+  try {
+    return await ensProvider.resolveName(ensName)
+  } catch {
+    return null
+  }
 }
 
-async function resolveEnsAvatar(ensName) {
-  return await ensProvider.getAvatar(ensName)
+async function resolveEnsAvatar(ensNameOrAddress) {
+  try {
+    return await ensProvider.getAvatar(ensNameOrAddress)
+  } catch {
+    return null
+  }
 }
 
 export { resolveEnsNames, resolveAddress, resolveEnsAvatar }

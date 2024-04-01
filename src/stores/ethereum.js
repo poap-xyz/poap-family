@@ -40,11 +40,14 @@ function ResolverEnsProvider({ children }) {
     [addressByEnsName]
   )
   const resolveAvatar = useCallback(
-    async (ensName) => {
+    async (ensName, address) => {
       if (Object.keys(avatarByEnsName).indexOf(ensName) !== -1) {
         return avatarByEnsName[ensName]
       }
-      const avatar = await ethereumResolveEnsAvatar(ensName)
+      let avatar = await ethereumResolveEnsAvatar(ensName)
+      if (!avatar && address) {
+        avatar = await ethereumResolveEnsAvatar(address)
+      }
       if (avatar) {
         setAvatarByEnsName((oldAvatarByEnsName) => ({ ...oldAvatarByEnsName, [ensName]: avatar }))
       } else {
@@ -55,22 +58,20 @@ function ResolverEnsProvider({ children }) {
     [avatarByEnsName]
   )
   const resolveMeta = useCallback(
-    async (ensName) => {
-      const avatar = await resolveAvatar(ensName)
+    async (ensName, address) => {
+      const avatar = await resolveAvatar(ensName, address)
       return { avatar }
     },
     [resolveAvatar]
   )
   const resolve = useCallback(
     async (ensName, full = false) => {
-      const [address, meta] = await Promise.all([
-        resolveAddress(ensName),
-        resolveMeta(ensName),
-      ])
       if (full) {
+        const address = await resolveAddress(ensName)
+        const meta = await resolveMeta(ensName, address)
         return { address, meta }
       } else {
-        return address
+        return await resolveAddress(ensName)
       }
     },
     [resolveAddress, resolveMeta]
@@ -100,12 +101,14 @@ function ReverseEnsProvider({
   const [ensByAddress, setEnsByAddress] = useState({})
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
   const resolveNames = useCallback(
-    (names) => {
+    (names, addresses) => {
       let promise = new Promise((r) => r())
       for (let i = 0; i < names.length; i += limitEnsNames) {
         promise = promise.then(
           () => Promise.allSettled(
-            names.slice(i, i + limitEnsNames).map((name) => resolveMeta(name))
+            names.slice(i, i + limitEnsNames).map(
+              (name) => resolveMeta(name, addresses ? addresses[i] : undefined)
+            )
           )
         )
       }
@@ -118,13 +121,19 @@ function ReverseEnsProvider({
       const oldAddresses = Object.keys(ensByAddress)
       const givenOldAddresses = oldAddresses.filter((address) => oldAddresses.indexOf(address) !== -1)
       if (givenOldAddresses.length > 0 && resolve) {
-        resolveNames(givenOldAddresses.map((address) => ensByAddress[address]))
+        resolveNames(givenOldAddresses.map((address) => ensByAddress[address]), givenOldAddresses)
       }
       const newAddresses = addresses.filter((address) => oldAddresses.indexOf(address) === -1)
       const ensNames = await ethereumResolveEnsNames(newAddresses, (resolved) => {
         setEnsByAddress((oldEnsByAddress) => ({ ...oldEnsByAddress, ...resolved }))
         if (resolve) {
-          resolveNames(Object.values(resolved))
+          const [resolvedAddresses, resolvedEnsNames] = Object.entries(resolved).reduce(
+            ([resolvedAddresses, resolvedEnsNames], [address, ensName]) => [
+              [...resolvedAddresses, address],
+              [...resolvedEnsNames, ensName]
+            ]
+          )
+          resolveNames(resolvedEnsNames, resolvedAddresses)
         }
       })
       setNotFoundAddresses(

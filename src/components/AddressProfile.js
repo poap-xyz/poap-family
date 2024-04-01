@@ -56,7 +56,7 @@ function AddressProfile({
         !error
       ) {
         setLoading((prevLoading) => prevLoading + 1)
-        resolveMeta(ensNames[address]).then(
+        resolveMeta(ensNames[address], address).then(
           (meta) => {
             setLoading((prevLoading) => prevLoading - 1)
           },
