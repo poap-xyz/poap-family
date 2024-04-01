@@ -13,6 +13,7 @@ function AddressOwner({
   eventIds,
   ownerEventIds = [],
   inCommonEventIds = [],
+  inCommonAddresses = [],
   linkToScan = false,
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
@@ -27,6 +28,7 @@ function AddressOwner({
               address={address}
               events={events}
               inCommonEventIds={inCommonEventIds}
+              inCommonAddresses={inCommonAddresses}
             />
           )
           : (

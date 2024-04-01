@@ -1,0 +1,7 @@
+ol.addresses-list {
+  list-style-type: none;
+}
+
+ol.addresses-list li {
+  padding: 3px 0;
+}

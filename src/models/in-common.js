@@ -28,6 +28,18 @@ function mergeEventsInCommon(eventData, all = false) {
   return allInCommon
 }
 
+function mergeAddressesInCommon(inCommonEntries) {
+  let mergedAddresses = null
+  for (const [, addresses] of inCommonEntries) {
+    if (mergedAddresses == null) {
+      mergedAddresses = addresses
+    } else {
+      mergedAddresses = intersection(mergedAddresses, addresses)
+    }
+  }
+  return mergedAddresses
+}
+
 function getAddressInCommonEventIds(inCommonEntries, address) {
   const eventIds = []
   for (const [eventId, addresses] of inCommonEntries) {
@@ -39,10 +51,13 @@ function getAddressInCommonEventIds(inCommonEntries, address) {
 }
 
 const INCOMMON_EVENTS_LIMIT = 20
+const INCOMMON_ADDRESSES_LIMIT = 10
 
 export {
   filterAndSortInCommon,
   mergeEventsInCommon,
+  mergeAddressesInCommon,
   getAddressInCommonEventIds,
   INCOMMON_EVENTS_LIMIT,
+  INCOMMON_ADDRESSES_LIMIT,
 }
