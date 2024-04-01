@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { chunks } from '../utils/array'
-import { getAddressInCommonEventIds } from '../models/in-common'
+import { getAddressInCommonEventIds, mergeAddressesInCommon } from '../models/in-common'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
 import AddressOwner from './AddressOwner'
@@ -67,18 +67,27 @@ function EventsOwners({
             (ownersEntriesChunk, chunkIndex) => (
               <ul key={chunkIndex} className="owners">
                 {ownersEntriesChunk.map(
-                  ([address, eventIds]) => (
-                    <li key={address} className="owners-item">
-                      <AddressOwner
-                        address={address}
-                        events={events}
-                        eventIds={Object.keys(owners)}
-                        ownerEventIds={eventIds}
-                        inCommonEventIds={getAddressInCommonEventIds(inCommonEntries, address)}
-                        linkToScan={false}
-                      />
-                    </li>
-                  )
+                  ([address, eventIds]) => {
+                    const inCommonEventIds = getAddressInCommonEventIds(inCommonEntries, address)
+                    const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
+                      inCommonEntries.filter(([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId))
+                    ).filter(
+                      (inCommonAddress) => inCommonAddress.toLowerCase() !== address.toLowerCase()
+                    )
+                    return (
+                      <li key={address} className="owners-item">
+                        <AddressOwner
+                          address={address}
+                          events={events}
+                          eventIds={Object.keys(owners)}
+                          ownerEventIds={eventIds}
+                          inCommonEventIds={inCommonEventIds}
+                          inCommonAddresses={inCommonAddresses}
+                          linkToScan={false}
+                        />
+                      </li>
+                    )
+                  }
                 )}
                 {chunkIndex + 1 === ownersEntriesChunks.length && ownersTotal > inCommonOwnersTotal && !all && (
                   <li key="show-more">
