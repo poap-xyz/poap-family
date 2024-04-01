@@ -2,7 +2,7 @@ import toColor from '@mapbox/to-color'
 import { createRef, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SettingsContext } from '../stores/cache'
-import { filterAndSortInCommon, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
+import { filterAndSortInCommon, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT, mergeAddressesInCommon } from '../models/in-common'
 import { intersection } from '../utils/array'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
@@ -200,27 +200,36 @@ function InCommon({
                 <h4>{inCommon[activeEventId].length} collector{inCommon[activeEventId].length === 1 ? '' : 's'} in common</h4>
                 <div className="active-event-owners">
                   <ul className="owners">
-                    {inCommon[activeEventId].map((owner) =>
-                      <li
-                        key={owner}
-                        ref={activeEventId in liRefs && owner in liRefs[activeEventId] ? liRefs[activeEventId][owner] : undefined}
-                        style={{
-                          backgroundColor: owner in activeAdressesColors &&
-                            (!ownerHighlighted || ownerHighlighted === owner)
-                              ? activeAdressesColors[owner]
-                              : undefined,
-                        }}
-                        onMouseEnter={() => onOwnerEnter(activeEventId, owner)}
-                        onMouseLeave={() => onOwnerLeave(activeEventId, owner)}
-                      >
-                        <AddressOwner
-                          address={owner}
-                          events={events}
-                          inCommonEventIds={getAddressInCommonEventIds(inCommonEntries, owner)}
-                          linkToScan={!ownerHighlighted || ownerHighlighted === owner}
-                        />
-                      </li>
-                    )}
+                    {inCommon[activeEventId].map((owner) => {
+                      const inCommonEventIds = getAddressInCommonEventIds(inCommonEntries, owner)
+                      const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
+                        inCommonEntries.filter(([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId))
+                      ).filter(
+                        (inCommonAddress) => inCommonAddress.toLowerCase() !== owner.toLowerCase()
+                      )
+                      return (
+                        <li
+                          key={owner}
+                          ref={activeEventId in liRefs && owner in liRefs[activeEventId] ? liRefs[activeEventId][owner] : undefined}
+                          style={{
+                            backgroundColor: owner in activeAdressesColors &&
+                              (!ownerHighlighted || ownerHighlighted === owner)
+                                ? activeAdressesColors[owner]
+                                : undefined,
+                          }}
+                          onMouseEnter={() => onOwnerEnter(activeEventId, owner)}
+                          onMouseLeave={() => onOwnerLeave(activeEventId, owner)}
+                        >
+                          <AddressOwner
+                            address={owner}
+                            events={events}
+                            inCommonEventIds={inCommonEventIds}
+                            inCommonAddresses={inCommonAddresses}
+                            linkToScan={!ownerHighlighted || ownerHighlighted === owner}
+                          />
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
                 <EventButtons

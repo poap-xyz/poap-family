@@ -3,10 +3,11 @@ import { LazyImage } from 'react-lazy-images'
 import { OpenNewWindow } from 'iconoir-react'
 import { formatMonthYear } from '../utils/date'
 import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
-import { INCOMMON_EVENTS_LIMIT } from '../models/in-common'
+import { INCOMMON_ADDRESSES_LIMIT, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { PROFILE_EVENTS_LIMIT } from '../models/address'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
+import AddressesList from './AddressesList'
 import TokenImage from './TokenImage'
 import ButtonLink from './ButtonLink'
 import ErrorMessage from './ErrorMessage'
@@ -17,32 +18,40 @@ function AddressProfile({
   address,
   events = {},
   inCommonEventIds = [],
+  inCommonAddresses = [],
 }) {
   const { avatars, resolveMeta } = useContext(ResolverEnsContext)
   const { ensNames } = useContext(ReverseEnsContext)
   const [showAllPOAPs, setShowAllPOAPs] = useState(false)
-  const [showAllInCommon, setShowAllInCommon] = useState(false)
+  const [showAllInCommonEvents, setShowAllInCommonEvents] = useState(false)
+  const [showAllInCommonAddresses, setShowAllInCommonAddresses] = useState(false)
   const [loading, setLoading] = useState(0)
   const [error, setError] = useState(null)
   const [poaps, setPOAPs] = useState(null)
   const [since, setSince] = useState(null)
 
-  const inCommonTotal = inCommonEventIds.length
-  const inCommonHasMore = inCommonTotal > INCOMMON_EVENTS_LIMIT
-
-  let inCommonEventIdsVisible = inCommonEventIds.slice()
-
-  if (inCommonHasMore && !showAllInCommon) {
-    inCommonEventIdsVisible = inCommonEventIds.slice(0, INCOMMON_EVENTS_LIMIT)
-  }
-
   const poapsTotal = poaps === null ? 0 : poaps.length
   const poapsHasMore = poapsTotal > PROFILE_EVENTS_LIMIT
 
   let poapsVisible = poaps === null ? [] : poaps.slice()
-
   if (poapsHasMore && !showAllPOAPs) {
     poapsVisible = poaps.slice(0, PROFILE_EVENTS_LIMIT)
+  }
+
+  const inCommonEventsTotal = inCommonEventIds.length
+  const inCommonEventsHasMore = inCommonEventsTotal > INCOMMON_EVENTS_LIMIT
+
+  let inCommonEventIdsVisible = inCommonEventIds.slice()
+  if (inCommonEventsHasMore && !showAllInCommonEvents) {
+    inCommonEventIdsVisible = inCommonEventIds.slice(0, INCOMMON_EVENTS_LIMIT)
+  }
+
+  const inCommonAddressesTotal = inCommonAddresses.length
+  const inCommonAddressesHasMore = inCommonAddressesTotal > INCOMMON_ADDRESSES_LIMIT
+
+  let inCommonAddressesVisible = inCommonAddresses.slice()
+  if (inCommonAddressesHasMore && !showAllInCommonAddresses) {
+    inCommonAddressesVisible = inCommonAddresses.slice(0, INCOMMON_ADDRESSES_LIMIT)
   }
 
   useEffect(
@@ -56,7 +65,7 @@ function AddressProfile({
         !error
       ) {
         setLoading((prevLoading) => prevLoading + 1)
-        resolveMeta(ensNames[address]).then(
+        resolveMeta(ensNames[address], address).then(
           (meta) => {
             setLoading((prevLoading) => prevLoading - 1)
           },
@@ -167,17 +176,30 @@ function AddressProfile({
             </div>
           )}
           {Array.isArray(inCommonEventIds) && inCommonEventIds.length > 0 && (
-            <div className={`profile-in-common${showAllInCommon ? ' show-all' : ''}`}>
-              <h4>{inCommonTotal} in common drops</h4>
+            <div className={`profile-in-common${showAllInCommonEvents ? ' show-all' : ''}`}>
+              <h4>{inCommonEventsTotal} in common drops</h4>
               {inCommonEventIdsVisible.map((eventId) => (
                 eventId in events && (
                   <TokenImage key={eventId} event={events[eventId]} size={18} resize={true} />
                 )
               ))}
-              {inCommonHasMore && (
+              {inCommonEventsHasMore && (
                 <div className="show-more">
-                  <ButtonLink onClick={() => setShowAllInCommon((prevShowAll) => !prevShowAll)}>
-                    {showAllInCommon ? `show ${INCOMMON_EVENTS_LIMIT}` : `show all ${inCommonTotal}`}
+                  <ButtonLink onClick={() => setShowAllInCommonEvents((prevShowAll) => !prevShowAll)}>
+                    {showAllInCommonEvents ? `show ${INCOMMON_EVENTS_LIMIT}` : `show all ${inCommonEventsTotal}`}
+                  </ButtonLink>
+                </div>
+              )}
+            </div>
+          )}
+          {Array.isArray(inCommonAddresses) && inCommonAddresses.length > 0 && (
+            <div className={`profile-in-common${showAllInCommonAddresses ? ' show-all' : ''}`}>
+              <h4>{inCommonAddressesTotal} in common collectors</h4>
+              <AddressesList addresses={inCommonAddressesVisible} />
+              {inCommonAddressesHasMore && (
+                <div className="show-more">
+                  <ButtonLink onClick={() => setShowAllInCommonAddresses((prevShowAll) => !prevShowAll)}>
+                    {showAllInCommonAddresses ? `show ${INCOMMON_ADDRESSES_LIMIT}` : `show all ${inCommonAddressesTotal}`}
                   </ButtonLink>
                 </div>
               )}

@@ -103,7 +103,7 @@ async function findEventsInCollections(eventIds, limit = DEFAULT_COMPASS_LIMIT) 
 }
 
 async function searchCollections(search, offset = 0, limit = DEFAULT_COMPASS_LIMIT, abortSignal) {
-  const [total, items] = await Promise.all([
+  const [totalSettled, itemsSettled] = await Promise.allSettled([
     queryAggregateCountCompass(
       'search_collections_total',
       `
@@ -155,6 +155,11 @@ async function searchCollections(search, offset = 0, limit = DEFAULT_COMPASS_LIM
       abortSignal
     ),
   ])
+  if (itemsSettled.status === 'rejected') {
+    throw itemsSettled.reason instanceof Error ? itemsSettled.reason : new Error(itemsSettled.reason)
+  }
+  const total = totalSettled.status === 'fulfilled' ? totalSettled.value : null
+  const items = itemsSettled.value
   return {
     items,
     total,

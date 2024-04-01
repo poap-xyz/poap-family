@@ -128,7 +128,7 @@ function Search() {
     }
     setErrorSearchCollections(null)
     setQueryCollections([])
-    setQueryTotalCollections(null)
+    setQueryTotalCollections(0)
     if (
       settings.showCollections && (
         queryTotalCollections == null ||
@@ -147,13 +147,17 @@ function Search() {
             trackSiteSearch({
               category: 'collections',
               keyword: value,
-              count: results.total,
+              count: results.total == null ? undefined : results.total,
             })
           }
           setLoadingSearchCollections({ query: null, state: false, controller: null })
           if (queryRef.current && String(value) === queryRef.current.value) {
             setQueryCollections(results.items)
-            setQueryTotalCollections(results.total)
+            if (results.total) {
+              setQueryTotalCollections(results.total)
+            } else {
+              setQueryTotalCollections(0)
+            }
           }
         },
         (err) => {

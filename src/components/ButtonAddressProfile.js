@@ -11,6 +11,7 @@ function ButtonAddressProfile({
   address,
   events = {},
   inCommonEventIds = [],
+  inCommonAddresses = [],
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
   const [showModal, setShowModal] = useState(false)
@@ -42,6 +43,7 @@ function ButtonAddressProfile({
               address={address}
               events={events}
               inCommonEventIds={inCommonEventIds}
+              inCommonAddresses={inCommonAddresses}
             />
           </Card>
         </div>
