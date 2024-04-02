@@ -73,11 +73,11 @@ async function findEventsCollections(eventIds, limit = DEFAULT_COMPASS_LIMIT) {
 
 async function findEventsInCollections(eventIds, limit = DEFAULT_COMPASS_LIMIT) {
   const results = await queryAllCompass(
-    'related_collections',
+    'collections',
     Collection,
     `
       query EventsInCollections($eventIds: [bigint!], $offset: Int!, $limit: Int!) {
-        related_collections: collections(
+        collections(
           where: {
             collections_items: { drop_id: { _in: $eventIds } }
           }
@@ -105,10 +105,10 @@ async function findEventsInCollections(eventIds, limit = DEFAULT_COMPASS_LIMIT) 
 async function searchCollections(search, offset = 0, limit = DEFAULT_COMPASS_LIMIT, abortSignal) {
   const [totalSettled, itemsSettled] = await Promise.allSettled([
     queryAggregateCountCompass(
-      'search_collections_total',
+      'search_collections_aggregate',
       `
         query SearchCollectionsTotal($search: String!) {
-          search_collections_total: search_collections_aggregate(
+          search_collections_aggregate(
             args: {
               search: $search
             }
