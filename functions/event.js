@@ -25,16 +25,16 @@ async function getEventInfo(eventId) {
   }
 }
 
-exports.handler = async function(request, context, callback) {
+exports.defaults = async function(request, context) {
   const eventId = request.path.split('/').pop()
 
   if (!IS_BOT.test(request.headers['user-agent'])) {
-    return {
-      statusCode: 301,
+    return new Response(null, {
+      status: 301,
       headers: {
         location: `${FAMILY_URL}/r/event/${eventId}`,
       },
-    }
+    })
   }
 
   let event, supply, emailReservations
@@ -45,15 +45,16 @@ exports.handler = async function(request, context, callback) {
     emailReservations = eventInfo.emailReservations
   } catch (err) {
     if (err?.response?.status === 404) {
-      return { statusCode: 404 }
+      return new Response(null, { status: 404 })
     }
     console.error('Fetch event info failed', err)
-    return { statusCode: 503 }
+    return new Response(null, { status: 503 })
   }
 
-  return {
-    statusCode: 200,
-    body: `<!DOCTYPE html>
+  const description = `[ ${supply} + ${emailReservations} ] ${event.start_date}` +
+    `${event.city && event.country ? ` ${event.city}, ${event.country}` : ''}`
+
+  return new Response(`<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -64,19 +65,19 @@ exports.handler = async function(request, context, callback) {
     <meta name="description" content="Discover the POAPs that different collectors have in common">
     <meta property="og:site_name" content="POAP Family">
     <meta property="og:title" content="${event.name}">
-    <meta property="og:description" content="[ ${supply} + ${emailReservations} ] ${event.start_date}${event.city && event.country ? ` ${event.city}, ${event.country}` : ''}">
+    <meta property="og:description" content="${description}">
     <meta property="og:image" content="${event.image_url}">
     <meta property="og:url" content="${FAMILY_URL}/r/event/${eventId}">
     <meta property="twitter:card" content="summary">
     <meta property="twitter:site" content="@poapxyz">
     <meta property="twitter:title" content="${event.name}">
-    <meta property="twitter:description" content="[ ${supply} + ${emailReservations} ] ${event.start_date}${event.city && event.country ? ` ${event.city}, ${event.country}` : ''}">
+    <meta property="twitter:description" content="${description}">
     <meta property="twitter:image" content="${event.image_url}">
     <link rel="apple-touch-icon" href="${FAMILY_URL}/poap-family.png">
     <link rel="manifest" href="${FAMILY_URL}/manifest.json">
   </head>
   <body>
-    <article>
+    <main>
       <h1>${event.name}</h1>
       <dl>
         <dt>Supply</dt>
@@ -84,9 +85,8 @@ exports.handler = async function(request, context, callback) {
         <dt>Email reservations</dt>
         <dd>${emailReservations}</dd>
       </dl>
-      <p>${event.start_date}</p>${event.city && event.country ? `<p>${event.city}, ${event.country}</p>` : ''}
-    </article>
+      <p>${event.start_date}</p>${event.city && event.country ? `\n<p>${event.city}, ${event.country}</p>` : ''}
+    </main>
   </body>
-</html>`,
-  }
+</html>`)
 }

@@ -62,17 +62,17 @@ async function getMetrics(eventIds) {
   return metrics
 }
 
-exports.handler = async function(request, context, callback) {
+exports.defaults = async function(request, context) {
   const rawIds = request.path.split('/').pop()
   const eventIds = parseEventIds(rawIds)
 
   if (!IS_BOT.test(request.headers['user-agent'])) {
-    return {
-      statusCode: 301,
+    return new Response(null, {
+      status: 301,
       headers: {
         location: `${FAMILY_URL}/r/events/${eventIds.join(',')}`,
       },
-    }
+    })
   }
 
   let eventsInfo
@@ -80,10 +80,10 @@ exports.handler = async function(request, context, callback) {
     eventsInfo = await getEventsInfo(eventIds)
   } catch (err) {
     if (err?.response?.status === 404) {
-      return { statusCode: 404 }
+      return new Response(null, { status: 404 })
     }
     console.error('Fetch events info failed', err)
-    return { statusCode: 503 }
+    return new Response(null, { status: 503 })
   }
 
   let totalSupply = 0, totalEmailReservations = 0
@@ -95,9 +95,9 @@ exports.handler = async function(request, context, callback) {
     trs.push(`<tr><td><h3>${event.name}</h3><p>${event.start_date}</p>${event.city && event.country ? `<p>${event.city}, ${event.country}</p>` : ''}</td><td>${supply}</td><td>${emailReservations}</td></tr>`)
   }
 
-  return {
-    statusCode: 200,
-    body: `<!DOCTYPE html>
+  const description = `[ ${totalSupply} + ${totalEmailReservations} ]`
+
+  return new Response(`<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -108,19 +108,19 @@ exports.handler = async function(request, context, callback) {
     <meta name="description" content="Discover the POAPs that different collectors have in common">
     <meta property="og:site_name" content="POAP Family">
     <meta property="og:title" content="${titles.join(', ')}">
-    <meta property="og:description" content="[ ${totalSupply} + ${totalEmailReservations} ]">
+    <meta property="og:description" content="${description}">
     <meta property="og:image" content="${FAMILY_URL}/poap-family.png"><!-- FIXME -->
     <meta property="og:url" content="${FAMILY_URL}/r/events/${eventIds.join(',')}">
     <meta property="twitter:card" content="summary">
     <meta property="twitter:site" content="@poapxyz">
     <meta property="twitter:title" content="${titles.join(', ')}">
-    <meta property="twitter:description" content="[ ${totalSupply} + ${totalEmailReservations} ]">
+    <meta property="twitter:description" content="${description}">
     <meta property="twitter:image" content="${FAMILY_URL}/poap-family.png"><!-- FIXME -->
     <link rel="apple-touch-icon" href="${FAMILY_URL}/poap-family.png">
     <link rel="manifest" href="${FAMILY_URL}/manifest.json">
   </head>
   <body>
-    <article>
+    <main>
       <h1>${titles.join(', ')}</h1>
       <dl>
         <dt>Total supply</dt>
@@ -130,10 +130,9 @@ exports.handler = async function(request, context, callback) {
       </dl>
       <table>
         <tr><th>Event</th><th>Supply</th><th>Email reservations</th></tr>
-        ${trs.join('')}
+        ${trs.join('\n')}
       </table>
-    </article>
+    </main>
   </body>
-</html>`,
-  }
+</html>`)
 }
