@@ -1,5 +1,5 @@
-/event/*		/.netlify/functions/renderEvent/:route		200!
-/events/*		/.netlify/functions/renderEvents/:route		200!
-/faq	https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc		301
-/help	https://poap.zendesk.com/hc/en-us/articles/24008770288909-How-to-navigate-POAP-Family		301
-/*		/index.html		200
+/event/*          /.netlify/functions/event/:route        200!
+/events/*         /.netlify/functions/events/:route       200!
+/faq  https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc             301
+/help https://poap.zendesk.com/hc/en-us/articles/24008770288909-How-to-navigate-POAP-Family 301
+/*                /index.html                             200
