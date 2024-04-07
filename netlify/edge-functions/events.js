@@ -152,7 +152,7 @@ export default async function handler(request, context) {
   const description = escapeHtml(
     `[ ${totalSupply} + ${totalEmailReservations} ]`
   )
-  const image = `${FAMILY_URL}/poap-family.png` // TODO
+  const image = `${FAMILY_URL}/images/${eventIds.join(',')}`
   const url = `${FAMILY_URL}/events/${eventIds.join(',')}${queryString}`
 
   return new Response(
