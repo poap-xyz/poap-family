@@ -7,7 +7,7 @@ import Event from '../pages/Event'
 import Events from '../pages/Events'
 import PageError from '../components/PageError'
 import EventsPageError from '../components/EventsPageError'
-import { eventLoader, eventRedirect, eventsLoader, eventsRedirect } from '../loaders/event'
+import { eventLoader, eventsLoader } from '../loaders/event'
 import Last from '../pages/Last'
 import Settings from '../pages/Settings'
 import FeedbackList from '../pages/FeedbackList'
@@ -41,18 +41,10 @@ function App() {
                           element: <Home />,
                         },
                         {
-                          path: '/r/event/:eventId',
-                          loader: eventRedirect,
-                        },
-                        {
                           path: '/event/:eventId',
                           loader: eventLoader,
                           element: <Event />,
                           errorElement: <PageError />,
-                        },
-                        {
-                          path: '/r/events/:eventIds',
-                          loader: eventsRedirect,
                         },
                         {
                           path: '/events/:eventIds',
