@@ -307,59 +307,10 @@ async function eventsLoader({ params, request }) {
   return events
 }
 
-function eventRedirect({ params, request }) {
-  const searchParams = new URL(request.url).searchParams.toString()
-  return new Response('', {
-    status: 301,
-    statusText: 'Redirect to event',
-    headers: {
-      location: `/event/${params.eventId}${searchParams ? `?${searchParams}` : ''}`,
-    },
-  })
-}
-
-function eventsRedirect({ params, request }) {
-  const searchParams = new URL(request.url).searchParams.toString()
-  const eventIds = parseEventIds(params.eventIds)
-  if (eventIds.length === 0) {
-    throw new Response('', {
-      status: 404,
-      statusText: 'Events not found',
-    })
-  }
-  if (params.eventIds !== eventIds.join(',')) {
-    throw new Response('', {
-      status: 301,
-      statusText: 'Events given unordered',
-      headers: {
-        location: `/events/${eventIds.join(',')}${searchParams ? `?${searchParams}` : ''}`,
-      },
-    })
-  }
-  if (eventIds.length === 1) {
-    throw new Response('', {
-      status: 301,
-      statusText: 'One event',
-      headers: {
-        location: `/event/${eventIds[0]}${searchParams ? `?${searchParams}` : ''}`,
-      },
-    })
-  }
-  return new Response('', {
-    status: 301,
-    statusText: 'Redirect to events',
-    headers: {
-      location: `/events/${params.eventIds}${searchParams ? `?${searchParams}` : ''}`,
-    },
-  })
-}
-
 export {
   searchEvents,
   fetchEvent,
   fetchEventsOrErrors,
   eventLoader,
   eventsLoader,
-  eventRedirect,
-  eventsRedirect,
 }
