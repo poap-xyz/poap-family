@@ -3,6 +3,7 @@ import Card from './Card'
 import Stats from './Stats'
 import TokenImageZoom from './TokenImageZoom'
 import EventButtons from './EventButtons'
+import { formatDate } from '../utils/date'
 import '../styles/event-info.css'
 
 function EventInfo({ event, stats = {}, highlightStat, buttons = [], children }) {
@@ -14,7 +15,7 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
         </div>
         <div className="event-data">
           <h1>{event.name}</h1>
-          <div className="event-date">{event.start_date}</div>
+          <div className="event-date">{formatDate(event.start_date)}</div>
           {event.city && event.country && <div className="place">{event.city}, {event.country}</div>}
           <Stats stats={stats} highlight={highlightStat} />
           <EventButtons event={event} buttons={buttons} viewInGallery={true} />

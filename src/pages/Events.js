@@ -10,6 +10,7 @@ import { findEventsCollections } from '../loaders/collection'
 import { IGNORED_OWNERS } from '../models/address'
 import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
+import { formatDate } from '../utils/date'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
 import EventButtons from '../components/EventButtons'
@@ -721,7 +722,7 @@ function Events() {
                         </div>
                         <div className="event-data">
                           <h2>{event.name}</h2>
-                          <div className="event-date">{event.start_date}</div>
+                          <div className="event-date">{formatDate(event.start_date)}</div>
                           {event.city && event.country && <div className="place">{event.city}, {event.country}</div>}
                         </div>
                       </div>
