@@ -1,4 +1,8 @@
 import axios from 'https://esm.sh/axios'
+import dayjs from 'https://esm.sh/dayjs'
+import localizedFormat from 'https://esm.sh/dayjs/plugin/localizedFormat'
+
+dayjs.extend(localizedFormat)
 
 const FAMILY_URL = 'https://poap.family'
 const FAMILY_API_URL = 'https://api.poap.family'
@@ -90,7 +94,7 @@ export default async function handler(request, context) {
   const title = escapeHtml(eventInfo.event.name)
   const description = escapeHtml(
     `[ ${eventInfo.supply} + ${eventInfo.emailReservations} ] ` +
-    `${eventInfo.event.start_date}` +
+    `${dayjs(eventInfo.event.start_date).format('ll')}` +
     `${eventInfo.event.city && eventInfo.event.country
         ? ` ${eventInfo.event.city}, ${eventInfo.event.country}`
         : ''
