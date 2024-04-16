@@ -70,9 +70,9 @@ function renderEventsImages(events, canvas, size, pos) {
 export default async function handler(request, context) {
   const eventIds = getEventIds(request.url)
 
-  let events
+  let eventMap
   try {
-    events = await getEvents(eventIds)
+    eventMap = await getEvents(eventIds)
   } catch (err) {
     if (err?.response?.status === 404) {
       return new Response(null, {
@@ -84,16 +84,31 @@ export default async function handler(request, context) {
     })
   }
 
-  const eventsLeft = Object.values(events)
+  const events = Object.values(eventMap)
     .map((event) => ({ event, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
     .map(({ event }) => event)
 
-  const images = [
-    ...renderEventsImages(eventsLeft.splice(0, 12), 512, 128, 0),
-    ...renderEventsImages(eventsLeft.splice(0, 12), 256, 64, 128),
-    ...renderEventsImages(eventsLeft.splice(0, 12), 128, 32, 192),
-  ]
+  let images = []
+  if (events.length < 6) {
+    images = [
+      ...renderEventsImages(events, 512, 224, 0),
+    ]
+  } else if (events.length <= 8) {
+    images = [
+      ...renderEventsImages(events, 512, 192, 0),
+    ]
+  } else if (events.length < 12) {
+    images = [
+      ...renderEventsImages(events, 512, 160, 0),
+    ]
+  } else {
+    images = [
+      ...renderEventsImages(events.splice(0, 12), 512, 128, 0),
+      ...renderEventsImages(events.splice(0, 12), 256, 64, 128),
+      ...renderEventsImages(events.splice(0, 12), 128, 32, 192),
+    ]
+  }
 
   return new ImageResponse(
     (
