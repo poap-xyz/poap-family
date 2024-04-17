@@ -420,7 +420,7 @@ function Search() {
             className="query"
             type="search"
             name="query"
-            placeholder="Search POAP drops"
+            placeholder="Search POAPs"
             onChange={onQueryChange}
             onKeyUp={onQueryKeyUp}
             autoComplete="off"
