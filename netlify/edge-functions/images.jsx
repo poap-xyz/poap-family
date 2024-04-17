@@ -89,6 +89,28 @@ export default async function handler(request, context) {
     .sort((a, b) => a.sort - b.sort)
     .map(({ event }) => event)
 
+  if (events.length === 1) {
+    return new ImageResponse(
+      (
+        <img
+          src={`${events[0].image_url}?format=png&size=large`}
+          alt={events[0].name}
+          width={512}
+          height={512}
+          style={{
+            width: '512px',
+            height: '512px',
+            borderRadius: '50%',
+          }}
+        />
+      ),
+      {
+        width: 512,
+        height: 512,
+      }
+    )
+  }
+
   let images = []
   if (events.length < 6) {
     images = [
