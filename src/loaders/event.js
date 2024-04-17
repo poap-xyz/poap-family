@@ -123,7 +123,7 @@ async function fetchEventsOrErrors(eventIds, limit = 100) {
   return [eventsMap, errorsMap]
 }
 
-async function fetchEvent(eventId, abortSignal) {
+async function fetchEvent(eventId, includeDescription, abortSignal) {
   const response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
     headers: {
@@ -141,7 +141,8 @@ async function fetchEvent(eventId, abortSignal) {
     throw new Error(`Fetch event '${eventId}' response was not success`)
   }
   return Event(
-    await response.json()
+    await response.json(),
+    includeDescription
   )
 }
 
@@ -149,7 +150,13 @@ async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
   if (!force) {
     try {
-      const eventAndOwners = await getEventAndOwners(params.eventId, /*abortSignal*/undefined, /*includeMetrics*/true, /*fresh*/true)
+      const eventAndOwners = await getEventAndOwners(
+        params.eventId,
+        /*abortSignal*/undefined,
+        /*includeDescription*/true,
+        /*includeMetrics*/true,
+        /*fresh*/true
+      )
       if (eventAndOwners) {
         return {
           event: eventAndOwners.event,
@@ -162,7 +169,7 @@ async function eventLoader({ params, request }) {
       console.error(err)
     }
   }
-  const event = await fetchEvent(params.eventId)
+  const event = await fetchEvent(params.eventId, /*includeDescription*/true)
   if (!event) {
     throw new Response('', {
       status: 404,
