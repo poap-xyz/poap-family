@@ -75,6 +75,7 @@
   margin: 0 .5rem 0 5rem;
   height: 100%;
   max-width: 100rem;
+  min-width: 20rem;
   overflow-y: scroll;
   overflow-x: hidden;
 }
