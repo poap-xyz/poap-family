@@ -2,12 +2,14 @@ import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates, Event } from '../models/event'
 
-async function getEventAndOwners(eventId, abortSignal, includeMetrics = true, fresh = true) {
+async function getEventAndOwners(eventId, abortSignal, includeDescription = false, includeMetrics = true, fresh = true) {
   if (!FAMILY_API_KEY) {
     return null
   }
   const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}?metrics=${encodeURIComponent(includeMetrics)}` +
+    `${FAMILY_API_URL}/event/${eventId}?` +
+    `description=${encodeURIComponent(includeDescription)}&` +
+    `metrics=${encodeURIComponent(includeMetrics)}` +
     `${fresh ? '&fresh=true' : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
@@ -33,7 +35,7 @@ async function getEventAndOwners(eventId, abortSignal, includeMetrics = true, fr
   }
   if (!includeMetrics) {
     return {
-      event: Event(body.event),
+      event: Event(body.event, includeDescription),
       owners: body.owners,
       ts: body.ts,
     }
@@ -48,7 +50,7 @@ async function getEventAndOwners(eventId, abortSignal, includeMetrics = true, fr
     !('ts' in body.metrics) || (typeof body.metrics.ts !== 'number' && body.metrics.ts !== null)
   ) {
     return {
-      event: Event(body.event),
+      event: Event(body.event, includeDescription),
       owners: body.owners,
       ts: body.ts,
       metrics: {
@@ -62,7 +64,7 @@ async function getEventAndOwners(eventId, abortSignal, includeMetrics = true, fr
     }
   }
   return {
-    event: Event(body.event),
+    event: Event(body.event, includeDescription),
     owners: body.owners,
     ts: body.ts,
     metrics: {

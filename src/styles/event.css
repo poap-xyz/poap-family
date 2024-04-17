@@ -5,6 +5,12 @@
   overflow: scroll;
 }
 
+.event-header-info {
+  width: 100%;
+  display: flex;
+  overflow-x: auto;
+}
+
 .event .caching, .event .caching-error, .event .cached {
   font-size: 11px;
   display: inline-block;
