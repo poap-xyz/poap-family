@@ -107,13 +107,13 @@ export default async function handler(request, context) {
     `[ ${eventInfo.supply} + ${eventInfo.emailReservations} ] ` +
     `${dayjs(eventInfo.event.start_date).format('ll')}` +
     `${eventInfo.event.city && eventInfo.event.country
-        ? ` ${eventInfo.event.city}, ${eventInfo.event.country}`
+        ? ` | ${eventInfo.event.city}, ${eventInfo.event.country}`
         : ''
       }` +
-      `${eventInfo.description && typeof eventInfo.description === 'string'
-        ? ` ${truncate(eventInfo.description)}`
-        : ''
-      }`
+    `${eventInfo.event.description && typeof eventInfo.event.description === 'string'
+      ? ` | ${truncate(eventInfo.event.description)}`
+      : ''
+    }`
   )
   const image = eventInfo.event.image_url
   const url = `${FAMILY_URL}/event/${eventId}${queryString}`
