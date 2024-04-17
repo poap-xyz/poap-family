@@ -278,7 +278,7 @@ function Event() {
   return (
     <Page>
       <div className="event">
-        <div className="event-header">
+        <div className="event-header-info">
           <EventInfo
             event={event}
             stats={{

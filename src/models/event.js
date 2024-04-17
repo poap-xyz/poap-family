@@ -1,7 +1,8 @@
-function Event(event) {
+function Event(event, includeDescription) {
   return {
     id: event.id,
     name: event.name,
+    description: includeDescription ? event.description : undefined,
     image_url: event.image_url,
     original_url: event.original_url
       ?? event.drop_image?.gateways?.reduce(

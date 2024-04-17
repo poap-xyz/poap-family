@@ -122,7 +122,7 @@ function Events() {
       }
       removeErrors(eventId)
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
-      return getEventAndOwners(eventId, abortSignal, /*includeMetrics*/true, /*fresh*/true).then(
+      return getEventAndOwners(eventId, abortSignal, /*includeDescription*/false, /*includeMetrics*/true, /*fresh*/true).then(
         (eventAndOwners) => {
           removeLoading(eventId)
           setOwners((prevOwners) => ({ ...prevOwners, [eventId]: eventAndOwners.owners }))

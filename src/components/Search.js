@@ -60,7 +60,7 @@ function Search() {
     })
     setErrorById(null)
     setEventById(null)
-    fetchEvent(eventId, controller.signal).then(
+    fetchEvent(eventId, /*includeDescription*/false, controller.signal).then(
       (result) => {
         setLoadingById({ eventId: null, state: false, controller: null })
         if (result) {

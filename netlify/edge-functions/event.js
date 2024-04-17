@@ -23,7 +23,7 @@ function getEventId(requestUrl) {
 }
 
 async function getEventInfo(eventId) {
-  const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}?metrics=true&fresh=true`)
+  const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}?description=true&metrics=true&fresh=true`)
   const event = response.data
   if (
     typeof event !== 'object' ||
@@ -64,6 +64,17 @@ function escapeHtml(str) {
     .replaceAll("'", '&#039;')
 }
 
+function truncate(str, n = 90) {
+  const p = str.split('\n').shift()
+  if (p && p.length <= n) {
+    return p
+  }
+  if (str.length > n) {
+    return `${str.substring(0, n)}...`
+  }
+  return str
+}
+
 export default async function handler(request, context) {
   const eventId = getEventId(request.url)
   const queryString = getQueryString(request.url)
@@ -97,6 +108,10 @@ export default async function handler(request, context) {
     `${dayjs(eventInfo.event.start_date).format('ll')}` +
     `${eventInfo.event.city && eventInfo.event.country
         ? ` ${eventInfo.event.city}, ${eventInfo.event.country}`
+        : ''
+      }` +
+      `${eventInfo.description && typeof eventInfo.description === 'string'
+        ? ` ${truncate(eventInfo.description)}`
         : ''
       }`
   )
