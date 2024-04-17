@@ -100,6 +100,7 @@ export default async function handler(request, context) {
           style={{
             width: '512px',
             height: '512px',
+            borderRadius: '50%',
           }}
         />
       ),
