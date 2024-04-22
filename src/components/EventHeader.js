@@ -8,7 +8,7 @@ function EventHeader({ event, size = 48 }) {
       <div className="event-header-image">
         <TokenImageZoom event={event} zoomSize={512} size={size} />
       </div>
-      <div className="event-header-info">
+      <div className="event-header-details">
         <Link to={`/event/${event.id}`} className="event-id">#{event.id}</Link>
         <h2 title={event.name}>{event.name}</h2>
       </div>
