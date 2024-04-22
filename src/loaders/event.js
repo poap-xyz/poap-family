@@ -148,26 +148,25 @@ async function fetchEvent(eventId, includeDescription, abortSignal) {
 
 async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
-  if (!force) {
-    try {
-      const eventAndOwners = await getEventAndOwners(
-        params.eventId,
-        /*abortSignal*/undefined,
-        /*includeDescription*/true,
-        /*includeMetrics*/true,
-        /*fresh*/true
-      )
-      if (eventAndOwners) {
-        return {
-          event: eventAndOwners.event,
-          owners: eventAndOwners.owners,
-          ts: eventAndOwners.ts,
-          metrics: eventAndOwners.metrics,
-        }
+  try {
+    const eventAndOwners = await getEventAndOwners(
+      params.eventId,
+      /*abortSignal*/undefined,
+      /*includeDescription*/true,
+      /*includeMetrics*/true,
+      /*fresh*/true,
+      /*refresh*/force === 'true'
+    )
+    if (eventAndOwners) {
+      return {
+        event: eventAndOwners.event,
+        owners: eventAndOwners.owners,
+        ts: eventAndOwners.ts,
+        metrics: eventAndOwners.metrics,
       }
-    } catch (err) {
-      console.error(err)
     }
+  } catch (err) {
+    console.error(err)
   }
   const event = await fetchEvent(params.eventId, /*includeDescription*/true)
   if (!event) {
@@ -178,7 +177,7 @@ async function eventLoader({ params, request }) {
   }
   const [tokensSettled, metricsSettled] = await Promise.allSettled([
     fetchPOAPs(params.eventId),
-    getEventMetrics(params.eventId, null, /*refresh*/true),
+    getEventMetrics(params.eventId, null, /*refresh*/force === 'true'),
   ])
   if (tokensSettled.status === 'rejected') {
     throw new Response('', {

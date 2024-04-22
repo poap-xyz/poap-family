@@ -2,7 +2,14 @@ import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates, Event } from '../models/event'
 
-async function getEventAndOwners(eventId, abortSignal, includeDescription = false, includeMetrics = true, fresh = true) {
+async function getEventAndOwners(
+  eventId,
+  abortSignal,
+  includeDescription = false,
+  includeMetrics = true,
+  fresh = true,
+  refresh = false,
+) {
   if (!FAMILY_API_KEY) {
     return null
   }
@@ -10,7 +17,8 @@ async function getEventAndOwners(eventId, abortSignal, includeDescription = fals
     `${FAMILY_API_URL}/event/${eventId}?` +
     `description=${encodeURIComponent(includeDescription)}&` +
     `metrics=${encodeURIComponent(includeMetrics)}` +
-    `${fresh ? '&fresh=true' : ''}`,
+    `${fresh ? '&fresh=true' : ''}` +
+    `${refresh ? '&refresh=true' : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
       headers: {
