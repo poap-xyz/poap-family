@@ -157,7 +157,7 @@ async function eventLoader({ params, request }) {
       /*fresh*/true,
       /*refresh*/force === 'true'
     )
-    if (eventAndOwners) {
+    if (eventAndOwners != null) {
       return {
         event: eventAndOwners.event,
         owners: eventAndOwners.owners,
