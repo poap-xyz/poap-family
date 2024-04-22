@@ -125,9 +125,13 @@ function Events() {
       return getEventAndOwners(eventId, abortSignal, /*includeDescription*/false, /*includeMetrics*/true, /*fresh*/true).then(
         (eventAndOwners) => {
           removeLoading(eventId)
-          setOwners((prevOwners) => ({ ...prevOwners, [eventId]: eventAndOwners.owners }))
-          if (eventAndOwners.metrics) {
-            setMetrics((oldReservations) => ({ ...oldReservations, [eventId]: eventAndOwners.metrics }))
+          if (eventAndOwners != null) {
+            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: eventAndOwners.owners }))
+            if (eventAndOwners.metrics) {
+              setMetrics((oldReservations) => ({ ...oldReservations, [eventId]: eventAndOwners.metrics }))
+            }
+          } else {
+            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: [] }))
           }
           return Promise.resolve()
         },
