@@ -137,6 +137,7 @@ export default async function handler(request, context) {
                 supply: totalSupply,
                 reservations: totalReservations,
                 moments: totalMoments,
+                collections: eventsInfo.length === 1 ? eventsInfo[0].metrics?.collectionsIncludes ?? 0 : 0,
               })}
             </div>
           </div>
