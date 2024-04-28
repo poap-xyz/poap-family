@@ -132,6 +132,7 @@ export default async function handler(request, context) {
               style={{
                 display: 'flex',
                 flexShrink: '1',
+                margin: eventsInfo.length === 1 ? '0' : '0 auto',
               }}
             >
               {Stats({

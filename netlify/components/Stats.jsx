@@ -42,8 +42,7 @@ export function Stats({ supply, reservations, moments, collections }) {
         display: 'flex',
         border: '4px solid #efeeff',
         borderRadius: '16px',
-        marginTop: '4px',
-        // backgroundColor: 'white',
+        margin: '4px 8px 8px 8px',
       }}
     >
       <div
