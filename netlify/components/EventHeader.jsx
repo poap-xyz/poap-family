@@ -9,6 +9,7 @@ export function EventHeader({ event }) {
       style={{
         display: 'flex',
         flexDirection: 'column',
+        margin: '0 8px 0',
       }}
     >
       <div
@@ -17,7 +18,7 @@ export function EventHeader({ event }) {
           fontFamily: 'Rubik-Black',
           fontWeight: 900,
           fontStyle: 'normal',
-          fontSize: '22px',
+          fontSize: '44px',
           textTransform: 'uppercase',
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
@@ -28,22 +29,40 @@ export function EventHeader({ event }) {
       <div
         style={{
           display: 'flex',
-          fontSize: '14px',
+          gap: '15px',
           marginTop: '-5px',
         }}
       >
-        {formatDate(event.start_date)}
-      </div>
-      {eventLocation && (
         <div
           style={{
             display: 'flex',
-            fontSize: '14px',
+            fontSize: '28px',
           }}
         >
-          {eventLocation}
+          {formatDate(event.start_date)}
         </div>
-      )}
+        {eventLocation && (
+          <div
+            style={{
+              display: 'flex',
+              fontSize: '38px',
+              lineHeight: 0.8,
+            }}
+          >
+            ·
+          </div>
+        )}
+        {eventLocation && (
+          <div
+            style={{
+              display: 'flex',
+              fontSize: '28px',
+            }}
+          >
+            {eventLocation}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
