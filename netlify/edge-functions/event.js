@@ -1,7 +1,7 @@
 import { getEnv } from '../loaders/env.js'
 import { getEventInfo }  from '../loaders/api.js'
 import { escapeHtml, replaceMeta } from '../utils/html.js'
-import { encodeEvent } from '../utils/event.js'
+import { encodeEvent, parseEventId } from '../utils/event.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
@@ -10,20 +10,12 @@ function parseRequestUrl(requestUrl) {
   return [rawEventId, searchParams ? `?${searchParams}` : '']
 }
 
-function getEventId(rawEventId) {
-  const eventId = parseInt(rawEventId)
-  if (isNaN(eventId)) {
-    throw new Error(`Event invalid Id param`)
-  }
-  return eventId
-}
-
 export default async function handler(request, context) {
   const response = await context.next()
   const html = await response.text()
 
   const [rawEventId, queryString] = parseRequestUrl(request.url)
-  const eventId = getEventId(rawEventId)
+  const eventId = parseEventId(rawEventId)
   const env = getEnv(context)
 
   let eventInfo

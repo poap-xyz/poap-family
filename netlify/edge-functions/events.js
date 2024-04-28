@@ -1,6 +1,7 @@
 import { getEnv } from '../loaders/env.js'
 import { getEventsInfo }  from '../loaders/api.js'
 import { escapeHtml, replaceMeta } from '../utils/html.js'
+import { parseEventIds } from '../utils/event.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
@@ -9,21 +10,12 @@ function parseRequestUrl(requestUrl) {
   return [rawEventIds, searchParams ? `?${searchParams}` : '']
 }
 
-function getEventIds(rawIds) {
-  let eventIds = rawIds.split(',')
-    .filter((value, index, all) => all.indexOf(value) === index)
-    .map((value) => parseInt(value.trim()))
-    .filter((eventId) => !isNaN(eventId))
-  eventIds.sort((a, b) => a - b)
-  return eventIds
-}
-
 export default async function handler(request, context) {
   const response = await context.next()
   const html = await response.text()
 
   const [rawEventIds, queryString] = parseRequestUrl(request.url)
-  const eventIds = getEventIds(rawEventIds)
+  const eventIds = parseEventIds(rawEventIds)
 
   if (eventIds.length === 0) {
     return new Response(html, {

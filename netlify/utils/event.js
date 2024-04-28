@@ -36,3 +36,23 @@ export function shortDescription(description, n = 90) {
   }
   return description
 }
+
+export function parseEventId(rawEventId, hardFail = true) {
+  const eventId = parseInt(String(rawEventId).trim())
+  if (isNaN(eventId)) {
+    if (hardFail) {
+      throw new Error(`Event invalid Id param`)
+    }
+    return null
+  }
+  return eventId
+}
+
+export function parseEventIds(rawIds) {
+  let eventIds = rawIds.split(',')
+    .filter((value, index, all) => all.indexOf(value) === index)
+    .map((value) => parseEventId(value, /*hardFail*/false))
+    .filter((eventId) => eventId != null)
+  eventIds.sort((a, b) => a - b)
+  return eventIds
+}
