@@ -6,7 +6,7 @@ export function Stats({ supply, reservations, moments, collections }) {
 
   const highlighted = {
     text: String(total),
-    title: `collector${total === 0 ? '' : 's'}`,
+    title: `collector${total === 1 ? '' : 's'}`,
   }
 
   const stats = []
@@ -14,25 +14,25 @@ export function Stats({ supply, reservations, moments, collections }) {
   if (total !== supply) {
     stats.push({
       text: String(supply),
-      title: `mint${supply === 0 ? '' : 's'}`,
+      title: `mint${supply === 1 ? '' : 's'}`,
     })
     stats.push({
       text: String(reservations),
-      title: `reservation${reservations === 0 ? '' : 's'}`,
+      title: `reservation${reservations === 1 ? '' : 's'}`,
     })
   }
 
   if (moments && moments > 0) {
     stats.push({
       text: String(moments),
-      title: `moment${moments === 0 ? '' : 's'}`,
+      title: `moment${moments === 1 ? '' : 's'}`,
     })
   }
 
   if (collections && collections > 0) {
     stats.push({
       text: String(collections),
-      title: `collection${collections === 0 ? '' : 's'}`,
+      title: `collection${collections === 1 ? '' : 's'}`,
     })
   }
 
