@@ -2,6 +2,7 @@ import { getEnv } from '../loaders/env.js'
 import { getEventInfo }  from '../loaders/api.js'
 import { escapeHtml, replaceMeta } from '../utils/html.js'
 import { encodeEvent, parseEventId } from '../utils/event.js'
+import { appendFrame } from '../utils/frame.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
@@ -39,12 +40,18 @@ export default async function handler(request, context) {
   }
 
   return new Response(
-    replaceMeta(
-      html,
-      escapeHtml(eventInfo.event.name),
-      escapeHtml(encodeEvent(eventInfo)),
-      `${eventInfo.event.image_url}?size=large`,
-      `${env.FAMILY_URL}/event/${eventId}${queryString}`
+    appendFrame(
+      replaceMeta(
+        html,
+        escapeHtml(eventInfo.event.name),
+        escapeHtml(encodeEvent(eventInfo)),
+        `${eventInfo.event.image_url}?size=large`,
+        `${env.FAMILY_URL}/event/${eventId}${queryString}`
+      ),
+      env,
+      [eventId],
+      eventInfo.ts,
+      `${env.FAMILY_URL}/event/${eventId}`
     ),
     response
   )
