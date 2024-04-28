@@ -2,6 +2,7 @@ import { getEnv } from '../loaders/env.js'
 import { getEventsInfo }  from '../loaders/api.js'
 import { escapeHtml, replaceMeta } from '../utils/html.js'
 import { parseEventIds } from '../utils/event.js'
+import { appendFrame } from '../utils/frame.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
@@ -63,23 +64,32 @@ export default async function handler(request, context) {
   let totalSupply = 0
   let totalReservations = 0
   let names = []
+  let ts = 0
+
   for (const eventInfo of Object.values(eventsInfo)) {
     totalSupply += eventInfo.owners.length
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     names = [...names, eventInfo.event.name]
+    ts = Math.max(ts, eventInfo.ts ?? eventInfo.metrics?.ts)
   }
 
   return new Response(
-    replaceMeta(
-      html,
-      escapeHtml(names.join(', ')),
-      escapeHtml(
-        totalReservations > 0
-          ? `[ ${totalSupply} + ${totalReservations} ]`
-          : `[ ${totalSupply} ]`
+    appendFrame(
+      replaceMeta(
+        html,
+        escapeHtml(names.join(', ')),
+        escapeHtml(
+          totalReservations > 0
+            ? `[ ${totalSupply} + ${totalReservations} ]`
+            : `[ ${totalSupply} ]`
+        ),
+        `${env.FAMILY_URL}/images/${eventIds.join(',')}`,
+        `${env.FAMILY_URL}/events/${eventIds.join(',')}${queryString}`
       ),
-      `${env.FAMILY_URL}/images/${eventIds.join(',')}`,
-      `${env.FAMILY_URL}/events/${eventIds.join(',')}${queryString}`
+      env,
+      eventIds,
+      ts,
+      `${env.FAMILY_URL}/events/${eventIds.join(',')}`
     ),
     response
   )
