@@ -39,13 +39,11 @@ export default async function handler(request, context) {
   let totalSupply = 0
   let totalReservations = 0
   let totalMoments = 0
-  let totalCollections = 0
 
   for (const eventInfo of eventsInfo) {
     totalSupply += eventInfo.owners.length
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     totalMoments += eventInfo.metrics?.momentsUploaded ?? 0
-    totalCollections += eventInfo.metrics?.collectionsIncludes ?? 0
   }
 
   if (eventsInfo.length === 1) {
@@ -139,7 +137,6 @@ export default async function handler(request, context) {
                 supply: totalSupply,
                 reservations: totalReservations,
                 moments: totalMoments,
-                collections: totalCollections,
               })}
             </div>
           </div>
