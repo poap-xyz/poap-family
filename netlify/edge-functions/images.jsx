@@ -1,78 +1,25 @@
 /** @jsxImportSource https://esm.sh/react */
-import axios from 'https://esm.sh/axios'
 import { ImageResponse } from 'https://deno.land/x/og_edge/mod.ts'
+import { getEnv } from '../loaders/env.js'
+import { getEvents } from '../loaders/api.js'
+import { parseEventIds, sortEvents } from '../utils/event.js'
+import { renderEventsImages } from '../utils/image.js'
 
-const FAMILY_API_URL = 'https://api.poap.family'
-
-function parseEventIds(rawIds) {
-  let eventIds = rawIds.split(',')
-    .filter((value, index, all) => all.indexOf(value) === index)
-    .map((value) => parseInt(value.trim()))
-    .filter((eventId) => !isNaN(eventId))
-  eventIds.sort((a, b) => a - b)
-  return eventIds
-}
-
-function getEventIds(requestUrl) {
+function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
-  const [, rawEventIds] = url.pathname.match(/images\/([^/]+)/)
-  return parseEventIds(rawEventIds)
-}
-
-async function getEvents(eventIds) {
-  const response = await axios.get(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}?fresh=true`)
-  const events = response.data
-  if (typeof events !== 'object') {
-    throw new Error(`Events invalid response (type ${typeof events} expected object)`)
-  }
-  return events
-}
-
-function renderEventsImages(events, canvas, size, pos) {
-  if (events.length === 0) {
-    return []
-  }
-
-  const angle = 360 / events.length
-  const offset = size / 2
-  const radius = (canvas - size) / 2
-  const center = pos + offset + radius
-
-  const images = []
-
-  events.forEach((event, i) => {
-    const x = center + radius * Math.cos(angle * i * Math.PI / 180)
-    const y = center + radius * Math.sin(angle * i * Math.PI / 180)
-
-    images.push(
-      <img
-        src={`${event.image_url}?format=png&size=small`}
-        alt={event.name}
-        width={size}
-        height={size}
-        key={event.id}
-        style={{
-          display: 'flex',
-          position: 'absolute',
-          top: `${Math.round(y - offset)}px`,
-          left: `${Math.round(x - offset)}px`,
-          width: `${size}px`,
-          height: `${size}px`,
-          borderRadius: '50%',
-        }}
-      />
-    )
-  })
-
-  return images
+  const [, rawEventId] = url.pathname.match(/images\/([^/]+)/)
+  const searchParams = url.searchParams.toString()
+  return [rawEventId, searchParams ? `?${searchParams}` : '']
 }
 
 export default async function handler(request, context) {
-  const eventIds = getEventIds(request.url)
+  const [rawEventIds] = parseRequestUrl(request.url)
+  const eventIds = parseEventIds(rawEventIds)
+  const env = getEnv(context)
 
   let eventMap
   try {
-    eventMap = await getEvents(eventIds)
+    eventMap = await getEvents(eventIds, env)
   } catch (err) {
     if (err?.response?.status === 404) {
       return new Response(null, {
@@ -84,10 +31,7 @@ export default async function handler(request, context) {
     })
   }
 
-  const events = Object.values(eventMap)
-    .map((event) => ({ event, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ event }) => event)
+  const events = sortEvents(eventMap)
 
   if (events.length === 1) {
     return new ImageResponse(

@@ -56,3 +56,10 @@ export function parseEventIds(rawIds) {
   eventIds.sort((a, b) => a - b)
   return eventIds
 }
+
+export function sortEvents(eventMap) {
+  return Object.values(eventMap)
+    .map((event) => ({ event, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ event }) => event)
+}
