@@ -9,6 +9,7 @@ export function EventHeader({ event }) {
       style={{
         display: 'flex',
         flexDirection: 'column',
+        margin: '0 8px 0',
       }}
     >
       <div
