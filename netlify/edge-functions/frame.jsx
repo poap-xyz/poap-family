@@ -59,7 +59,7 @@ export default async function handler(request, context) {
           display: 'flex',
           position: 'absolute',
           top: '0',
-          left: '0',
+          left: '233px',
           width: '512px',
           height: '512px',
           borderRadius: '50%',
@@ -68,11 +68,11 @@ export default async function handler(request, context) {
     )
   } else if (eventsInfo.length < 6) {
     images.push(
-      ...renderEventsImages(eventsInfo.map((eventInfo) => eventInfo.event), 512, 224, 0)
+      ...renderEventsImages(eventsInfo.map((eventInfo) => eventInfo.event), 512, 224, [233, 0])
     )
   } else {
     images.push(
-      ...renderEventsImages(eventsInfo.slice(0, 8).map((eventInfo) => eventInfo.event), 512, 192, 0)
+      ...renderEventsImages(eventsInfo.slice(0, 8).map((eventInfo) => eventInfo.event), 512, 192, [233, 0])
     )
   }
 
@@ -87,7 +87,7 @@ export default async function handler(request, context) {
         style={{
           display: 'flex',
           position: 'relative',
-          width: '512px',
+          width: '978px',
           height: '512px',
         }}
       >
@@ -97,7 +97,7 @@ export default async function handler(request, context) {
             position: 'absolute',
             top: '0',
             left: '0',
-            width: '512px',
+            width: '978px',
             height: '512px',
             borderRadius: '50%',
           }}
@@ -110,7 +110,7 @@ export default async function handler(request, context) {
             position: 'absolute',
             top: '0',
             left: '0',
-            width: '512px',
+            width: '978px',
             height: '512px',
             background: 'linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.9) 80%)',
           }}
@@ -123,7 +123,7 @@ export default async function handler(request, context) {
               position: 'relative',
               left: '0',
               top: '0',
-              width: '512px',
+              width: '978px',
               height: '512px',
             }}
           >
@@ -146,7 +146,7 @@ export default async function handler(request, context) {
       </div>
     ),
     {
-      width: 512,
+      width: 978,
       height: 512,
       fonts: [
         {
