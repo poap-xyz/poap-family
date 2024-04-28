@@ -1,7 +1,14 @@
 import React from 'https://esm.sh/react'
 import { ShadowText } from './ShadowText.jsx'
 
-export function Stats({ supply, reservations, moments, collections }) {
+export function Stats({
+  supply,
+  reservations,
+  collectors,
+  drops,
+  moments,
+  collections,
+}) {
   const total = supply + reservations
 
   const highlighted = {
@@ -18,18 +25,32 @@ export function Stats({ supply, reservations, moments, collections }) {
     })
     stats.push({
       text: String(reservations),
-      title: `reservation${reservations === 1 ? '' : 's'}`,
+      title: `email collector${reservations === 1 ? '' : 's'}`,
     })
   }
 
-  if (moments && moments > 0) {
+  if (collectors != null && collectors > 0) {
+    stats.push({
+      text: String(collectors),
+      title: `complete collector${collectors === 1 ? '' : 's'}`,
+    })
+  }
+
+  if (drops != null && drops > 1) {
+    stats.push({
+      text: String(drops),
+      title: 'drops',
+    })
+  }
+
+  if (moments != null && moments > 0) {
     stats.push({
       text: String(moments),
       title: `moment${moments === 1 ? '' : 's'}`,
     })
   }
 
-  if (collections && collections > 0) {
+  if (collections != null && collections > 0) {
     stats.push({
       text: String(collections),
       title: `collection${collections === 1 ? '' : 's'}`,

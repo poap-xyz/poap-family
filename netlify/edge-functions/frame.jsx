@@ -6,6 +6,7 @@ import { parseEventIds, sortEvents } from '../utils/event.js'
 import { renderEventsImages } from '../utils/image.js'
 import { EventHeader } from '../components/EventHeader.jsx'
 import { Stats } from '../components/Stats.jsx'
+import { intersection } from '../../src/utils/array.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)
@@ -36,11 +37,15 @@ export default async function handler(request, context) {
   const eventsInfo = sortEvents(eventMap)
   const images = []
 
+  let allCollectors = null
   let totalSupply = 0
   let totalReservations = 0
   let totalMoments = 0
 
   for (const eventInfo of eventsInfo) {
+    allCollectors = allCollectors == null
+      ? eventInfo.owners
+      : intersection(allCollectors, eventInfo.owners)
     totalSupply += eventInfo.owners.length
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     totalMoments += eventInfo.metrics?.momentsUploaded ?? 0
@@ -136,6 +141,10 @@ export default async function handler(request, context) {
               {Stats({
                 supply: totalSupply,
                 reservations: totalReservations,
+                drops: eventIds.length,
+                collectors: eventIds.length === 1 || allCollectors == null
+                  ? null
+                  : allCollectors.length,
                 moments: totalMoments,
                 collections: eventsInfo.length === 1 ? eventsInfo[0].metrics?.collectionsIncludes ?? 0 : 0,
               })}
