@@ -32,7 +32,7 @@ export function Stats({
   if (collectors != null && collectors > 0) {
     stats.push({
       text: String(collectors),
-      title: `complete collector${collectors === 1 ? '' : 's'}`,
+      title: `full set collector${collectors === 1 ? '' : 's'}`,
     })
   }
 
