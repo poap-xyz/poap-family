@@ -41,7 +41,7 @@ export default async function handler(request, context) {
 
   if (eventInfo == null) {
     return new Response(html, {
-      status: 404,
+      status: 200,
       headers: {
         'content-type': 'text/html',
       },

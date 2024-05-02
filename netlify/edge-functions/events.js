@@ -61,6 +61,15 @@ export default async function handler(request, context) {
     })
   }
 
+  if (eventsInfo == null) {
+    return new Response(html, {
+      status: 200,
+      headers: {
+        'content-type': 'text/html',
+      },
+    })
+  }
+
   let totalSupply = 0
   let totalReservations = 0
   let names = []
