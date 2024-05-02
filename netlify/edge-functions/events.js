@@ -75,7 +75,18 @@ export default async function handler(request, context) {
   let names = []
   let ts = 0
 
-  for (const eventInfo of Object.values(eventsInfo)) {
+  for (const eventId of eventIds) {
+    const eventInfo = eventsInfo[eventId]
+
+    if (eventInfo.event == null || eventInfo.owners == null || eventInfo.metrics == null) {
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'content-type': 'text/html',
+        },
+      })
+    }
+
     totalSupply += eventInfo.owners.length
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     names = [...names, eventInfo.event.name]
