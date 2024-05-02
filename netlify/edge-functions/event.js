@@ -39,6 +39,15 @@ export default async function handler(request, context) {
     })
   }
 
+  if (eventInfo == null) {
+    return new Response(html, {
+      status: 404,
+      headers: {
+        'content-type': 'text/html',
+      },
+    })
+  }
+
   return new Response(
     appendFrame(
       replaceMeta(
