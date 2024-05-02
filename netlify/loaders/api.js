@@ -3,7 +3,7 @@ export async function getEventInfo(eventId, env) {
     return null
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true&fresh=false&refresh=false`,
+    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true&fresh=false&refresh=true`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -64,7 +64,7 @@ export async function getEvents(eventIds, env) {
     return null
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}?fresh=false`,
+    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}?fresh=true`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
