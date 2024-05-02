@@ -19,6 +19,15 @@ export default async function handler(request, context) {
   const eventId = parseEventId(rawEventId)
   const env = getEnv(context)
 
+  if (String(eventId) !== String(rawEventId)) {
+    return new Response(html, {
+      status: 400,
+      headers: {
+        'content-type': 'text/html',
+      },
+    })
+  }
+
   let eventInfo
   try {
     eventInfo = await getEventInfo(eventId, env)
