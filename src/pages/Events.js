@@ -157,7 +157,7 @@ function Events() {
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
       return Promise.allSettled([
         fetchPOAPs(eventId, abortSignal),
-        getEventMetrics(eventId, abortSignal, searchParams.get('force') === 'true'),
+        getEventMetrics(eventId, abortSignal, searchParams.get('force') === 'true', /*fresh*/true),
       ]).then(
         ([eventOwnerTokensResult, eventMetricsResult]) => {
           removeLoading(eventId)
@@ -338,7 +338,7 @@ function Events() {
           const expiryDates = parseExpiryDates(events)
           Promise.all([
             getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/false),
-            getEventsMetrics(eventIds, controller.signal),
+            getEventsMetrics(eventIds, controller.signal, /*fresh*/true),
           ]).then(
             ([newOwners, eventsMetrics]) => {
               if (eventsMetrics) {

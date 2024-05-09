@@ -296,16 +296,21 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true)
   return body
 }
 
-async function getEventMetrics(eventId, abortSignal, refresh = false) {
+async function getEventMetrics(eventId, abortSignal, refresh = false, fresh = true) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Event ${eventId} metrics could not be fetched, configure Family API key`)
   }
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/metrics?refresh=${encodeURIComponent(refresh)}`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${FAMILY_API_URL}/event/${eventId}/metrics?` +
+      `refresh=${encodeURIComponent(refresh)}&` +
+      `fresh=${encodeURIComponent(fresh)}`,
+    {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }
@@ -335,16 +340,20 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
   }
 }
 
-async function getEventsMetrics(eventIds, abortSignal) {
+async function getEventsMetrics(eventIds, abortSignal, fresh = true) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
   }
-  const response = await fetch(`${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics?` +
+      `fresh=${encodeURIComponent(fresh)}`,
+    {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }
