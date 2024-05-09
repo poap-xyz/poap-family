@@ -142,11 +142,14 @@ export async function getEventsMetrics(eventIds, env) {
   if (!env.FAMILY_API_KEY) {
     throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
   }
-  const response = await fetch(`${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`, {
-    headers: {
-      'x-api-key': env.FAMILY_API_KEY,
-    },
-  })
+  const response = await fetch(
+    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics?fresh=true`,
+    {
+      headers: {
+        'x-api-key': env.FAMILY_API_KEY,
+      },
+    }
+  )
   if (response.status === 404) {
     return null
   }
