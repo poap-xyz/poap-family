@@ -342,7 +342,10 @@ function Events() {
           ]).then(
             ([newOwners, eventsMetrics]) => {
               if (eventsMetrics) {
-                setMetrics((oldReservations) => ({ ...oldReservations, ...eventsMetrics }))
+                const foundMetrics = Object.fromEntries(
+                  Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
+                )
+                setMetrics((oldReservations) => ({ ...oldReservations, ...foundMetrics }))
               }
               if (newOwners) {
                 setOwners((oldOwners) => ({ ...oldOwners, ...newOwners }))
