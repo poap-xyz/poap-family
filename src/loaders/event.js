@@ -177,7 +177,7 @@ async function eventLoader({ params, request }) {
   }
   const [tokensSettled, metricsSettled] = await Promise.allSettled([
     fetchPOAPs(params.eventId),
-    getEventMetrics(params.eventId, null, /*refresh*/force === 'true'),
+    getEventMetrics(params.eventId, null, /*refresh*/force === 'true', /*fresh*/true),
   ])
   if (tokensSettled.status === 'rejected') {
     throw new Response('', {
