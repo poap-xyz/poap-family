@@ -3,7 +3,7 @@ export async function getEventInfo(eventId, env) {
     return null
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true&fresh=false&refresh=true`,
+    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true&fresh=true&refresh=false`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
