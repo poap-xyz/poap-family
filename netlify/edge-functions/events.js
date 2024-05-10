@@ -73,7 +73,7 @@ export default async function handler(request, context) {
   let totalSupply = 0
   let totalReservations = 0
   let names = []
-  let ts = 0
+  let ts = Math.trunc(Date.now() / 1000)
 
   for (const eventId of eventIds) {
     const eventInfo = eventsInfo[eventId]
@@ -90,7 +90,7 @@ export default async function handler(request, context) {
     totalSupply += eventInfo.owners?.owners.length ?? 0
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     names = [...names, eventInfo.event.name]
-    ts = Math.max(ts, eventInfo.owners?.ts ?? eventInfo.metrics?.ts)
+    ts = Math.min(ts, eventInfo.owners?.ts ?? eventInfo.metrics?.ts)
   }
 
   return new Response(
