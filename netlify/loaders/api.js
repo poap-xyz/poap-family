@@ -3,7 +3,7 @@ export async function getEventInfo(eventId, env) {
     return null
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true&fresh=true&refresh=false`,
+    `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -64,7 +64,7 @@ export async function getEvents(eventIds, env) {
     return null
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}?fresh=true`,
+    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -106,7 +106,7 @@ export async function getEventsOwners(eventIds, env) {
   }
   const response = await fetch(
     `${env.FAMILY_API_URL}/events` +
-      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners?fresh=false`,
+      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -143,7 +143,7 @@ export async function getEventsMetrics(eventIds, env) {
     throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics?fresh=true`,
+    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
