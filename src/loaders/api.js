@@ -256,11 +256,11 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
     return null
   }
-  const queryString = expiryDates ? encodeExpiryDates(expiryDates) : ''
+  const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
   const response = await fetch(
     `${FAMILY_API_URL}/events` +
       `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-      `/owners${queryString ? `?${queryString}` : ''}`,
+      `/owners${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
@@ -317,12 +317,15 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
   return EventMetrics(body)
 }
 
-async function getEventsMetrics(eventIds, abortSignal) {
+async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
   }
+  const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
   const response = await fetch(
-    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`,
+    `${FAMILY_API_URL}/events` +
+    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+    `/metrics${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
