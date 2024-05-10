@@ -344,7 +344,7 @@ function Events() {
           const expiryDates = parseExpiryDates(events)
           Promise.all([
             getEventsOwners(eventIds, controller.signal, expiryDates),
-            getEventsMetrics(eventIds, controller.signal),
+            getEventsMetrics(eventIds, controller.signal, expiryDates),
           ]).then(
             ([eventsOwners, eventsMetrics]) => {
               if (eventsMetrics) {
