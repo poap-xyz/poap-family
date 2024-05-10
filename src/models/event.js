@@ -1,3 +1,5 @@
+import { parseEndOfDayDate } from '../utils/date'
+
 function Event(event, includeDescription) {
   return {
     id: event.id,
@@ -88,7 +90,7 @@ function parseExpiryDates(events) {
       ([eventId, event]) => ([
         eventId,
         event?.expiry_date
-          ? new Date(event.expiry_date.replace(/-/g, '/') + ' 23:59:00 UTC')
+          ? parseEndOfDayDate(event.expiry_date)
           : undefined,
       ])
     )
