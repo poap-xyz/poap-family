@@ -19,14 +19,13 @@ function Event(event, includeDescription) {
 }
 
 function EventOwners(eventOwners) {
+  if (eventOwners == null) {
+    return null
+  }
   if (
-    eventOwners == null ||
     typeof eventOwners !== 'object' ||
     !('owners' in eventOwners) ||
-    (
-      eventOwners.owners != null &&
-      !Array.isArray(eventOwners.owners)
-    ) ||
+    !Array.isArray(eventOwners.owners) ||
     !('ts' in eventOwners) ||
     eventOwners.ts == null ||
     typeof eventOwners.ts !== 'number'
@@ -36,6 +35,37 @@ function EventOwners(eventOwners) {
   return {
     owners: eventOwners.owners,
     ts: eventOwners.ts,
+  }
+}
+
+function EventMetrics(eventMetrics) {
+  if (eventMetrics == null) {
+    return null
+  }
+  if (
+    typeof eventMetrics !== 'object' ||
+    !('emailReservations' in eventMetrics) ||
+    typeof eventMetrics.emailReservations !== 'number' ||
+    !('emailClaimsMinted' in eventMetrics) ||
+    typeof eventMetrics.emailClaimsMinted !== 'number' ||
+    !('emailClaims' in eventMetrics) ||
+    typeof eventMetrics.emailClaims !== 'number' ||
+    !('momentsUploaded' in eventMetrics) ||
+    typeof eventMetrics.momentsUploaded !== 'number' ||
+    !('collectionsIncludes' in eventMetrics) ||
+    typeof eventMetrics.collectionsIncludes !== 'number' ||
+    !('ts' in eventMetrics) ||
+    typeof eventMetrics.ts !== 'number'
+  ) {
+    throw new Error('Malformed event metrics')
+  }
+  return {
+    emailReservations: eventMetrics.emailReservations,
+    emailClaimsMinted: eventMetrics.emailClaimsMinted,
+    emailClaims: eventMetrics.emailClaims,
+    momentsUploaded: eventMetrics.momentsUploaded,
+    collectionsIncludes: eventMetrics.collectionsIncludes,
+    ts: eventMetrics.ts,
   }
 }
 
@@ -87,6 +117,7 @@ const SEARCH_LIMIT = 10
 export {
   Event,
   EventOwners,
+  EventMetrics,
   parseEventIds,
   joinEventIds,
   parseExpiryDates,
