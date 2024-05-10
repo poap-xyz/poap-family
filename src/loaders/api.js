@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
-import { encodeExpiryDates, Event, EventOwners } from '../models/event'
+import { encodeExpiryDates, Event, EventMetrics, EventOwners } from '../models/event'
 
 async function getEventAndOwners(
   eventId,
@@ -313,27 +313,8 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (response.status !== 200) {
     throw new Error(`Event ${eventId} failed to fetch metrics (status ${response.status})`)
   }
-  const metrics = await response.json()
-  if (
-    !metrics ||
-    typeof metrics !== 'object' ||
-    !('emailReservations' in metrics) || typeof metrics.emailReservations !== 'number' ||
-    !('emailClaimsMinted' in metrics) || typeof metrics.emailClaimsMinted !== 'number' ||
-    !('emailClaims' in metrics) || typeof metrics.emailClaims !== 'number' ||
-    !('momentsUploaded' in metrics) || typeof metrics.momentsUploaded !== 'number' ||
-    !('collectionsIncludes' in metrics) || typeof metrics.collectionsIncludes !== 'number' ||
-    !('ts' in metrics) || (typeof metrics.ts !== 'number' && metrics.ts !== null)
-  ) {
-    return null
-  }
-  return {
-    emailReservations: metrics.emailReservations,
-    emailClaimsMinted: metrics.emailClaimsMinted,
-    emailClaims: metrics.emailClaims,
-    momentsUploaded: metrics.momentsUploaded,
-    collectionsIncludes: metrics.collectionsIncludes,
-    ts: metrics.ts,
-  }
+  const body = await response.json()
+  return EventMetrics(body)
 }
 
 async function getEventsMetrics(eventIds, abortSignal) {
@@ -367,11 +348,15 @@ async function getEventsMetrics(eventIds, abortSignal) {
     }
     throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status})`)
   }
-  const metricsMap = await response.json()
-  if (typeof metricsMap !== 'object') {
+  const body = await response.json()
+  if (typeof body !== 'object') {
     return null
   }
-  return metricsMap
+  return Object.fromEntries(
+    Object.entries(body).map(
+      ([eventId, event]) => [eventId, EventMetrics(event)]
+    )
+  )
 }
 
 async function auth(passphrase) {
