@@ -154,7 +154,6 @@ async function eventLoader({ params, request }) {
       /*abortSignal*/undefined,
       /*includeDescription*/true,
       /*includeMetrics*/true,
-      /*fresh*/true,
       /*refresh*/force === 'true'
     )
     if (eventAndOwners != null) {
@@ -177,7 +176,7 @@ async function eventLoader({ params, request }) {
   }
   const [tokensSettled, metricsSettled] = await Promise.allSettled([
     fetchPOAPs(params.eventId),
-    getEventMetrics(params.eventId, null, /*refresh*/force === 'true', /*fresh*/true),
+    getEventMetrics(params.eventId, null, /*refresh*/force === 'true'),
   ])
   if (tokensSettled.status === 'rejected') {
     throw new Response('', {
@@ -233,7 +232,7 @@ async function eventsLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force')
   if (!force) {
     try {
-      const events = await getEvents(eventIds, /*fresh*/true)
+      const events = await getEvents(eventIds)
       if (events) {
         const notFoundEventIds = []
         for (const eventId of eventIds) {

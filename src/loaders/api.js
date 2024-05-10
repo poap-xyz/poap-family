@@ -7,7 +7,6 @@ async function getEventAndOwners(
   abortSignal,
   includeDescription = false,
   includeMetrics = true,
-  fresh = true,
   refresh = false,
 ) {
   if (!FAMILY_API_KEY) {
@@ -17,7 +16,6 @@ async function getEventAndOwners(
     `${FAMILY_API_URL}/event/${eventId}?` +
     `description=${encodeURIComponent(includeDescription)}&` +
     `metrics=${encodeURIComponent(includeMetrics)}` +
-    `${fresh ? '&fresh=true' : ''}` +
     `${refresh ? '&refresh=true' : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
@@ -213,13 +211,12 @@ async function getLastEvents(page = 1, qty = 3) {
   }
 }
 
-async function getEvents(eventIds, fresh = true) {
+async function getEvents(eventIds) {
   if (!FAMILY_API_KEY) {
     return null
   }
   const response = await fetch(
-    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-      `${fresh ? '?fresh=true' : ''}`,
+    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
     {
       headers: {
         'x-api-key': FAMILY_API_KEY,
@@ -255,7 +252,7 @@ async function getEvents(eventIds, fresh = true) {
   )
 }
 
-async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true) {
+async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
     return null
   }
@@ -263,7 +260,7 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true)
   const response = await fetch(
     `${FAMILY_API_URL}/events` +
       `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-      `/owners${queryString ? `?${queryString}${fresh ? '&fresh=true' : ''}` : fresh ? '?fresh=true' : ''}`,
+      `/owners${queryString ? `?${queryString}` : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
@@ -296,14 +293,12 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates, fresh = true)
   return body
 }
 
-async function getEventMetrics(eventId, abortSignal, refresh = false, fresh = true) {
+async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Event ${eventId} metrics could not be fetched, configure Family API key`)
   }
   const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}/metrics?` +
-      `refresh=${encodeURIComponent(refresh)}&` +
-      `fresh=${encodeURIComponent(fresh)}`,
+    `${FAMILY_API_URL}/event/${eventId}/metrics${refresh ? '?refresh=true' : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
@@ -340,13 +335,12 @@ async function getEventMetrics(eventId, abortSignal, refresh = false, fresh = tr
   }
 }
 
-async function getEventsMetrics(eventIds, abortSignal, fresh = true) {
+async function getEventsMetrics(eventIds, abortSignal) {
   if (!FAMILY_API_KEY) {
     throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
   }
   const response = await fetch(
-    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics?` +
-      `fresh=${encodeURIComponent(fresh)}`,
+    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
