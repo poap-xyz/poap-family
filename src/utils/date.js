@@ -24,3 +24,7 @@ export function secondsInTheFuture(secs) {
 export function formatMonthYear(d) {
   return dayjs(d).format('MMM \'YY')
 }
+
+export function parseEndOfDayDate(date) {
+  return dayjs(date).endOf('day').toDate()
+}
