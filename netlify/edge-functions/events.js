@@ -87,10 +87,10 @@ export default async function handler(request, context) {
       })
     }
 
-    totalSupply += eventInfo.owners.length
+    totalSupply += eventInfo.owners?.owners.length ?? 0
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     names = [...names, eventInfo.event.name]
-    ts = Math.max(ts, eventInfo.ts ?? eventInfo.metrics?.ts)
+    ts = Math.max(ts, eventInfo.owners?.ts ?? eventInfo.metrics?.ts)
   }
 
   return new Response(

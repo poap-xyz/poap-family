@@ -357,7 +357,10 @@ function Addresses() {
                 setLoadingEventsOwners(false)
                 if (ownersMap) {
                   const uniqueOwners = Object.values(ownersMap).reduce(
-                    (allOwners, eventOwners) => new Set([...allOwners, ...eventOwners]),
+                    (allOwners, eventOwners) => new Set([
+                      ...allOwners,
+                      ...(eventOwners?.owners ?? []),
+                    ]),
                     new Set()
                   )
                   const addresses = [...uniqueOwners].map((owner) => parseAddress(owner))

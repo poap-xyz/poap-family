@@ -122,7 +122,13 @@ function Events() {
       }
       removeErrors(eventId)
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
-      return getEventAndOwners(eventId, abortSignal, /*includeDescription*/false, /*includeMetrics*/true, /*fresh*/true).then(
+      return getEventAndOwners(
+        eventId,
+        abortSignal,
+        /*includeDescription*/false,
+        /*includeMetrics*/true,
+        /*refresh*/false
+      ).then(
         (eventAndOwners) => {
           removeLoading(eventId)
           if (eventAndOwners != null) {
@@ -157,7 +163,7 @@ function Events() {
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
       return Promise.allSettled([
         fetchPOAPs(eventId, abortSignal),
-        getEventMetrics(eventId, abortSignal, searchParams.get('force') === 'true', /*fresh*/true),
+        getEventMetrics(eventId, abortSignal, searchParams.get('force') === 'true'),
       ]).then(
         ([eventOwnerTokensResult, eventMetricsResult]) => {
           removeLoading(eventId)
@@ -337,17 +343,26 @@ function Events() {
           const controller = new AbortController()
           const expiryDates = parseExpiryDates(events)
           Promise.all([
-            getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/false),
-            getEventsMetrics(eventIds, controller.signal, /*fresh*/true),
+            getEventsOwners(eventIds, controller.signal, expiryDates),
+            getEventsMetrics(eventIds, controller.signal),
           ]).then(
-            ([newOwners, eventsMetrics]) => {
+            ([eventsOwners, eventsMetrics]) => {
               if (eventsMetrics) {
                 const foundMetrics = Object.fromEntries(
                   Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
                 )
                 setMetrics((oldReservations) => ({ ...oldReservations, ...foundMetrics }))
               }
-              if (newOwners) {
+              if (eventsOwners) {
+                const newOwners = Object.fromEntries(
+                  Object.entries(eventsOwners)
+                    .map(
+                      ([eventId, eventOwners]) => [
+                        eventId,
+                        eventOwners == null ? [] : eventOwners.owners,
+                      ]
+                    )
+                )
                 setOwners((oldOwners) => ({ ...oldOwners, ...newOwners }))
                 if (Object.keys(newOwners).length === eventIds.length) {
                   resolveEnsNames(
