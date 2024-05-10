@@ -93,11 +93,7 @@ export async function getEvents(eventIds, env) {
   if (typeof body !== 'object') {
     return null
   }
-  return Object.fromEntries(
-    Object.entries(body).map(
-      ([eventId, event]) => [eventId, event]
-    )
-  )
+  return body
 }
 
 export async function getEventsOwners(eventIds, env) {
@@ -113,9 +109,6 @@ export async function getEventsOwners(eventIds, env) {
       },
     }
   )
-  if (response.status === 404) {
-    return null
-  }
   if (response.status !== 200) {
     let message
     try {
@@ -168,9 +161,9 @@ export async function getEventsMetrics(eventIds, env) {
     }
     throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status})`)
   }
-  const metricsMap = await response.json()
-  if (typeof metricsMap !== 'object') {
+  const body = await response.json()
+  if (typeof body !== 'object') {
     return null
   }
-  return metricsMap
+  return body
 }

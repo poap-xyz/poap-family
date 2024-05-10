@@ -340,14 +340,23 @@ function Events() {
             getEventsOwners(eventIds, controller.signal, expiryDates, /*fresh*/false),
             getEventsMetrics(eventIds, controller.signal, /*fresh*/true),
           ]).then(
-            ([newOwners, eventsMetrics]) => {
+            ([eventsOwners, eventsMetrics]) => {
               if (eventsMetrics) {
                 const foundMetrics = Object.fromEntries(
                   Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
                 )
                 setMetrics((oldReservations) => ({ ...oldReservations, ...foundMetrics }))
               }
-              if (newOwners) {
+              if (eventsOwners) {
+                const newOwners = Object.fromEntries(
+                  Object.entries(eventsOwners)
+                    .map(
+                      ([eventId, eventOwners]) => [
+                        eventId,
+                        eventOwners == null ? [] : eventOwners.owners,
+                      ]
+                    )
+                )
                 setOwners((oldOwners) => ({ ...oldOwners, ...newOwners }))
                 if (Object.keys(newOwners).length === eventIds.length) {
                   resolveEnsNames(
