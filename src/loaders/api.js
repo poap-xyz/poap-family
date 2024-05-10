@@ -223,9 +223,6 @@ async function getEvents(eventIds) {
       },
     }
   )
-  if (response.status === 404) {
-    return null
-  }
   if (response.status !== 200) {
     let message
     try {
@@ -243,7 +240,7 @@ async function getEvents(eventIds) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events (type ${typeof body})`)
   }
   return Object.fromEntries(
     Object.entries(body).map(
@@ -285,7 +282,7 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events owners (type ${typeof body})`)
   }
   return Object.fromEntries(
     Object.entries(body).map(
@@ -333,9 +330,6 @@ async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
       },
     }
   )
-  if (response.status === 404) {
-    return null
-  }
   if (response.status !== 200) {
     let message
     try {
@@ -353,7 +347,7 @@ async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events metrics (type ${typeof body})`)
   }
   return Object.fromEntries(
     Object.entries(body).map(
