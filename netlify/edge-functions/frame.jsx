@@ -44,9 +44,9 @@ export default async function handler(request, context) {
 
   for (const eventInfo of eventsInfo) {
     allCollectors = allCollectors == null
-      ? eventInfo.owners
-      : intersection(allCollectors, eventInfo.owners)
-    totalSupply += eventInfo.owners.length
+      ? eventInfo.owners?.owners ?? []
+      : intersection(allCollectors, eventInfo.owners?.owners ?? [])
+    totalSupply += eventInfo.owners?.owners.length ?? 0
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
     totalMoments += eventInfo.metrics?.momentsUploaded ?? 0
   }

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
-import { encodeExpiryDates, Event } from '../models/event'
+import { encodeExpiryDates, Event, EventOwners } from '../models/event'
 
 async function getEventAndOwners(
   eventId,
@@ -268,9 +268,6 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
       },
     }
   )
-  if (response.status === 404) {
-    return null
-  }
   if (response.status !== 200) {
     let message
     try {
@@ -290,7 +287,11 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   if (typeof body !== 'object') {
     return null
   }
-  return body
+  return Object.fromEntries(
+    Object.entries(body).map(
+      ([eventId, event]) => [eventId, EventOwners(event)]
+    )
+  )
 }
 
 async function getEventMetrics(eventId, abortSignal, refresh = false) {

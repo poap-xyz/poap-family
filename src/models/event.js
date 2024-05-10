@@ -18,6 +18,27 @@ function Event(event, includeDescription) {
   }
 }
 
+function EventOwners(eventOwners) {
+  if (
+    eventOwners == null ||
+    typeof eventOwners !== 'object' ||
+    !('owners' in eventOwners) ||
+    (
+      eventOwners.owners != null &&
+      !Array.isArray(eventOwners.owners)
+    ) ||
+    !('ts' in eventOwners) ||
+    eventOwners.ts == null ||
+    typeof eventOwners.ts !== 'number'
+  ) {
+    throw new Error('Malformed event owners')
+  }
+  return {
+    owners: eventOwners.owners,
+    ts: eventOwners.ts,
+  }
+}
+
 function parseEventIds(rawIds) {
   let eventIds = (rawIds ?? '').split(',')
     .filter((value, index, all) => all.indexOf(value) === index)
@@ -65,6 +86,7 @@ const SEARCH_LIMIT = 10
 
 export {
   Event,
+  EventOwners,
   parseEventIds,
   joinEventIds,
   parseExpiryDates,
