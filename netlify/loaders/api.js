@@ -71,9 +71,6 @@ export async function getEvents(eventIds, env) {
       },
     }
   )
-  if (response.status === 404) {
-    return null
-  }
   if (response.status !== 200) {
     let message
     try {
@@ -91,7 +88,7 @@ export async function getEvents(eventIds, env) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events (type ${typeof body})`)
   }
   return body
 }
@@ -126,7 +123,7 @@ export async function getEventsOwners(eventIds, env) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events owners (type ${typeof body})`)
   }
   return body
 }
@@ -163,7 +160,7 @@ export async function getEventsMetrics(eventIds, env) {
   }
   const body = await response.json()
   if (typeof body !== 'object') {
-    return null
+    throw new Error(`Malformed events metrics (type ${typeof body})`)
   }
   return body
 }
