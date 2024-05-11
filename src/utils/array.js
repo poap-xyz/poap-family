@@ -1,3 +1,8 @@
+/**
+ * Returns elements found in all array arguments.
+ *
+ * @param {unknown[]} array
+ */
 export function intersection(array) {
   const result = []
   const argsLength = arguments.length
@@ -19,6 +24,12 @@ export function intersection(array) {
   return result
 }
 
+/**
+ * Returns true when {a} and {b} are equal no matter their order.
+ *
+ * @param {unknown[]} a
+ * @param {unknown[]} b
+ */
 export function equals(a, b) {
   if (a === b) {
     return true
@@ -44,6 +55,12 @@ export function equals(a, b) {
   return true
 }
 
+/**
+ * Split an array into smaller chunks.
+ *
+ * @param {unknown[]} array
+ * @param {number} len
+ */
 export function chunks(array, len = 1) {
   const chunks = []
   let i = 0
