@@ -7,7 +7,9 @@ function EventsPageError() {
   const { eventIds: rawEventIds } = useParams()
 
   const delEvent = (eventId) => {
-    const eventIds = parseEventIds(rawEventIds).filter((paramEventId) => String(paramEventId) !== String(eventId))
+    const eventIds = parseEventIds(rawEventIds).filter(
+      (paramEventId) => String(paramEventId) !== String(eventId)
+    )
     if (eventIds.length === 1) {
       navigate(`/event/${eventIds[0]}`)
     } else if (eventIds.length > 0) {

@@ -1,7 +1,12 @@
 import LinkButton from './LinkButton'
 import '../styles/event-buttons.css'
 
-function EventButtons({ event, buttons, viewInGallery = true, invert = false }) {
+function EventButtons({
+  event,
+  buttons,
+  viewInGallery = true,
+  invert = false,
+}) {
   return (
     <div className={`event-buttons ${invert ? 'right' : 'left'}`}>
       {viewInGallery && (

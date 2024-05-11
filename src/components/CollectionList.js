@@ -44,7 +44,10 @@ function CollectionList({
           <div className="collection-banner">
             {collection.banner_image_url && (
               <img
-                src={resizeCollectionImageUrl(collection.banner_image_url, { w: 192, h: 48 })}
+                src={resizeCollectionImageUrl(collection.banner_image_url, {
+                  w: 192,
+                  h: 48,
+                })}
                 onError={(event) => event.target.style.display = 'none'}
                 alt=""
               />
@@ -54,7 +57,10 @@ function CollectionList({
             {showLogo && collection.logo_image_url && (
               <div className="collection-logo">
                 <img
-                  src={resizeCollectionImageUrl(collection.logo_image_url, { w: 32, h: 32 })}
+                  src={resizeCollectionImageUrl(collection.logo_image_url, {
+                    w: 32,
+                    h: 32,
+                  })}
                   alt=""
                 />
               </div>

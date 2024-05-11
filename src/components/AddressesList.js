@@ -12,7 +12,12 @@ function AddressesList({
     <ol className="addresses-list">
       {addresses.map((address) => (
         <li key={address}>
-          <a href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`${POAP_SCAN_URL}/${address}`}
+            title={`Scan ${address in ensNames ? ensNames[address] : address}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {address in ensNames
               ? <span className="ens">{ensNames[address]}</span>
               : <code>{address}</code>

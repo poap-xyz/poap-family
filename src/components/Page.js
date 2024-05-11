@@ -1,10 +1,10 @@
 import { useContext } from 'react'
+import { QuestionMark } from 'iconoir-react'
 import { SettingsContext } from '../stores/cache'
 import CornerBackground from '../images/Corner_Background.svg'
 import Feedback from './Feedback'
 import LogoMenu from './LogoMenu'
 import MenuItem from './MenuItem'
-import { QuestionMark } from 'iconoir-react'
 import '../styles/page.css'
 
 function Page({ children, showCorner = true }) {
