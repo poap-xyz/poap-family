@@ -108,11 +108,7 @@ function Event() {
   useEffect(
     () => {
       if (loadedCount === owners.length && !cachedTs) {
-        const inCommonProcessed = Object.fromEntries(
-          filterAndSortInCommon(
-            Object.entries(inCommon)
-          )
-        )
+        const inCommonProcessed = filterAndSortInCommon(inCommon)
         const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
         if (inCommonProcessedEventIds.length > 0) {
           setCaching(true)

@@ -68,9 +68,16 @@ function EventsOwners({
               <ul key={chunkIndex} className="owners">
                 {ownersEntriesChunk.map(
                   ([address, eventIds]) => {
-                    const inCommonEventIds = getAddressInCommonEventIds(inCommonEntries, address)
+                    const inCommonEventIds = getAddressInCommonEventIds(
+                      Object.fromEntries(inCommonEntries),
+                      address
+                    )
                     const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
-                      inCommonEntries.filter(([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId))
+                      Object.fromEntries(
+                        inCommonEntries.filter(
+                          ([inCommonEventId]) => inCommonEventIds.includes(parseInt(inCommonEventId))
+                        )
+                      )
                     ).filter(
                       (inCommonAddress) => inCommonAddress.toLowerCase() !== address.toLowerCase()
                     )
