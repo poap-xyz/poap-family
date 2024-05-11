@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { clsx } from 'clsx'
 import { FastArrowLeft, FastArrowRight } from 'iconoir-react'
 import Ilustration from '../images/Illustration_Cities_BuenosAires.png'
@@ -21,16 +21,32 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
           <div className="event-info-extra-card">
             {extraOpen && (
               <div className="event-info-extra-content">
-                {event.description.split('\n').map((p, i) => <p key={i}>{linkify(p, ExternalLink)}</p>)}
+                {event.description.split('\n').map(
+                  (p, i) => (
+                    <p key={`p${i}`}>
+                      {linkify(p, ExternalLink).map(
+                        (t, e) => <Fragment key={`t${e}`}>{t}</Fragment>
+                      )}
+                    </p>
+                  )
+                )}
               </div>
             )}
-            <button onClick={() => setExtraOpen((prev) => !prev)} className="event-info-extra-button">
+            <button
+              onClick={() => setExtraOpen((prev) => !prev)}
+              className="event-info-extra-button"
+            >
               {extraOpen ? <FastArrowLeft /> : <FastArrowRight />}
             </button>
           </div>
         </div>
       )}
-      <Card style={{ backgroundImage: `url(${Ilustration})`, backgroundPosition: '-3rem -8rem' }}>
+      <Card
+        style={{
+          backgroundImage: `url(${Ilustration})`,
+          backgroundPosition: '-3rem -8rem',
+        }}
+      >
         <div className="event-info">
           <div className="event-image">
             <TokenImageZoom event={event} zoomSize={512} size={128} />
@@ -38,7 +54,9 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
           <div className="event-data">
             <h1>{event.name}</h1>
             <div className="event-date">{formatDate(event.start_date)}</div>
-            {event.city && event.country && <div className="place">{event.city}, {event.country}</div>}
+            {event.city && event.country && (
+              <div className="place">{event.city}, {event.country}</div>
+            )}
             <Stats stats={stats} highlight={highlightStat} />
             <EventButtons event={event} buttons={buttons} viewInGallery={true} />
             {children}
