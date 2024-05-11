@@ -145,7 +145,7 @@ function Event() {
         getInCommonEventsWithProgress(
           event.id,
           /*abortSignal*/undefined,
-          /*onProgress*/({ loaded, total, progress, bytes, estimated, rate }) => {
+          /*onProgress*/({ progress, estimated, rate }) => {
             setLoadedProgress({ progress, estimated, rate })
           }
         ).then(
