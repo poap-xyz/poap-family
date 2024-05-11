@@ -38,7 +38,7 @@ const ensReverseRecordsContract = new Contract(
  * @param {(resolved: Record<string, string>) => void} onProgress
  * @param {number} limit
  * @param {number} maxErrors
- * @returns {Record<string, string>}
+ * @returns {Promise<Record<string, string>>}
  */
 export async function resolveEnsNames(
   addresses,
@@ -108,7 +108,7 @@ export async function resolveEnsNames(
 
 /**
  * @param {string} ensName
- * @returns {string | null}
+ * @returns {Promise<string | null>}
  */
 export async function resolveAddress(ensName) {
   try {
@@ -120,7 +120,7 @@ export async function resolveAddress(ensName) {
 
 /**
  * @param {string} ensNameOrAddress
- * @returns {string | null}
+ * @returns {Promise<string | null>}
  */
 export async function resolveEnsAvatar(ensNameOrAddress) {
   try {
