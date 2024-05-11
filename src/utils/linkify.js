@@ -36,7 +36,7 @@ export default function linkify(text, Anchor) {
         ? `${POAP_SCAN_URL}/${urls[i]}`
         : `https://${urls[i]}`
 
-      results.push(Anchor({ href, key: `${i}-${href}`, children: urls[i] }));
+      results.push(Anchor({ href, children: urls[i] }));
     }
   }
 
