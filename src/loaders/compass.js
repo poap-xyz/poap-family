@@ -1,6 +1,6 @@
 import { COMPASS_KEY, COMPASS_URL } from '../models/compass'
 
-async function requestCompass(query, variables, abortSignal) {
+export async function requestCompass(query, variables, abortSignal) {
   const response = await fetch(COMPASS_URL, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
     method: 'POST',
@@ -13,11 +13,13 @@ async function requestCompass(query, variables, abortSignal) {
       variables,
     }),
   })
+
   if (response.status !== 200) {
     let body
     try {
       body = await response.json()
     } catch (err) {}
+
     let message = 'Cannot request compass'
     if (
       body && 'errors' in body &&
@@ -33,48 +35,92 @@ async function requestCompass(query, variables, abortSignal) {
     }
     throw new Error(message)
   }
+
   const body = await response.json()
+
   if (
     !body || !('data' in body) ||
     !body.data || typeof body.data !== 'object'
   ) {
     throw new Error('Invalid compass response')
   }
+
   return body.data
 }
 
-async function queryCompass(name, Model, query, variables, abortSignal) {
+export async function queryCompass(
+  name,
+  Model,
+  query,
+  variables,
+  abortSignal
+) {
   const results = await requestCompass(query, variables, abortSignal)
+
   if (!(name in results)) {
     throw new Error(`Missing model ${name} in compass response`)
   }
+
   return Model(results[name])
 }
 
-async function queryFirstCompass(name, Model, query, variables, defaultValue, abortSignal) {
+export async function queryFirstCompass(
+  name,
+  Model,
+  query,
+  variables,
+  defaultValue,
+  abortSignal
+) {
   const FirstModel = (data) =>{
     if (data == null || !Array.isArray(data)) {
       throw new Error(`Model ${name} is not an array in compass response`)
     }
+
     if (data.length === 0) {
       return defaultValue
     }
+
     return Model(data[0])
   }
-  return await queryCompass(name, FirstModel, query, variables, abortSignal)
+
+  return await queryCompass(
+    name,
+    FirstModel,
+    query,
+    variables,
+    abortSignal
+  )
 }
 
-async function queryManyCompass(name, Model, query, variables, abortSignal) {
+export async function queryManyCompass(
+  name,
+  Model,
+  query,
+  variables,
+  abortSignal
+) {
   const ManyModel = (data) => {
     if (data == null || !Array.isArray(data)) {
       throw new Error(`Model ${name} is not an array in compass response`)
     }
+
     return data.map((result) => Model(result))
   }
+
   return await queryCompass(name, ManyModel, query, variables, abortSignal)
 }
 
-async function queryAllCompass(name, Model, query, variables, offsetKey, limit, total, abortSignal) {
+export async function queryAllCompass(
+  name,
+  Model,
+  query,
+  variables,
+  offsetKey,
+  limit,
+  total,
+  abortSignal
+) {
   let results = []
   let pageCount = 0
 
@@ -100,7 +146,12 @@ async function queryAllCompass(name, Model, query, variables, offsetKey, limit, 
   return results
 }
 
-async function queryAggregateCountCompass(name, query, variables, abortSignal) {
+export async function queryAggregateCountCompass(
+  name,
+  query,
+  variables,
+  abortSignal
+) {
   const AggregateCountModel = (data) => {
     if (
       data == null ||
@@ -116,10 +167,17 @@ async function queryAggregateCountCompass(name, query, variables, abortSignal) {
     }
     return data.aggregate.count
   }
-  return await queryCompass(name, AggregateCountModel, query, variables, abortSignal)
+
+  return await queryCompass(
+    name,
+    AggregateCountModel,
+    query,
+    variables,
+    abortSignal
+  )
 }
 
-async function countCompass(target, abortSignal) {
+export async function countCompass(target, abortSignal) {
   return await queryAggregateCountCompass(
     `${target}_aggregate`,
     `
@@ -134,14 +192,4 @@ async function countCompass(target, abortSignal) {
     {},
     abortSignal
   )
-}
-
-export {
-  requestCompass,
-  queryCompass,
-  queryFirstCompass,
-  queryManyCompass,
-  queryAllCompass,
-  queryAggregateCountCompass,
-  countCompass,
 }
