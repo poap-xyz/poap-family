@@ -1,7 +1,7 @@
 import { createContext, useCallback, useMemo, useState } from 'react'
 import { auth } from '../loaders/api'
 
-const AdminContext = createContext({
+export const AdminContext = createContext({
   authenticated: false,
   passphrase: null,
   loading: false,
@@ -10,7 +10,7 @@ const AdminContext = createContext({
   reset: () => {},
 })
 
-function AdminProvider({ children }) {
+export function AdminProvider({ children }) {
   const [authenticated, setAuthenticated] = useState(false)
   const [passphrase, setPassphrase] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -68,5 +68,3 @@ function AdminProvider({ children }) {
     </AdminContext.Provider>
   )
 }
-
-export { AdminContext, AdminProvider }

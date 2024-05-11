@@ -16,15 +16,14 @@ const matomo = matomoHost
   })
   : undefined
 
-function Analytics({ children }) {
+export function AnalyticsProvider({ children }) {
   if (!matomo) {
     return children
   }
+
   return (
     <MatomoProvider value={matomo}>
       {children}
     </MatomoProvider>
   )
 }
-
-export default Analytics
