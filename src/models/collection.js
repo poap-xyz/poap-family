@@ -1,3 +1,5 @@
+import { getRandomInt } from '../utils/number'
+
 function Collection(collection) {
   if (
     typeof collection !== 'object' ||
@@ -43,12 +45,6 @@ function CollectionWithDrops(collectionWithDrops) {
 }
 
 const COLLECTIONS_LIMIT = 7
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-}
 
 function resizeCollectionImageUrl(imageUrl, size) {
   if (imageUrl.indexOf('collections-media-production') >= 0) {

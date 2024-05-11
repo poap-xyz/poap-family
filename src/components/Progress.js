@@ -3,7 +3,14 @@ import { secondsInTheFuture } from '../utils/date'
 import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/progress.css'
 
-function Progress({ value, max, showValue = false, showPercent = false, eta, rate }) {
+function Progress({
+  value,
+  max,
+  showValue = false,
+  showPercent = false,
+  eta,
+  rate,
+}) {
   const [showDetails, setShowDetails] = useState(true)
 
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'

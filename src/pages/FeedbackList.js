@@ -128,7 +128,11 @@ function FeedbackList({ qty = 10 }) {
               )}
             </ul>
           )}
-          {error && <ErrorMessage style={{ marginTop: '1rem' }}>{error.message ?? 'Unknown error'}</ErrorMessage>}
+          {error && (
+            <ErrorMessage style={{ marginTop: '1rem' }}>
+              {error.message ?? 'Unknown error'}
+            </ErrorMessage>
+          )}
           {pages > 1 && (
             <Pagination
               page={page}

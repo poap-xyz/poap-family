@@ -6,9 +6,11 @@ import Button from './Button'
 function ButtonExpand({ addresses, eventIds, link = false, ...props }) {
   const navigate = useNavigate()
 
-  const queryString = eventIds && Array.isArray(eventIds) && eventIds.length > 0
-    ? `?events=${eventIds.join(',')}`
-    : ''
+  const queryString = (
+    eventIds && Array.isArray(eventIds) && eventIds.length > 0
+      ? `?events=${eventIds.join(',')}`
+      : ''
+  )
 
   return (
     <div className="button-expand">
@@ -28,7 +30,9 @@ function ButtonExpand({ addresses, eventIds, link = false, ...props }) {
             {...props}
             secondary={true}
             icon={<Expand />}
-            onClick={() => navigate(`/addresses${queryString}#${addresses.join(',')}`)}
+            onClick={() => {
+              navigate(`/addresses${queryString}#${addresses.join(',')}`)
+            }}
           >
             Expand
           </Button>

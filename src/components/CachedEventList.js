@@ -26,7 +26,9 @@ function CachedEventList({
             <div className="info">
               <div className="name">
                 <h4 title={cachedEvent.name}>{cachedEvent.name}</h4>
-                {showClear && <ButtonLink onClick={() => onClear(cachedEvent.id)}>clear</ButtonLink>}
+                {showClear && (
+                  <ButtonLink onClick={() => onClear(cachedEvent.id)}>clear</ButtonLink>
+                )}
               </div>
               <div className="sub-info">
                 {showCachedTs &&

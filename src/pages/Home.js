@@ -4,6 +4,7 @@ import packageJson from '../../package.json'
 import { HTMLContext } from '../stores/html'
 import { SettingsContext } from '../stores/cache'
 import CenterPage from '../components/CenterPage'
+import ExternalLink from '../components/ExternalLink'
 import Search from '../components/Search'
 import Welcome from '../components/Welcome'
 import LastEvents from '../components/LastEvents'
@@ -42,7 +43,12 @@ function Home() {
         <span className="dot">·</span>
         <Link className="link" to="/settings">settings</Link>
         <span className="dot">·</span>
-        <a className="link" href="https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc" target="_blank" rel="noopener noreferrer">faq</a>
+        <ExternalLink
+          className="link"
+          href="https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc"
+        >
+          faq
+        </ExternalLink>
         <span className="dot">·</span>
         <span className="text version">
           {VERSION_BASE_URL

@@ -1,10 +1,5 @@
+import { getRandomInt } from '../utils/number'
 import '../styles/poap.css'
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-}
 
 function TokenImage({ event, size, resize = true, imgix = false, original = false, ...props }) {
   let imageUrl = original ? event.original_url ?? event.image_url : event.image_url

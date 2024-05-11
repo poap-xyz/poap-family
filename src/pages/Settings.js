@@ -12,6 +12,14 @@ function Settings() {
   const navigate = useNavigate()
   const { settings, set } = useContext(SettingsContext)
   const { setTitle } = useContext(HTMLContext)
+
+  useEffect(
+    () => {
+      setTitle('Settings')
+    },
+    [setTitle]
+  )
+
   const handleShowLastEvents = (event) => {
     set('showLastEvents', !!event.target.checked)
   }
@@ -24,12 +32,7 @@ function Settings() {
   const handleShowCollections = (event) => {
     set('showCollections', !!event.target.checked)
   }
-  useEffect(
-    () => {
-      setTitle('Settings')
-    },
-    [setTitle]
-  )
+
   return (
     <CenterPage>
       <Card>

@@ -11,12 +11,21 @@ function AddressCollector({ address, ens, bigEns = false, short = false }) {
       <div className="collector-address">
         <a href={`${POAP_SCAN_URL}/${address}`}>
           {address && (
-            <code className="address short" style={{ display: short ? 'inline' : 'none' }} title={address}>
+            <code
+              className="address short"
+              style={{ display: short ? 'inline' : 'none' }}
+              title={address}
+            >
               {address.substring(0, 10)}…{address.substr(-8)}
             </code>
           )}
           {!short && address && (
-            <code className="address long" style={{ display: short ? 'none' : 'inline' }}>{address}</code>
+            <code
+              className="address long"
+              style={{ display: short ? 'none' : 'inline' }}
+            >
+              {address}
+            </code>
           )}
         </a>
       </div>
