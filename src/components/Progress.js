@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { clsx } from 'clsx'
 import { secondsInTheFuture } from '../utils/date'
 import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/progress.css'
@@ -16,7 +17,7 @@ function Progress({
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'
 
   return (
-    <div className={`progress${showValue ? ' block' : ''}`}>
+    <div className={clsx('progress', { block: showValue })}>
       <div className="progress-inline">
         <progress
           value={typeof value === 'number' ? value : undefined}

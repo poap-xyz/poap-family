@@ -1,4 +1,5 @@
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom'
+import { clsx } from 'clsx'
 import ButtonLink from './ButtonLink'
 import CenterPage from './CenterPage'
 import '../styles/page-error.css'
@@ -25,7 +26,7 @@ function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
   }
   return (
     <CenterPage>
-      <div className={`page-error ${errorType}`}>
+      <div className={clsx('page-error', errorType)}>
         <i className="icon warning"></i>
         {error.statusText && <p>{error.statusText}</p>}
         {error.message && <p>{error.message}</p>}

@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import ShadowText from './ShadowText'
 import '../styles/stats.css'
 
@@ -5,12 +6,15 @@ function Stats({ stats, highlight }) {
   const entries = Object.entries(stats).filter(([statName, stat]) => stat != null)
 
   return (
-    <div className={`stats${highlight ? ' highlighted' : ''}`}>
+    <div className={clsx('stats', { highlighted: highlight })}>
       <div className="stats-content">
         {entries.map(([statName, stat], index) => (
           <div
             key={statName}
-            className={`stat ${highlight === statName ? 'highlight' : 'common'}${typeof stat === 'object' && stat.link ? ' with-link' : ''}`}
+            className={clsx('stat',
+              highlight === statName ? 'highlight' : 'common',
+              typeof stat === 'object' && stat.link && ' with-link',
+            )}
           >
             <div className="stat-content">
               {typeof stat === 'object'
@@ -28,7 +32,11 @@ function Stats({ stats, highlight }) {
                           href={stat.link}
                           target={stat.external ? '_blank' : undefined}
                           rel={stat.external ? 'noopener noreferrer' : undefined}
-                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          className={clsx('stat-name',
+                            highlight && highlight !== statName
+                              ? !stat.small && 'stat-name-medium'
+                              : stat.small && 'stat-name-small'
+                          )}
                           title={stat.title}
                         >
                           {statName}
@@ -36,7 +44,11 @@ function Stats({ stats, highlight }) {
                       )
                       : (
                         <span
-                          className={`stat-name${highlight && highlight !== statName && !stat.small ? ' stat-name-medium' : (stat.small ? ' stat-name-small' : '')}`}
+                          className={clsx('stat-name',
+                            highlight && highlight !== statName
+                              ? !stat.small && 'stat-name-medium'
+                              : stat.small && 'stat-name-small'
+                          )}
                           title={stat.title}
                         >
                           {statName}
@@ -48,7 +60,11 @@ function Stats({ stats, highlight }) {
                   <>
                     <ShadowText medium={highlight && highlight !== statName}>{stat}</ShadowText>
                     <span
-                      className={`stat-name${highlight && highlight !== statName ? ' stat-name-medium' : ''}`}
+                      className={clsx('stat-name',
+                        highlight && highlight !== statName
+                          ? !stat.small && 'stat-name-medium'
+                          : stat.small && 'stat-name-small'
+                      )}
                     >
                       {statName}
                     </span>

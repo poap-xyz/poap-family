@@ -1,4 +1,5 @@
 import { useContext } from 'react'
+import { clsx } from 'clsx'
 import { POAP_SCAN_URL } from '../models/poap'
 import { ReverseEnsContext } from '../stores/ethereum'
 import '../styles/collector.css'
@@ -7,7 +8,7 @@ function AddressCollector({ address, ens, bigEns = false, short = false }) {
   const { ensNames } = useContext(ReverseEnsContext)
 
   return (
-    <div className={`collector ${bigEns ? 'big-ens' : 'big-address'}`}>
+    <div className={clsx('collector', bigEns ? 'big-ens' : 'big-address')}>
       <div className="collector-address">
         <a href={`${POAP_SCAN_URL}/${address}`}>
           {address && (

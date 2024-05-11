@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { clsx } from 'clsx'
 import { addFeedback } from '../loaders/api'
 import { SettingsContext } from '../stores/cache'
 import Button from './Button'
@@ -49,7 +50,7 @@ function Feedback() {
   )
 
   return (
-    <div className={`feedback${sent ? ' feedback-sent' : ''}`}>
+    <div className={clsx('feedback', sent && 'feedback-sent')}>
       <div className="feedback-content">
         <a className="feedback-ribbon">{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
           Send your feedback

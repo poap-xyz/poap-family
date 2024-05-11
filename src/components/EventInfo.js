@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { clsx } from 'clsx'
 import { FastArrowLeft, FastArrowRight } from 'iconoir-react'
 import Ilustration from '../images/Illustration_Cities_BuenosAires.png'
 import Card from './Card'
@@ -16,7 +17,7 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
   return (
     <div className="event-info-header">
       {event.description && (
-        <div className={`event-info-extra ${extraOpen ? 'open' : 'close'}`}>
+        <div className={clsx('event-info-extra', extraOpen ? 'open' : 'close')}>
           <div className="event-info-extra-card">
             {extraOpen && (
               <div className="event-info-extra-content">
