@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
-import { OpenNewWindow } from 'iconoir-react'
 import { formatMonthYear } from '../utils/date'
 import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
 import { INCOMMON_ADDRESSES_LIMIT, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { PROFILE_EVENTS_LIMIT } from '../models/address'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
+import ExternalLink from './ExternalLink'
 import AddressesList from './AddressesList'
 import TokenImage from './TokenImage'
 import ButtonLink from './ButtonLink'
@@ -147,10 +147,13 @@ function AddressProfile({
               )}
             />
           )}
-          <a className="profile-address" href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
+          <ExternalLink
+            className="profile-address"
+            href={`${POAP_SCAN_URL}/${address}`}
+            title={`Scan ${address in ensNames ? ensNames[address] : address}`}
+          >
             <code>{address}</code>
-            <OpenNewWindow width={11} height={11} />
-          </a>
+          </ExternalLink>
           {address in ensNames && (
             <big className="profile-ens">{ensNames[address]}</big>
           )}
