@@ -327,7 +327,7 @@ function Addresses() {
                 fetchPOAPs(searchEventId, controller.signal).then(
                   (tokens) => {
                     setLoadingEventsOwners(false)
-                    const owners = tokens.map((token) => token.owner.id)
+                    const owners = tokens.map((token) => token.owner)
                     const uniqueOwners = owners.filter((value, index, all) => all.indexOf(value) === index)
                     const addresses = [...uniqueOwners].map((owner) => parseAddress(owner))
                     setAddresses(addresses)

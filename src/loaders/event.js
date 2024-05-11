@@ -185,7 +185,7 @@ async function eventLoader({ params, request }) {
     })
   }
   const tokens = tokensSettled.value
-  const owners = tokens.map((token) => token.owner.id)
+  const owners = tokens.map((token) => token.owner)
   const uniqueOwners = owners.filter((value, index, all) => all.indexOf(value) === index)
   const filteredOwners = uniqueOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
   return {

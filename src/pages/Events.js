@@ -170,7 +170,7 @@ function Events() {
           if (eventOwnerTokensResult.status === 'fulfilled') {
             const eventOwnerTokens = eventOwnerTokensResult.value
             if (Array.isArray(eventOwnerTokens)) {
-              const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner.id))]
+              const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner))]
               const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
               setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
             } else {
