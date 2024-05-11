@@ -50,7 +50,7 @@ function Last() {
   return (
     <Page>
       <LastEvents
-        currentPage={page}
+        page={page}
         perPage={perPage}
         onPageChange={changePage}
         showPerPage={true}
