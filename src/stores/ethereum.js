@@ -6,7 +6,7 @@ import {
   resolveEnsAvatar as ethereumResolveEnsAvatar
 } from '../loaders/ethereum'
 
-const ResolverEnsContext = createContext({
+export const ResolverEnsContext = createContext({
   addresses: {},
   resolveAddress: async (ensName) => {},
   avatars: {},
@@ -14,7 +14,7 @@ const ResolverEnsContext = createContext({
   resolve: async (ensName, full = false) => {},
 })
 
-const ReverseEnsContext = createContext({
+export const ReverseEnsContext = createContext({
   ensNames: {},
   resolveEnsNames: async (addresses, resolve = false) => {},
   setEnsName: (address, ensName) => {},
@@ -24,6 +24,7 @@ const ReverseEnsContext = createContext({
 function ResolverEnsProvider({ children }) {
   const [addressByEnsName, setAddressByEnsName] = useState({})
   const [avatarByEnsName, setAvatarByEnsName] = useState({})
+
   const resolveAddress = useCallback(
     async (ensName) => {
       if (Object.keys(addressByEnsName).indexOf(ensName) !== -1) {
@@ -45,6 +46,7 @@ function ResolverEnsProvider({ children }) {
     },
     [addressByEnsName]
   )
+
   const resolveAvatar = useCallback(
     async (ensName, address) => {
       if (Object.keys(avatarByEnsName).indexOf(ensName) !== -1) {
@@ -69,6 +71,7 @@ function ResolverEnsProvider({ children }) {
     },
     [avatarByEnsName]
   )
+
   const resolveMeta = useCallback(
     async (ensName, address) => {
       const avatar = await resolveAvatar(ensName, address)
@@ -76,6 +79,7 @@ function ResolverEnsProvider({ children }) {
     },
     [resolveAvatar]
   )
+
   const resolve = useCallback(
     async (ensName, full = false) => {
       if (full) {
@@ -88,6 +92,7 @@ function ResolverEnsProvider({ children }) {
     },
     [resolveAddress, resolveMeta]
   )
+
   const value = useMemo(
     () => ({
       addresses: addressByEnsName,
@@ -98,6 +103,7 @@ function ResolverEnsProvider({ children }) {
     }),
     [addressByEnsName, resolveAddress, avatarByEnsName, resolveMeta, resolve]
   )
+
   return (
     <ResolverEnsContext.Provider value={value}>
       {children}
@@ -112,6 +118,7 @@ function ReverseEnsProvider({
   const { resolveMeta } = useContext(ResolverEnsContext)
   const [ensByAddress, setEnsByAddress] = useState({})
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
+
   const resolveNames = useCallback(
     (names, addresses) => {
       let promise = new Promise((r) => r())
@@ -128,6 +135,7 @@ function ReverseEnsProvider({
     },
     [limitEnsNames, resolveMeta]
   )
+
   const resolveEnsNames = useCallback(
     async (addresses, resolve = false) => {
       const oldAddresses = Object.keys(ensByAddress)
@@ -184,18 +192,21 @@ function ReverseEnsProvider({
     },
     [ensByAddress, resolveNames]
   )
+
   function set(address, ensName) {
     setEnsByAddress((oldEnsByAddress) => ({
       ...oldEnsByAddress,
       [address]: ensName,
     }))
   }
+
   const isNotFound = useCallback(
     (address) => {
       return notFoundAddresses.indexOf(address) !== -1
     },
     [notFoundAddresses]
   )
+
   const value = useMemo(
     () => ({
       ensNames: ensByAddress,
@@ -205,6 +216,7 @@ function ReverseEnsProvider({
     }),
     [ensByAddress, isNotFound, resolveEnsNames]
   )
+
   return (
     <ReverseEnsContext.Provider value={value}>
       {children}
@@ -212,7 +224,7 @@ function ReverseEnsProvider({
   )
 }
 
-function EnsProvider({ children }) {
+export function EnsProvider({ children }) {
   return (
     <ResolverEnsProvider>
       <ReverseEnsProvider>
@@ -220,10 +232,4 @@ function EnsProvider({ children }) {
       </ReverseEnsProvider>
     </ResolverEnsProvider>
   )
-}
-
-export {
-  ReverseEnsContext,
-  ResolverEnsContext,
-  EnsProvider,
 }

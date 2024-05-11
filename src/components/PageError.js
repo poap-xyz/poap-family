@@ -15,15 +15,19 @@ function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
   const error = useRouteError()
   const errorType = errorClasses[error.status] ?? 'unknown'
   const errors = [error]
+
   if (error?.data && typeof error.data.errorsByEventId === 'object') {
     for (const subError of Object.values(error.data.errorsByEventId)) {
       errors.push(subError)
     }
   }
+
   console.error(...errors)
+
   const reload = () => {
     navigate(0)
   }
+
   return (
     <CenterPage>
       <div className={clsx('page-error', errorType)}>

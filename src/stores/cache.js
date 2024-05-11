@@ -2,9 +2,9 @@ import { createContext, useEffect, useState } from 'react'
 import { getSettings, saveSettings } from '../loaders/cache'
 import { DEFAULT_SETTINGS } from '../models/cache'
 
-const SettingsContext = createContext(DEFAULT_SETTINGS)
+export const SettingsContext = createContext(DEFAULT_SETTINGS)
 
-function SettingsProvider({ children }) {
+export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(null)
   useEffect(
     () => {
@@ -27,5 +27,3 @@ function SettingsProvider({ children }) {
     </SettingsContext.Provider>
   )
 }
-
-export { SettingsContext, SettingsProvider }
