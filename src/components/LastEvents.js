@@ -16,9 +16,9 @@ const DEFAULT_PER_PAGE = 8
 const DEFAULT_MORE_QTY = 8
 
 function LastEvents({
-  currentPage = DEFAULT_PAGE,
-  perPage = DEFAULT_PER_PAGE,
-  onPageChange = (page, qty) => {},
+  page: initialPage = DEFAULT_PAGE,
+  perPage: initialPerPage = DEFAULT_PER_PAGE,
+  onPageChange = (page, perPage) => {},
   showRefresh = false,
   showMore = false,
   maxPages = 0,
@@ -26,8 +26,8 @@ function LastEvents({
   showPerPage = false,
 }) {
   const navigate = useNavigate()
-  const [page, setPage] = useState(currentPage)
-  const [qty, setQty] = useState(perPage)
+  const [page, setPage] = useState(initialPage)
+  const [perPage, setPerPage] = useState(initialPerPage)
   const [pages, setPages] = useState(0)
   const [total, setTotal] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -36,22 +36,22 @@ function LastEvents({
 
   useEffect(
     () => {
-      setPage(currentPage)
+      setPage(initialPage)
     },
-    [currentPage]
+    [initialPage]
   )
 
   useEffect(
     () => {
-      setQty(perPage)
+      setPerPage(initialPerPage)
     },
-    [perPage]
+    [initialPerPage]
   )
 
   useEffect(
     () => {
       setLoading(true)
-      getLastEvents(page, qty).then(
+      getLastEvents(page, perPage).then(
         (response) => {
           if (response !== null) {
             setPages(response.pages)
@@ -75,42 +75,42 @@ function LastEvents({
         }
       )
     },
-    [page, qty]
+    [page, perPage]
   )
+
+  const onRefresh = () => {
+    setLoading(true)
+    return getLastEvents(page, perPage).then(
+      (response) => {
+        if (response !== null) {
+          setPages(response.pages)
+          setTotal(response.total)
+          setCachedEvents(response.lastEvents)
+          setError(null)
+
+          if (response.total === 0 || response.pages === 0) {
+            setError(new Error('Empty'))
+          }
+        }
+        setLoading(false)
+      },
+      (err) => {
+        const error = new Error('Unavailable')
+        error.reason = err
+        console.error(err)
+        setError(error)
+        setCachedEvents([])
+        setLoading(false)
+      }
+    )
+  }
 
   return (
     <div className="last-events">
       <Card>
         <h3>Last Cached Drops</h3>
         {showRefresh && cachedEvents.length > 0 && !loading && page === 1 && (
-          <ButtonRefresh
-            onRefresh={() => {
-              setLoading(true)
-              return getLastEvents(page, qty).then(
-                (response) => {
-                  if (response !== null) {
-                    setPages(response.pages)
-                    setTotal(response.total)
-                    setCachedEvents(response.lastEvents)
-                    setError(null)
-
-                    if (response.total === 0 || response.pages === 0) {
-                      setError(new Error('Empty'))
-                    }
-                  }
-                  setLoading(false)
-                },
-                (err) => {
-                  const error = new Error('Unavailable')
-                  error.reason = err
-                  console.error(err)
-                  setError(error)
-                  setCachedEvents([])
-                  setLoading(false)
-                }
-              )
-            }}
-          />
+          <ButtonRefresh onRefresh={onRefresh} />
         )}
         {loading && <Loading />}
         {!loading && showPerPage && (
@@ -118,20 +118,20 @@ function LastEvents({
             <span className="label">Per page</span>:{' '}
             <ButtonLink
               onClick={() => {
-                setQty(10)
+                setPerPage(10)
                 onPageChange(1, 10)
               }}
-              disabled={qty === 10}
+              disabled={perPage === 10}
             >
               10
             </ButtonLink>
             <span className="divisor">&mdash;</span>
             <ButtonLink
               onClick={() => {
-                setQty(10)
+                setPerPage(10)
                 onPageChange(1, 100)
               }}
-              disabled={qty === 100}
+              disabled={perPage === 100}
             >
               100
             </ButtonLink>
@@ -163,7 +163,7 @@ function LastEvents({
             {maxPages > 0 && showMore && (
               <Button
                 onClick={() => {
-                  navigate(`/last?page=${Math.trunc(page * qty / moreQty + 1)}&qty=${moreQty}`)
+                  navigate(`/last?page=${Math.trunc(page * perPage / moreQty + 1)}&qty=${moreQty}`)
                 }}
                 secondary={true}
               >

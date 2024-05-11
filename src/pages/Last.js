@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from '../stores/html'
+import { getSearchParamNumber } from '../utils/number'
 import ButtonLink from '../components/ButtonLink'
 import LastEvents from '../components/LastEvents'
 import Page from '../components/Page'
@@ -13,8 +14,8 @@ function Last() {
   const { setTitle } = useContext(HTMLContext)
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const currentPage = searchParams.has('page') ? parseInt(searchParams.get('page')) : DEFAULT_PAGE
-  const perPage = searchParams.has('qty') ? parseInt(searchParams.get('qty')) : DEFAULT_PER_PAGE
+  const page = getSearchParamNumber(searchParams, 'page', DEFAULT_PAGE)
+  const perPage = getSearchParamNumber(searchParams, 'qty', DEFAULT_PER_PAGE)
 
   useEffect(
     () => {
@@ -27,33 +28,31 @@ function Last() {
     () => {
       if (!searchParams.has('page')) {
         if (perPage !== DEFAULT_PER_PAGE) {
-          setSearchParams({ page: currentPage, qty: perPage })
+          setSearchParams({ page, qty: perPage })
         } else {
-          setSearchParams({ page: currentPage })
+          setSearchParams({ page })
         }
       }
     },
-    [currentPage, perPage, searchParams, setSearchParams]
+    [page, perPage, searchParams, setSearchParams]
   )
 
-  const changePage = (page, qty) => {
-    if (qty && qty !== DEFAULT_PER_PAGE) {
-      setSearchParams({ page, qty })
+  const changePage = (newPage, newPerPage) => {
+    if (newPerPage && newPerPage !== DEFAULT_PER_PAGE) {
+      setSearchParams({ page: newPage, qty: newPerPage })
+    } else if (perPage !== DEFAULT_PER_PAGE) {
+      setSearchParams({ page: newPage, qty: perPage })
     } else {
-      if (perPage !== DEFAULT_PER_PAGE) {
-        setSearchParams({ page, qty: perPage })
-      } else {
-        setSearchParams({ page })
-      }
+      setSearchParams({ page: newPage })
     }
   }
 
   return (
     <Page>
       <LastEvents
-        currentPage={currentPage}
-        onPageChange={changePage}
+        page={page}
         perPage={perPage}
+        onPageChange={changePage}
         showPerPage={true}
       />
       <div className="footer">

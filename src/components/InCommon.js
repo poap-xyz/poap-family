@@ -16,6 +16,13 @@ import TokenImage from './TokenImage'
 import ButtonClose from './ButtonClose'
 import '../styles/in-common.css'
 
+function getColorForAddress(address) {
+  return new toColor(address, {
+    brightness: 3.25,
+    saturation: .25,
+  }).getColor().hsl.formatted
+}
+
 function InCommon({
   children,
   inCommon = {},
@@ -89,7 +96,10 @@ function InCommon({
         )
       )
       .map(
-        (address) => [address, new toColor(address, { brightness: 3.25, saturation: .25 }).getColor().hsl.formatted]
+        (address) => [
+          address,
+          getColorForAddress(address),
+        ]
       )
     )
 
@@ -120,7 +130,10 @@ function InCommon({
           owner in liRefs[eventId] &&
           liRefs[eventId][owner].current
         ) {
-          liRefs[eventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          liRefs[eventId][owner].current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
         }
       }
       if (
@@ -128,14 +141,27 @@ function InCommon({
         owner in liRefs[activeEventId] &&
         liRefs[activeEventId][owner].current
       ) {
-        liRefs[activeEventId][owner].current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        liRefs[activeEventId][owner].current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
       }
     }
-    setOwnerHighlighted((current) => current !== owner && owner in activeAdressesColors ? owner : current)
+    setOwnerHighlighted((current) => (
+      current !== owner &&
+      owner in activeAdressesColors
+        ? owner
+        : current
+    ))
   }
 
   const onOwnerLeave = (activeEventId, owner) => {
-    setOwnerHighlighted((current) => current === owner && owner in activeAdressesColors ? null : current)
+    setOwnerHighlighted((current) => (
+      current === owner &&
+      owner in activeAdressesColors
+        ? null
+        : current
+    ))
   }
 
   return (
