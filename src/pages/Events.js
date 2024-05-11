@@ -812,7 +812,7 @@ function Events() {
                       {event.id in eventData && eventData[event.id].ts && (
                         <p className="status-cached-ts">
                           Cached <Timestamp ts={eventData[event.id].ts} />
-                          {!(event.id in loading) && event.id in eventData && event.id in eventData[event.id].inCommon && eventData[event.id].inCommon[event.id].length < owners[event.id].length && (
+                          {!(event.id in loading) && event.id in eventData && event.id in eventData[event.id].inCommon && eventData[event.id].inCommon[event.id].length !== owners[event.id].length && (
                             <>{' '}<WarningIcon title="There have been new mints since this POAP was cached" /></>
                           )}
                         </p>
