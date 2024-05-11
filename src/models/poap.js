@@ -22,10 +22,43 @@ export const POAP_FETCH_RETRIES = 5
  * }}
  */
 export function POAP(token) {
+  if (
+    token == null ||
+    typeof token !== 'object' ||
+    !('tokenId' in token) ||
+    token.tokenId == null ||
+    typeof token.tokenId !== 'number'
+  ) {
+    throw new Error('Invalid POAP')
+  }
+
+  /**
+   * @type {string | undefined}
+   */
+  let owner
+  if (
+    'owner' in token &&
+    token.owner != null
+  ) {
+    if (
+      typeof token.owner === 'object' &&
+      'id' in token.owner &&
+      token.owner.id != null &&
+      typeof token.owner.id === 'string'
+    ) {
+      owner = token.owner.id
+    } else if (typeof token.owner === 'string') {
+      owner = token.owner
+    }
+  }
+  if (owner == null) {
+    throw new Error('Invalid POAP owner')
+  }
+
   return {
     id: token.tokenId,
     owner: {
-      id: typeof token.owner === 'object' ? token.owner.id : token.owner,
+      id: owner,
     },
     created: !token.created ? undefined : new Date(token.created),
     event: !token.event ? undefined : Event(token.event),
