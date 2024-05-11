@@ -2,7 +2,20 @@ import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates, Event, EventMetrics, EventOwners } from '../models/event'
 
-async function getEventAndOwners(
+/**
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {boolean} includeDescription
+ * @param {boolean} includeMetrics
+ * @param {boolean} refresh
+ * @returns {Promise<{
+ *   event: ReturnType<Event>
+ *   owners: string[]
+ *   ts: number
+ *   metrics: ReturnType<EventMetrics> | null
+ * } | null>}
+ */
+export async function getEventAndOwners(
   eventId,
   abortSignal,
   includeDescription = false,
@@ -10,8 +23,12 @@ async function getEventAndOwners(
   refresh = false,
 ) {
   if (!FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Event ${eventId} and owners could not be fetched, ` +
+      `configure Family API key`
+    )
   }
+
   const response = await fetch(
     `${FAMILY_API_URL}/event/${eventId}?` +
     `description=${encodeURIComponent(includeDescription)}&` +
@@ -24,108 +41,146 @@ async function getEventAndOwners(
       },
     }
   )
+
   if (response.status === 404) {
     return null
   }
+
   if (response.status !== 200) {
-    throw new Error(`Event ${eventId} failed to fetch (status ${response.status})`)
+    throw new Error(
+      `Event ${eventId} failed to fetch (status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
   if (
+    body == null ||
     typeof body !== 'object' ||
-    !('event' in body) || typeof body.event !== 'object' ||
-    !('owners' in body) || !Array.isArray(body.owners) ||
-    !('ts' in body) || typeof body.ts !== 'number'
+    !('event' in body) ||
+    body.event == null ||
+    typeof body.event !== 'object' ||
+    !('owners' in body) ||
+    body.owners == null ||
+    !Array.isArray(body.owners) ||
+    !('ts' in body) ||
+    body.ts == null ||
+    typeof body.ts !== 'number'
   ) {
-    return null
+    throw new Error(`Malformed event and owners (type ${typeof body})`)
   }
+
   if (!includeMetrics) {
     return {
       event: Event(body.event, includeDescription),
       owners: body.owners,
       ts: body.ts,
+      metrics: null,
     }
   }
+
   if (
-    !('metrics' in body) || !body.metrics || typeof body.metrics !== 'object' ||
-    !('emailReservations' in body.metrics) || typeof body.metrics.emailReservations !== 'number' ||
-    !('emailClaimsMinted' in body.metrics) || typeof body.metrics.emailClaimsMinted !== 'number' ||
-    !('emailClaims' in body.metrics) || typeof body.metrics.emailClaims !== 'number' ||
-    !('momentsUploaded' in body.metrics) || typeof body.metrics.momentsUploaded !== 'number' ||
-    !('collectionsIncludes' in body.metrics) || typeof body.metrics.collectionsIncludes !== 'number' ||
-    !('ts' in body.metrics) || (typeof body.metrics.ts !== 'number' && body.metrics.ts !== null)
+    !('metrics' in body) ||
+    body.metrics == null ||
+    typeof body.metrics !== 'object'
   ) {
-    return {
-      event: Event(body.event, includeDescription),
-      owners: body.owners,
-      ts: body.ts,
-      metrics: {
-        emailReservations: 0,
-        emailClaimsMinted: 0,
-        emailClaims: 0,
-        momentsUploaded: 0,
-        collectionsIncludes: 0,
-        ts: null,
-      },
-    }
+    throw new Error(`Malformed event metrics (type ${typeof body})`)
   }
+
   return {
     event: Event(body.event, includeDescription),
     owners: body.owners,
     ts: body.ts,
-    metrics: {
-      emailReservations: body.metrics.emailReservations,
-      emailClaimsMinted: body.metrics.emailClaimsMinted,
-      emailClaims: body.metrics.emailClaims,
-      momentsUploaded: body.metrics.momentsUploaded,
-      collectionsIncludes: body.metrics.collectionsIncludes,
-      ts: body.metrics.ts,
-    },
+    metrics: EventMetrics(body.metrics),
   }
 }
 
-async function putEventInCommon(eventId, inCommon) {
+/**
+ * @param {number} eventId
+ * @param {Record<number, string[]>} inCommon
+ */
+export async function putEventInCommon(eventId, inCommon) {
   if (!FAMILY_API_KEY) {
-    return
+    throw new Error(
+      `Last in common events (${eventId}) could not be put, ` +
+      `configure Family API key`
+    )
   }
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
-    method: 'PUT',
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(inCommon),
-  })
+
+  const response = await fetch(
+    `${FAMILY_API_URL}/event/${eventId}/in-common`,
+    {
+      method: 'PUT',
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(inCommon),
+    }
+  )
+
   if (response.status !== 200 && response.status !== 201) {
-    throw new Error(`Event ${eventId} in common save failed (status ${response.status})`)
+    throw new Error(
+      `Event ${eventId} in common save failed (status ${response.status})`
+    )
   }
 }
 
-async function getInCommonEvents(eventId, abortSignal) {
+/**
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @returns {Promise<{
+ *   inCommon: Record<number, string[]>
+ *   events: Record<number, ReturnType<Event>>
+ *   ts: number
+ * } | null>}
+ */
+export async function getInCommonEvents(eventId, abortSignal) {
   if (!FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Last in common events (${eventId}) could not be fetched, ` +
+      `configure Family API key`
+    )
   }
-  const response = await fetch(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+
+  const response = await fetch(
+    `${FAMILY_API_URL}/event/${eventId}/in-common`,
+    {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
+
   if (response.status === 404) {
     return null
   }
+
   if (response.status !== 200) {
-    throw new Error(`Event ${eventId} in common failed to fetch (status ${response.status})`)
+    throw new Error(
+      `Event ${eventId} in common failed to fetch (status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
   if (
+    body == null ||
     typeof body !== 'object' ||
-    !('inCommon' in body) || typeof body.inCommon !== 'object' ||
-    !('events' in body) || typeof body.events !== 'object' ||
-    !('ts' in body) || typeof body.ts !== 'number'
+    !('inCommon' in body) ||
+    body.inCommon == null ||
+    typeof body.inCommon !== 'object' ||
+    !('events' in body) ||
+    body.events == null ||
+    typeof body.events !== 'object' ||
+    !('ts' in body) ||
+    body.ts == null ||
+    typeof body.ts !== 'number'
   ) {
-    return null
+    throw new Error(`Malformed in common events (type ${typeof body})`)
   }
+
   return {
     inCommon: body.inCommon,
     events: Object.fromEntries(
@@ -137,73 +192,158 @@ async function getInCommonEvents(eventId, abortSignal) {
   }
 }
 
-async function getInCommonEventsWithProgress(eventId, abortSignal, onProgress) {
+/**
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {(progressEvent: { progress?: number; rate?: number; estimated?: number }) => void} onProgress
+ * @returns {Promise<{
+ *   inCommon: Record<number, string[]>
+ *   events: Record<number, ReturnType<Event>>
+ *   ts: number
+ * } | null>}
+ */
+export async function getInCommonEventsWithProgress(
+  eventId,
+  abortSignal,
+  onProgress,
+) {
   if (!FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Last in common events (${eventId}) could not be fetched, ` +
+      `configure Family API key`
+    )
   }
+
+  /**
+   * @type {import('axios').AxiosResponse | undefined}
+   */
+  let response
   try {
-    const response = await axios.get(`${FAMILY_API_URL}/event/${eventId}/in-common`, {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
-      onDownloadProgress: onProgress,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
-    })
-    if (response.status === 404) {
-      return null
-    }
-    if (response.status !== 200) {
-      throw new Error(`Event ${eventId} in common failed to fetch (status ${response.status})`)
-    }
-    if (
-      typeof response.data !== 'object' ||
-      !('inCommon' in response.data) || typeof response.data.inCommon !== 'object' ||
-      !('events' in response.data) || typeof response.data.events !== 'object' ||
-      !('ts' in response.data) || typeof response.data.ts !== 'number'
-    ) {
-      return null
-    }
-    return {
-      inCommon: response.data.inCommon,
-      events: Object.fromEntries(
-        Object.entries(response.data.events).map(
-          ([eventId, event]) => ([eventId, Event(event)])
-        )
-      ),
-      ts: response.data.ts,
-    }
+    response = await axios.get(
+      `${FAMILY_API_URL}/event/${eventId}/in-common`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
+        onDownloadProgress: onProgress,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
   } catch (err) {
     if (err.response) {
       if (err.response.status === 404) {
         return null
       }
-      throw new Error(`Event ${eventId} in common failed to fetch (status ${err.response.status})`)
+
+      console.error(err)
+
+      throw new Error(
+        `Event ${eventId} in common failed to fetch ` +
+        `(status ${err.response.status})`
+      )
     }
+
+    console.error(err)
+
     throw new Error(`Event ${eventId} in common failed to fetch`)
+  }
+
+  if (response.status === 404) {
+    return null
+  }
+
+  if (response.status !== 200) {
+    throw new Error(
+      `Event ${eventId} in common failed to fetch ` +
+      `(status ${response.status})`
+    )
+  }
+
+  if (
+    response.data == null ||
+    typeof response.data !== 'object' ||
+    !('inCommon' in response.data) ||
+    response.data.inCommon == null ||
+    typeof response.data.inCommon !== 'object' ||
+    !('events' in response.data) ||
+    response.data.events == null ||
+    typeof response.data.events !== 'object' ||
+    !('ts' in response.data) ||
+    response.data.ts == null ||
+    typeof response.data.ts !== 'number'
+  ) {
+    throw new Error(
+      `Malformed in common events (type ${typeof response.data})`
+    )
+  }
+
+  return {
+    inCommon: response.data.inCommon,
+    events: Object.fromEntries(
+      Object.entries(response.data.events).map(
+        ([eventId, event]) => ([eventId, Event(event)])
+      )
+    ),
+    ts: response.data.ts,
   }
 }
 
-async function getLastEvents(page = 1, qty = 3) {
+/**
+ * @param {number} page
+ * @param {number} qty
+ * @returns {Promise<{
+ *   pages: number
+ *   total: number
+ *   lastEvents: Array<{
+ *     id: number
+ *     name: string
+ *     image_url: string
+ *     cached_ts: number
+ *     in_common_count: number
+ *   }>
+ * }>}
+ */
+export async function getLastEvents(page = 1, qty = 3) {
   if (!FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Last events (${page}/${qty}) could not be fetched, ` +
+      `configure Family API key`
+    )
   }
-  const response = await fetch(`${FAMILY_API_URL}/events/last?page=${encodeURIComponent(page)}&qty=${encodeURIComponent(qty)}`, {
-    headers: {
-      'x-api-key': FAMILY_API_KEY,
-    },
-  })
+
+  const response = await fetch(
+    `${FAMILY_API_URL}/events/last` +
+    `?page=${encodeURIComponent(page)}` +
+    `&qty=${encodeURIComponent(qty)}`,
+    {
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
+
   if (response.status !== 200) {
     throw new Error(`Last events failed to fetch (status ${response.status})`)
   }
+
   const body = await response.json()
+
   if (
+    body == null ||
     typeof body !== 'object' ||
-    !('lastEvents' in body) || !Array.isArray(body.lastEvents)
-    || !('pages' in body) || typeof body.pages !== 'number'
-    || !('total' in body) || typeof body.total !== 'number'
+    !('lastEvents' in body) ||
+    body.lastEvents == null ||
+    !Array.isArray(body.lastEvents) ||
+    !('pages' in body) ||
+    body.pages == null ||
+    typeof body.pages !== 'number' ||
+    !('total' in body) ||
+    body.total == null ||
+    typeof body.total !== 'number'
   ) {
-    return null
+    throw new Error(`Malformed last events (type ${typeof body})`)
   }
+
   return {
     pages: body.pages,
     total: body.total,
@@ -211,37 +351,69 @@ async function getLastEvents(page = 1, qty = 3) {
   }
 }
 
-async function getEvents(eventIds) {
+/**
+ * @param {number[]} eventIds
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @returns {Promise<Record<number, ReturnType<Event>>>}
+ */
+export async function getEvents(eventIds, abortSignal) {
   if (!FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Events (${eventIds.length}) could not be fetched, ` +
+      `configure Family API key`
+    )
   }
+
   const response = await fetch(
-    `${FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
+    `${FAMILY_API_URL}/events` +
+    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
     {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
         'x-api-key': FAMILY_API_KEY,
       },
     }
   )
+
   if (response.status !== 200) {
-    let message
+    /**
+     * @type {string}
+     */
+    let message = 'Unknown error'
     try {
       const data = await response.json()
-      if (typeof data === 'object' && 'message' in data) {
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'message' in data &&
+        data.message != null &&
+        typeof data.message === 'string'
+      ) {
         message = data.message
       }
     } catch (err) {
       console.error(err)
     }
+
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch (status ${response.status})`)
+
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch ` +
+      `(status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
   if (typeof body !== 'object') {
     throw new Error(`Malformed events (type ${typeof body})`)
   }
+
   return Object.fromEntries(
     Object.entries(body).map(
       ([eventId, event]) => [eventId, Event(event)]
@@ -249,10 +421,63 @@ async function getEvents(eventIds) {
   )
 }
 
-async function getEventsOwners(eventIds, abortSignal, expiryDates) {
+/**
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {boolean} refresh
+ * @returns {Promise<ReturnType<EventOwners> | null>}
+ */
+export async function getEventOwners(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
+    throw new Error(
+      `Event ${eventId} owners could not be fetched, ` +
+      `configure Family API key`
+    )
+  }
+
+  const response = await fetch(
+    `${FAMILY_API_URL}/event/${eventId}/owners${refresh ? '?refresh=true' : ''}`,
+    {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': FAMILY_API_KEY,
+      },
+    }
+  )
+
+  if (response.status === 404) {
     return null
   }
+
+  if (response.status !== 200) {
+    throw new Error(
+      `Event ${eventId} failed to fetch owners (status ${response.status})`
+    )
+  }
+
+  const body = await response.json()
+
+  if (typeof body !== 'object') {
+    throw new Error(`Malformed events owners (type ${typeof body})`)
+  }
+
+  return EventOwners(body)
+}
+
+/**
+ * @param {number[]} eventIds
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {Record<number, Date> | undefined} expiryDates
+ * @returns {Promise<Record<number, ReturnType<EventOwners>>>}
+ */
+export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
+  if (!FAMILY_API_KEY) {
+    throw new Error(
+      `Events (${eventIds.length}) owners could not be fetched, ` +
+      `configure Family API key`
+    )
+  }
+
   const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
   const response = await fetch(
     `${FAMILY_API_URL}/events` +
@@ -265,25 +490,46 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
       },
     }
   )
+
   if (response.status !== 200) {
-    let message
+    /**
+     * @type {string}
+     */
+    let message = 'Unknown error'
     try {
       const data = await response.json()
-      if (typeof data === 'object' && 'message' in data) {
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'message' in data &&
+        data.message != null &&
+        typeof data.message === 'string'
+      ) {
         message = data.message
       }
     } catch (err) {
       console.error(err)
     }
+
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch owners (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch owners ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch owners (status ${response.status})`)
+
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch owners ` +
+      `(status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
   if (typeof body !== 'object') {
     throw new Error(`Malformed events owners (type ${typeof body})`)
   }
+
   return Object.fromEntries(
     Object.entries(body).map(
       ([eventId, event]) => [eventId, EventOwners(event)]
@@ -291,12 +537,23 @@ async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   )
 }
 
-async function getEventMetrics(eventId, abortSignal, refresh = false) {
+/**
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {boolean} refresh
+ * @returns {Promise<ReturnType<EventMetrics> | null>}
+ */
+export async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
-    throw new Error(`Event ${eventId} metrics could not be fetched, configure Family API key`)
+    throw new Error(
+      `Event ${eventId} metrics could not be fetched, ` +
+      `configure Family API key`
+    )
   }
+
   const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}/metrics${refresh ? '?refresh=true' : ''}`,
+    `${FAMILY_API_URL}/event/${eventId}` +
+    `/metrics${refresh ? '?refresh=true' : ''}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
@@ -304,20 +561,40 @@ async function getEventMetrics(eventId, abortSignal, refresh = false) {
       },
     }
   )
+
   if (response.status === 404) {
     return null
   }
+
   if (response.status !== 200) {
-    throw new Error(`Event ${eventId} failed to fetch metrics (status ${response.status})`)
+    throw new Error(
+      `Event ${eventId} failed to fetch metrics (status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
+  if (typeof body !== 'object') {
+    throw new Error(`Malformed events metrics (type ${typeof body})`)
+  }
+
   return EventMetrics(body)
 }
 
-async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
+/**
+ * @param {number[]} eventIds
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {Record<number, Date> | undefined} expiryDates
+ * @returns {Promise<Record<number, ReturnType<EventMetrics>>>}
+ */
+export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
-    throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
+    throw new Error(
+      `Events (${eventIds.length}) metrics could not be fetched, ` +
+      `configure Family API key`
+    )
   }
+
   const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
   const response = await fetch(
     `${FAMILY_API_URL}/events` +
@@ -330,25 +607,46 @@ async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
       },
     }
   )
+
   if (response.status !== 200) {
-    let message
+    /**
+     * @type {string}
+     */
+    let message = 'Unknown error'
     try {
       const data = await response.json()
-      if (typeof data === 'object' && 'message' in data) {
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'message' in data &&
+        data.message != null &&
+        typeof data.message === 'string'
+      ) {
         message = data.message
       }
     } catch (err) {
       console.error(err)
     }
+
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch metrics ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status})`)
+
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch metrics ` +
+      `(status ${response.status})`
+    )
   }
+
   const body = await response.json()
+
   if (typeof body !== 'object') {
     throw new Error(`Malformed events metrics (type ${typeof body})`)
   }
+
   return Object.fromEntries(
     Object.entries(body).map(
       ([eventId, event]) => [eventId, EventMetrics(event)]
@@ -356,49 +654,91 @@ async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   )
 }
 
-async function auth(passphrase) {
+/**
+ * @param {string} passphrase
+ */
+export async function auth(passphrase) {
   const response = await fetch(`${FAMILY_API_URL}/auth`, {
     method: 'POST',
     headers: {
       'x-api-key': passphrase,
     },
   })
+
   if (response.status !== 200) {
     throw new Error(`Incorrect passphrase`)
   }
 }
 
-async function addFeedback(message, url) {
+/**
+ * @param {string} message
+ * @param {string} url
+ */
+export async function addFeedback(message, url) {
   const response = await fetch(`${FAMILY_API_URL}/feedback`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ feedback: message, location: url }),
+    body: JSON.stringify({
+      feedback: message,
+      location: url,
+    }),
   })
+
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(`Feedback save failed (status ${response.status})`)
   }
 }
 
-async function getFeedback(passphrase, page = 1, qty = 3) {
-  const response = await fetch(`${FAMILY_API_URL}/feedback?page=${encodeURIComponent(page)}&qty=${encodeURIComponent(qty)}`, {
-    headers: {
-      'x-api-key': passphrase,
-    },
-  })
+/**
+ * @param {string} passphrase
+ * @param {number} page
+ * @param {number} qty
+ * @returns {Promise<{
+ *   pages: number
+ *   total: number
+ *   feedback: Array<{
+ *     id: number
+ *     message: string
+ *     ts: number
+ *   }>
+ * }>}
+ */
+export async function getFeedback(passphrase, page = 1, qty = 3) {
+  const response = await fetch(
+    `${FAMILY_API_URL}/feedback` +
+    `?page=${encodeURIComponent(page)}` +
+    `&qty=${encodeURIComponent(qty)}`,
+    {
+      headers: {
+        'x-api-key': passphrase,
+      },
+    }
+  )
+
   if (response.status !== 200) {
     throw new Error(`Feedback failed to fetch`)
   }
+
   const body = await response.json()
+
   if (
+    body == null ||
     typeof body !== 'object' ||
-    !('feedback' in body) || !Array.isArray(body.feedback)
-    || !('pages' in body) || typeof body.pages !== 'number'
-    || !('total' in body) || typeof body.total !== 'number'
+    !('feedback' in body) ||
+    body.feedback == null ||
+    !Array.isArray(body.feedback) ||
+    !('pages' in body) ||
+    body.pages == null ||
+    typeof body.pages !== 'number' ||
+    !('total' in body) ||
+    body.total == null ||
+    typeof body.total !== 'number'
   ) {
-    return null
+    throw new Error(`Malformed feedback`)
   }
+
   return {
     pages: body.pages,
     total: body.total,
@@ -406,30 +746,19 @@ async function getFeedback(passphrase, page = 1, qty = 3) {
   }
 }
 
-async function delFeedback(id, passphrase) {
+/**
+ * @param {number} id
+ * @param {string} passphrase
+ */
+export async function delFeedback(id, passphrase) {
   const response = await fetch(`${FAMILY_API_URL}/feedback/${id}`, {
     method: 'DELETE',
     headers: {
       'x-api-key': passphrase,
     },
   })
+
   if (response.status !== 200) {
     throw new Error(`Feedback delete failed (status ${response.status})`)
   }
-}
-
-export {
-  getEventAndOwners,
-  putEventInCommon,
-  getInCommonEventsWithProgress,
-  getInCommonEvents,
-  getLastEvents,
-  getEvents,
-  getEventsOwners,
-  getEventMetrics,
-  getEventsMetrics,
-  auth,
-  addFeedback,
-  getFeedback,
-  delFeedback,
 }

@@ -66,7 +66,7 @@ export function mergeAddressesInCommon(inCommon) {
       mergedAddresses = intersection(mergedAddresses, addresses)
     }
   }
-  return mergedAddresses
+  return mergedAddresses ?? []
 }
 
 /**

@@ -1,12 +1,33 @@
 import { filterInvalidOwners } from '../models/address'
-import { Event, parseEventIds } from '../models/event'
+import { DEFAULT_SEARCH_LIMIT, Event, parseEventIds } from '../models/event'
 import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
 import { getEventAndOwners, getEventMetrics, getEvents } from './api'
 import { fetchPOAPs } from './poap'
 
-async function searchEvents(query, abortSignal, offset = 0, limit = 10) {
+/**
+ * @param {string} query
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {number} offset
+ * @param {number} limit
+ * @returns {Promise<{
+ *   items: ReturnType<Event>[]
+ *   total: number
+ *   offset: number
+ *   limit: number
+ * }>}
+ */
+export async function searchEvents(
+  query,
+  abortSignal,
+  offset = 0,
+  limit = DEFAULT_SEARCH_LIMIT,
+) {
   const response = await fetch(
-    `${POAP_API_URL}/paginated-events?name=${encodeURIComponent(query)}&sort_field=start_date&sort_dir=desc&offset=${offset}&limit=${limit}`,
+    `${POAP_API_URL}/paginated-events?name=${encodeURIComponent(query)}` +
+    `&sort_field=start_date` +
+    `&sort_dir=desc` +
+    `&offset=${offset}` +
+    `&limit=${limit}`,
     {
       signal: abortSignal instanceof AbortSignal ? abortSignal : null,
       headers: {
@@ -14,147 +35,267 @@ async function searchEvents(query, abortSignal, offset = 0, limit = 10) {
       },
     }
   )
+
   if (response.status !== 200) {
+    /**
+     * @type {string | undefined}
+     */
     let message
     try {
       const data = await response.json()
-      if (typeof data === 'object' && 'message' in data) {
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'message' in data &&
+        data.message != null &&
+        typeof data.message === 'string'
+      ) {
         message = data.message
       }
     } catch (err) {
       console.error(err)
     }
+
     if (message) {
-      throw new Error(`Search events was not success (status ${response.status}): ${message}`)
+      throw new Error(
+        `Search events was not success ` +
+        `(status ${response.status}): ${message}`
+      )
     } else {
-      throw new Error(`Search events was not success (status ${response.status})`)
+      throw new Error(
+        `Search events was not success ` +
+        `(status ${response.status})`
+      )
     }
   }
-  let data
-  try {
-    const json = await response.json()
-    if (json && typeof json === 'object' && 'items' in json && Array.isArray(json.items)) {
-      data = json
-    }
-  } catch (err) {
-    console.error(err)
-    throw new Error(`Search events response JSON parse failed: ${err.message}`)
-  }
-  if (!data) {
-    throw new Error(`Search events response was empty`)
-  }
+
+  const body = await response.json()
+
   if (
-    !data || typeof data !== 'object' ||
-    !('items' in data) || !Array.isArray(data.items) ||
-    !('total' in data) || typeof data.total !== 'number' ||
-    !('offset' in data) || typeof data.offset !== 'number' ||
-    !('limit' in data) || typeof data.limit !== 'number'
+    body == null ||
+    typeof body !== 'object' ||
+    !('items' in body) ||
+    body.items == null ||
+    !Array.isArray(body.items) ||
+    !('total' in body) ||
+    body.total == null ||
+    typeof body.total !== 'number' ||
+    !('offset' in body) ||
+    body.offset == null ||
+    typeof body.offset !== 'number' ||
+    !('limit' in body) ||
+    body.limit == null ||
+    typeof body.limit !== 'number'
   ) {
     throw new Error(`Search events response malformed`)
   }
+
   return {
-    items: data.items.map((item) => Event(item)),
-    total: data.total,
-    offset: data.offset,
-    limit: data.limit,
+    items: body.items.map((item) => Event(item)),
+    total: body.total,
+    offset: body.offset,
+    limit: body.limit,
   }
 }
 
-async function fetchEventsOrErrors(eventIds, limit = 100) {
+/**
+ * @param {number[]} eventIds
+ * @param {number} limit
+ * @returns {Promise<[
+ *   Record<number, ReturnType<Event>>,
+ *   Record<number, Error>,
+ * ]>}
+ */
+export async function fetchEventsOrErrors(eventIds, limit = 100) {
+  /**
+   * @type {Record<number, ReturnType<Event>>}
+   */
   const eventsMap = {}
+
+  /**
+   * @type {Record<number, Error>}
+   */
   const errorsMap = {}
+
   for (let i = 0; i < eventIds.length; i += limit) {
     const ids = eventIds.slice(i, i + limit)
+
     if (ids.length === 0) {
       break
     }
-    const response = await fetch(
-      `${POAP_API_URL}/paginated-events?event_ids=${ids.map((eventId) => encodeURIComponent(eventId)).join(',')}&limit=${limit}`,
-      {
-        headers: {
-          'x-api-key': POAP_API_KEY,
-        },
+
+    /**
+     * @type {Response | undefined}
+     */
+    let response
+    try {
+      response = await fetch(
+        `${POAP_API_URL}/paginated-events` +
+        `?event_ids=${ids.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+        `&limit=${limit}`,
+        {
+          headers: {
+            'x-api-key': POAP_API_KEY,
+          },
+        }
+      )
+    } catch (err) {
+      console.error(err)
+
+      for (const id of ids) {
+        errorsMap[id] = new Error(`Response was not success (network error)`)
       }
-    )
+
+      continue
+    }
+
     if (response.status !== 200) {
+      /**
+       * @type {string | undefined}
+       */
       let message
       try {
         const data = await response.json()
-        if (typeof data === 'object' && 'message' in data) {
+        if (
+          data != null &&
+          typeof data === 'object' &&
+          'message' in data &&
+          data.message != null &&
+          typeof data.message === 'string'
+        ) {
           message = data.message
         }
       } catch (err) {
         console.error(err)
       }
+
       for (const id of ids) {
         if (message) {
-          errorsMap[id] = new Error(`Response was not success (status ${response.status}): ${message}`)
+          errorsMap[id] = new Error(
+            `Response was not success (status ${response.status}): ${message}`
+          )
         } else {
-          errorsMap[id] = new Error(`Response was not success (status ${response.status})`)
+          errorsMap[id] = new Error(
+            `Response was not success (status ${response.status})`
+          )
         }
       }
-    } else {
-      try {
-        const data = await response.json()
-        if (data && typeof data === 'object' && 'items' in data && Array.isArray(data.items)) {
-          for (const item of data.items) {
-            const event = Event(item)
-            eventsMap[event.id] = event
-          }
-          for (const id of ids) {
-            if (!(id in eventsMap)) {
-              const error = new Error(`Event '${id}' not found on response`)
-              error.status = 404
-              error.statusText = 'Not Found'
-              errorsMap[id] = error
-            }
-          }
+
+      continue
+    }
+
+    try {
+      const data = await response.json()
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'items' in data &&
+        data.items != null &&
+        Array.isArray(data.items)
+      ) {
+        for (const item of data.items) {
+          const event = Event(item)
+          eventsMap[event.id] = event
         }
-      } catch (err) {
-        console.error(err)
+
         for (const id of ids) {
           if (!(id in eventsMap)) {
-            errorsMap[id] = new Error(`Response JSON parse failed: ${err.message}`)
+            const error = new Error(`Event '${id}' not found on response`)
+            error.status = 404
+            error.statusText = 'Not Found'
+            errorsMap[id] = error
           }
+        }
+      } else {
+        for (const id of ids) {
+          if (!(id in eventsMap)) {
+            errorsMap[id] = new Error(`Malformed response event '${id}'`)
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err)
+
+      for (const id of ids) {
+        if (!(id in eventsMap)) {
+          errorsMap[id] = new Error(`Malformed event '${id}': ${err.message}`)
         }
       }
     }
   }
+
   return [eventsMap, errorsMap]
 }
 
-async function fetchEvent(eventId, includeDescription, abortSignal) {
+/**
+ * @param {number} eventId
+ * @param {boolean} includeDescription
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @returns {Promise<ReturnType<Event>>}
+ */
+export async function fetchEvent(eventId, includeDescription, abortSignal) {
   const response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
     headers: {
       'x-api-key': POAP_API_KEY,
     },
   })
+
   if (response.status === 404) {
     return null
   }
+
   if (response.status === 400) {
-    const errorBody = await response.json()
-    throw new Error(`Fetch event '${eventId}' response was not success: ${errorBody.message}`)
+    /**
+     * @type {string}
+     */
+    let message = 'Unknown error'
+    try {
+      const data = await response.json()
+      if (
+        data != null &&
+        typeof data === 'object' &&
+        'message' in data &&
+        data.message != null &&
+        typeof data.message === 'string'
+      ) {
+        message = data.message
+      }
+    } catch (err) {
+      console.error(err)
+    }
+
+    throw new Error(
+      `Fetch event '${eventId}' response was not success: ${message}`
+    )
   }
+
   if (response.status !== 200) {
-    throw new Error(`Fetch event '${eventId}' response was not success`)
+    throw new Error(
+      `Fetch event '${eventId}' response was not success ` +
+      `(status ${response.status})`
+    )
   }
-  return Event(
-    await response.json(),
-    includeDescription
-  )
+
+  const body = await response.json()
+
+  if (typeof body !== 'object') {
+    throw new Error(`Malformed event (type ${typeof body})`)
+  }
+
+  return Event(body, includeDescription)
 }
 
-async function eventLoader({ params, request }) {
-  const force = new URL(request.url).searchParams.get('force')
+export async function eventLoader({ params, request }) {
+  const force = new URL(request.url).searchParams.get('force') === 'true'
+
   try {
     const eventAndOwners = await getEventAndOwners(
       params.eventId,
       /*abortSignal*/undefined,
       /*includeDescription*/true,
       /*includeMetrics*/true,
-      /*refresh*/force === 'true'
+      /*refresh*/force
     )
     if (eventAndOwners != null) {
       return {
@@ -167,50 +308,53 @@ async function eventLoader({ params, request }) {
   } catch (err) {
     console.error(err)
   }
+
   const event = await fetchEvent(params.eventId, /*includeDescription*/true)
+
   if (!event) {
     throw new Response('', {
       status: 404,
       statusText: 'Event not found',
     })
   }
+
   const [tokensSettled, metricsSettled] = await Promise.allSettled([
     fetchPOAPs(params.eventId),
-    getEventMetrics(params.eventId, null, /*refresh*/force === 'true'),
+    getEventMetrics(params.eventId, null, /*refresh*/force),
   ])
+
   if (tokensSettled.status === 'rejected') {
     throw new Response('', {
       status: 503,
       statusText: 'Event could not be fetch from POAP API',
     })
   }
+
   const tokens = tokensSettled.value
   const owners = filterInvalidOwners(
     tokens.map((token) => token.owner)
   )
+
   return {
     event,
     owners,
     ts: null,
-    metrics: metricsSettled.status === 'fulfilled' ? metricsSettled.value : {
-      emailReservations: 0,
-      emailClaimsMinted: 0,
-      emailClaims: 0,
-      momentsUploaded: 0,
-      collectionsIncludes: 0,
-      ts: null,
-    },
+    metrics: metricsSettled.status === 'fulfilled'
+      ? metricsSettled.value
+      : null,
   }
 }
 
-async function eventsLoader({ params, request }) {
+export async function eventsLoader({ params, request }) {
   const eventIds = parseEventIds(params.eventIds)
+
   if (eventIds.length === 0) {
     throw new Response('', {
       status: 404,
       statusText: 'Events not found',
     })
   }
+
   if (params.eventIds !== eventIds.join(',')) {
     throw new Response('', {
       status: 301,
@@ -220,6 +364,7 @@ async function eventsLoader({ params, request }) {
       },
     })
   }
+
   if (eventIds.length === 1) {
     throw new Response('', {
       status: 301,
@@ -229,62 +374,85 @@ async function eventsLoader({ params, request }) {
       },
     })
   }
-  const force = new URL(request.url).searchParams.get('force')
+
+  const force = new URL(request.url).searchParams.get('force') === 'true'
+
   if (!force) {
     try {
       const events = await getEvents(eventIds)
+
       if (events) {
+        /**
+         * @type {number[]}
+         */
         const notFoundEventIds = []
+
         for (const eventId of eventIds) {
           if (!(eventId in events)) {
             notFoundEventIds.push(eventId)
           }
         }
+
         if (notFoundEventIds.length > 0) {
-          throw new Response(JSON.stringify({
-            errorsByEventId: notFoundEventIds.reduce((errorsByEventId, notFoundEventId) => ({
-              ...errorsByEventId,
-              [notFoundEventId]: {
-                message: `The event ${notFoundEventId} was not found`,
-                status: 404,
-                statusText: 'Event not found',
+          throw new Response(
+            JSON.stringify({
+              errorsByEventId: notFoundEventIds.reduce(
+                (errorsByEventId, notFoundEventId) => ({
+                  ...errorsByEventId,
+                  [notFoundEventId]: {
+                    message: `The event ${notFoundEventId} was not found`,
+                    status: 404,
+                    statusText: 'Event not found',
+                  },
+                }),
+                {}
+              ),
+            }),
+            {
+              status: 503,
+              statusText: 'Fetch events not found',
+              headers: {
+                'content-type': 'application/json',
               },
-            }), {}),
-          }), {
-            status: 503,
-            statusText: 'Fetch events not found',
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
+            }
+          )
         }
+
         return events
       }
     } catch (err) {
       console.error(err)
     }
   }
+
   const [events, errors] = await fetchEventsOrErrors(eventIds)
+
   if (Object.keys(errors).length > 0) {
     const errorsByEventId = Object.assign({}, errors)
     const eventsNotFound = await Promise.allSettled(
       Object.entries(errors)
-        .filter(([eventId, error]) => error.status === 404)
-        .map(([eventId, error]) => fetchEvent(eventId))
+        .filter(([, error]) => error.status === 404)
+        .map(([eventId]) => fetchEvent(eventId))
     )
+
     for (const eventResult of eventsNotFound) {
       if (eventResult.status === 'rejected') {
         continue
       }
+
       const event = eventResult.value
+
       if (!event) {
         continue
       }
+
       events[event.id] = event
+
       if (event.id in errors) {
         delete errorsByEventId[event.id]
       }
     }
+
     if (Object.keys(errorsByEventId).length > 0) {
       const response = JSON.stringify({
         errorsByEventId: Object.fromEntries(
@@ -300,6 +468,7 @@ async function eventsLoader({ params, request }) {
           )
         ),
       })
+
       throw new Response(response, {
         status: 503,
         statusText: 'Fetch events failed',
@@ -309,13 +478,6 @@ async function eventsLoader({ params, request }) {
       })
     }
   }
-  return events
-}
 
-export {
-  searchEvents,
-  fetchEvent,
-  fetchEventsOrErrors,
-  eventLoader,
-  eventsLoader,
+  return events
 }
