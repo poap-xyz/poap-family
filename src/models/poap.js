@@ -1,11 +1,27 @@
 import { Event } from './event'
 
-const POAP_FETCH_RETRIES = 5
+export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
+export const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY
 
-const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
-const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY
+export const POAP_SCAN_URL = 'https://app.poap.xyz/scan'
+export const POAP_GALLERY_URL = 'https://poap.gallery/event'
+export const POAP_MOMENTS_URL = 'https://moments.poap.xyz'
+export const POAP_COLLECTIONS_URL = 'https://collections.poap.xyz'
 
-function POAP(token) {
+export const POAP_FETCH_RETRIES = 5
+
+/**
+ * @param {unknown} token
+ * @returns {{
+ *   id: number
+ *   owner: {
+ *     id: string
+ *   }
+ *   created?: Date
+ *   event?: ReturnType<Event>
+ * }}
+ */
+export function POAP(token) {
   return {
     id: token.tokenId,
     owner: {
@@ -16,12 +32,13 @@ function POAP(token) {
   }
 }
 
-const POAP_SCAN_URL = 'https://app.poap.xyz/scan'
-const POAP_GALLERY_URL = 'https://poap.gallery/event'
-const POAP_MOMENTS_URL = 'https://moments.poap.xyz'
-const POAP_COLLECTIONS_URL = 'https://collections.poap.xyz'
-
-function findInitialPOAPDate(tokens) {
+/**
+ * Finds the first created date on a list of POAPs.
+ *
+ * @param {ReturnType<POAP>[]} tokens
+ * @returns {Date | null}
+ */
+export function findInitialPOAPDate(tokens) {
   return tokens.reduce(
     (initialDate, token) => {
       if (
@@ -42,16 +59,4 @@ function findInitialPOAPDate(tokens) {
     },
     null
   )
-}
-
-export {
-  POAP_FETCH_RETRIES,
-  POAP_API_URL,
-  POAP_API_KEY,
-  POAP,
-  POAP_SCAN_URL,
-  POAP_GALLERY_URL,
-  POAP_MOMENTS_URL,
-  POAP_COLLECTIONS_URL,
-  findInitialPOAPDate,
 }

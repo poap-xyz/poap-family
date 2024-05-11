@@ -40,8 +40,8 @@ function InCommon({
   const [ownerHighlighted, setOwnerHighlighted] = useState(null)
   const [liRefs, setLiRefs] = useState({})
 
-  const inCommonEntries = filterAndSortInCommon(
-    Object.entries(inCommon)
+  const inCommonEntries = Object.entries(
+    filterAndSortInCommon(inCommon)
   )
 
   let inCommonEventsAddresses = inCommonEntries.slice()
@@ -231,9 +231,16 @@ function InCommon({
                 <div className="active-event-owners">
                   <ul className="owners">
                     {inCommon[activeEventId].map((owner) => {
-                      const inCommonEventIds = getAddressInCommonEventIds(inCommonEntries, owner)
+                      const inCommonEventIds = getAddressInCommonEventIds(
+                        Object.fromEntries(inCommonEntries),
+                        owner
+                      )
                       const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
-                        inCommonEntries.filter(([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId))
+                        Object.fromEntries(
+                          inCommonEntries.filter(
+                            ([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId)
+                          )
+                        )
                       ).filter(
                         (inCommonAddress) => inCommonAddress.toLowerCase() !== owner.toLowerCase()
                       )

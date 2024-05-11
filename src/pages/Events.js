@@ -8,7 +8,7 @@ import { getEventAndOwners, getEventMetrics, getEventsMetrics, getEventsOwners, 
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
 import { findEventsCollections } from '../loaders/collection'
 import { IGNORED_OWNERS } from '../models/address'
-import { filterAndSortInCommon, mergeEventsInCommon } from '../models/in-common'
+import { filterAndSortInCommon, mergeAllInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
 import { formatDate } from '../utils/date'
 import Timestamp from '../components/Timestamp'
@@ -535,10 +535,8 @@ function Events() {
               !(eventId in errors) &&
               !(eventId in loading)
             ) {
-              const inCommonProcessed = Object.fromEntries(
-                filterAndSortInCommon(
-                  Object.entries(eventData[eventId].inCommon)
-                )
+              const inCommonProcessed = filterAndSortInCommon(
+                eventData[eventId].inCommon
               )
               const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
               if (inCommonProcessedEventIds.length > 0) {
@@ -682,9 +680,17 @@ function Events() {
     setSearchParams({ all: true })
   }
 
+  /**
+   * @type {Record<number, string[]>}
+   */
   let inCommon = {}
   if (status === STATUS_LOADING_COMPLETE) {
-    inCommon = mergeEventsInCommon(eventData, searchParams.get('all') === 'true')
+    inCommon = mergeAllInCommon(
+      Object.values(eventData).map(
+        (oneEventData) => oneEventData?.inCommon ?? {}
+      ),
+      searchParams.get('all') === 'true'
+    )
   }
 
   const allEvents = Object.values(eventData).reduce(

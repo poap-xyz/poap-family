@@ -1,36 +1,65 @@
 import { equals, intersection } from '../utils/array'
 
-function filterAndSortInCommon(inCommonEntries) {
-  let entries = inCommonEntries.filter(([eventId, addresses]) => addresses.length > 1)
-  entries.sort(
-    ([aEventId, aAddresses], [bEventId, bAddresses]) => bAddresses.length - aAddresses.length
+export const INCOMMON_EVENTS_LIMIT = 20
+export const INCOMMON_ADDRESSES_LIMIT = 10
+
+/**
+ * Removes the ones that has one or zero in-common collectors and sorts it by
+ * highest number of in-common collectors.
+ *
+ * @param {Record<number, string[]>} inCommon
+ * @returns {Record<number, string[]>}
+ */
+export function filterAndSortInCommon(inCommon) {
+  // With at least one in-common address.
+  let entries = Object.entries(inCommon).filter(
+    ([, addresses]) => addresses.length > 1
   )
-  return entries
+  // Sorted by the highest in-common collectors.
+  entries.sort(
+    ([, aAddresses], [, bAddresses]) => bAddresses.length - aAddresses.length
+  )
+  return Object.fromEntries(entries)
 }
 
-function mergeEventsInCommon(eventData, all = false) {
-  const allInCommon = {}
-  for (const [, { inCommon }] of Object.entries(eventData)) {
+/**
+ * From a list of in-common objects, merge them into one in-common object. If
+ * all is true then, collectors must be the same in all events to be included
+ * or if not merges the partial collectors alltoguether.
+ *
+ * @param {Record<number, string[]>[]} allInCommon
+ * @param {boolean} all
+ * @returns {Record<number, string[]>}
+ */
+export function mergeAllInCommon(allInCommon, all = false) {
+  const mergedInCommon = {}
+  for (const inCommon of allInCommon) {
     for (const [inCommonEventId, addresses] of Object.entries(inCommon)) {
-      if (inCommonEventId in allInCommon) {
+      if (inCommonEventId in mergedInCommon) {
         if (all) {
-          if (!equals(allInCommon[inCommonEventId], addresses)) {
-            delete allInCommon[inCommonEventId]
+          if (!equals(mergedInCommon[inCommonEventId], addresses)) {
+            delete mergedInCommon[inCommonEventId]
           }
         } else {
-          allInCommon[inCommonEventId] = intersection(allInCommon[inCommonEventId], addresses)
+          mergedInCommon[inCommonEventId] = intersection(mergedInCommon[inCommonEventId], addresses)
         }
       } else {
-        allInCommon[inCommonEventId] = addresses
+        mergedInCommon[inCommonEventId] = addresses
       }
     }
   }
-  return allInCommon
+  return mergedInCommon
 }
 
-function mergeAddressesInCommon(inCommonEntries) {
+/**
+ * Merges in-common collectors that belong to all events.
+ *
+ * @param {Record<number, string[]>} inCommon
+ * @returns {string[]}
+ */
+export function mergeAddressesInCommon(inCommon) {
   let mergedAddresses = null
-  for (const [, addresses] of inCommonEntries) {
+  for (const [, addresses] of Object.entries(inCommon)) {
     if (mergedAddresses == null) {
       mergedAddresses = addresses
     } else {
@@ -40,24 +69,20 @@ function mergeAddressesInCommon(inCommonEntries) {
   return mergedAddresses
 }
 
-function getAddressInCommonEventIds(inCommonEntries, address) {
+/**
+ * Retrieve a list of drops that the given {address} is found in the in-common
+ * object.
+ *
+ * @param {Record<number, string[]>} inCommon
+ * @param {string} address
+ * @returns {number[]}
+ */
+export function getAddressInCommonEventIds(inCommon, address) {
   const eventIds = []
-  for (const [eventId, addresses] of inCommonEntries) {
+  for (const [rawEventId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
-      eventIds.push(eventId)
+      eventIds.push(parseInt(rawEventId))
     }
   }
   return eventIds
-}
-
-const INCOMMON_EVENTS_LIMIT = 20
-const INCOMMON_ADDRESSES_LIMIT = 10
-
-export {
-  filterAndSortInCommon,
-  mergeEventsInCommon,
-  mergeAddressesInCommon,
-  getAddressInCommonEventIds,
-  INCOMMON_EVENTS_LIMIT,
-  INCOMMON_ADDRESSES_LIMIT,
 }
