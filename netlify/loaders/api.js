@@ -1,6 +1,9 @@
 export async function getEventInfo(eventId, env) {
   if (!env.FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Event ${eventId} could not be fetched, ` +
+      `configure Family API key`
+    )
   }
   const response = await fetch(
     `${env.FAMILY_API_URL}/event/${eventId}?description=false&metrics=true`,
@@ -14,30 +17,15 @@ export async function getEventInfo(eventId, env) {
     return null
   }
   if (response.status !== 200) {
-    throw new Error(`Event ${eventId} failed to fetch (status ${response.status})`)
+    throw new Error(
+      `Event ${eventId} failed to fetch (status ${response.status})`
+    )
   }
   const body = await response.json()
-  if (
-    typeof body !== 'object' ||
-    !('event' in body) || typeof body.event !== 'object' ||
-    !('owners' in body) || !Array.isArray(body.owners) ||
-    !('ts' in body) || typeof body.ts !== 'number'
-  ) {
-    return null
+  if (typeof body !== 'object') {
+    throw new Error(`Malformed events (type ${typeof body})`)
   }
-  return {
-    event: body.event,
-    owners: body.owners,
-    ts: body.ts,
-    metrics: {
-      emailReservations: body.metrics.emailReservations,
-      emailClaimsMinted: body.metrics.emailClaimsMinted,
-      emailClaims: body.metrics.emailClaims,
-      momentsUploaded: body.metrics.momentsUploaded,
-      collectionsIncludes: body.metrics.collectionsIncludes,
-      ts: body.metrics.ts,
-    },
-  }
+  return body
 }
 
 export async function getEventsInfo(eventIds, env) {
@@ -61,10 +49,14 @@ export async function getEventsInfo(eventIds, env) {
 
 export async function getEvents(eventIds, env) {
   if (!env.FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Events (${eventIds.length}) could not be fetched, ` +
+      `configure Family API key`
+    )
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
+    `${env.FAMILY_API_URL}/events` +
+    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -82,9 +74,15 @@ export async function getEvents(eventIds, env) {
       console.error(err)
     }
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch (status ${response.status})`)
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch ` +
+      `(status ${response.status})`
+    )
   }
   const body = await response.json()
   if (typeof body !== 'object') {
@@ -95,11 +93,15 @@ export async function getEvents(eventIds, env) {
 
 export async function getEventsOwners(eventIds, env) {
   if (!env.FAMILY_API_KEY) {
-    return null
+    throw new Error(
+      `Events (${eventIds.length}) owners could not be fetched, ` +
+      `configure Family API key`
+    )
   }
   const response = await fetch(
     `${env.FAMILY_API_URL}/events` +
-      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/owners`,
+      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+      `/owners`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -117,9 +119,15 @@ export async function getEventsOwners(eventIds, env) {
       console.error(err)
     }
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch owners (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch owners ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch owners (status ${response.status})`)
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch owners ` +
+      `(status ${response.status})`
+    )
   }
   const body = await response.json()
   if (typeof body !== 'object') {
@@ -130,10 +138,14 @@ export async function getEventsOwners(eventIds, env) {
 
 export async function getEventsMetrics(eventIds, env) {
   if (!env.FAMILY_API_KEY) {
-    throw new Error(`Events (${eventIds.length}) metrics could not be fetched, configure Family API key`)
+    throw new Error(
+      `Events (${eventIds.length}) metrics could not be fetched, ` +
+      `configure Family API key`
+    )
   }
   const response = await fetch(
-    `${env.FAMILY_API_URL}/events/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`,
+    `${env.FAMILY_API_URL}/events` +
+    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}/metrics`,
     {
       headers: {
         'x-api-key': env.FAMILY_API_KEY,
@@ -154,9 +166,15 @@ export async function getEventsMetrics(eventIds, env) {
       console.error(err)
     }
     if (message) {
-      throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status}): ${message}`)
+      throw new Error(
+        `Events (${eventIds.length}) failed to fetch metrics ` +
+        `(status ${response.status}): ${message}`
+      )
     }
-    throw new Error(`Events (${eventIds.length}) failed to fetch metrics (status ${response.status})`)
+    throw new Error(
+      `Events (${eventIds.length}) failed to fetch metrics ` +
+      `(status ${response.status})`
+    )
   }
   const body = await response.json()
   if (typeof body !== 'object') {
