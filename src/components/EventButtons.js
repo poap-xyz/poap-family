@@ -1,4 +1,5 @@
 import { clsx } from 'clsx'
+import { POAP_GALLERY_URL } from '../models/poap'
 import LinkButton from './LinkButton'
 import '../styles/event-buttons.css'
 
@@ -13,7 +14,7 @@ function EventButtons({
       {viewInGallery && (
         <div className="view-in-gallery">
           <LinkButton
-            href={`https://poap.gallery/event/${event.id}`}
+            href={`${POAP_GALLERY_URL}/${event.id}`}
             external={true}
           >
             View in Gallery
