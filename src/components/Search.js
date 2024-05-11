@@ -16,9 +16,21 @@ function Search() {
   const queryRef = useRef()
   const { trackSiteSearch } = useMatomo()
   const { settings } = useContext(SettingsContext)
-  const [loadingById, setLoadingById] = useState({ eventId: null, state: false, controller: null })
-  const [loadingSearch, setLoadingSearch] = useState({ query: null, state: false, controller: null })
-  const [loadingSearchCollections, setLoadingSearchCollections] = useState({ query: null, state: false, controller: null })
+  const [loadingById, setLoadingById] = useState({
+    eventId: null,
+    state: false,
+    controller: null,
+  })
+  const [loadingSearch, setLoadingSearch] = useState({
+    query: null,
+    state: false,
+    controller: null,
+  })
+  const [loadingSearchCollections, setLoadingSearchCollections] = useState({
+    query: null,
+    state: false,
+    controller: null,
+  })
   const [timeoutId, setTimeoutId] = useState(null)
   const [errorById, setErrorById] = useState(null)
   const [errorSearch, setErrorSearch] = useState(null)
@@ -62,7 +74,11 @@ function Search() {
     setEventById(null)
     fetchEvent(eventId, /*includeDescription*/false, controller.signal).then(
       (result) => {
-        setLoadingById({ eventId: null, state: false, controller: null })
+        setLoadingById({
+          eventId: null,
+          state: false,
+          controller: null,
+        })
         if (result) {
           setEventById(result)
         } else {
@@ -76,7 +92,11 @@ function Search() {
             setErrorById(err)
           }
         }
-        setLoadingById({ eventId: null, state: false, controller: null })
+        setLoadingById({
+          eventId: null,
+          state: false,
+          controller: null,
+        })
       }
     )
   }
@@ -86,14 +106,15 @@ function Search() {
     setErrorSearch(null)
     setQueryEvents([])
     setQueryTotal(null)
-    if (queryTotal == null || (page - 1) * SEARCH_LIMIT <= queryTotal) {
+    const offset = (page - 1) * SEARCH_LIMIT
+    if (queryTotal == null || offset <= queryTotal) {
       const controller = new AbortController()
       setLoadingSearch({
         query: value,
         state: true,
         controller,
       })
-      searchEvents(value, controller.signal, (page - 1) * SEARCH_LIMIT, SEARCH_LIMIT).then(
+      searchEvents(value, controller.signal, offset, SEARCH_LIMIT).then(
         (results) => {
           if (page === 1) {
             trackSiteSearch({
@@ -122,7 +143,11 @@ function Search() {
               setErrorSearch(err)
             }
           }
-          setLoadingSearch({ query: null, state: false, controller: null })
+          setLoadingSearch({
+            query: null,
+            state: false,
+            controller: null,
+          })
         }
       )
     }
@@ -132,7 +157,7 @@ function Search() {
     if (
       settings.showCollections && (
         queryTotalCollections == null ||
-        (page - 1) * SEARCH_LIMIT <= queryTotalCollections
+        offset <= queryTotalCollections
       )
     ) {
       const controller = new AbortController()
@@ -141,7 +166,7 @@ function Search() {
         state: true,
         controller,
       })
-      searchCollections(value, (page - 1) * SEARCH_LIMIT, SEARCH_LIMIT, controller.signal).then(
+      searchCollections(value, offset, SEARCH_LIMIT, controller.signal).then(
         (results) => {
           if (page === 1) {
             trackSiteSearch({
@@ -150,7 +175,11 @@ function Search() {
               count: results.total == null ? undefined : results.total,
             })
           }
-          setLoadingSearchCollections({ query: null, state: false, controller: null })
+          setLoadingSearchCollections({
+            query: null,
+            state: false,
+            controller: null,
+          })
           if (queryRef.current && String(value) === queryRef.current.value) {
             setQueryCollections(results.items)
             if (results.total) {
@@ -167,7 +196,11 @@ function Search() {
               setErrorSearchCollections(err)
             }
           }
-          setLoadingSearchCollections({ query: null, state: false, controller: null })
+          setLoadingSearchCollections({
+            query: null,
+            state: false,
+            controller: null,
+          })
         }
       )
     }
@@ -270,9 +303,21 @@ function Search() {
       setQueryCollections([])
       setQueryTotal(null)
       setQueryPage(1)
-      setLoadingById({ eventId: null, state: false, controller: null })
-      setLoadingSearch({ query: null, state: false, controller: null })
-      setLoadingSearchCollections({ query: null, state: false, controller: null })
+      setLoadingById({
+        eventId: null,
+        state: false,
+        controller: null,
+      })
+      setLoadingSearch({
+        query: null,
+        state: false,
+        controller: null,
+      })
+      setLoadingSearchCollections({
+        query: null,
+        state: false,
+        controller: null,
+      })
     }
   }
 
@@ -281,14 +326,20 @@ function Search() {
       const event = queryEvents.find((queried) => queried.id === eventId)
       if (event) {
         setSelectedEvents((prevSelectedEvents) => {
-          if (prevSelectedEvents.findIndex((prevSelectedEvent) => prevSelectedEvent.id === event.id) !== -1) {
+          const exists = -1 !== prevSelectedEvents.findIndex(
+            (prevSelectedEvent) => prevSelectedEvent.id === event.id
+          )
+          if (exists) {
             return prevSelectedEvents
           }
           return [...prevSelectedEvents, event]
         })
       } else if (eventById) {
         setSelectedEvents((prevSelectedEvents) => {
-          if (prevSelectedEvents.findIndex((prevSelectedEvent) => prevSelectedEvent.id === eventById.id) !== -1) {
+          const exists = -1 !== prevSelectedEvents.findIndex(
+            (prevSelectedEvent) => prevSelectedEvent.id === eventById.id
+          )
+          if (exists) {
             return prevSelectedEvents
           }
           return [...prevSelectedEvents, eventById]
@@ -296,7 +347,9 @@ function Search() {
         setEventById(null)
       }
     } else {
-      const selectedIndex = selectedEvents.findIndex((selected) => selected.id === eventId)
+      const selectedIndex = selectedEvents.findIndex(
+        (selected) => selected.id === eventId
+      )
       if (selectedIndex !== -1) {
         setSelectedEvents((prevSelectedEvents) => {
           const newSelectedEvents = [...prevSelectedEvents]
@@ -313,17 +366,24 @@ function Search() {
 
   function onSelectCollectionChange(collectionId, checked) {
     if (checked) {
-      const collection = queryCollections.find((queried) => queried.id === collectionId)
+      const collection = queryCollections.find(
+        (queried) => queried.id === collectionId
+      )
       if (collection) {
         setSelectedCollections((prevSelectedCollections) => {
-          if (prevSelectedCollections.findIndex((prevSelectedCollection) => prevSelectedCollection.id === collection.id) !== -1) {
+          const exists = -1 !== prevSelectedCollections.findIndex(
+            (prevSelectedCollection) => prevSelectedCollection.id === collection.id
+          )
+          if (exists) {
             return prevSelectedCollections
           }
           return [...prevSelectedCollections, collection]
         })
       }
     } else {
-      const selectedIndex = selectedCollections.findIndex((selected) => selected.id === collectionId)
+      const selectedIndex = selectedCollections.findIndex(
+        (selected) => selected.id === collectionId
+      )
       if (selectedIndex !== -1) {
         setSelectedCollections((prevSelectedCollections) => {
           const newSelectedCollections = [...prevSelectedCollections]
@@ -340,13 +400,20 @@ function Search() {
 
   const selectedNotInEvents = selectedEvents
     .filter(
-      (selected) => queryEvents.findIndex((queried) => queried.id === selected.id) === -1
+      (selected) => -1 === queryEvents.findIndex(
+        (queried) => queried.id === selected.id
+      )
     )
   const selectedNotInCollections = selectedCollections
     .filter(
-      (selected) => queryCollections.findIndex((queried) => queried.id === selected.id) === -1
+      (selected) => -1 === queryCollections.findIndex(
+        (queried) => queried.id === selected.id
+      )
     )
-  const selectedCollectionsTotalDrops = selectedCollections.reduce((total, collection) => total + collection.dropIds.length, 0)
+  const selectedCollectionsTotalDrops = selectedCollections.reduce(
+    (total, collection) => total + collection.dropIds.length,
+    0
+  )
 
   const renderEvent = (event) => (
     <div className="drop-preview" key={event.id}>
@@ -362,8 +429,12 @@ function Search() {
         <div className="drop-select">
           <input
             type="checkbox"
-            checked={selectedEvents.findIndex((selected) => selected.id === event.id) !== -1}
-            onChange={(changeEvent) => onSelectEventChange(event.id, !!changeEvent.target.checked)}
+            checked={-1 !== selectedEvents.findIndex(
+              (selected) => selected.id === event.id
+            )}
+            onChange={(changeEvent) => {
+              onSelectEventChange(event.id, !!changeEvent.target.checked)
+            }}
           />
         </div>
       </div>
@@ -375,7 +446,10 @@ function Search() {
       {collection.banner_image_url && (
         <div className="collection-banner">
           <img
-            src={resizeCollectionImageUrl(collection.banner_image_url, { w: 480, h: 40 })}
+            src={resizeCollectionImageUrl(collection.banner_image_url, {
+              w: 480,
+              h: 40,
+            })}
             alt=""
           />
         </div>
@@ -388,7 +462,10 @@ function Search() {
               className="collection-link"
             >
               <img
-                src={resizeCollectionImageUrl(collection.logo_image_url, { w: 18, h: 18 })}
+                src={resizeCollectionImageUrl(collection.logo_image_url, {
+                  w: 18,
+                  h: 18,
+                })}
                 alt=""
               />
             </Link>
@@ -403,17 +480,29 @@ function Search() {
         <div className="collection-select">
           <input
             type="checkbox"
-            checked={selectedCollections.findIndex((selected) => selected.id === collection.id) !== -1}
-            onChange={(changeEvent) => onSelectCollectionChange(collection.id, !!changeEvent.target.checked)}
+            checked={-1 !== selectedCollections.findIndex(
+              (selected) => selected.id === collection.id
+            )}
+            onChange={(changeEvent) => {
+              onSelectCollectionChange(collection.id, !!changeEvent.target.checked)
+            }}
           />
         </div>
       </div>
     </div>
   )
 
+  const pages = Math.ceil(Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT)
+
   return (
     <Card>
-      <form role="search" onSubmit={(event) => { event.preventDefault(); onSearch() }}>
+      <form
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault()
+          onSearch()
+        }}
+      >
         <div className="search">
           <input
             ref={queryRef}
@@ -431,11 +520,26 @@ function Search() {
             className="go"
             type="submit"
             value="Find POAPs In Common"
-            disabled={!eventById && selectedEvents.length === 0 && selectedCollections.length === 0}
+            disabled={!eventById &&
+              selectedEvents.length === 0 &&
+              selectedCollections.length === 0}
           />
         </div>
       </form>
-      {!errorById && !errorSearch && !errorSearchCollections && !errorSubmit && selectedEvents.length === 0 && selectedCollections.length === 0 && queryEvents.length === 0 && queryCollections.length === 0 && !loadingById.state && !loadingSearch.state && !loadingSearchCollections.state && !eventById && (
+      {(
+        !errorById &&
+        !errorSearch &&
+        !errorSearchCollections &&
+        !errorSubmit &&
+        selectedEvents.length === 0 &&
+        selectedCollections.length === 0 &&
+        queryEvents.length === 0 &&
+        queryCollections.length === 0 &&
+        !loadingById.state &&
+        !loadingSearch.state &&
+        !loadingSearchCollections.state &&
+        !eventById
+      ) && (
         <div className="search-options">
           <Link className="link" to="/addresses">manually enter collections</Link>
         </div>
@@ -460,7 +564,12 @@ function Search() {
           <p>{errorSubmit.message}</p>
         </div>
       )}
-      {(selectedEvents.length > 0 || selectedCollections.length > 0 || queryEvents.length > 0 || queryCollections.length > 0) && (
+      {(
+        selectedEvents.length > 0 ||
+        selectedCollections.length > 0 ||
+        queryEvents.length > 0 ||
+        queryCollections.length > 0
+      ) && (
         <div className="drop-header">
           {selectedCollections.length > 0 && (
             <>
@@ -478,7 +587,16 @@ function Search() {
       {selectedNotInEvents.length > 0 && (
         <>{selectedNotInEvents.map((event) => renderEvent(event))}</>
       )}
-      {(selectedNotInCollections.length > 0 || selectedNotInEvents.length > 0) && (queryEvents.length > 0 || queryCollections.length > 0 || loadingById.state || loadingSearch.state || loadingSearchCollections.state) && (
+      {(
+        selectedNotInCollections.length > 0 ||
+        selectedNotInEvents.length > 0
+      ) && (
+        queryEvents.length > 0 ||
+        queryCollections.length > 0 ||
+        loadingById.state ||
+        loadingSearch.state ||
+        loadingSearchCollections.state
+      ) && (
         <hr className="drop-separator" />
       )}
       {(loadingById.state || loadingSearch.state || loadingSearchCollections.state) && (
@@ -490,13 +608,19 @@ function Search() {
         </div>
       )}
       {eventById && renderEvent(eventById)}
-      {queryCollections.length > 0 && queryCollections.map((collection) => renderCollection(collection))}
-      {queryEvents.length > 0 && queryEvents.map((event) => (!eventById || eventById.id !== event.id) && renderEvent(event))}
-      {queryEvents.length > 0 && Math.ceil(Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT) > 1 && (
+      {queryCollections.length > 0 && (
+        queryCollections.map((collection) => renderCollection(collection))
+      )}
+      {queryEvents.length > 0 && (
+        queryEvents.map((event) => (!eventById || eventById.id !== event.id) && (
+          renderEvent(event)
+        ))
+      )}
+      {queryEvents.length > 0 && pages > 1 && (
         <div className="drop-pagination">
           <Pagination
             page={queryPage}
-            pages={Math.ceil(Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT)}
+            pages={pages}
             total={Math.max(queryTotal, queryTotalCollections)}
             onPage={(newPage) => {
               const value = queryRef.current ? queryRef.current.value : ''
