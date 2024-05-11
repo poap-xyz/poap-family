@@ -1,4 +1,4 @@
-import { IGNORED_OWNERS } from '../models/address'
+import { filterInvalidOwners } from '../models/address'
 import { Event, parseEventIds } from '../models/event'
 import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
 import { getEventAndOwners, getEventMetrics, getEvents } from './api'
@@ -185,12 +185,12 @@ async function eventLoader({ params, request }) {
     })
   }
   const tokens = tokensSettled.value
-  const owners = tokens.map((token) => token.owner.id)
-  const uniqueOwners = owners.filter((value, index, all) => all.indexOf(value) === index)
-  const filteredOwners = uniqueOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
+  const owners = filterInvalidOwners(
+    tokens.map((token) => token.owner)
+  )
   return {
     event,
-    owners: filteredOwners,
+    owners,
     ts: null,
     metrics: metricsSettled.status === 'fulfilled' ? metricsSettled.value : {
       emailReservations: 0,

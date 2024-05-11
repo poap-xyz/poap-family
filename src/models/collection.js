@@ -1,6 +1,18 @@
 import { getRandomInt } from '../utils/number'
 
-function Collection(collection) {
+export const COLLECTIONS_LIMIT = 7
+
+/**
+ * @param {unknown} collection
+ * @returns {{
+ *   id: number
+ *   slug: string
+ *   title: string | null
+ *   banner_image_url: string | null
+ *   logo_image_url: string | null
+ * }}
+ */
+export function Collection(collection) {
   if (
     typeof collection !== 'object' ||
     !('id' in collection) || typeof collection.id !== 'number' ||
@@ -17,7 +29,13 @@ function Collection(collection) {
   }
 }
 
-function CollectionWithDrops(collectionWithDrops) {
+/**
+ * @param {unknown} collectionWithDrops
+ * @returns {ReturnType<Collection> & {
+ *   dropIds: number[]
+ * }}
+ */
+export function CollectionWithDrops(collectionWithDrops) {
   const collection = Collection(collectionWithDrops)
 
   if (
@@ -44,9 +62,7 @@ function CollectionWithDrops(collectionWithDrops) {
   }
 }
 
-const COLLECTIONS_LIMIT = 7
-
-function resizeCollectionImageUrl(imageUrl, size) {
+export function resizeCollectionImageUrl(imageUrl, size) {
   if (imageUrl.indexOf('collections-media-production') >= 0) {
     const url = new URL(imageUrl)
     url.host = `poap${Math.trunc(getRandomInt(0, 4))}-collections.imgix.net`
@@ -112,11 +128,4 @@ function resizeCollectionImageUrl(imageUrl, size) {
   }
 
   return imageUrl
-}
-
-export {
-  Collection,
-  CollectionWithDrops,
-  COLLECTIONS_LIMIT,
-  resizeCollectionImageUrl,
 }

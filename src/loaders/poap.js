@@ -1,14 +1,25 @@
 import { POAP, POAP_API_URL, POAP_API_KEY, POAP_FETCH_RETRIES } from '../models/poap'
 
+/**
+ * Fetch all POAP for given drop.
+ *
+ * @param {number} eventId
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @param {number} limit
+ * @returns {ReturnType<POAP>[]}
+ */
 async function fetchPOAPs(eventId, abortSignal, limit = 100) {
   let tokens = []
   let results = { total: 0, offset: 0, limit, tokens: [] }
   let retries = 0
+
   do {
     let response
     try {
       response = await fetch(
-        `${POAP_API_URL}/event/${eventId}/poaps?offset=${results.offset}&limit=${results.limit}`,
+        `${POAP_API_URL}/event/${eventId}/poaps` +
+        `?offset=${results.offset}` +
+        `&limit=${results.limit}`,
         {
           signal: abortSignal instanceof AbortSignal ? abortSignal : null,
           headers: {
@@ -18,20 +29,30 @@ async function fetchPOAPs(eventId, abortSignal, limit = 100) {
       )
     } catch (err) {
       if (err.code === 20) {
-        const aborted = new Error(`Fetch POAPs for '${eventId}' from ${results.offset} aborted`)
+        const aborted = new Error(
+          `Fetch POAPs for '${eventId}' from ${results.offset} aborted`
+        )
         aborted.aborted = true
         throw aborted
       }
+
       console.error(err)
+
       if (retries >= POAP_FETCH_RETRIES) {
-        throw new Error(`Fetch POAPs for '${eventId}' from ${results.offset} failed: ${err.message}`)
+        throw new Error(
+          `Fetch POAPs for '${eventId}' from ${results.offset} ` +
+          `failed: ${err.message}`
+        )
       }
+
       retries++
       continue
     }
+
     if (response.status === 404) {
       return tokens
     }
+
     if (response.status !== 200) {
       if (retries >= POAP_FETCH_RETRIES) {
         let message
@@ -44,30 +65,66 @@ async function fetchPOAPs(eventId, abortSignal, limit = 100) {
           console.error(err)
         }
         if (message) {
-          throw new Error(`Fetch POAPs for '${eventId}' from ${results.offset} failed (status ${response.status}): ${message}`)
+          throw new Error(
+            `Fetch POAPs for '${eventId}' from ${results.offset} ` +
+            `failed (status ${response.status}): ${message}`
+          )
         }
-        throw new Error(`Fetch POAPs for '${eventId}' from ${results.offset} failed (status ${response.status})`)
+        throw new Error(
+          `Fetch POAPs for '${eventId}' from ${results.offset} ` +
+          `failed (status ${response.status})`
+        )
       }
+
       retries++
       continue
     }
-    results = await response.json()
-    if (!results || typeof results !== 'object' || !('tokens' in results) || !Array.isArray(results.tokens)) {
-      throw new Error(`Invalid POAP response for drop '${eventId}' from ${results.offset}`)
-    }
-    tokens = [...tokens, ...results.tokens.map((token) => POAP(token))]
+
     retries = 0
+    results = await response.json()
+
+    if (
+      results == null ||
+      typeof results !== 'object' ||
+      !('tokens' in results) ||
+      !Array.isArray(results.tokens)
+    ) {
+      throw new Error(
+        `Invalid POAP response for drop '${eventId}' from ${results.offset}`
+      )
+    }
+
+    tokens = [
+      ...tokens,
+      ...results.tokens.map((token) => POAP(token)),
+    ]
+
+    // Finish on empty page.
     if (results.tokens.length === 0) {
       break
     }
+
+    // Go to next page.
     results.offset += results.limit
-  } while (tokens.length < results.total || results.total === 0)
+  } while (
+    tokens.length < results.total ||
+    results.total === 0
+  )
+
   return tokens
 }
 
+/**
+ * Fetch all POAP for given address.
+ *
+ * @param {string} address
+ * @param {AbortSignal | undefined | null} abortSignal
+ * @returns {ReturnType<POAP>[]}
+ */
 async function scanAddress(address, abortSignal) {
   let retries = 0
   let message
+
   do {
     let response
     try {
@@ -83,15 +140,19 @@ async function scanAddress(address, abortSignal) {
         aborted.aborted = true
         throw aborted
       }
+
       console.error(err)
+
       if (retries >= POAP_FETCH_RETRIES) {
         message = err.message
         throw new Error(`Scan address failed: ${message}`)
       }
+
       retries++
       message = undefined
       continue
     }
+
     if (response.status !== 200) {
       if (retries >= POAP_FETCH_RETRIES) {
         try {
@@ -102,22 +163,36 @@ async function scanAddress(address, abortSignal) {
         } catch (err) {
           console.error(err)
         }
+
         if (message) {
-          throw new Error(`Scan address failed (status ${response.status}): ${message}`)
+          throw new Error(
+            `Scan address failed (status ${response.status}): ${message}`
+          )
         }
+
         throw new Error(`Scan address failed (status ${response.status})`)
       }
+
       retries++
       message = undefined
       continue
     }
+
     const tokens = await response.json()
+
     if (!tokens || !Array.isArray(tokens)) {
       throw new Error(`Invalid POAP response for scan`)
     }
+
     return tokens.map((token) => POAP(token))
-  } while (retries <= POAP_FETCH_RETRIES)
-  throw new Error(`Scan address failed (${retries} retries)${message ? `: ${message}` : ''}`) // eslint-disable-line no-unreachable
+  } while (
+    retries <= POAP_FETCH_RETRIES
+  )
+
+  // eslint-disable-next-line no-unreachable
+  throw new Error(
+    `Scan address failed (${retries} retries)${message ? `: ${message}` : ''}`
+  )
 }
 
 export { fetchPOAPs, scanAddress }

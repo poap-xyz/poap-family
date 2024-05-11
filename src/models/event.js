@@ -1,6 +1,24 @@
 import { parseEndOfDayDate } from '../utils/date'
 
-function Event(event, includeDescription) {
+export const SEARCH_LIMIT = 10
+
+/**
+ * @param {unknown} event
+ * @param {boolean} includeDescription
+ * @returns {{
+ *   id: number
+ *   name: string
+ *   description?: string
+ *   image_url: string
+ *   original_url: string
+ *   city: string | null
+ *   country: string | null
+ *   start_date: string
+ *   end_date: string
+ *   expiry_date: string
+ * }}
+ */
+export function Event(event, includeDescription) {
   return {
     id: event.id,
     name: event.name,
@@ -20,7 +38,14 @@ function Event(event, includeDescription) {
   }
 }
 
-function EventOwners(eventOwners) {
+/**
+ * @param {unknown} eventOwners
+ * @returns {{
+ *   owners: string[]
+ *   ts: number
+ * }}
+ */
+export function EventOwners(eventOwners) {
   if (eventOwners == null) {
     return null
   }
@@ -40,7 +65,18 @@ function EventOwners(eventOwners) {
   }
 }
 
-function EventMetrics(eventMetrics) {
+/**
+ * @param {unknown} eventMetrics
+ * @returns {{
+ *   emailReservations: number
+ *   emailClaimsMinted: number
+ *   emailClaims: number
+ *   momentsUploaded: number
+ *   collectionsIncludes: number
+ *   ts: number
+ * }}
+ */
+export function EventMetrics(eventMetrics) {
   if (eventMetrics == null) {
     return null
   }
@@ -71,7 +107,11 @@ function EventMetrics(eventMetrics) {
   }
 }
 
-function parseEventIds(rawIds) {
+/**
+ * @param {string} rawIds
+ * @returns {number[]}
+ */
+export function parseEventIds(rawIds) {
   let eventIds = (rawIds ?? '').split(',')
     .filter((value, index, all) => all.indexOf(value) === index)
     .map((value) => parseInt(value.trim()))
@@ -80,11 +120,19 @@ function parseEventIds(rawIds) {
   return eventIds
 }
 
-function joinEventIds(eventIds) {
+/**
+ * @param {number[]} eventIds
+ * @returns {string}
+ */
+export function joinEventIds(eventIds) {
   return parseEventIds(eventIds.join(',')).join(',')
 }
 
-function parseExpiryDates(events) {
+/**
+ * @param {Record<number, ReturnType<Event>>} events
+ * @returns {Record<number, Date | undefined>}
+ */
+export function parseExpiryDates(events) {
   return Object.fromEntries(
     Object.entries(events).map(
       ([eventId, event]) => ([
@@ -97,7 +145,11 @@ function parseExpiryDates(events) {
   )
 }
 
-function encodeExpiryDates(expiryDates) {
+/**
+ * @param {Record<number, Date | undefined>} expiryDates
+ * @returns {string}
+ */
+export function encodeExpiryDates(expiryDates) {
   if (typeof expiryDates !== 'object') {
     return ''
   }
@@ -112,17 +164,4 @@ function encodeExpiryDates(expiryDates) {
     )
     .filter((param) => param != null)
     .join('&')
-}
-
-const SEARCH_LIMIT = 10
-
-export {
-  Event,
-  EventOwners,
-  EventMetrics,
-  parseEventIds,
-  joinEventIds,
-  parseExpiryDates,
-  encodeExpiryDates,
-  SEARCH_LIMIT,
 }
