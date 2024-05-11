@@ -7,7 +7,7 @@ import { ReverseEnsContext } from '../stores/ethereum'
 import { getEventAndOwners, getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
 import { findEventsCollections } from '../loaders/collection'
-import { IGNORED_OWNERS } from '../models/address'
+import { filterInvalidOwners } from '../models/address'
 import { filterAndSortInCommon, mergeAllInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
 import { formatDate } from '../utils/date'
@@ -169,13 +169,10 @@ function Events() {
           removeLoading(eventId)
           if (eventOwnerTokensResult.status === 'fulfilled') {
             const eventOwnerTokens = eventOwnerTokensResult.value
-            if (Array.isArray(eventOwnerTokens)) {
-              const newOwners = [...new Set(eventOwnerTokens.map((token) => token.owner))]
-              const newOwnersFilters = newOwners.filter((owner) => !IGNORED_OWNERS.includes(owner))
-              setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwnersFilters }))
-            } else {
-              return Promise.reject(new Error(`Tokens for drop '${eventId}' missing`))
-            }
+            const newOwners = filterInvalidOwners(
+              eventOwnerTokens.map((token) => token.owner)
+            )
+            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwners }))
           } else {
             console.error(eventOwnerTokensResult.reason)
             return Promise.reject(new Error(`Tokens for drop '${eventId}' failed to fetch`))
