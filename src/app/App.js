@@ -1,31 +1,31 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Root from './Root'
-import CenterPage from '../components/CenterPage'
-import Loading from '../components/Loading'
-import Home from '../pages/Home'
-import Event from '../pages/Event'
-import Events from '../pages/Events'
-import PageError from '../components/PageError'
-import EventsPageError from '../components/EventsPageError'
-import { eventLoader, eventsLoader } from '../loaders/event'
-import Last from '../pages/Last'
-import Settings from '../pages/Settings'
-import FeedbackList from '../pages/FeedbackList'
-import Analytics from './Analytics'
-import Admin from './Admin'
-import Addresses from '../pages/Addresses'
+import { AnalyticsProvider } from '../stores/analytics'
 import { AdminProvider } from '../stores/admin'
 import { SettingsProvider } from '../stores/cache'
 import { EnsProvider } from '../stores/ethereum'
 import { HTMLProvider } from '../stores/html'
+import { eventLoader, eventsLoader } from '../loaders/event'
+import Root from './layout/Root'
+import Admin from './layout/Admin'
+import Home from '../pages/Home'
+import Addresses from '../pages/Addresses'
+import Event from '../pages/Event'
+import Events from '../pages/Events'
+import Last from '../pages/Last'
+import Settings from '../pages/Settings'
+import FeedbackList from '../pages/FeedbackList'
+import EventsPageError from '../components/EventsPageError'
+import PageError from '../components/PageError'
+import CenterPage from '../components/CenterPage'
+import Loading from '../components/Loading'
 import '../styles/fonts.css'
 import '../styles/app.css'
 
-function App() {
+export default function App() {
   return (
     <main className="app">
       <HTMLProvider>
-        <Analytics>
+        <AnalyticsProvider>
           <AdminProvider>
             <SettingsProvider>
               <EnsProvider>
@@ -81,10 +81,8 @@ function App() {
               </EnsProvider>
             </SettingsProvider>
           </AdminProvider>
-        </Analytics>
+        </AnalyticsProvider>
       </HTMLProvider>
     </main>
   )
 }
-
-export default App

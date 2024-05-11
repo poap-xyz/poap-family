@@ -1,11 +1,11 @@
 import { useContext, useEffect } from 'react'
 import { useFetcher, useNavigation, Outlet } from 'react-router-dom'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { HTMLContext } from '../stores/html'
-import Loading from '../components/Loading'
-import CenterPage from '../components/CenterPage'
+import { HTMLContext } from '../../stores/html'
+import Loading from '../../components/Loading'
+import CenterPage from '../../components/CenterPage'
 
-function Root() {
+export default function Root() {
   const fetcher = useFetcher()
   const navigation = useNavigation()
   const { trackPageView } = useMatomo()
@@ -35,9 +35,8 @@ function Root() {
       </CenterPage>
     )
   }
+
   return (
     <Outlet />
   )
 }
-
-export default Root

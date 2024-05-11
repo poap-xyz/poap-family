@@ -12,18 +12,15 @@ export function formatByte(n) {
   return numbro(n).format({ output: 'byte', base: 'binary', mantissa: 0 })
 }
 
-export function getSearchParamNumber(searchParams, key, defaultValue) {
-  if (searchParams.has(key)) {
-    const n = parseInt(searchParams.get(key))
-    if (!isNaN(n)) {
-      return n
-    }
-  }
-  return defaultValue
-}
-
+/**
+ * Return a random number between two numbers.
+ * The maximum is exclusive and the minimum is inclusive.
+ *
+ * @param {number} min
+ * @param {number} max
+ */
 export function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min) + min)
 }
