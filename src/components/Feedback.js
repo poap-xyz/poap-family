@@ -69,7 +69,9 @@ function Feedback() {
                   rows={5}
                   placeholder="What do you think?"
                 ></textarea>
-                <Button disabled={message.length < 10} onClick={handleSendFeedback}>Send Feedback</Button>
+                <Button disabled={message.length < 10} onClick={handleSendFeedback}>
+                  Send Feedback
+                </Button>
               </>
             )
           }

@@ -47,7 +47,11 @@ function Stats({ stats, highlight }) {
                 ) : (
                   <>
                     <ShadowText medium={highlight && highlight !== statName}>{stat}</ShadowText>
-                    <span className={`stat-name${highlight && highlight !== statName ? ' stat-name-medium' : ''}`}>{statName}</span>
+                    <span
+                      className={`stat-name${highlight && highlight !== statName ? ' stat-name-medium' : ''}`}
+                    >
+                      {statName}
+                    </span>
                   </>
                 )
               }
