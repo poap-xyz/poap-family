@@ -1,6 +1,9 @@
 import { DEFAULT_SETTINGS } from '../models/cache'
 
-function getSettings() {
+/**
+ * @returns {typeof DEFAULT_SETTINGS}
+ */
+export function getSettings() {
   const cachedSettings = localStorage.getItem('family-settings')
   if (!cachedSettings) {
     return DEFAULT_SETTINGS
@@ -20,15 +23,13 @@ function getSettings() {
   return settings
 }
 
-function saveSettings(settings) {
+/**
+ * @param {typeof DEFAULT_SETTINGS} settings
+ */
+export function saveSettings(settings) {
   try {
     localStorage.setItem('family-settings', JSON.stringify(settings))
   } catch (err) {
     console.error(err)
   }
-}
-
-export {
-  getSettings,
-  saveSettings,
 }

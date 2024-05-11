@@ -6,9 +6,9 @@ import { POAP, POAP_API_URL, POAP_API_KEY, POAP_FETCH_RETRIES } from '../models/
  * @param {number} eventId
  * @param {AbortSignal | undefined | null} abortSignal
  * @param {number} limit
- * @returns {ReturnType<POAP>[]}
+ * @returns {Promise<ReturnType<POAP>[]>}
  */
-async function fetchPOAPs(eventId, abortSignal, limit = 100) {
+export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
   let tokens = []
   let results = { total: 0, offset: 0, limit, tokens: [] }
   let retries = 0
@@ -119,9 +119,9 @@ async function fetchPOAPs(eventId, abortSignal, limit = 100) {
  *
  * @param {string} address
  * @param {AbortSignal | undefined | null} abortSignal
- * @returns {ReturnType<POAP>[]}
+ * @returns {Promise<ReturnType<POAP>[]>}
  */
-async function scanAddress(address, abortSignal) {
+export async function scanAddress(address, abortSignal) {
   let retries = 0
   let message
 
@@ -194,5 +194,3 @@ async function scanAddress(address, abortSignal) {
     `Scan address failed (${retries} retries)${message ? `: ${message}` : ''}`
   )
 }
-
-export { fetchPOAPs, scanAddress }

@@ -2,6 +2,8 @@ import { parseEndOfDayDate } from '../utils/date'
 
 export const SEARCH_LIMIT = 10
 
+export const DEFAULT_SEARCH_LIMIT = 10
+
 /**
  * @param {unknown} event
  * @param {boolean} includeDescription

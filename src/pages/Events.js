@@ -435,7 +435,7 @@ function Events() {
             return getInCommonEventsWithProgress(
               eventId,
               controller.signal,
-              /*onProgress*/({ loaded, total, progress, bytes, estimated, rate }) => {
+              /*onProgress*/({ progress, estimated, rate }) => {
                 setLoadedProgress((alsoProgress) => ({ ...alsoProgress, [eventId]: { progress, estimated, rate } }))
               }
             ).then(
