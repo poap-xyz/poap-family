@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
+import { clsx } from 'clsx'
 import { formatMonthYear } from '../utils/date'
 import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
 import { INCOMMON_ADDRESSES_LIMIT, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
@@ -165,7 +166,7 @@ function AddressProfile({
             <big className="profile-ens">{ensNames[address]}</big>
           )}
           {poaps !== null && Array.isArray(poaps) && poaps.length > 0 && (
-            <div className={`profile-poaps${showAllPOAPs ? ' show-all' : ''}`}>
+            <div className={clsx('profile-poaps', showAllPOAPs && 'show-all')}>
               <h4>{poapsTotal} collected drops
                 {since && (
                   <span className="profile-since"> since {formatMonthYear(since)}</span>
@@ -186,7 +187,7 @@ function AddressProfile({
             </div>
           )}
           {Array.isArray(inCommonEventIds) && inCommonEventIds.length > 0 && (
-            <div className={`profile-in-common${showAllInCommonEvents ? ' show-all' : ''}`}>
+            <div className={clsx('profile-in-common', showAllInCommonEvents && 'show-all')}>
               <h4>{inCommonEventsTotal} in common drops</h4>
               {inCommonEventIdsVisible.map((eventId) => (
                 eventId in events && (
@@ -203,7 +204,7 @@ function AddressProfile({
             </div>
           )}
           {Array.isArray(inCommonAddresses) && inCommonAddresses.length > 0 && (
-            <div className={`profile-in-common${showAllInCommonAddresses ? ' show-all' : ''}`}>
+            <div className={clsx('profile-in-common', showAllInCommonAddresses && 'show-all')}>
               <h4>{inCommonAddressesTotal} in common collectors</h4>
               <AddressesList addresses={inCommonAddressesVisible} />
               {inCommonAddressesHasMore && (

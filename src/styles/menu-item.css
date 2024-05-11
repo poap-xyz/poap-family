@@ -32,7 +32,7 @@
   text-decoration: none;
 }
 
-.menu-item.active .menu-button, .menu-item.active .menu-link {
+.menu-item.open .menu-button, .menu-item.open .menu-link {
   color: white;
   background: linear-gradient(85deg, #5e58a5 30%, #968cff 100%);
 }

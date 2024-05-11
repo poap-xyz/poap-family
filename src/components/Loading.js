@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { clsx } from 'clsx'
 import { secondsInTheFuture } from '../utils/date'
 import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/loading.css'
@@ -9,7 +10,7 @@ function Loading({ progress, eta, rate, count, total, small = false, title }) {
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'
 
   return (
-    <div className={`loading ${small ? 'small' : 'big'}`}>
+    <div className={clsx('loading', small ? 'small' : 'big')}>
       {title && <h4>{title}</h4>}
       <div className="loading-inner">
         <div className="lds-dual-ring">

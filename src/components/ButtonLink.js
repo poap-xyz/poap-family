@@ -1,9 +1,10 @@
+import { clsx } from 'clsx'
 import '../styles/button-link.css'
 
 function ButtonLink({ title, onClick, className, disabled, children }) {
   return (
     <button
-      className={`button-link${className ? ` ${className}` : ''}`}
+      className={clsx('button-link', className)}
       onClick={onClick}
       disabled={disabled}
     >

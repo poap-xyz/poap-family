@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import { OpenNewWindow } from 'iconoir-react'
 import '../styles/link-button.css'
 
@@ -16,7 +17,7 @@ function LinkButton({
     <a
       href={href}
       title={title}
-      className={`link-button ${secondary ? 'secondary' : 'primary'}`}
+      className={clsx('link-button', secondary ? 'secondary' : 'primary')}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
     >

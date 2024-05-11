@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import '../styles/button.css'
 
 function Button({
@@ -12,7 +13,12 @@ function Button({
 }) {
   return (
     <button
-      className={`button${active ? ' active' : ''}${disabled ? ' disabled' : ''} ${secondary ? 'secondary' : 'primary'}${borderless ? ' borderless' : ''}`}
+      className={clsx('button', {
+        active,
+        disabled,
+        secondary,
+        borderless,
+      })}
       disabled={disabled}
       onClick={onClick}
       title={title}
