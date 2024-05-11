@@ -1,7 +1,5 @@
 import { getAddress } from '@ethersproject/address'
 
-export const PROFILE_EVENTS_LIMIT = 20
-
 export const IGNORED_OWNERS = [
   '0x000000000000000000000000000000000000dead',
   '0x0000000000000000000000000000000000000000',

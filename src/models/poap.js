@@ -9,6 +9,7 @@ export const POAP_MOMENTS_URL = 'https://moments.poap.xyz'
 export const POAP_COLLECTIONS_URL = 'https://collections.poap.xyz'
 
 export const POAP_FETCH_RETRIES = 5
+export const POAP_PROFILE_LIMIT = 20
 
 /**
  * @param {unknown} token

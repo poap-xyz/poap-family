@@ -4,7 +4,7 @@ import { clsx } from 'clsx'
 import { formatMonthYear } from '../utils/date'
 import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
 import { INCOMMON_ADDRESSES_LIMIT, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
-import { PROFILE_EVENTS_LIMIT } from '../models/address'
+import { POAP_PROFILE_LIMIT } from '../models/poap'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
 import { scanAddress } from '../loaders/poap'
 import ExternalLink from './ExternalLink'
@@ -32,11 +32,11 @@ function AddressProfile({
   const [since, setSince] = useState(null)
 
   const poapsTotal = poaps === null ? 0 : poaps.length
-  const poapsHasMore = poapsTotal > PROFILE_EVENTS_LIMIT
+  const poapsHasMore = poapsTotal > POAP_PROFILE_LIMIT
 
   let poapsVisible = poaps === null ? [] : poaps.slice()
   if (poapsHasMore && !showAllPOAPs) {
-    poapsVisible = poaps.slice(0, PROFILE_EVENTS_LIMIT)
+    poapsVisible = poaps.slice(0, POAP_PROFILE_LIMIT)
   }
 
   const inCommonEventsTotal = inCommonEventIds.length
@@ -180,7 +180,7 @@ function AddressProfile({
               {poapsHasMore && (
                 <div className="show-more">
                   <ButtonLink onClick={() => setShowAllPOAPs((prevShowAll) => !prevShowAll)}>
-                    {showAllPOAPs ? `show ${PROFILE_EVENTS_LIMIT}` : `show all ${poapsTotal}`}
+                    {showAllPOAPs ? `show ${POAP_PROFILE_LIMIT}` : `show all ${poapsTotal}`}
                   </ButtonLink>
                 </div>
               )}
