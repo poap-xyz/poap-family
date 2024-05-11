@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { clsx } from 'clsx'
 import '../styles/menu-item.css'
 
 function MenuItem({
@@ -30,7 +31,7 @@ function MenuItem({
   }
 
   return (
-    <div className={`menu-item${open ? ' active' : ''}`}>
+    <div className={clsx('menu-item', { open })}>
       {href && !to && !onClick && !children ? (
         <a href={href} className="menu-link" {...props}>
         {icon

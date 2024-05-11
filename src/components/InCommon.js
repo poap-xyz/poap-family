@@ -1,6 +1,7 @@
 import toColor from '@mapbox/to-color'
 import { createRef, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { clsx } from 'clsx'
 import { SettingsContext } from '../stores/cache'
 import { filterAndSortInCommon, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT, mergeAddressesInCommon } from '../models/in-common'
 import { intersection } from '../utils/array'
@@ -174,12 +175,15 @@ function InCommon({
         {inCommonTotal > 0 && (
           <h4>{showCount > 0 && `${inCommonLimit} of `}{inCommonTotal} drop{inCommonTotal === 1 ? '' : 's'} in common</h4>
         )}
-        <div className={`in-common-events${showAll ? ' show-all' : ''}`}>
+        <div className={clsx('in-common-events', showAll && 'show-all')}>
           {inCommonEventsAddresses.map(
             ([eventId, addresses]) => (
               <div
                 key={eventId}
-                className={`in-common-event${activeEventIds.indexOf(eventId) !== -1 ? ' selected' : ''}${showCount > 0 && showCount === addresses.length ? ' perfect' : ''}`}
+                className={clsx('in-common-event', {
+                  selected: activeEventIds.indexOf(eventId) !== -1,
+                  perfect: showCount > 0 && showCount === addresses.length,
+                })}
                 title={events[eventId].name}
               >
                 <button

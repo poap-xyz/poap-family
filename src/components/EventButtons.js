@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import LinkButton from './LinkButton'
 import '../styles/event-buttons.css'
 
@@ -8,7 +9,7 @@ function EventButtons({
   invert = false,
 }) {
   return (
-    <div className={`event-buttons ${invert ? 'right' : 'left'}`}>
+    <div className={clsx('event-buttons', invert ? 'right' : 'left')}>
       {viewInGallery && (
         <div className="view-in-gallery">
           <LinkButton

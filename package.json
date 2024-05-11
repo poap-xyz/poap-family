@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.12.16",
+  "version": "1.12.17",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -21,6 +21,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@mapbox/to-color": "^2.0.0",
     "axios": "^1.6.8",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.10",
     "downloadjs": "^1.4.7",
     "iconoir-react": "^7.5.0",
