@@ -112,6 +112,13 @@ function AddressProfile({
     [address, poaps, error]
   )
 
+  const hasAvatarImage = (
+    address in ensNames &&
+    avatars[ensNames[address]] != null &&
+    avatars[ensNames[address]].startsWith('http') &&
+    !avatars[ensNames[address]].endsWith('json')
+  )
+
   return (
     <div className="address-profile">
       {loading > 0 && (
@@ -124,7 +131,7 @@ function AddressProfile({
       )}
       {!loading && !error && (
         <>
-          {address in ensNames && avatars[ensNames[address]] && avatars[ensNames[address]].startsWith('http') && !avatars[ensNames[address]].endsWith('json') && (
+          {hasAvatarImage && (
             <LazyImage
               className="profile-avatar"
               src={avatars[ensNames[address]]}
