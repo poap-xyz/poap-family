@@ -11,9 +11,24 @@ export const AdminContext = createContext({
 })
 
 export function AdminProvider({ children }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [authenticated, setAuthenticated] = useState(false)
+
+  /**
+   * @type {ReturnType<typeof useState<string | null>>}
+   */
   const [passphrase, setPassphrase] = useState(null)
+
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loading, setLoading] = useState(false)
+
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
 
   const authenticate = useCallback(

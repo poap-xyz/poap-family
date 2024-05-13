@@ -12,6 +12,9 @@ function Progress({
   eta,
   rate,
 }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showDetails, setShowDetails] = useState(true)
 
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'

@@ -14,6 +14,9 @@ function ButtonAddressProfile({
   inCommonAddresses = [],
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showModal, setShowModal] = useState(false)
 
   return (

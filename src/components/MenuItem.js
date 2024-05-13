@@ -15,6 +15,10 @@ function MenuItem({
   ...props
 }) {
   const navigate = useNavigate()
+
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [open, setOpen] = useState(opened)
 
   const handleClick = (event) => {

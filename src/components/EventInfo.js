@@ -12,6 +12,9 @@ import linkify from '../utils/linkify'
 import '../styles/event-info.css'
 
 function EventInfo({ event, stats = {}, highlightStat, buttons = [], children }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [extraOpen, setExtraOpen] = useState(false)
 
   return (

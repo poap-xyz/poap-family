@@ -23,12 +23,33 @@ function AddressProfile({
 }) {
   const { avatars, resolveMeta } = useContext(ResolverEnsContext)
   const { ensNames } = useContext(ReverseEnsContext)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAllPOAPs, setShowAllPOAPs] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAllInCommonEvents, setShowAllInCommonEvents] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAllInCommonAddresses, setShowAllInCommonAddresses] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [loading, setLoading] = useState(0)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Awaited<ReturnType<scanAddress>>> | null>}
+   */
   const [poaps, setPOAPs] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Date | null>>}
+   */
   const [since, setSince] = useState(null)
 
   const poapsTotal = poaps === null ? 0 : poaps.length

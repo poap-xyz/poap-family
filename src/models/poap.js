@@ -1,4 +1,4 @@
-import { Event } from './event'
+import { Drop } from './drop'
 
 export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
 export const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY
@@ -17,7 +17,7 @@ export const POAP_PROFILE_LIMIT = 20
  *   id: string
  *   owner: string
  *   created?: Date
- *   event?: ReturnType<Event>
+ *   event?: ReturnType<Drop>
  * }}
  */
 export function POAP(token) {
@@ -80,7 +80,7 @@ export function POAP(token) {
     id: tokenId,
     owner,
     created: !token.created ? undefined : new Date(token.created),
-    event: !token.event ? undefined : Event(token.event),
+    event: !token.event ? undefined : Drop(token.event),
   }
 }
 

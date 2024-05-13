@@ -32,6 +32,9 @@ function EventsOwners({
   events = {},
   all = false,
 }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAll, setShowAll] = useState(all)
 
   let ownersEntries = inverseOwnersSortedEntries(owners)
