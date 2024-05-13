@@ -26,12 +26,33 @@ function LastEvents({
   showPerPage = false,
 }) {
   const navigate = useNavigate()
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [page, setPage] = useState(initialPage)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [perPage, setPerPage] = useState(initialPerPage)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [pages, setPages] = useState(0)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [total, setTotal] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loading, setLoading] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; name: string; image_url: string; cached_ts: number; in_common_count: number }>>>}
+   */
   const [cachedEvents, setCachedEvents] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
 
   useEffect(

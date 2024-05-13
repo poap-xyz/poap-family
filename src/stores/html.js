@@ -2,9 +2,13 @@ import { createContext, useCallback, useMemo, useState } from 'react'
 
 export const HTMLContext = createContext({
   title: 'POAP Family',
+  setTitle: (title) => {},
 })
 
 export function HTMLProvider({ children }) {
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
   const [title, setTitle] = useState('POAP Family')
 
   const setFamilyTitle = useCallback(

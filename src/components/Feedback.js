@@ -12,11 +12,20 @@ function getCurrentUrl(url) {
 }
 
 function Feedback() {
-  const { set } = useContext(SettingsContext)
-  const [sent, setSent] = useState(false)
-  const [message, setMessage] = useState('')
-  const [timeoutId, setTimeoutId] = useState(null)
   const location = useLocation()
+  const { set } = useContext(SettingsContext)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
+  const [sent, setSent] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
+  const [message, setMessage] = useState('')
+  /**
+   * @type {ReturnType<typeof useState<NodeJS.Timeout | null>>}
+   */
+  const [timeoutId, setTimeoutId] = useState(null)
 
   const handleOnMessageChange = (event) => {
     setMessage(event.target.value)

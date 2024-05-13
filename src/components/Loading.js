@@ -5,6 +5,9 @@ import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/loading.css'
 
 function Loading({ progress, eta, rate, count, total, small = false, title }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showDetails, setShowDetails] = useState(true)
 
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'

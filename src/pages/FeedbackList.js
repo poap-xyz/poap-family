@@ -16,11 +16,29 @@ function FeedbackList({ qty = 10 }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
   const { passphrase, authenticated } = useContext(AdminContext)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [page, setPage] = useState(1)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [pages, setPages] = useState(0)
+  /**
+   * @type {ReturnType<typeof useState<number | null>>}
+   */
   const [total, setTotal] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loading, setLoading] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; message: string; location: string; ts: number }>>>}
+   */
   const [feedback, setFeedback] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
 
   useEffect(

@@ -10,7 +10,7 @@ export const ResolverEnsContext = createContext({
   addresses: {},
   resolveAddress: async (ensName) => {},
   avatars: {},
-  resolveMeta: async (ensName) => {},
+  resolveMeta: async (ensName, address) => {},
   resolve: async (ensName, full = false) => {},
 })
 
@@ -116,7 +116,15 @@ function ReverseEnsProvider({
   limitEnsNames = ENS_RESOLVE_BATCH_SIZE,
 }) {
   const { resolveMeta } = useContext(ResolverEnsContext)
+
+  /**
+   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   */
   const [ensByAddress, setEnsByAddress] = useState({})
+
+  /**
+   * @type {ReturnType<typeof useState<string[]>>}
+   */
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
 
   const resolveNames = useCallback(

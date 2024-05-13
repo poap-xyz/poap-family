@@ -35,9 +35,21 @@ function InCommon({
   createActiveBottomButtons = (eventId) => ([]),
 }) {
   const { settings } = useContext(SettingsContext)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAll, setShowAll] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<number[]>>}
+   */
   const [activeEventIds, setActiveEventIds] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<string | null>>}
+   */
   const [ownerHighlighted, setOwnerHighlighted] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, Record<string, ReturnType<createRef>>>>>}
+   */
   const [liRefs, setLiRefs] = useState({})
 
   const inCommonEntries = Object.entries(

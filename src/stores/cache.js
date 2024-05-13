@@ -5,7 +5,11 @@ import { DEFAULT_SETTINGS } from '../models/cache'
 export const SettingsContext = createContext(DEFAULT_SETTINGS)
 
 export function SettingsProvider({ children }) {
+  /**
+   * @type {ReturnType<typeof useState<typeof DEFAULT_SETTINGS | null>>}
+   */
   const [settings, setSettings] = useState(null)
+
   useEffect(
     () => {
       if (settings === null) {
@@ -14,6 +18,7 @@ export function SettingsProvider({ children }) {
     },
     [settings]
   )
+
   const set = (key, value) => {
     setSettings((oldSettings) => {
       const newSettings = { ...oldSettings, [key]: value }
@@ -21,6 +26,7 @@ export function SettingsProvider({ children }) {
       return newSettings
     })
   }
+
   return (
     <SettingsContext.Provider value={{ settings, set }}>
       {children}
