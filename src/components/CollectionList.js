@@ -8,6 +8,9 @@ function CollectionList({
   collections,
   showLogo = false,
 }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showAll, setShowAll] = useState(false)
 
   let showCollections = collections.slice()

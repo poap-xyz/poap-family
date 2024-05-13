@@ -5,6 +5,9 @@ import ButtonGroup from './ButtonGroup'
 import '../styles/input-passphrase.css'
 
 function InputPassphraseForm({ onSubmit = () => {}, onClose = () => {} }) {
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
   const [passphrase, setPassphrase] = useState('')
 
   const handleSubmit = () => {

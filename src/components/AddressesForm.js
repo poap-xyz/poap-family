@@ -11,7 +11,13 @@ function AddressesForm({
   onSubmit = (addresses) => {},
   onClose = null,
 }) {
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
   const [value, setValue] = useState(addresses.join('\n') + (addresses.length === 0 ? '' : '\n'))
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
 
   const handleChange = (event) => {

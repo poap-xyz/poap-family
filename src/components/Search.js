@@ -16,25 +16,49 @@ function Search() {
   const queryRef = useRef()
   const { trackSiteSearch } = useMatomo()
   const { settings } = useContext(SettingsContext)
+  /**
+   * @type {ReturnType<typeof useState<{ eventId: number | null; state: boolean; controller: AbortController | null }>>}
+   */
   const [loadingById, setLoadingById] = useState({
     eventId: null,
     state: false,
     controller: null,
   })
+  /**
+   * @type {ReturnType<typeof useState<{ query: string | null; state: boolean; controller: AbortController | null }>>}
+   */
   const [loadingSearch, setLoadingSearch] = useState({
     query: null,
     state: false,
     controller: null,
   })
+  /**
+   * @type {ReturnType<typeof useState<{ query: string | null; state: boolean; controller: AbortController | null }>>}
+   */
   const [loadingSearchCollections, setLoadingSearchCollections] = useState({
     query: null,
     state: false,
     controller: null,
   })
+  /**
+   * @type {ReturnType<typeof useState<NodeJS.Timeout | null>>}
+   */
   const [timeoutId, setTimeoutId] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [errorById, setErrorById] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [errorSearch, setErrorSearch] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [errorSearchCollections, setErrorSearchCollections] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [errorSubmit, setErrorSubmit] = useState(null)
   const [eventById, setEventById] = useState(null)
   const [queryEvents, setQueryEvents] = useState([])

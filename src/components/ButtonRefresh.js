@@ -2,6 +2,9 @@ import { useState } from 'react'
 import '../styles/button-refresh.css'
 
 function ButtonRefresh({ onRefresh = () => {} }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [refreshing, setRefreshing] = useState(false)
 
   const refresh = () => {

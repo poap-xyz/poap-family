@@ -9,6 +9,9 @@ import Loading from './Loading'
 import '../styles/token-image-zoom.css'
 
 function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [showModal, setShowModal] = useState(false)
 
   return (

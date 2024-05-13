@@ -8,6 +8,9 @@ function CollectionSet({
   showEmpty = true,
   emptyMessage = 'No collections',
 }) {
+  /**
+   * @type {number}
+   */
   const total = Object.values(collectionMap).reduce(
     (n, collections) => n + collections.length,
     0
