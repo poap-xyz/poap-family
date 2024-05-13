@@ -1,5 +1,6 @@
 import { filterInvalidOwners } from '../models/address'
-import { DEFAULT_SEARCH_LIMIT, Event, parseEventIds } from '../models/event'
+import { DEFAULT_SEARCH_LIMIT, parseEventIds } from '../models/event'
+import { Drop } from '../models/drop'
 import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
 import { getEventAndOwners, getEventMetrics, getEvents } from './api'
 import { fetchPOAPs } from './poap'
@@ -10,7 +11,7 @@ import { fetchPOAPs } from './poap'
  * @param {number} offset
  * @param {number} limit
  * @returns {Promise<{
- *   items: ReturnType<Event>[]
+ *   items: ReturnType<Drop>[]
  *   total: number
  *   offset: number
  *   limit: number
@@ -91,7 +92,7 @@ export async function searchEvents(
   }
 
   return {
-    items: body.items.map((item) => Event(item)),
+    items: body.items.map((item) => Drop(item)),
     total: body.total,
     offset: body.offset,
     limit: body.limit,
@@ -102,13 +103,13 @@ export async function searchEvents(
  * @param {number[]} eventIds
  * @param {number} limit
  * @returns {Promise<[
- *   Record<number, ReturnType<Event>>,
+ *   Record<number, ReturnType<Drop>>,
  *   Record<number, Error>,
  * ]>}
  */
 export async function fetchEventsOrErrors(eventIds, limit = 100) {
   /**
-   * @type {Record<number, ReturnType<Event>>}
+   * @type {Record<number, ReturnType<Drop>>}
    */
   const eventsMap = {}
 
@@ -194,7 +195,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
         Array.isArray(data.items)
       ) {
         for (const item of data.items) {
-          const event = Event(item)
+          const event = Drop(item)
           eventsMap[event.id] = event
         }
 
@@ -231,7 +232,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
  * @param {number} eventId
  * @param {boolean} includeDescription
  * @param {AbortSignal | undefined | null} abortSignal
- * @returns {Promise<ReturnType<Event>>}
+ * @returns {Promise<ReturnType<Drop> | null>}
  */
 export async function fetchEvent(eventId, includeDescription, abortSignal) {
   const response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
@@ -283,7 +284,7 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
     throw new Error(`Malformed event (type ${typeof body})`)
   }
 
-  return Event(body, includeDescription)
+  return Drop(body, includeDescription)
 }
 
 export async function eventLoader({ params, request }) {
