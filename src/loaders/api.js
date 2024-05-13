@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
-import { encodeExpiryDates, Event, EventMetrics, EventOwners } from '../models/event'
+import { encodeExpiryDates } from '../models/event'
+import { Drop, DropMetrics, DropOwners } from '../models/drop'
 
 /**
  * @param {number} eventId
@@ -9,10 +10,10 @@ import { encodeExpiryDates, Event, EventMetrics, EventOwners } from '../models/e
  * @param {boolean} includeMetrics
  * @param {boolean} refresh
  * @returns {Promise<{
- *   event: ReturnType<Event>
+ *   event: ReturnType<Drop>
  *   owners: string[]
  *   ts: number
- *   metrics: ReturnType<EventMetrics> | null
+ *   metrics: ReturnType<DropMetrics> | null
  * } | null>}
  */
 export async function getEventAndOwners(
@@ -24,7 +25,7 @@ export async function getEventAndOwners(
 ) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Event ${eventId} and owners could not be fetched, ` +
+      `Drop ${eventId} and owners could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -48,7 +49,7 @@ export async function getEventAndOwners(
 
   if (response.status !== 200) {
     throw new Error(
-      `Event ${eventId} failed to fetch (status ${response.status})`
+      `Drop ${eventId} failed to fetch (status ${response.status})`
     )
   }
 
@@ -67,12 +68,12 @@ export async function getEventAndOwners(
     body.ts == null ||
     typeof body.ts !== 'number'
   ) {
-    throw new Error(`Malformed event and owners (type ${typeof body})`)
+    throw new Error(`Malformed drop and owners (type ${typeof body})`)
   }
 
   if (!includeMetrics) {
     return {
-      event: Event(body.event, includeDescription),
+      event: Drop(body.event, includeDescription),
       owners: body.owners,
       ts: body.ts,
       metrics: null,
@@ -84,14 +85,14 @@ export async function getEventAndOwners(
     body.metrics == null ||
     typeof body.metrics !== 'object'
   ) {
-    throw new Error(`Malformed event metrics (type ${typeof body})`)
+    throw new Error(`Malformed drop metrics (type ${typeof body})`)
   }
 
   return {
-    event: Event(body.event, includeDescription),
+    event: Drop(body.event, includeDescription),
     owners: body.owners,
     ts: body.ts,
-    metrics: EventMetrics(body.metrics),
+    metrics: DropMetrics(body.metrics),
   }
 }
 
@@ -102,7 +103,7 @@ export async function getEventAndOwners(
 export async function putEventInCommon(eventId, inCommon) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Last in common events (${eventId}) could not be put, ` +
+      `Last in common drops (${eventId}) could not be put, ` +
       `configure Family API key`
     )
   }
@@ -121,7 +122,7 @@ export async function putEventInCommon(eventId, inCommon) {
 
   if (response.status !== 200 && response.status !== 201) {
     throw new Error(
-      `Event ${eventId} in common save failed (status ${response.status})`
+      `Drop ${eventId} in common save failed (status ${response.status})`
     )
   }
 }
@@ -131,14 +132,14 @@ export async function putEventInCommon(eventId, inCommon) {
  * @param {AbortSignal | undefined | null} abortSignal
  * @returns {Promise<{
  *   inCommon: Record<number, string[]>
- *   events: Record<number, ReturnType<Event>>
+ *   events: Record<number, ReturnType<Drop>>
  *   ts: number
  * } | null>}
  */
 export async function getInCommonEvents(eventId, abortSignal) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Last in common events (${eventId}) could not be fetched, ` +
+      `Last in common drops (${eventId}) could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -159,7 +160,7 @@ export async function getInCommonEvents(eventId, abortSignal) {
 
   if (response.status !== 200) {
     throw new Error(
-      `Event ${eventId} in common failed to fetch (status ${response.status})`
+      `Drop ${eventId} in common failed to fetch (status ${response.status})`
     )
   }
 
@@ -178,14 +179,14 @@ export async function getInCommonEvents(eventId, abortSignal) {
     body.ts == null ||
     typeof body.ts !== 'number'
   ) {
-    throw new Error(`Malformed in common events (type ${typeof body})`)
+    throw new Error(`Malformed in common drops (type ${typeof body})`)
   }
 
   return {
     inCommon: body.inCommon,
     events: Object.fromEntries(
       Object.entries(body.events).map(
-        ([eventId, event]) => ([eventId, Event(event)])
+        ([eventId, event]) => ([eventId, Drop(event)])
       )
     ),
     ts: body.ts,
@@ -209,7 +210,7 @@ export async function getInCommonEventsWithProgress(
 ) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Last in common events (${eventId}) could not be fetched, ` +
+      `Last in common drops (${eventId}) could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -238,14 +239,14 @@ export async function getInCommonEventsWithProgress(
       console.error(err)
 
       throw new Error(
-        `Event ${eventId} in common failed to fetch ` +
+        `Drop ${eventId} in common failed to fetch ` +
         `(status ${err.response.status})`
       )
     }
 
     console.error(err)
 
-    throw new Error(`Event ${eventId} in common failed to fetch`)
+    throw new Error(`Drop ${eventId} in common failed to fetch`)
   }
 
   if (response.status === 404) {
@@ -254,7 +255,7 @@ export async function getInCommonEventsWithProgress(
 
   if (response.status !== 200) {
     throw new Error(
-      `Event ${eventId} in common failed to fetch ` +
+      `Drop ${eventId} in common failed to fetch ` +
       `(status ${response.status})`
     )
   }
@@ -273,7 +274,7 @@ export async function getInCommonEventsWithProgress(
     typeof response.data.ts !== 'number'
   ) {
     throw new Error(
-      `Malformed in common events (type ${typeof response.data})`
+      `Malformed in common drops (type ${typeof response.data})`
     )
   }
 
@@ -281,7 +282,7 @@ export async function getInCommonEventsWithProgress(
     inCommon: response.data.inCommon,
     events: Object.fromEntries(
       Object.entries(response.data.events).map(
-        ([eventId, event]) => ([eventId, Event(event)])
+        ([eventId, event]) => ([eventId, Drop(event)])
       )
     ),
     ts: response.data.ts,
@@ -306,7 +307,7 @@ export async function getInCommonEventsWithProgress(
 export async function getLastEvents(page = 1, qty = 3) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Last events (${page}/${qty}) could not be fetched, ` +
+      `Last drops (${page}/${qty}) could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -323,7 +324,7 @@ export async function getLastEvents(page = 1, qty = 3) {
   )
 
   if (response.status !== 200) {
-    throw new Error(`Last events failed to fetch (status ${response.status})`)
+    throw new Error(`Last drops failed to fetch (status ${response.status})`)
   }
 
   const body = await response.json()
@@ -341,7 +342,7 @@ export async function getLastEvents(page = 1, qty = 3) {
     body.total == null ||
     typeof body.total !== 'number'
   ) {
-    throw new Error(`Malformed last events (type ${typeof body})`)
+    throw new Error(`Malformed last drops (type ${typeof body})`)
   }
 
   return {
@@ -354,12 +355,12 @@ export async function getLastEvents(page = 1, qty = 3) {
 /**
  * @param {number[]} eventIds
  * @param {AbortSignal | undefined | null} abortSignal
- * @returns {Promise<Record<number, ReturnType<Event>>>}
+ * @returns {Promise<Record<number, ReturnType<Drop>>>}
  */
 export async function getEvents(eventIds, abortSignal) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Events (${eventIds.length}) could not be fetched, ` +
+      `Drops (${eventIds.length}) could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -397,13 +398,13 @@ export async function getEvents(eventIds, abortSignal) {
 
     if (message) {
       throw new Error(
-        `Events (${eventIds.length}) failed to fetch ` +
+        `Drops (${eventIds.length}) failed to fetch ` +
         `(status ${response.status}): ${message}`
       )
     }
 
     throw new Error(
-      `Events (${eventIds.length}) failed to fetch ` +
+      `Drops (${eventIds.length}) failed to fetch ` +
       `(status ${response.status})`
     )
   }
@@ -411,12 +412,12 @@ export async function getEvents(eventIds, abortSignal) {
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed events (type ${typeof body})`)
+    throw new Error(`Malformed drops (type ${typeof body})`)
   }
 
   return Object.fromEntries(
     Object.entries(body).map(
-      ([eventId, event]) => [eventId, Event(event)]
+      ([eventId, event]) => [eventId, Drop(event)]
     )
   )
 }
@@ -425,12 +426,12 @@ export async function getEvents(eventIds, abortSignal) {
  * @param {number} eventId
  * @param {AbortSignal | undefined | null} abortSignal
  * @param {boolean} refresh
- * @returns {Promise<ReturnType<EventOwners> | null>}
+ * @returns {Promise<ReturnType<DropOwners> | null>}
  */
 export async function getEventOwners(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Event ${eventId} owners could not be fetched, ` +
+      `Drop ${eventId} owners could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -451,29 +452,29 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
 
   if (response.status !== 200) {
     throw new Error(
-      `Event ${eventId} failed to fetch owners (status ${response.status})`
+      `Drop ${eventId} failed to fetch owners (status ${response.status})`
     )
   }
 
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed events owners (type ${typeof body})`)
+    throw new Error(`Malformed drop owners (type ${typeof body})`)
   }
 
-  return EventOwners(body)
+  return DropOwners(body)
 }
 
 /**
  * @param {number[]} eventIds
  * @param {AbortSignal | undefined | null} abortSignal
  * @param {Record<number, Date> | undefined} expiryDates
- * @returns {Promise<Record<number, ReturnType<EventOwners>>>}
+ * @returns {Promise<Record<number, ReturnType<DropOwners>>>}
  */
 export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Events (${eventIds.length}) owners could not be fetched, ` +
+      `Drops (${eventIds.length}) owners could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -513,13 +514,13 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
 
     if (message) {
       throw new Error(
-        `Events (${eventIds.length}) failed to fetch owners ` +
+        `Drops (${eventIds.length}) failed to fetch owners ` +
         `(status ${response.status}): ${message}`
       )
     }
 
     throw new Error(
-      `Events (${eventIds.length}) failed to fetch owners ` +
+      `Drops (${eventIds.length}) failed to fetch owners ` +
       `(status ${response.status})`
     )
   }
@@ -527,12 +528,12 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed events owners (type ${typeof body})`)
+    throw new Error(`Malformed drops owners (type ${typeof body})`)
   }
 
   return Object.fromEntries(
     Object.entries(body).map(
-      ([eventId, event]) => [eventId, EventOwners(event)]
+      ([eventId, event]) => [eventId, DropOwners(event)]
     )
   )
 }
@@ -541,12 +542,12 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
  * @param {number} eventId
  * @param {AbortSignal | undefined | null} abortSignal
  * @param {boolean} refresh
- * @returns {Promise<ReturnType<EventMetrics> | null>}
+ * @returns {Promise<ReturnType<DropMetrics> | null>}
  */
 export async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Event ${eventId} metrics could not be fetched, ` +
+      `Drop ${eventId} metrics could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -568,29 +569,29 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
 
   if (response.status !== 200) {
     throw new Error(
-      `Event ${eventId} failed to fetch metrics (status ${response.status})`
+      `Drop ${eventId} failed to fetch metrics (status ${response.status})`
     )
   }
 
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed events metrics (type ${typeof body})`)
+    throw new Error(`Malformed drops metrics (type ${typeof body})`)
   }
 
-  return EventMetrics(body)
+  return DropMetrics(body)
 }
 
 /**
  * @param {number[]} eventIds
  * @param {AbortSignal | undefined | null} abortSignal
  * @param {Record<number, Date> | undefined} expiryDates
- * @returns {Promise<Record<number, ReturnType<EventMetrics>>>}
+ * @returns {Promise<Record<number, ReturnType<DropMetrics>>>}
  */
 export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
     throw new Error(
-      `Events (${eventIds.length}) metrics could not be fetched, ` +
+      `Drops (${eventIds.length}) metrics could not be fetched, ` +
       `configure Family API key`
     )
   }
@@ -630,13 +631,13 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
 
     if (message) {
       throw new Error(
-        `Events (${eventIds.length}) failed to fetch metrics ` +
+        `Drops (${eventIds.length}) failed to fetch metrics ` +
         `(status ${response.status}): ${message}`
       )
     }
 
     throw new Error(
-      `Events (${eventIds.length}) failed to fetch metrics ` +
+      `Drops (${eventIds.length}) failed to fetch metrics ` +
       `(status ${response.status})`
     )
   }
@@ -644,12 +645,12 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed events metrics (type ${typeof body})`)
+    throw new Error(`Malformed drops metrics (type ${typeof body})`)
   }
 
   return Object.fromEntries(
     Object.entries(body).map(
-      ([eventId, event]) => [eventId, EventMetrics(event)]
+      ([eventId, event]) => [eventId, DropMetrics(event)]
     )
   )
 }
