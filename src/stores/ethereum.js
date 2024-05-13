@@ -116,7 +116,15 @@ function ReverseEnsProvider({
   limitEnsNames = ENS_RESOLVE_BATCH_SIZE,
 }) {
   const { resolveMeta } = useContext(ResolverEnsContext)
+
+  /**
+   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   */
   const [ensByAddress, setEnsByAddress] = useState({})
+
+  /**
+   * @type {ReturnType<typeof useState<string[]>>}
+   */
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
 
   const resolveNames = useCallback(

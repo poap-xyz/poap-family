@@ -5,6 +5,9 @@ export const HTMLContext = createContext({
 })
 
 export function HTMLProvider({ children }) {
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
   const [title, setTitle] = useState('POAP Family')
 
   const setFamilyTitle = useCallback(
