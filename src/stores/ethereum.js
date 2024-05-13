@@ -10,7 +10,7 @@ export const ResolverEnsContext = createContext({
   addresses: {},
   resolveAddress: async (ensName) => {},
   avatars: {},
-  resolveMeta: async (ensName) => {},
+  resolveMeta: async (ensName, address) => {},
   resolve: async (ensName, full = false) => {},
 })
 

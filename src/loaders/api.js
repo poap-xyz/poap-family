@@ -701,6 +701,7 @@ export async function addFeedback(message, url) {
  *   feedback: Array<{
  *     id: number
  *     message: string
+ *     location: string
  *     ts: number
  *   }>
  * }>}
