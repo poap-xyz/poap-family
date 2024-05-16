@@ -13,9 +13,12 @@ import '../styles/search.css'
 
 function Search() {
   const navigate = useNavigate()
-  const queryRef = useRef()
   const { trackSiteSearch } = useMatomo()
   const { settings } = useContext(SettingsContext)
+  /**
+   * @type {ReturnType<typeof useRef<HTMLInputElement>>}
+   */
+  const queryRef = useRef()
   /**
    * @type {ReturnType<typeof useState<{ eventId: number | null; state: boolean; controller: AbortController | null }>>}
    */
@@ -60,13 +63,37 @@ function Search() {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [errorSubmit, setErrorSubmit] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string } | null>>}
+   */
   const [eventById, setEventById] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>>>}
+   */
   const [queryEvents, setQueryEvents] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }>>>}
+   */
   const [queryCollections, setQueryCollections] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<number | null>>}
+   */
   const [queryTotal, setQueryTotal] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<number | null>>}
+   */
   const [queryTotalCollections, setQueryTotalCollections] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [queryPage, setQueryPage] = useState(1)
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>>>}
+   */
   const [selectedEvents, setSelectedEvents] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<Array<{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }>>>}
+   */
   const [selectedCollections, setSelectedCollections] = useState([])
 
   useEffect(
@@ -345,6 +372,10 @@ function Search() {
     }
   }
 
+  /**
+   * @param {number} eventId
+   * @param {boolean} checked
+   */
   function onSelectEventChange(eventId, checked) {
     if (checked) {
       const event = queryEvents.find((queried) => queried.id === eventId)
@@ -388,6 +419,10 @@ function Search() {
     setErrorSubmit(null)
   }
 
+  /**
+   * @param {number} collectionId
+   * @param {boolean} checked
+   */
   function onSelectCollectionChange(collectionId, checked) {
     if (checked) {
       const collection = queryCollections.find(
@@ -439,6 +474,9 @@ function Search() {
     0
   )
 
+  /**
+   * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
+   */
   const renderEvent = (event) => (
     <div className="drop-preview" key={event.id}>
       <div className="drop-info">
@@ -465,6 +503,9 @@ function Search() {
     </div>
   )
 
+  /**
+   * @param {{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }} collection
+   */
   const renderCollection = (collection) => (
     <div className="collection-preview" key={collection.id}>
       {collection.banner_image_url && (
@@ -508,7 +549,10 @@ function Search() {
               (selected) => selected.id === collection.id
             )}
             onChange={(changeEvent) => {
-              onSelectCollectionChange(collection.id, !!changeEvent.target.checked)
+              onSelectCollectionChange(
+                collection.id,
+                !!changeEvent.target.checked
+              )
             }}
           />
         </div>
@@ -516,7 +560,9 @@ function Search() {
     </div>
   )
 
-  const pages = Math.ceil(Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT)
+  const pages = Math.ceil(
+    Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT
+  )
 
   return (
     <Card>
@@ -537,8 +583,8 @@ function Search() {
             onChange={onQueryChange}
             onKeyUp={onQueryKeyUp}
             autoComplete="off"
-            maxLength="256"
-            size="24"
+            maxLength={256}
+            size={24}
           />
           <input
             className="go"

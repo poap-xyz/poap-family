@@ -9,9 +9,17 @@ import ButtonGroup from './ButtonGroup'
 import ButtonExpand from './ButtonExpand'
 import '../styles/events-owners.css'
 
+/**
+ * @param {Record<number, string[]>} owners
+ * @returns {Array<[string, number[]]>}
+ */
 function inverseOwnersSortedEntries(owners) {
+  /**
+   * @type {Record<string, number[]>}
+   */
   const addressToEvents = {}
-  for (const [eventId, addresses] of Object.entries(owners)) {
+  for (const [rawEventId, addresses] of Object.entries(owners)) {
+    const eventId = parseInt(rawEventId)
     for (const address of addresses) {
       if (address in addressToEvents) {
         addressToEvents[address].push(eventId)
@@ -39,7 +47,9 @@ function EventsOwners({
 
   let ownersEntries = inverseOwnersSortedEntries(owners)
 
-  const eventsTotal = Object.keys(owners).length
+  const ownersEventIds = Object.keys(owners).map((rawEventId) => parseInt(rawEventId))
+
+  const eventsTotal = ownersEventIds.length
   const ownersTotal = ownersEntries.length
 
   const inCommonAddresses = []
@@ -89,7 +99,7 @@ function EventsOwners({
                         <AddressOwner
                           address={address}
                           events={events}
-                          eventIds={Object.keys(owners)}
+                          eventIds={ownersEventIds}
                           ownerEventIds={eventIds}
                           inCommonEventIds={inCommonEventIds}
                           inCommonAddresses={inCommonAddresses}
@@ -134,7 +144,7 @@ function EventsOwners({
               link={true}
               title={`Expands${showAll ? ' all' : ''} collectors${showAll ? '' : ' in common'} between drop${Object.keys(events).length === 1 ? '' : 's'} #${Object.keys(events).join(', #')}`}
               addresses={ownersEntries.map(([ownerAddress]) => ownerAddress)}
-              eventIds={Object.keys(owners)}
+              eventIds={ownersEventIds}
             />
           </ButtonGroup>
         )}

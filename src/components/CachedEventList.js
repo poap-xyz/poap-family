@@ -5,12 +5,12 @@ import TokenImage from './TokenImage'
 import '../styles/cached-drops.css'
 
 function CachedEventList({
-  maxHeight = undefined,
+  maxHeight,
   tokenImageSize = 48,
   showCachedTs = true,
   showInCommonCount = true,
   showClear = true,
-  cachedEvents = [],
+  cachedEvents,
   onClear = (eventId) => {},
 }) {
   return (

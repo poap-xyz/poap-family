@@ -2,6 +2,7 @@ import axios from 'axios'
 import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
 import { encodeExpiryDates } from '../models/event'
 import { Drop, DropMetrics, DropOwners } from '../models/drop'
+import { HttpError } from '../models/error'
 
 /**
  * @param {number} eventId
@@ -48,11 +49,15 @@ export async function getEventAndOwners(
   }
 
   if (response.status !== 200) {
-    throw new Error(
-      `Drop ${eventId} failed to fetch (status ${response.status})`
+    throw new HttpError(
+      `Drop ${eventId} failed to fetch (status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -159,11 +164,15 @@ export async function getInCommonEvents(eventId, abortSignal) {
   }
 
   if (response.status !== 200) {
-    throw new Error(
-      `Drop ${eventId} in common failed to fetch (status ${response.status})`
+    throw new HttpError(
+      `Drop ${eventId} in common failed to fetch (status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -254,9 +263,10 @@ export async function getInCommonEventsWithProgress(
   }
 
   if (response.status !== 200) {
-    throw new Error(
+    throw new HttpError(
       `Drop ${eventId} in common failed to fetch ` +
-      `(status ${response.status})`
+      `(status ${response.status})`,
+      { status: response.status }
     )
   }
 
@@ -324,9 +334,15 @@ export async function getLastEvents(page = 1, qty = 3) {
   )
 
   if (response.status !== 200) {
-    throw new Error(`Last drops failed to fetch (status ${response.status})`)
+    throw new HttpError(
+      `Last drops failed to fetch (status ${response.status})`,
+      { status: response.status }
+    )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -397,18 +413,23 @@ export async function getEvents(eventIds, abortSignal) {
     }
 
     if (message) {
-      throw new Error(
+      throw new HttpError(
         `Drops (${eventIds.length}) failed to fetch ` +
-        `(status ${response.status}): ${message}`
+        `(status ${response.status}): ${message}`,
+        { status: response.status }
       )
     }
 
-    throw new Error(
+    throw new HttpError(
       `Drops (${eventIds.length}) failed to fetch ` +
-      `(status ${response.status})`
+      `(status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -451,11 +472,15 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
   }
 
   if (response.status !== 200) {
-    throw new Error(
-      `Drop ${eventId} failed to fetch owners (status ${response.status})`
+    throw new HttpError(
+      `Drop ${eventId} failed to fetch owners (status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -513,18 +538,23 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
     }
 
     if (message) {
-      throw new Error(
+      throw new HttpError(
         `Drops (${eventIds.length}) failed to fetch owners ` +
-        `(status ${response.status}): ${message}`
+        `(status ${response.status}): ${message}`,
+        { status: response.status }
       )
     }
 
-    throw new Error(
+    throw new HttpError(
       `Drops (${eventIds.length}) failed to fetch owners ` +
-      `(status ${response.status})`
+      `(status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -568,11 +598,15 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
   }
 
   if (response.status !== 200) {
-    throw new Error(
-      `Drop ${eventId} failed to fetch metrics (status ${response.status})`
+    throw new HttpError(
+      `Drop ${eventId} failed to fetch metrics (status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -630,18 +664,23 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
     }
 
     if (message) {
-      throw new Error(
+      throw new HttpError(
         `Drops (${eventIds.length}) failed to fetch metrics ` +
-        `(status ${response.status}): ${message}`
+        `(status ${response.status}): ${message}`,
+        { status: response.status }
       )
     }
 
-    throw new Error(
+    throw new HttpError(
       `Drops (${eventIds.length}) failed to fetch metrics ` +
-      `(status ${response.status})`
+      `(status ${response.status})`,
+      { status: response.status }
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -688,7 +727,10 @@ export async function addFeedback(message, url) {
   })
 
   if (response.status !== 200 && response.status !== 201) {
-    throw new Error(`Feedback save failed (status ${response.status})`)
+    throw new HttpError(
+      `Feedback save failed (status ${response.status})`,
+      { status: response.status }
+    )
   }
 }
 
@@ -723,6 +765,9 @@ export async function getFeedback(passphrase, page = 1, qty = 3) {
     throw new Error(`Feedback failed to fetch`)
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (

@@ -10,6 +10,7 @@ import { findEventsCollections } from '../loaders/collection'
 import { filterInvalidOwners } from '../models/address'
 import { filterAndSortInCommon, mergeAllInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
+import { AbortedError } from '../models/error'
 import { formatDate } from '../utils/date'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
@@ -143,7 +144,7 @@ function Events() {
         },
         (err) => {
           removeLoading(eventId)
-          if (!err.aborted) {
+          if (!(err instanceof AbortedError) && !err.aborted) {
             setErrors((prevErrors) => ({ ...prevErrors, [eventId]: err }))
             return Promise.reject(err)
           }
@@ -189,7 +190,7 @@ function Events() {
         },
         (err) => {
           removeLoading(eventId)
-          if (!err.aborted) {
+          if (!(err instanceof AbortedError) && !err.aborted) {
             setErrors((prevErrors) => ({ ...prevErrors, [eventId]: err }))
             return Promise.reject(err)
           }
@@ -259,7 +260,7 @@ function Events() {
               [address]: err,
             },
           }))
-          if (!err.aborted) {
+          if (!(err instanceof AbortedError) && !err.aborted) {
             return Promise.reject(err)
           }
           return Promise.resolve()
@@ -299,7 +300,7 @@ function Events() {
           removeLoading(eventId)
         },
         (err) => {
-          if (!err.aborted) {
+          if (!(err instanceof AbortedError) && !err.aborted) {
             console.error(err)
           }
         }
@@ -552,12 +553,10 @@ function Events() {
                     removeLoading(eventId)
                   },
                   (err) => {
-                    const error = new Error('Could not cache drop')
-                    error.reason = err
                     console.error(err)
                     setErrors((prevErrors) => ({
                       ...prevErrors,
-                      [eventId]: error,
+                      [eventId]: new Error('Could not cache drop', { cause: err }),
                     }))
                     removeLoading(eventId)
                   }
@@ -774,7 +773,7 @@ function Events() {
                           <>
                             <span
                               className="status-error-message"
-                              title={errors[event.id].reason ? `${errors[event.id].reason}` : undefined}
+                              title={errors[event.id].cause ? `${errors[event.id].cause}` : undefined}
                             >
                               {errors[event.id].message}
                             </span>

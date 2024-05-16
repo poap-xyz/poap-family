@@ -1,3 +1,4 @@
+import { AbortedError, HttpError } from '../models/error'
 import { POAP, POAP_API_URL, POAP_API_KEY, POAP_FETCH_RETRIES } from '../models/poap'
 
 /**
@@ -29,11 +30,9 @@ export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
       )
     } catch (err) {
       if (err.code === 20) {
-        const aborted = new Error(
+        throw new AbortedError(
           `Fetch POAPs for '${eventId}' from ${results.offset} aborted`
         )
-        aborted.aborted = true
-        throw aborted
       }
 
       console.error(err)
@@ -65,14 +64,16 @@ export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
           console.error(err)
         }
         if (message) {
-          throw new Error(
+          throw new HttpError(
             `Fetch POAPs for '${eventId}' from ${results.offset} ` +
-            `failed (status ${response.status}): ${message}`
+            `failed (status ${response.status}): ${message}`,
+            { status: response.status }
           )
         }
-        throw new Error(
+        throw new HttpError(
           `Fetch POAPs for '${eventId}' from ${results.offset} ` +
-          `failed (status ${response.status})`
+          `failed (status ${response.status})`,
+          { status: response.status }
         )
       }
 
@@ -136,9 +137,7 @@ export async function scanAddress(address, abortSignal) {
       })
     } catch (err) {
       if (err.code === 20) {
-        const aborted = new Error(`Scan address aborted`)
-        aborted.aborted = true
-        throw aborted
+        throw new AbortedError(`Scan address aborted`)
       }
 
       console.error(err)
@@ -165,12 +164,16 @@ export async function scanAddress(address, abortSignal) {
         }
 
         if (message) {
-          throw new Error(
-            `Scan address failed (status ${response.status}): ${message}`
+          throw new HttpError(
+            `Scan address failed (status ${response.status}): ${message}`,
+            { status: response.status }
           )
         }
 
-        throw new Error(`Scan address failed (status ${response.status})`)
+        throw new HttpError(
+          `Scan address failed (status ${response.status})`,
+          { status: response.status }
+        )
       }
 
       retries++

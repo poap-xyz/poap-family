@@ -18,11 +18,16 @@ const DEFAULT_MORE_QTY = 8
 function LastEvents({
   page: initialPage = DEFAULT_PAGE,
   perPage: initialPerPage = DEFAULT_PER_PAGE,
-  onPageChange = (page, perPage) => {},
+  onPageChange =
+    /**
+     * @param {number} page
+     * @param {number} perPage
+     */
+    (page, perPage) => {},
   showRefresh = false,
   showMore = false,
-  maxPages = 0,
   moreQty = DEFAULT_MORE_QTY,
+  maxPages = 0,
   showPerPage = false,
 }) {
   const navigate = useNavigate()
@@ -87,10 +92,8 @@ function LastEvents({
           setLoading(false)
         },
         (err) => {
-          const error = new Error('Unavailable')
-          error.reason = err
           console.error(err)
-          setError(error)
+          setError(new Error('Unavailable', { cause: err }))
           setCachedEvents([])
           setLoading(false)
         }
@@ -116,10 +119,8 @@ function LastEvents({
         setLoading(false)
       },
       (err) => {
-        const error = new Error('Unavailable')
-        error.reason = err
         console.error(err)
-        setError(error)
+        setError(new Error('Unavailable', { cause: err }))
         setCachedEvents([])
         setLoading(false)
       }
@@ -178,7 +179,7 @@ function LastEvents({
             total={total}
             onPage={(newPage) => {
               setPage(newPage)
-              onPageChange(newPage)
+              onPageChange(newPage, perPage)
             }}
           >
             {maxPages > 0 && showMore && (

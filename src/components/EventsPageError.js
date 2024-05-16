@@ -6,6 +6,9 @@ function EventsPageError() {
   const navigate = useNavigate()
   const { eventIds: rawEventIds } = useParams()
 
+  /**
+   * @param {number} eventId
+   */
   const delEvent = (eventId) => {
     const eventIds = parseEventIds(rawEventIds).filter(
       (paramEventId) => String(paramEventId) !== String(eventId)
@@ -19,6 +22,9 @@ function EventsPageError() {
     }
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const delEvents = (eventIds) => {
     const oldEventIds = eventIds.map((eventId) => String(eventId))
     const newEventIds = parseEventIds(rawEventIds).filter(
