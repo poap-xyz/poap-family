@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom'
 import { clsx } from 'clsx'
 import ButtonLink from './ButtonLink'
@@ -16,7 +17,19 @@ const STATUS_TEXT = {
   503: 'Unavailable',
 }
 
-function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
+/**
+ * @param {PropTypes.InferProps<PageError.propTypes>} props
+ */
+function PageError({
+  /**
+   * @param {number[]} eventIds
+   */
+  onRemoveAllEvents,
+  /**
+   * @param {number} eventId
+   */
+  onRemoveEvent,
+}) {
   const navigate = useNavigate()
   const error = useRouteError()
   const errorStatus = (
@@ -152,6 +165,11 @@ function PageError({ onRemoveAllEvents = null, onRemoveEvent = null }) {
       </div>
     </CenterPage>
   )
+}
+
+PageError.propTypes = {
+  onRemoveAllEvents: PropTypes.func,
+  onRemoveEvent: PropTypes.func
 }
 
 export default PageError

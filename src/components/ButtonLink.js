@@ -1,7 +1,17 @@
+import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import '../styles/button-link.css'
 
-function ButtonLink({ title, onClick, className, disabled, children }) {
+/**
+ * @param {PropTypes.InferProps<ButtonLink.propTypes>} props
+ */
+function ButtonLink({
+  title,
+  onClick,
+  className,
+  disabled = false,
+  children,
+}) {
   return (
     <button
       className={clsx('button-link', className)}
@@ -11,6 +21,14 @@ function ButtonLink({ title, onClick, className, disabled, children }) {
       <span title={title} className="button-link-content">{children}</span>
     </button>
   )
+}
+
+ButtonLink.propTypes = {
+  title: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
+  children: PropTypes.node,
 }
 
 export default ButtonLink

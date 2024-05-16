@@ -8,7 +8,7 @@ import {
 
 export const ResolverEnsContext = createContext({
   addresses: {},
-  resolveAddress: async (ensName) => {},
+  resolveAddress: async (ensName) => '',
   avatars: {},
   resolveMeta: async (ensName, address) => {},
   resolve: async (ensName, full = false) => {},
@@ -18,7 +18,7 @@ export const ReverseEnsContext = createContext({
   ensNames: {},
   resolveEnsNames: async (addresses, resolve = false) => {},
   setEnsName: (address, ensName) => {},
-  isNotFound: (address) => {},
+  isNotFound: (address) => false,
 })
 
 function ResolverEnsProvider({ children }) {

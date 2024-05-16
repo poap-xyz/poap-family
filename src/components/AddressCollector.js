@@ -1,10 +1,19 @@
+import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { clsx } from 'clsx'
 import { POAP_SCAN_URL } from '../models/poap'
 import { ReverseEnsContext } from '../stores/ethereum'
 import '../styles/collector.css'
 
-function AddressCollector({ address, ens, bigEns = false, short = false }) {
+/**
+ * @param {PropTypes.InferProps<AddressCollector.propTypes>} props
+ */
+function AddressCollector({
+  address,
+  ens,
+  bigEns = false,
+  short = false,
+}) {
   const { ensNames } = useContext(ReverseEnsContext)
 
   return (
@@ -37,6 +46,13 @@ function AddressCollector({ address, ens, bigEns = false, short = false }) {
       )}
     </div>
   )
+}
+
+AddressCollector.propTypes = {
+  address: PropTypes.string.isRequired,
+  ens: PropTypes.string,
+  bigEns: PropTypes.bool,
+  short: PropTypes.bool,
 }
 
 export default AddressCollector

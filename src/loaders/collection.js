@@ -7,7 +7,7 @@ import { queryAggregateCountCompass, queryAllCompass, queryManyCompass } from '.
  * some of the given drops (related) when more than one is given.
  *
  * @param {number[]} eventIds
- * @param {number} limit
+ * @param {number} [limit]
  * @returns {Promise<{
  *   collections: ReturnType<Collection>[]
  *   related: ReturnType<Collection>[]
@@ -108,7 +108,7 @@ export async function findEventsCollections(
  * Retrieve collections that includes given drops.
  *
  * @param {number[]} eventIds
- * @param {number} limit
+ * @param {number} [limit]
  * @returns {Promise<ReturnType<Collection>[]>}
  */
 export async function findEventsInCollections(
@@ -151,16 +151,16 @@ export async function findEventsInCollections(
     limit
   )
 
-  return results.collections
+  return results
 }
 
 /**
  * Search collections by name.
  *
  * @param {string} search
- * @param {number} offset
- * @param {number} limit
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {number} [offset]
+ * @param {number} [limit]
+ * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
  *   total: number | null
  *   items: ReturnType<CollectionWithDrops>[]

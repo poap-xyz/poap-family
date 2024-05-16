@@ -15,7 +15,7 @@
   opacity: .25;
 }
 
-.card .content {
+.card .card-content {
   position: relative;
   border: .1rem solid black;
   border-radius: 3.2rem;
@@ -23,4 +23,12 @@
   padding: 1.5rem;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.card .card-content.fat {
+  padding: 4.5rem;
+}
+
+.card .card-content.shink {
+  flex-shrink: 1;
 }

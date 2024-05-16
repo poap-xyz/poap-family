@@ -1,10 +1,22 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { clsx } from 'clsx'
 import { secondsInTheFuture } from '../utils/date'
 import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/loading.css'
 
-function Loading({ progress, eta, rate, count, total, small = false, title }) {
+/**
+ * @param {PropTypes.InferProps<Loading.propTypes>} props
+ */
+function Loading({
+  progress,
+  eta,
+  rate,
+  count,
+  total,
+  small = false,
+  title,
+}) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -52,6 +64,16 @@ function Loading({ progress, eta, rate, count, total, small = false, title }) {
       </div>
     </div>
   )
+}
+
+Loading.propTypes = {
+  progress: PropTypes.number,
+  eta: PropTypes.number,
+  rate: PropTypes.number,
+  count: PropTypes.number,
+  total: PropTypes.number,
+  small: PropTypes.bool,
+  title: PropTypes.string,
 }
 
 export default Loading

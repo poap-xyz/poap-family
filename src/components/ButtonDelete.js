@@ -1,10 +1,29 @@
+import PropTypes from 'prop-types'
 import { Minus } from 'iconoir-react'
 import Button from './Button'
 
-function ButtonDelete({ onDelete = () => {}, ...props }) {
+/**
+ * @param {PropTypes.InferProps<ButtonDelete.propTypes>} props
+ */
+function ButtonDelete({
+  onDelete = () => {},
+  ...props
+}) {
   return (
-    <Button {...props} icon={<Minus />} onClick={() => onDelete()}>del</Button>
+    <Button
+      {...props}
+      secondary={true}
+      icon={<Minus />}
+      onClick={() => onDelete()}
+    >
+      del
+    </Button>
   )
+}
+
+ButtonDelete.propTypes = {
+  onDelete: PropTypes.func.isRequired,
+  ...Button.propTypes,
 }
 
 export default ButtonDelete

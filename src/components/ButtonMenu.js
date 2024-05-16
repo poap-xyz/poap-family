@@ -1,7 +1,14 @@
+import PropTypes from 'prop-types'
 import ButtonGroup from './ButtonGroup'
 import '../styles/button-menu.css'
 
-function ButtonMenu({ primary, buttons }) {
+/**
+ * @param {PropTypes.InferProps<ButtonMenu.propTypes>} props
+ */
+function ButtonMenu({
+  primary,
+  buttons,
+}) {
   return (
     <div className="button-menu">
       <div className="button-menu-primary">{primary}</div>
@@ -12,6 +19,11 @@ function ButtonMenu({ primary, buttons }) {
       </div>
     </div>
   )
+}
+
+ButtonMenu.propTypes = {
+  primary: PropTypes.node.isRequired,
+  buttons: PropTypes.node.isRequired,
 }
 
 export default ButtonMenu

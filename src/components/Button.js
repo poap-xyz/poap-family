@@ -1,6 +1,10 @@
+import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import '../styles/button.css'
 
+/**
+ * @param {PropTypes.InferProps<Button.propTypes>} props
+ */
 function Button({
   onClick,
   children,
@@ -33,6 +37,17 @@ function Button({
       </span>
     </button>
   )
+}
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+  active: PropTypes.bool,
+  disabled: PropTypes.bool,
+  secondary: PropTypes.bool,
+  borderless: PropTypes.bool,
+  icon: PropTypes.element,
+  title: PropTypes.string,
 }
 
 export default Button

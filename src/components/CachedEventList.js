@@ -1,9 +1,14 @@
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import { CachedEventProps } from '../models/api'
 import Timestamp from './Timestamp'
 import ButtonLink from './ButtonLink'
 import TokenImage from './TokenImage'
 import '../styles/cached-drops.css'
 
+/**
+ * @param {PropTypes.InferProps<CachedEventList.propTypes>} props
+ */
 function CachedEventList({
   maxHeight,
   tokenImageSize = 48,
@@ -47,6 +52,16 @@ function CachedEventList({
       )}
     </ul>
   )
+}
+
+CachedEventList.propTypes = {
+  maxHeight: PropTypes.number,
+  tokenImageSize: PropTypes.number,
+  showCachedTs: PropTypes.bool,
+  showInCommonCount: PropTypes.bool,
+  showClear: PropTypes.bool,
+  cachedEvents: PropTypes.arrayOf(PropTypes.shape(CachedEventProps)).isRequired,
+  onClear: PropTypes.func,
 }
 
 export default CachedEventList

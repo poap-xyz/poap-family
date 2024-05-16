@@ -5,6 +5,7 @@
   font-size: 32px;
   border-radius: 3.2rem;
   padding: 1.2rem;
+  margin-bottom: 1px;
 }
 
 .error-message.small {
@@ -13,4 +14,8 @@
   border: 1px solid #E9A1B6;
   font-size: 12px;
   padding: .2rem;
+}
+
+.error-message.away {
+  margin-top: 1rem;
 }

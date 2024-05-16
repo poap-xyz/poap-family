@@ -6,7 +6,7 @@ export const AdminContext = createContext({
   passphrase: null,
   loading: false,
   error: null,
-  authenticate: () => {},
+  authenticate: (passphrase) => {},
   reset: () => {},
 })
 

@@ -1,7 +1,13 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import '../styles/button-refresh.css'
 
-function ButtonRefresh({ onRefresh = () => {} }) {
+/**
+ * @param {PropTypes.InferProps<ButtonRefresh.propTypes>} props
+ */
+function ButtonRefresh({
+  onRefresh = () => {},
+}) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -35,6 +41,10 @@ function ButtonRefresh({ onRefresh = () => {} }) {
       </button>
     </div>
   )
+}
+
+ButtonRefresh.propTypes = {
+  onRefresh: PropTypes.func.isRequired,
 }
 
 export default ButtonRefresh

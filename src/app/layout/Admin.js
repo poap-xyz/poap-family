@@ -30,7 +30,7 @@ export default function Admin() {
   if (!passphrase) {
     return (
       <CenterPage>
-        <Card style={{ padding: '4.5rem' }}>
+        <Card fat={true}>
           <InputPassphraseForm
             onSubmit={(passphrase) => authenticate(passphrase)}
           />
@@ -53,8 +53,7 @@ export default function Admin() {
     return (
       <CenterPage>
         <Card>
-          <ErrorMessage>
-            {error && error.message && <p>{error.message}</p>}
+          <ErrorMessage error={error}>
             {!authenticated && !error && <p>Access denied</p>}
           </ErrorMessage>
           <div className="footer">

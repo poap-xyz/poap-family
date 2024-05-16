@@ -1,12 +1,17 @@
+import PropTypes from 'prop-types'
 import { useContext, useState } from 'react'
 import ReactModal from 'react-modal'
 import { ReverseEnsContext } from '../stores/ethereum'
+import { DropProps } from '../models/drop'
 import Card from './Card'
 import ButtonClose from './ButtonClose'
 import ButtonLink from './ButtonLink'
 import AddressProfile from './AddressProfile'
 import '../styles/button-address-profile.css'
 
+/**
+ * @param {PropTypes.InferProps<ButtonAddressProfile.propTypes>} props
+ */
 function ButtonAddressProfile({
   address,
   events = {},
@@ -53,6 +58,13 @@ function ButtonAddressProfile({
       </ReactModal>
     </>
   )
+}
+
+ButtonAddressProfile.propTypes = {
+  address: PropTypes.string.isRequired,
+  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default ButtonAddressProfile

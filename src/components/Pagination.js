@@ -1,6 +1,10 @@
+import PropTypes from 'prop-types'
 import Button from './Button'
 import '../styles/pagination.css'
 
+/**
+ * @param {PropTypes.InferProps<Pagination.propTypes>} props
+ */
 function Pagination({
   spread = 3,
   page,
@@ -80,6 +84,15 @@ function Pagination({
       {children}
     </div>
   )
+}
+
+Pagination.propTypes = {
+  spread: PropTypes.number,
+  page: PropTypes.number.isRequired,
+  pages: PropTypes.number.isRequired,
+  total: PropTypes.number,
+  onPage: PropTypes.func.isRequired,
+  children: PropTypes.node,
 }
 
 export default Pagination

@@ -25,7 +25,7 @@ function Home() {
 
   return (
     <CenterPage>
-      {settings && !settings.welcomeShown && <Welcome />}
+      {settings && !settings.welcomeShown && <Welcome showHelp={true} />}
       <Search />
       <div className="drop-lists">
         {settings && settings.showLastEvents && (

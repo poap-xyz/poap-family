@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
 import download from 'downloadjs'
 import { Download } from 'iconoir-react'
@@ -5,6 +6,9 @@ import { useContext } from 'react'
 import { ReverseEnsContext } from '../stores/ethereum'
 import Button from './Button'
 
+/**
+ * @param {PropTypes.InferProps<ButtonExportAddressCsv.propTypes>} props
+ */
 function ButtonExportAddressCsv({
   name,
   filename = 'collectors',
@@ -38,6 +42,14 @@ function ButtonExportAddressCsv({
       {children}
     </Button>
   )
+}
+
+ButtonExportAddressCsv.propTypes = {
+  name: PropTypes.string,
+  filename: PropTypes.string,
+  addresses: PropTypes.arrayOf(PropTypes.string),
+  children: PropTypes.node.isRequired,
+  ...Button.propTypes,
 }
 
 export default ButtonExportAddressCsv

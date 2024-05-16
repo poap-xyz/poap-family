@@ -38,21 +38,71 @@ function Addresses() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveAddress, addresses: addressByEnsName } = useContext(ResolverEnsContext)
   const { resolveEnsNames, setEnsName, ensNames, isNotFound } = useContext(ReverseEnsContext)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [editMode, setEditMode] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [state, setState] = useState(STATE_INIT_PARSING)
+  /**
+   * @type {ReturnType<typeof useState<ReturnType<parseAddresses> | null>>}
+   */
   const [addresses, setAddresses] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, string>>>}
+   */
   const [collectors, setCollectors] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Error[]>>}
+   */
   const [errors, setErrors] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loadingEventsOwners, setLoadingEventsOwners] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Record<string, boolean>>>}
+   */
   const [loadingByAddress, setLoadingByAddress] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, boolean>>>}
+   */
   const [loadingByIndex, setLoadingByIndex] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<string, boolean>>>}
+   */
+  const [repeatedByAddress, setRepeatedByAddress] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<string, Error>>>}
+   */
   const [errorsByAddress, setErrorsByAddress] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, Error>>>}
+   */
   const [errorsByIndex, setErrorsByIndex] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<string, number>>>}
+   */
   const [powers, setPowers] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, string[]>>>}
+   */
   const [inCommon, setInCommon] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>>>}
+   */
   const [events, setEvents] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [loadedCount, setLoadedCount] = useState(0)
 
+  /**
+   * @param {string} address
+   * @param {AbortController} controller
+   */
   const loadCollector = async (address, controller) => {
     setLoadingByAddress((prevLoading) => ({ ...prevLoading, [address]: true }))
     try {
@@ -74,6 +124,9 @@ function Addresses() {
         setEvents((prevEvents) => ({ ...prevEvents, [eventId]: token.event }))
       }
       setLoadingByAddress((oldLoading) => {
+        /**
+         * @type {Record<string, boolean>}
+         */
         const newLoading = {}
         for (const [loadingAddress, loading] of Object.entries(oldLoading)) {
           if (address !== loadingAddress) {
@@ -84,6 +137,9 @@ function Addresses() {
       })
     } catch (err) {
       setLoadingByAddress((oldLoading) => {
+        /**
+         * @type {Record<string, boolean>}
+         */
         const newLoading = {}
         for (const [loadingAddress, loading] of Object.entries(oldLoading)) {
           if (address !== loadingAddress) {
@@ -100,6 +156,10 @@ function Addresses() {
   }
 
   const processCollectors = useCallback(
+    /**
+     * @param {string[]} resolved
+     * @returns {Record<string, AbortController>}
+     */
     (resolved) => {
       setLoadedCount(0)
       setInCommon({})
@@ -107,15 +167,16 @@ function Addresses() {
       setPowers({})
       setErrorsByAddress({})
       let promise = new Promise((r) => r())
+      /**
+       * @type {Record<string, AbortController>}
+       */
       const controllers = {}
       for (const address of resolved) {
         if (!address) {
           continue
         }
         if (address in controllers) {
-          const err = new Error(`Repeated address`)
-          err.repeated = true
-          setErrorsByAddress((oldErrors) => ({ ...oldErrors, [address]: err }))
+          setRepeatedByAddress((oldErrors) => ({ ...oldErrors, [address]: true }))
         } else {
           controllers[address] = new AbortController()
           promise = promise.then(
@@ -135,12 +196,20 @@ function Addresses() {
   )
 
   const processEnsName = useCallback(
+    /**
+     * @param {string} ensName
+     * @param {number} index
+     * @returns {Promise<string>}
+     */
     (ensName, index) => {
       setLoadingByIndex((prevLoading) => ({ ...prevLoading, [index]: true }))
       return resolveAddress(ensName).then(
         (ensNameAddress)  => {
           if (ensNameAddress) {
             setLoadingByIndex((oldLoading) => {
+              /**
+               * @type {Record<number, boolean>}
+               */
               const newLoading = {}
               for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
                 if (String(index) !== String(loadingIndex)) {
@@ -154,6 +223,9 @@ function Addresses() {
             return Promise.resolve(ensNameAddress)
           } else {
             setLoadingByIndex((oldLoading) => {
+              /**
+               * @type {Record<number, boolean>}
+               */
               const newLoading = {}
               for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
                 if (String(index) !== String(loadingIndex)) {
@@ -169,6 +241,9 @@ function Addresses() {
         },
         (err) => {
           setLoadingByIndex((oldLoading) => {
+            /**
+             * @type {Record<number, boolean>}
+             */
             const newLoading = {}
             for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
               if (String(index) !== String(loadingIndex)) {
@@ -426,12 +501,17 @@ function Addresses() {
     )
   }
 
+  /**
+   * @param {string[]} addresses
+   */
   const openAddresses = (addresses) => {
     setEditMode(false)
     if (!addresses || addresses.length === 0) {
       window.location.hash = ''
     } else {
-      window.location.hash = addresses.map((address) => encodeURIComponent(address)).join(',')
+      window.location.hash = addresses
+        .map((address) => encodeURIComponent(address))
+        .join(',')
     }
   }
 
@@ -457,7 +537,7 @@ function Addresses() {
           <AddressesForm
             addresses={addresses === null ? [] : addresses.map((input) => input.raw)}
             onSubmit={openAddresses}
-            onClose={editMode ? closeEditMode : null}
+            onClose={editMode ? closeEditMode : undefined}
           />
           {!editMode && (
             <div className="footer">
@@ -469,8 +549,14 @@ function Addresses() {
     )
   }
 
+  /**
+   * @param {string} address
+   */
   const retryLoadCollector = (address) => {
     setErrorsByAddress((prevErrors) => {
+      /**
+       * @type {Record<string, Error>}
+       */
       const newErrors = {}
       for (const [errorAddress, error] of Object.entries(prevErrors)) {
         if (errorAddress !== address) {
@@ -482,11 +568,17 @@ function Addresses() {
     loadCollector(address, new AbortController())
   }
 
+  /**
+   * @param {number} index
+   */
   const retryResolveAddress = (index) => {
     setErrorsByIndex((prevErrors) => {
+      /**
+       * @type {Record<number, Error>}
+       */
       const newErrors = {}
       for (const [errorIndex, error] of Object.entries(prevErrors)) {
-        if (errorIndex !== index) {
+        if (String(errorIndex) !== String(index)) {
           newErrors[errorIndex] = error
         }
       }
@@ -502,6 +594,9 @@ function Addresses() {
     }
   }
 
+  /**
+   * @param {number} index
+   */
   const delAddress = (index) => {
     const entry = addresses[index]
     if (entry) {
@@ -515,6 +610,9 @@ function Addresses() {
     }
   }
 
+  /**
+   * @param {string[]} addresses
+   */
   const addAddresses = (addresses) => {
     if (addresses.length > 0) {
       setEditMode(false)
@@ -522,6 +620,9 @@ function Addresses() {
     }
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const openEvents = (eventIds) => {
     if (eventIds.length === 0) {
       return
@@ -538,7 +639,10 @@ function Addresses() {
     setEditMode(true)
   }
 
-  const totalPower = Object.values(powers).reduce((total, power) => total + power, 0)
+  const totalPower = Object.values(powers).reduce(
+    (total, power) => total + power,
+    0
+  )
 
   return (
     <Page>
@@ -586,7 +690,7 @@ function Addresses() {
                       {(address ?? collectors[index]) in errorsByAddress && (
                         <>
                           <span className="status-error-message">{errorsByAddress[address ?? collectors[index]].message}</span>{' '}
-                          {!errorsByAddress[address ?? collectors[index]].repeated && (
+                          {!repeatedByAddress[address ?? collectors[index]] && (
                             <ButtonLink onClick={() => retryLoadCollector(address ?? collectors[index])}>retry</ButtonLink>
                           )}
                         </>
@@ -626,7 +730,6 @@ function Addresses() {
                     <ButtonGroup>
                       <ButtonDelete
                         key="del"
-                        secondary={true}
                         onDelete={() => delAddress(index)}
                         title={`Removes ${addresses[index].raw}`}
                       />

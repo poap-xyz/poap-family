@@ -1,7 +1,12 @@
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import { DropProps } from '../models/drop'
 import TokenImageZoom from './TokenImageZoom'
 import '../styles/event-header.css'
 
+/**
+ * @param {PropTypes.InferProps<EventHeader.propTypes>} props
+ */
 function EventHeader({ event, size = 48 }) {
   return (
     <div className="event-header">
@@ -14,6 +19,11 @@ function EventHeader({ event, size = 48 }) {
       </div>
     </div>
   )
+}
+
+EventHeader.propTypes = {
+  event: PropTypes.shape(DropProps).isRequired,
+  size: PropTypes.number,
 }
 
 export default EventHeader
