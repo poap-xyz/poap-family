@@ -1,3 +1,4 @@
+import { HttpError } from '../models/error'
 import { COMPASS_KEY, COMPASS_URL } from '../models/compass'
 
 export async function requestCompass(query, variables, abortSignal) {
@@ -33,7 +34,8 @@ export async function requestCompass(query, variables, abortSignal) {
         ''
       )}`
     }
-    throw new Error(message)
+
+    throw new HttpError(message, { status: response.status })
   }
 
   const body = await response.json()
@@ -74,7 +76,9 @@ export async function queryFirstCompass(
 ) {
   const FirstModel = (data) =>{
     if (data == null || !Array.isArray(data)) {
-      throw new Error(`Model ${name} is not an array in compass response`)
+      throw new Error(
+        `Model ${name} is not an array in compass response`
+      )
     }
 
     if (data.length === 0) {
@@ -102,7 +106,9 @@ export async function queryManyCompass(
 ) {
   const ManyModel = (data) => {
     if (data == null || !Array.isArray(data)) {
-      throw new Error(`Model ${name} is not an array in compass response`)
+      throw new Error(
+        `Model ${name} is not an array in compass response`
+      )
     }
 
     return data.map((result) => Model(result))
@@ -163,7 +169,9 @@ export async function queryAggregateCountCompass(
       data.aggregate.count == null ||
       typeof data.aggregate.count !== 'number'
     ) {
-      throw new Error(`Model ${name} is not an aggregate count in compass response`)
+      throw new Error(
+        `Model ${name} is not an aggregate count in compass response`
+      )
     }
     return data.aggregate.count
   }
