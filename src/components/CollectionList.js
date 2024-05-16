@@ -55,7 +55,9 @@ function CollectionList({
                   w: 192,
                   h: 48,
                 })}
-                onError={(event) => event.target.style.display = 'none'}
+                onError={(event) => {
+                  event.currentTarget.style.display = 'none'
+                }}
                 alt=""
               />
             )}
