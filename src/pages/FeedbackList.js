@@ -136,7 +136,6 @@ function FeedbackList({ qty = 10 }) {
                     <div className="feedback-actions">
                       <ButtonDelete
                         key="del"
-                        secondary={true}
                         onDelete={() => handleDelFeedback(item.id)}
                         title={`Removes feedback #${item.id}`}
                       />
@@ -147,7 +146,7 @@ function FeedbackList({ qty = 10 }) {
             </ul>
           )}
           {error && (
-            <ErrorMessage style={{ marginTop: '1rem' }}>
+            <ErrorMessage away={true}>
               {error.message ?? 'Unknown error'}
             </ErrorMessage>
           )}

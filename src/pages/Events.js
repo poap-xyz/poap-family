@@ -47,41 +47,113 @@ const LOADING_CACHING = 3
 
 function Events() {
   const navigate = useNavigate()
-  const events = useLoaderData()
   const { eventIds: rawEventIds } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams({ all: false })
+  const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { settings } = useContext(SettingsContext)
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
+  const events = useLoaderData()
+  /**
+   * @type {ReturnType<typeof useState<Record<number, string[]>>>}
+   */
   const [owners, setOwners] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>>>}
+   */
   const [metrics, setMetrics] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [status, setStatus] = useState(STATUS_INITIAL)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, Error>>>}
+   */
   const [errors, setErrors] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [collectionsError, setCollectionsError] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, number>>>}
+   */
   const [loading, setLoading] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loadingCollections, setLoadingCollections] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number }>>>}
+   */
   const [eventData, setEventData] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, Record<string, Error>>>>}
+   */
   const [eventOwnerErrors, setEventOwnerErrors] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Awaited<ReturnType<findEventsCollections>> | null>>}
+   */
   const [collectionData, setCollectionData] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, number>>>}
+   */
   const [loadedCount, setLoadedCount] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, { progress: number; estimated: number; rate: number; }>>>}
+   */
   const [loadedProgress, setLoadedProgress] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, boolean>>>}
+   */
   const [progress, setProgress] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<number[]>>}
+   */
   const [staleEvents, setStaleEvents] = useState([])
 
+  /**
+   * @param {number} eventId
+   */
   const removeLoading = (eventId) => {
     setLoading((alsoLoading) => {
+      /**
+       * @type {Record<number, number>}
+       */
       const newLoading = {}
-      for (const [loadingEventId, isLoading] of Object.entries(alsoLoading)) {
+      for (const [loadingEventId, loading] of Object.entries(alsoLoading)) {
         if (String(eventId) !== String(loadingEventId)) {
-          newLoading[loadingEventId] = isLoading
+          newLoading[loadingEventId] = loading
         }
       }
       return newLoading
     })
   }
 
+  /**
+   * @param {number} eventId
+   */
   const removeProgress = (eventId) => {
+    setProgress((alsoProgress) => {
+      /**
+       * @type {Record<number, boolean>}
+       */
+      const newProgress = {}
+      for (const [progressEventId, isProgress] of Object.entries(alsoProgress)) {
+        if (String(eventId) !== String(progressEventId)) {
+          newProgress[progressEventId] = isProgress
+        }
+      }
+      return newProgress
+    })
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const removeLoadedProgress = (eventId) => {
     setLoadedProgress((alsoProgress) => {
+      /**
+       * @type {Record<number, { progress: number; estimated: number; rate: number; }>}
+       */
       const newProgress = {}
       for (const [loadingEventId, progress] of Object.entries(alsoProgress)) {
         if (String(eventId) !== String(loadingEventId)) {
@@ -92,8 +164,14 @@ function Events() {
     })
   }
 
+  /**
+   * @param {number} eventId
+   */
   const removeErrors = (eventId) => {
     setErrors((alsoErrors) => {
+      /**
+       * @type {Record<number, Error>}
+       */
       const newErrors = {}
       for (const [errorEventId, error] of Object.entries(alsoErrors)) {
         if (String(eventId) !== String(errorEventId)) {
@@ -104,12 +182,18 @@ function Events() {
     })
   }
 
+  /**
+   * @param {number} eventId
+   */
   const removeEventOwnerErrors = (eventId) => {
     setEventOwnerErrors((alsoErrors) => {
+      /**
+       * @type {Record<number, Record<string, Error>>}
+       */
       const newErrors = {}
-      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
+      for (const [errorEventId, errors] of Object.entries(alsoErrors)) {
         if (String(eventId) !== String(errorEventId)) {
-          newErrors[errorEventId] = error
+          newErrors[errorEventId] = errors
         }
       }
       return newErrors
@@ -117,6 +201,11 @@ function Events() {
   }
 
   const loadCahedOwnersAndMetrics = useCallback(
+    /**
+     * @param {number} eventId
+     * @param {AbortSignal} [abortSignal]
+     * @returns {Promise<void>}
+     */
     (eventId, abortSignal) => {
       if (eventId in owners) {
         return Promise.resolve()
@@ -156,6 +245,11 @@ function Events() {
   )
 
   const loadOwnersAndMetrics = useCallback(
+    /**
+     * @param {number} eventId
+     * @param {AbortSignal} [abortSignal]
+     * @returns {Promise<void>}
+     */
     (eventId, abortSignal) => {
       if (eventId in owners) {
         return Promise.resolve()
@@ -202,6 +296,12 @@ function Events() {
   )
 
   const processEventAddress = useCallback(
+    /**
+     * @param {number} eventId
+     * @param {string} address
+     * @param {AbortSignal} [abortSignal]
+     * @returns {Promise<void>}
+     */
     (eventId, address, abortSignal) => {
       removeEventOwnerErrors(eventId)
       return scanAddress(address, abortSignal).then(
@@ -271,6 +371,10 @@ function Events() {
   )
 
   const processEvent = useCallback(
+    /**
+     * @param {number} eventId
+     * @param {Record<string, AbortController>} controllers
+     */
     (eventId, controllers) => {
       const processedOwners = []
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
@@ -288,15 +392,7 @@ function Events() {
       }
       promise.then(
         () => {
-          setProgress((alsoProgress) => {
-            const newProgress = {}
-            for (const [progressEventId, isProgress] of Object.entries(alsoProgress)) {
-              if (String(eventId) !== String(progressEventId)) {
-                newProgress[progressEventId] = isProgress
-              }
-            }
-            return newProgress
-          })
+          removeProgress(eventId)
           removeLoading(eventId)
         },
         (err) => {
@@ -312,8 +408,11 @@ function Events() {
 
   const loadCollections = useCallback(
     () => {
+      const eventIds = Object.keys(events).map(
+        (rawEventId) => parseInt(rawEventId)
+      )
       setLoadingCollections(true)
-      findEventsCollections(Object.keys(events)).then((eventCollectionsData) => {
+      findEventsCollections(eventIds).then((eventCollectionsData) => {
         setCollectionData(eventCollectionsData)
         setLoadingCollections(false)
       }).catch((err) => {
@@ -333,7 +432,9 @@ function Events() {
 
   useEffect(
     () => {
-      const eventIds = Object.keys(events)
+      const eventIds = Object.keys(events).map(
+        (rawEventId) => parseInt(rawEventId)
+      )
       const requests = []
       const force = searchParams.get('force') === 'true'
       if (status === STATUS_INITIAL) {
@@ -417,7 +518,9 @@ function Events() {
 
   useEffect(
     () => {
-      const eventIds = Object.keys(events)
+      const eventIds = Object.keys(events).map(
+        (rawEventId) => parseInt(rawEventId)
+      )
       const requests = []
       const force = searchParams.get('force') === 'true'
       if (status === STATUS_LOADING_SCANS) {
@@ -441,7 +544,7 @@ function Events() {
               }
             ).then(
               (result) => {
-                removeProgress(eventId)
+                removeLoadedProgress(eventId)
                 if (!result) {
                   return processEvent(eventId, ownerControllers)
                 } else {
@@ -464,7 +567,7 @@ function Events() {
                 }
               },
               (err) => {
-                removeProgress(eventId)
+                removeLoadedProgress(eventId)
                 console.error(err)
                 return processEvent(eventId, ownerControllers)
               }
@@ -522,7 +625,9 @@ function Events() {
   useEffect(
     () => {
       if (status === STATUS_LOADING_SCANS) {
-        const eventIds = Object.keys(events)
+        const eventIds = Object.keys(events).map(
+          (rawEventId) => parseInt(rawEventId)
+        )
         let eventsLoaded = 0
         for (const eventId of eventIds) {
           if ((loadedCount[eventId] ?? 0) === owners[eventId].length) {
@@ -597,11 +702,18 @@ function Events() {
     ]
   )
 
+  /**
+   * @param {number} eventId
+   */
   const retryLoadOwners = (eventId) => {
     removeErrors(eventId)
     loadCahedOwnersAndMetrics(eventId)
   }
 
+  /**
+   * @param {number} eventId
+   * @param {string} address
+   */
   const retryEventAddress = (eventId, address) => {
     setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
     setProgress((oldProgress) => ({ ...oldProgress, [eventId]: true }))
@@ -617,24 +729,22 @@ function Events() {
     })
     processEventAddress(eventId, address).then(() => {
       if ((loadedCount[eventId] ?? 0) + 1 === owners[eventId].length) {
-        setProgress((alsoProgress) => {
-          const newProgress = {}
-          for (const [progressEventId, isProgress] of Object.entries(alsoProgress)) {
-            if (String(eventId) !== String(progressEventId)) {
-              newProgress[progressEventId] = isProgress
-            }
-          }
-          return newProgress
-        })
+        removeProgress(eventId)
         removeLoading(eventId)
       }
     })
   }
 
+  /**
+   * @param {number} eventId
+   */
   const addEvent = (eventId) => {
     navigate(`/events/${parseEventIds(`${rawEventIds},${eventId}`).join(',')}`)
   }
 
+  /**
+   * @param {number} eventId
+   */
   const delEvent = (eventId) => {
     const eventIds = parseEventIds(rawEventIds).filter((paramEventId) => String(paramEventId) !== String(eventId))
     if (eventIds.length === 1) {
@@ -646,6 +756,9 @@ function Events() {
     }
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const addEvents = (eventIds) => {
     if (eventIds.length === 0) {
       return
@@ -656,6 +769,9 @@ function Events() {
     }
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const openEvents = (eventIds) => {
     if (eventIds.length === 0) {
       return
@@ -668,12 +784,12 @@ function Events() {
     }
   }
 
-  const handleAllChange = (event) => {
-    setSearchParams({ all: event.target.checked })
+  const handleAllChange = (checked) => {
+    setSearchParams({ all: checked ? 'true' : 'false' })
   }
 
   const handleViewAll = () => {
-    setSearchParams({ all: true })
+    setSearchParams({ all: 'true' })
   }
 
   /**
@@ -695,7 +811,7 @@ function Events() {
   )
 
   const refreshCache = () => {
-    setSearchParams({ force: true })
+    setSearchParams({ force: 'true' })
     setOwners({})
     setMetrics({})
     setStatus(STATUS_INITIAL)
@@ -727,7 +843,7 @@ function Events() {
                     <span>In Common</span>
                     <Switch
                       checked={searchParams.get('all') === 'true'}
-                      onChange={handleAllChange}
+                      onChange={(event) => handleAllChange(event.target.checked)}
                       labelOn="X"
                       labelOff="X"
                     />
@@ -826,7 +942,6 @@ function Events() {
                         buttons={[
                           <ButtonDelete
                             key="del"
-                            secondary={true}
                             onDelete={() => delEvent(event.id)}
                             title={`Removes drop #${event.id}`}
                           />,
@@ -847,7 +962,7 @@ function Events() {
           </WarningMessage>
         )}
         {status !== STATUS_LOADING_COMPLETE && (
-          <Card style={{ flexShink: 1 }}>
+          <Card shink={true}>
             <Loading
               title={
                 status === STATUS_INITIAL ?
@@ -878,9 +993,7 @@ function Events() {
                 {!loadingCollections && collectionsError && (
                   <Card>
                     <h4>Collections</h4>
-                    <ErrorMessage>
-                      <p>{collectionsError}</p>
-                    </ErrorMessage>
+                    <ErrorMessage error={collectionsError} />
                   </Card>
                 )}
                 {!loadingCollections && !collectionsError && collectionData && (
@@ -930,8 +1043,6 @@ function Events() {
                 <ButtonAdd
                   key="add"
                   onAdd={() => addEvent(eventId)}
-                  secondary={true}
-                  borderless={true}
                   title={`Adds drop #${eventId}`}
                 />,
               ])}

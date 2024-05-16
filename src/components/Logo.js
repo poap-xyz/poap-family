@@ -1,8 +1,16 @@
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import POAP from '../images/POAP.png'
 import '../styles/logo.css'
 
-function Logo({ linkTo = '/', alt = 'Go to POAP Family homepage', size = 64 }) {
+/**
+ * @param {PropTypes.InferProps<Logo.propTypes>} props
+ */
+function Logo({
+  linkTo = '/',
+  alt = 'Go to POAP Family homepage',
+  size = 64,
+}) {
   return (
     <div className="logo">
       <Link to={linkTo}>
@@ -10,6 +18,12 @@ function Logo({ linkTo = '/', alt = 'Go to POAP Family homepage', size = 64 }) {
       </Link>
     </div>
   )
+}
+
+Logo.propTypes = {
+  linkTo: PropTypes.string,
+  alt: PropTypes.string,
+  size: PropTypes.number,
 }
 
 export default Logo

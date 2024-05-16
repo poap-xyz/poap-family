@@ -1,46 +1,89 @@
+import PropTypes from 'prop-types'
 import { getRandomInt } from '../utils/number'
 
 export const COLLECTIONS_LIMIT = 7
 
 /**
+ * @typedef CollectionType
+ * @property {number} id
+ * @property {string} slug
+ * @property {string | null} title
+ * @property {string | null} banner_image_url
+ * @property {string | null} logo_image_url
+ */
+
+/**
  * @param {unknown} collection
- * @returns {{
- *   id: number
- *   slug: string
- *   title: string | null
- *   banner_image_url: string | null
- *   logo_image_url: string | null
- * }}
+ * @returns {CollectionType}
  */
 export function Collection(collection) {
   if (
     typeof collection !== 'object' ||
-    !('id' in collection) || typeof collection.id !== 'number' ||
-    !('slug' in collection) || typeof collection.slug !== 'string'
+    !('id' in collection) ||
+    typeof collection.id !== 'number' ||
+    !('slug' in collection) ||
+    typeof collection.slug !== 'string'
   ) {
     throw new Error('Invalid collection')
   }
   return {
     id: collection.id,
     slug: collection.slug,
-    title: collection.title ?? null,
-    banner_image_url: collection.banner_image_url ?? null,
-    logo_image_url: collection.logo_image_url ?? null,
+    title: (
+      'title' in collection &&
+      collection.title != null &&
+      typeof collection.title === 'string'
+        ? collection.title
+        : null
+    ),
+    banner_image_url: (
+      'banner_image_url' in collection &&
+      collection.banner_image_url != null &&
+      typeof collection.banner_image_url === 'string'
+        ? collection.banner_image_url
+        : null
+    ),
+    logo_image_url: (
+      'logo_image_url' in collection &&
+      collection.logo_image_url != null &&
+      typeof collection.logo_image_url === 'string'
+        ? collection.logo_image_url
+        : null
+    ),
   }
 }
 
+export const CollectionProps = {
+  id: PropTypes.number.isRequired,
+  slug: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  banner_image_url: PropTypes.string,
+  logo_image_url: PropTypes.string,
+}
+
+/**
+ * @typedef CollectionWithDropsType
+ * @property {number} id
+ * @property {string} slug
+ * @property {string | null} title
+ * @property {string | null} banner_image_url
+ * @property {string | null} logo_image_url
+ * @property {number[]} dropIds
+ */
+
 /**
  * @param {unknown} collectionWithDrops
- * @returns {ReturnType<Collection> & {
- *   dropIds: number[]
- * }}
+ * @returns {CollectionWithDropsType}
  */
 export function CollectionWithDrops(collectionWithDrops) {
   const collection = Collection(collectionWithDrops)
 
   if (
-    !('collections_items' in collectionWithDrops) &&
-    !Array.isArray(collectionWithDrops.collections_items) &&
+    collectionWithDrops == null ||
+    typeof collectionWithDrops !== 'object' ||
+    !('collections_items' in collectionWithDrops) ||
+    collectionWithDrops.collections_items == null ||
+    !Array.isArray(collectionWithDrops.collections_items) ||
     !collectionWithDrops.collections_items.every((collectionItem) =>
       typeof collectionItem === 'object' &&
       'drop_id' in collectionItem &&

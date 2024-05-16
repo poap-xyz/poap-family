@@ -1,6 +1,8 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import ReactModal from 'react-modal'
+import { DropProps } from '../models/drop'
 import Card from './Card'
 import ErrorMessage from './ErrorMessage'
 import TokenImage from './TokenImage'
@@ -8,6 +10,9 @@ import ButtonClose from './ButtonClose'
 import Loading from './Loading'
 import '../styles/token-image-zoom.css'
 
+/**
+ * @param {PropTypes.InferProps<TokenImageZoom.propTypes>} props
+ */
 function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -44,9 +49,9 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
                   <TokenImage
                     event={event}
                     size={size}
+                    imgSize={zoomSize}
                     resize={true}
                     original={true}
-                    style={{ width: `${zoomSize}px`, height: `${zoomSize}px` }}
                   />
                 </button>
               </Card>
@@ -82,9 +87,9 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
                   <TokenImage
                     event={event}
                     size={size}
+                    imgSize={zoomSize}
                     resize={true}
                     original={true}
-                    style={{ width: `${zoomSize}px`, height: `${zoomSize}px` }}
                   />
                 </button>
               </Card>
@@ -104,6 +109,12 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
       </ReactModal>
     </div>
   )
+}
+
+TokenImageZoom.propTypes = {
+  event: PropTypes.shape(DropProps).isRequired,
+  size: PropTypes.number,
+  zoomSize: PropTypes.number,
 }
 
 export default TokenImageZoom

@@ -1,6 +1,15 @@
+import PropTypes from 'prop-types'
 import '../styles/switch.css'
 
-function Switch({ checked, onChange, labelOff = 'No', labelOn = 'Yes' }) {
+/**
+ * @param {PropTypes.InferProps<Switch.propTypes>} props
+ */
+function Switch({
+  checked,
+  onChange,
+  labelOff = 'No',
+  labelOn = 'Yes',
+}) {
   return (
     <label className="switch">
       <input
@@ -15,6 +24,13 @@ function Switch({ checked, onChange, labelOff = 'No', labelOn = 'Yes' }) {
       />
     </label>
   )
+}
+
+Switch.propTypes = {
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  labelOff: PropTypes.string,
+  labelOn: PropTypes.string,
 }
 
 export default Switch

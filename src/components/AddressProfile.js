@@ -1,8 +1,10 @@
+import PropTypes from 'prop-types'
 import { useContext, useEffect, useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import { clsx } from 'clsx'
 import { formatMonthYear } from '../utils/date'
 import { POAP_SCAN_URL, findInitialPOAPDate } from '../models/poap'
+import { DropProps } from '../models/drop'
 import { INCOMMON_ADDRESSES_LIMIT, INCOMMON_EVENTS_LIMIT } from '../models/in-common'
 import { POAP_PROFILE_LIMIT } from '../models/poap'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
@@ -15,6 +17,9 @@ import ErrorMessage from './ErrorMessage'
 import Loading from './Loading'
 import '../styles/address-profile.css'
 
+/**
+ * @param {PropTypes.InferProps<AddressProfile.propTypes>} props
+ */
 function AddressProfile({
   address,
   events = {},
@@ -241,6 +246,13 @@ function AddressProfile({
       )}
     </div>
   )
+}
+
+AddressProfile.propTypes = {
+  address: PropTypes.string.isRequired,
+  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default AddressProfile

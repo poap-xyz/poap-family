@@ -1,8 +1,12 @@
+import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { POAP_SCAN_URL } from '../models/poap'
 import { ReverseEnsContext } from '../stores/ethereum'
 import '../styles/addresses-list.css'
 
+/**
+ * @param {PropTypes.InferProps<AddressesList.propTypes>} props
+ */
 function AddressesList({
   addresses,
 }) {
@@ -27,6 +31,10 @@ function AddressesList({
       ))}
     </ol>
   )
+}
+
+AddressesList.propTypes = {
+  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
 }
 
 export default AddressesList

@@ -8,9 +8,9 @@ import { fetchPOAPs } from './poap'
 
 /**
  * @param {string} query
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {number} offset
- * @param {number} limit
+ * @param {AbortSignal} [abortSignal]
+ * @param {number} [offset]
+ * @param {number} [limit]
  * @returns {Promise<{
  *   items: ReturnType<Drop>[]
  *   total: number
@@ -95,7 +95,7 @@ export async function searchEvents(
   }
 
   return {
-    items: body.items.map((item) => Drop(item)),
+    items: body.items.map((item) => Drop(item, /*includeDescription*/false)),
     total: body.total,
     offset: body.offset,
     limit: body.limit,
@@ -104,7 +104,7 @@ export async function searchEvents(
 
 /**
  * @param {number[]} eventIds
- * @param {number} limit
+ * @param {number} [limit]
  * @returns {Promise<[
  *   Record<number, ReturnType<Drop>>,
  *   Record<number, Error>,
@@ -200,7 +200,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
         Array.isArray(data.items)
       ) {
         for (const item of data.items) {
-          const event = Drop(item)
+          const event = Drop(item, /*includeDescription*/false)
           eventsMap[event.id] = event
         }
 
@@ -236,7 +236,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
 /**
  * @param {number} eventId
  * @param {boolean} includeDescription
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @returns {Promise<ReturnType<Drop> | null>}
  */
 export async function fetchEvent(eventId, includeDescription, abortSignal) {

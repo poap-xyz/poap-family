@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getLastEvents } from '../loaders/api'
@@ -15,6 +16,9 @@ const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 8
 const DEFAULT_MORE_QTY = 8
 
+/**
+ * @param {PropTypes.InferProps<LastEvents.propTypes>} props
+ */
 function LastEvents({
   page: initialPage = DEFAULT_PAGE,
   perPage: initialPerPage = DEFAULT_PER_PAGE,
@@ -166,11 +170,7 @@ function LastEvents({
           />
         )}
         {error && !loading &&
-          <ErrorMessage style={{ marginTop: '1rem' }}>
-            <span title={error.reason ? `${error.reason}` : undefined}>
-              {error.message ?? 'Unknown error'}
-            </span>
-          </ErrorMessage>
+          <ErrorMessage away={true} error={error} />
         }
         {pages > 1 && !loading && (
           <Pagination
@@ -197,6 +197,17 @@ function LastEvents({
       </Card>
     </div>
   )
+}
+
+LastEvents.propTypes = {
+  page: PropTypes.number.isRequired,
+  perPage: PropTypes.number,
+  onPageChange: PropTypes.func.isRequired,
+  showRefresh: PropTypes.bool,
+  showMore: PropTypes.bool,
+  moreQty: PropTypes.number,
+  maxPages: PropTypes.number,
+  showPerPage: PropTypes.bool,
 }
 
 export default LastEvents

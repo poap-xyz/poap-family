@@ -1,8 +1,13 @@
+import PropTypes from 'prop-types'
 import { Fragment } from 'react'
+import { CollectionProps } from '../models/collection'
 import Card from './Card'
 import CollectionList from './CollectionList'
 import WarningMessage from './WarningMessage'
 
+/**
+ * @param {PropTypes.InferProps<CollectionSet.propTypes>} props
+ */
 function CollectionSet({
   collectionMap,
   showEmpty = true,
@@ -41,6 +46,18 @@ function CollectionSet({
       ))}
     </Card>
   )
+}
+
+CollectionSet.propTypes = {
+  collectionMap: (
+    PropTypes.objectOf(
+      PropTypes.arrayOf(
+        PropTypes.shape(CollectionProps)
+      )
+    ).isRequired
+  ),
+  showEmpty: PropTypes.bool,
+  emptyMessage: PropTypes.node,
 }
 
 export default CollectionSet

@@ -1,7 +1,15 @@
+import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import '../styles/status.css'
 
-function Status({ loading, caching, error }) {
+/**
+ * @param {PropTypes.InferProps<Status.propTypes>} props
+ */
+function Status({
+  loading,
+  caching,
+  error,
+}) {
   return (
     <div
       className={clsx('status',
@@ -15,6 +23,12 @@ function Status({ loading, caching, error }) {
       {error && 'Error'}
     </div>
   )
+}
+
+Status.propTypes = {
+  loading: PropTypes.bool,
+  caching: PropTypes.bool,
+  error: PropTypes.bool,
 }
 
 export default Status

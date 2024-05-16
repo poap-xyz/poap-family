@@ -1,6 +1,12 @@
 import { HttpError } from '../models/error'
 import { COMPASS_KEY, COMPASS_URL } from '../models/compass'
 
+/**
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<object>}
+ */
 export async function requestCompass(query, variables, abortSignal) {
   const response = await fetch(COMPASS_URL, {
     signal: abortSignal instanceof AbortSignal ? abortSignal : null,
@@ -16,6 +22,9 @@ export async function requestCompass(query, variables, abortSignal) {
   })
 
   if (response.status !== 200) {
+    /**
+     * @type {unknown}
+     */
     let body
     try {
       body = await response.json()
@@ -23,14 +32,28 @@ export async function requestCompass(query, variables, abortSignal) {
 
     let message = 'Cannot request compass'
     if (
-      body && 'errors' in body &&
-      Array.isArray(body.errors) && body.errors.length > 0
+      body != null &&
+      typeof body === 'object' &&
+      'errors' in body &&
+      body.errors != null &&
+      Array.isArray(body.errors) &&
+      body.errors.length > 0
     ) {
       message += `:${body.errors.reduce(
-        (msg, error) => error && 'message' in error &&
-          error.message && typeof error.message === 'string'
+        /**
+         * @param {string} msg
+         * @param {unknown} error
+         * @returns {string}
+         */
+        (msg, error) => (
+          error != null &&
+          typeof error === 'object' &&
+          'message' in error &&
+          error.message != null &&
+          typeof error.message === 'string'
             ? `${msg} ${error.message}`
-            : '',
+            : ''
+        ),
         ''
       )}`
     }
@@ -41,15 +64,54 @@ export async function requestCompass(query, variables, abortSignal) {
   const body = await response.json()
 
   if (
-    !body || !('data' in body) ||
-    !body.data || typeof body.data !== 'object'
+    body == null ||
+    typeof body !== 'object' ||
+    !('data' in body) ||
+    body.data == null ||
+    typeof body.data !== 'object'
   ) {
-    throw new Error('Invalid compass response')
+    let message = 'Invalid compass response'
+    if (
+      body != null &&
+      typeof body === 'object' &&
+      'errors' in body &&
+      body.errors != null &&
+      Array.isArray(body.errors) &&
+      body.errors.length > 0
+    ) {
+      message += `:${body.errors.reduce(
+        /**
+         * @param {string} msg
+         * @param {unknown} error
+         * @returns {string}
+         */
+        (msg, error) => (
+          error != null &&
+          typeof error === 'object' &&
+          'message' in error &&
+          error.message != null &&
+          typeof error.message === 'string'
+            ? `${msg} ${error.message}`
+            : ''
+        ),
+        ''
+      )}`
+    }
+    throw new Error(message)
   }
 
   return body.data
 }
 
+/**
+ * @template T
+ * @param {string} name
+ * @param {(data: unknown) => T} Model
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<T>}
+ */
 export async function queryCompass(
   name,
   Model,
@@ -59,13 +121,27 @@ export async function queryCompass(
 ) {
   const results = await requestCompass(query, variables, abortSignal)
 
-  if (!(name in results)) {
+  if (
+    results == null ||
+    typeof results !== 'object' ||
+    !(name in results)
+  ) {
     throw new Error(`Missing model ${name} in compass response`)
   }
 
   return Model(results[name])
 }
 
+/**
+ * @template T
+ * @param {string} name
+ * @param {(data: unknown) => T} Model
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {T} defaultValue
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<T>}
+ */
 export async function queryFirstCompass(
   name,
   Model,
@@ -74,6 +150,10 @@ export async function queryFirstCompass(
   defaultValue,
   abortSignal
 ) {
+  /**
+   * @param {unknown} data
+   * @returns {T}
+   */
   const FirstModel = (data) =>{
     if (data == null || !Array.isArray(data)) {
       throw new Error(
@@ -97,6 +177,15 @@ export async function queryFirstCompass(
   )
 }
 
+/**
+ * @template T
+ * @param {string} name
+ * @param {(data: unknown) => T} Model
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<T[]>}
+ */
 export async function queryManyCompass(
   name,
   Model,
@@ -104,6 +193,10 @@ export async function queryManyCompass(
   variables,
   abortSignal
 ) {
+  /**
+   * @param {unknown} data
+   * @returns {T[]}
+   */
   const ManyModel = (data) => {
     if (data == null || !Array.isArray(data)) {
       throw new Error(
@@ -117,6 +210,18 @@ export async function queryManyCompass(
   return await queryCompass(name, ManyModel, query, variables, abortSignal)
 }
 
+/**
+ * @template T
+ * @param {string} name
+ * @param {(data: unknown) => T} Model
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {string} offsetKey
+ * @param {number} limit
+ * @param {number} [total]
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<T[]>}
+ */
 export async function queryAllCompass(
   name,
   Model,
@@ -132,16 +237,26 @@ export async function queryAllCompass(
 
   do {
     if (offsetKey in variables) {
-      if (typeof variables[offsetKey] !== 'number') {
-        throw new Error(`Invalid offset on compass model ${name}: not a number`);
+      const offset = variables[offsetKey]
+
+      if (typeof offset !== 'number') {
+        throw new Error(
+          `Invalid offset on compass model ${name}: not a number`
+        )
       }
 
-      variables[offsetKey] = variables[offsetKey] + limit
+      variables[offsetKey] = offset + limit
     } else {
       variables[offsetKey] = 0
     }
 
-    const pageResults = await queryManyCompass(name, Model, query, variables, abortSignal)
+    const pageResults = await queryManyCompass(
+      name,
+      Model,
+      query,
+      variables,
+      abortSignal
+    )
 
     results = [...results, ...pageResults]
     pageCount = pageResults.length
@@ -152,12 +267,23 @@ export async function queryAllCompass(
   return results
 }
 
+/**
+ * @param {string} name
+ * @param {string} query
+ * @param {Record<string, unknown>} variables
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<number>}
+ */
 export async function queryAggregateCountCompass(
   name,
   query,
   variables,
   abortSignal
 ) {
+  /**
+   * @param {unknown} data
+   * @returns {number}
+   */
   const AggregateCountModel = (data) => {
     if (
       data == null ||
@@ -185,6 +311,11 @@ export async function queryAggregateCountCompass(
   )
 }
 
+/**
+ * @param {string} target
+ * @param {AbortSignal} [abortSignal]
+ * @returns {Promise<number>}
+ */
 export async function countCompass(target, abortSignal) {
   return await queryAggregateCountCompass(
     `${target}_aggregate`,

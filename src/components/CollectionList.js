@@ -1,9 +1,13 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { COLLECTIONS_LIMIT, resizeCollectionImageUrl } from '../models/collection'
+import { COLLECTIONS_LIMIT, CollectionProps, resizeCollectionImageUrl } from '../models/collection'
 import { POAP_COLLECTIONS_URL } from '../models/poap'
 import ButtonLink from './ButtonLink'
 import '../styles/collection.css'
 
+/**
+ * @param {PropTypes.InferProps<CollectionList.propTypes>} props
+ */
 function CollectionList({
   collections,
   showLogo = false,
@@ -81,6 +85,11 @@ function CollectionList({
       )}
     </div>
   )
+}
+
+CollectionList.propTypes = {
+  collections: PropTypes.arrayOf(PropTypes.shape(CollectionProps)).isRequired,
+  showLogo: PropTypes.bool,
 }
 
 export default CollectionList

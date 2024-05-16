@@ -1,6 +1,10 @@
+import PropTypes from 'prop-types'
 import Logo from './Logo'
 import '../styles/logo-menu.css'
 
+/**
+ * @param {PropTypes.InferProps<LogoMenu.propTypes>} props
+ */
 function LogoMenu({ children }) {
   return (
     <div className="logo-menu">
@@ -14,6 +18,10 @@ function LogoMenu({ children }) {
       </div>
     </div>
   )
+}
+
+LogoMenu.propTypes = {
+  children: PropTypes.node.isRequired,
 }
 
 export default LogoMenu
