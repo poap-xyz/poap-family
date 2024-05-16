@@ -56,7 +56,8 @@ export function encodeExpiryDates(expiryDates) {
         if (!(expiryDate instanceof Date) || isNaN(expiryDate.getTime())) {
           return null
         }
-        return `expiry[${encodeURIComponent(eventId)}]=${encodeURIComponent(Math.trunc(expiryDate.getTime() / 1000))}`
+        const ts = Math.trunc(expiryDate.getTime() / 1000)
+        return `expiry[${encodeURIComponent(eventId)}]=${encodeURIComponent(ts)}`
       }
     )
     .filter((param) => param != null)

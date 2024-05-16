@@ -79,8 +79,20 @@ export function POAP(token) {
   return {
     id: tokenId,
     owner,
-    created: !token.created ? undefined : new Date(token.created),
-    event: !token.event ? undefined : Drop(token.event),
+    created:
+      'created' in token &&
+      token.created != null &&
+      (
+        typeof token.created === 'number' ||
+        typeof token.created === 'string'
+      )
+        ? new Date(token.created)
+        : undefined,
+    event:
+      'event' in token &&
+      token.event != null
+        ? Drop(token.event, /*includeDescription*/false)
+        : undefined,
   }
 }
 
@@ -92,6 +104,11 @@ export function POAP(token) {
  */
 export function findInitialPOAPDate(tokens) {
   return tokens.reduce(
+    /**
+     * @param {Date | null} initialDate
+     * @param {ReturnType<POAP>} token
+     * @returns {Date | null}
+     */
     (initialDate, token) => {
       if (
         token &&

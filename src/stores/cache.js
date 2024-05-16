@@ -1,9 +1,19 @@
+import PropTypes from 'prop-types'
 import { createContext, useEffect, useState } from 'react'
 import { getSettings, saveSettings } from '../loaders/cache'
 import { DEFAULT_SETTINGS } from '../models/cache'
 
-export const SettingsContext = createContext(DEFAULT_SETTINGS)
+export const SettingsContext = createContext({
+  settings: DEFAULT_SETTINGS,
+  /**
+   * @type {(key: string, value: boolean) => void}
+   */
+  set: (key, value) => {},
+})
 
+/**
+ * @param {PropTypes.InferProps<SettingsProvider.propTypes>} props
+ */
 export function SettingsProvider({ children }) {
   /**
    * @type {ReturnType<typeof useState<typeof DEFAULT_SETTINGS | null>>}
@@ -19,6 +29,10 @@ export function SettingsProvider({ children }) {
     [settings]
   )
 
+  /**
+   * @param {string} key
+   * @param {boolean} value
+   */
   const set = (key, value) => {
     setSettings((oldSettings) => {
       const newSettings = { ...oldSettings, [key]: value }
@@ -32,4 +46,8 @@ export function SettingsProvider({ children }) {
       {children}
     </SettingsContext.Provider>
   )
+}
+
+SettingsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 }

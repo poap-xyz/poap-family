@@ -9,8 +9,8 @@ import { queryAggregateCountCompass, queryAllCompass, queryManyCompass } from '.
  * @param {number[]} eventIds
  * @param {number} [limit]
  * @returns {Promise<{
- *   collections: ReturnType<Collection>[]
- *   related: ReturnType<Collection>[]
+ *   collections: ReturnType<typeof Collection>[]
+ *   related: ReturnType<typeof Collection>[]
  * }>}
  */
 export async function findEventsCollections(
@@ -109,7 +109,7 @@ export async function findEventsCollections(
  *
  * @param {number[]} eventIds
  * @param {number} [limit]
- * @returns {Promise<ReturnType<Collection>[]>}
+ * @returns {Promise<ReturnType<typeof Collection>[]>}
  */
 export async function findEventsInCollections(
   eventIds,
@@ -163,7 +163,7 @@ export async function findEventsInCollections(
  * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
  *   total: number | null
- *   items: ReturnType<CollectionWithDrops>[]
+ *   items: ReturnType<typeof CollectionWithDrops>[]
  * }>}
  */
 export async function searchCollections(
