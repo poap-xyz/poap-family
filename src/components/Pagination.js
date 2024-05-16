@@ -6,7 +6,11 @@ function Pagination({
   page,
   pages,
   total,
-  onPage = (newPage) => {},
+  onPage =
+    /**
+     * @param {number} newPage
+     */
+    (newPage) => {},
   children,
 }) {
   const items = []

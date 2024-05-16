@@ -4,7 +4,7 @@ import { ReverseEnsContext } from '../stores/ethereum'
 import '../styles/addresses-list.css'
 
 function AddressesList({
-  addresses = [],
+  addresses,
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
 

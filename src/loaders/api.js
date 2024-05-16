@@ -55,6 +55,9 @@ export async function getEventAndOwners(
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -167,6 +170,9 @@ export async function getInCommonEvents(eventId, abortSignal) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -334,6 +340,9 @@ export async function getLastEvents(page = 1, qty = 3) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
@@ -418,6 +427,9 @@ export async function getEvents(eventIds, abortSignal) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -466,6 +478,9 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -537,6 +552,9 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -586,6 +604,9 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -657,6 +678,9 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
     )
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (typeof body !== 'object') {
@@ -741,6 +765,9 @@ export async function getFeedback(passphrase, page = 1, qty = 3) {
     throw new Error(`Feedback failed to fetch`)
   }
 
+  /**
+   * @type {unknown}
+   */
   const body = await response.json()
 
   if (
