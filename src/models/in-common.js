@@ -4,22 +4,33 @@ export const INCOMMON_EVENTS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
 
 /**
- * Removes the ones that has one or zero in-common collectors and sorts it by
- * highest number of in-common collectors.
+ * Removes the ones that has one or zero in-common collectors.
  *
  * @param {Record<number, string[]>} inCommon
  * @returns {Record<number, string[]>}
  */
-export function filterAndSortInCommon(inCommon) {
+export function filterInCommon(inCommon) {
   // With at least one in-common address.
-  let entries = Object.entries(inCommon).filter(
-    ([, addresses]) => addresses.length > 1
+  return Object.fromEntries(
+    Object.entries(inCommon).filter(
+      ([, addresses]) => addresses.length > 1
+    )
   )
+}
+
+/**
+ * Sorts it by highest number of in-common collectors.
+ *
+ * @param {Array<[number, string[]]>} inCommonEntries
+ * @returns {Array<[number, string[]]>}
+ */
+export function sortInCommonEntries(inCommonEntries) {
+  const copyInCommonEntries = inCommonEntries.slice()
   // Sorted by the highest in-common collectors.
-  entries.sort(
+  copyInCommonEntries.sort(
     ([, aAddresses], [, bAddresses]) => bAddresses.length - aAddresses.length
   )
-  return Object.fromEntries(entries)
+  return copyInCommonEntries
 }
 
 /**
@@ -32,6 +43,9 @@ export function filterAndSortInCommon(inCommon) {
  * @returns {Record<number, string[]>}
  */
 export function mergeAllInCommon(allInCommon, all = false) {
+  /**
+   * @type {Record<number, string[]>}
+   */
   const mergedInCommon = {}
   for (const inCommon of allInCommon) {
     for (const [inCommonEventId, addresses] of Object.entries(inCommon)) {
@@ -41,7 +55,10 @@ export function mergeAllInCommon(allInCommon, all = false) {
             delete mergedInCommon[inCommonEventId]
           }
         } else {
-          mergedInCommon[inCommonEventId] = intersection(mergedInCommon[inCommonEventId], addresses)
+          mergedInCommon[inCommonEventId] = intersection(
+            mergedInCommon[inCommonEventId],
+            addresses
+          )
         }
       } else {
         mergedInCommon[inCommonEventId] = addresses
