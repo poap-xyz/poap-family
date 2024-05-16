@@ -110,6 +110,9 @@ function Events() {
    */
   const [staleEvents, setStaleEvents] = useState([])
 
+  const force = searchParams.get('force') === 'true'
+  const all = searchParams.get('all') === 'true'
+
   /**
    * @param {number} eventId
    */
@@ -258,7 +261,7 @@ function Events() {
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
       return Promise.allSettled([
         fetchPOAPs(eventId, abortSignal),
-        getEventMetrics(eventId, abortSignal, searchParams.get('force') === 'true'),
+        getEventMetrics(eventId, abortSignal, force),
       ]).then(
         ([eventOwnerTokensResult, eventMetricsResult]) => {
           removeLoading(eventId)
@@ -292,7 +295,7 @@ function Events() {
         }
       )
     },
-    [owners, searchParams]
+    [owners, force]
   )
 
   const processEventAddress = useCallback(
@@ -376,6 +379,9 @@ function Events() {
      * @param {Record<string, AbortController>} controllers
      */
     (eventId, controllers) => {
+      /**
+       * @type {string[]}
+       */
       const processedOwners = []
       setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
       setProgress((oldProgress) => ({ ...oldProgress, [eventId]: true }))
@@ -435,8 +441,10 @@ function Events() {
       const eventIds = Object.keys(events).map(
         (rawEventId) => parseInt(rawEventId)
       )
-      const requests = []
-      const force = searchParams.get('force') === 'true'
+      /**
+       * @type {AbortController[]}
+       */
+      const controllers = []
       if (status === STATUS_INITIAL) {
         if (!force) {
           const controller = new AbortController()
@@ -490,7 +498,7 @@ function Events() {
               setStatus(STATUS_LOADING_OWNERS)
             }
           )
-          requests.push(controller)
+          controllers.push(controller)
         } else {
           setStatus(STATUS_LOADING_OWNERS)
         }
@@ -502,18 +510,25 @@ function Events() {
             () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal),
             () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal)
           )
-          requests.push(controller)
+          controllers.push(controller)
         }
       }
       return () => {
-        if (status === STATUS_LOADING_OWNERS && requests.length > 0) {
-          for (const request of requests) {
-            request.abort()
+        if (status === STATUS_LOADING_OWNERS && controllers.length > 0) {
+          for (const controller of controllers) {
+            controller.abort()
           }
         }
       }
     },
-    [events, status, loadCahedOwnersAndMetrics, loadOwnersAndMetrics, resolveEnsNames, searchParams]
+    [
+      events,
+      status,
+      loadCahedOwnersAndMetrics,
+      loadOwnersAndMetrics,
+      resolveEnsNames,
+      force,
+    ]
   )
 
   useEffect(
@@ -521,12 +536,17 @@ function Events() {
       const eventIds = Object.keys(events).map(
         (rawEventId) => parseInt(rawEventId)
       )
-      const requests = []
-      const force = searchParams.get('force') === 'true'
+      /**
+       * @type {AbortController[]}
+       */
+      const controllers = []
       if (status === STATUS_LOADING_SCANS) {
         let promise = new Promise((r) => { r() })
         for (const eventId of eventIds) {
           const controller = new AbortController()
+          /**
+           * @type {Record<string, AbortController>}
+           */
           const ownerControllers = owners[eventId].reduce(
             (controllers, owner) => ({
               ...controllers,
@@ -573,23 +593,23 @@ function Events() {
               }
             )
           }
-          if (searchParams.get('all') === 'true') {
-            requests.push(...Object.values(ownerControllers))
+          if (all) {
+            controllers.push(...Object.values(ownerControllers))
           } else {
-            requests.push(controller, ...Object.values(ownerControllers))
+            controllers.push(controller, ...Object.values(ownerControllers))
           }
           promise = promise.then(process, process)
         }
       }
       return () => {
-        if (status === STATUS_LOADING_SCANS && requests.length > 0) {
-          for (const request of requests) {
-            request.abort()
+        if (status === STATUS_LOADING_SCANS && controllers.length > 0) {
+          for (const controller of controllers) {
+            controller.abort()
           }
         }
       }
     },
-    [events, owners, status, processEvent, searchParams]
+    [events, owners, status, processEvent, force, all]
   )
 
   useEffect(
@@ -600,7 +620,10 @@ function Events() {
             [
               ...new Set(
                 Object.values(owners).reduce(
-                  (allOwners, eventOwners) => ([ ...allOwners, ...eventOwners ]),
+                  (allOwners, eventOwners) => ([
+                    ...allOwners,
+                    ...eventOwners,
+                  ]),
                   []
                 ),
               )
@@ -646,7 +669,10 @@ function Events() {
                 .map((rawEventId) => parseInt(rawEventId))
               if (inCommonProcessedEventIds.length > 0) {
                 removeErrors(eventId)
-                setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_CACHING }))
+                setLoading((alsoLoading) => ({
+                  ...alsoLoading,
+                  [eventId]: LOADING_CACHING,
+                }))
                 putEventInCommon(eventId, inCommonProcessed).then(
                   () => {
                     setEventData((prevEventData) => ({
@@ -663,7 +689,9 @@ function Events() {
                     console.error(err)
                     setErrors((prevErrors) => ({
                       ...prevErrors,
-                      [eventId]: new Error('Could not cache drop', { cause: err }),
+                      [eventId]: new Error('Could not cache drop', {
+                        cause: err,
+                      }),
                     }))
                     removeLoading(eventId)
                   }
@@ -748,7 +776,9 @@ function Events() {
    * @param {number} eventId
    */
   const delEvent = (eventId) => {
-    const eventIds = parseEventIds(rawEventIds).filter((paramEventId) => String(paramEventId) !== String(eventId))
+    const eventIds = parseEventIds(rawEventIds).filter(
+      (paramEventId) => String(paramEventId) !== String(eventId)
+    )
     if (eventIds.length === 1) {
       navigate(`/event/${eventIds[0]}`)
     } else if (eventIds.length > 0) {
@@ -786,6 +816,9 @@ function Events() {
     }
   }
 
+  /**
+   * @param {boolean} checked
+   */
   const handleAllChange = (checked) => {
     setSearchParams({ all: checked ? 'true' : 'false' })
   }
@@ -803,10 +836,13 @@ function Events() {
       Object.values(eventData).map(
         (oneEventData) => oneEventData?.inCommon ?? {}
       ),
-      searchParams.get('all') === 'true'
+      all
     )
   }
 
+  /**
+   * @type {Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>}
+   */
   const allEvents = Object.values(eventData).reduce(
     (allEvents, data) => ({ ...allEvents, ...data.events }),
     {}
@@ -829,6 +865,16 @@ function Events() {
     setCollectionsError(null)
   }
 
+  const sumCollectionsIncludes = () => {
+    if (typeof metrics !== 'object') {
+      return 0
+    }
+    return Object.values(metrics).reduce(
+      (total, metric) => total + metric.collectionsIncludes,
+      0
+    )
+  }
+
   return (
     <Page>
       <div className="events">
@@ -844,7 +890,7 @@ function Events() {
                   <th className="event-head-actions">
                     <span>In Common</span>
                     <Switch
-                      checked={searchParams.get('all') === 'true'}
+                      checked={all}
                       onChange={(event) => handleAllChange(event.target.checked)}
                       labelOn="X"
                       labelOff="X"
@@ -859,13 +905,28 @@ function Events() {
                     <td>
                       <div className="event-cell-info">
                         <div className="event-image">
-                          <TokenImageZoom event={event} zoomSize={512} size={48} />
-                          <Link to={`/event/${event.id}`} className="event-id">#{event.id}</Link>
+                          <TokenImageZoom
+                            event={event}
+                            zoomSize={512}
+                            size={48}
+                          />
+                          <Link
+                            to={`/event/${event.id}`}
+                            className="event-id"
+                          >
+                            #{event.id}
+                          </Link>
                         </div>
                         <div className="event-data">
                           <h2>{event.name}</h2>
-                          <div className="event-date">{formatDate(event.start_date)}</div>
-                          {event.city && event.country && <div className="place">{event.city}, {event.country}</div>}
+                          <div className="event-date">
+                            {formatDate(event.start_date)}
+                          </div>
+                          {event.city && event.country && (
+                            <div className="place">
+                              {event.city}, {event.country}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -891,12 +952,18 @@ function Events() {
                           <>
                             <span
                               className="status-error-message"
-                              title={errors[event.id].cause ? `${errors[event.id].cause}` : undefined}
+                              title={errors[event.id].cause
+                                ? `${errors[event.id].cause}`
+                                : undefined}
                             >
                               {errors[event.id].message}
                             </span>
                             {' '}
-                            <ButtonLink onClick={() => retryLoadOwners(event.id)}>retry</ButtonLink>
+                            <ButtonLink
+                              onClick={() => retryLoadOwners(event.id)}
+                            >
+                              retry
+                            </ButtonLink>
                           </>
                         )}
                       </div>
@@ -925,7 +992,13 @@ function Events() {
                         ([address, error]) => (
                           <p key={address} className="status-error-message">
                             <code>[{address}]</code>{' '}{error.message}{' '}
-                            <ButtonLink onClick={() => retryEventAddress(event.id, address)}>retry</ButtonLink>
+                            <ButtonLink
+                              onClick={() => {
+                                retryEventAddress(event.id, address)
+                              }}
+                            >
+                              retry
+                            </ButtonLink>
                           </p>
                         )
                       )}
@@ -959,7 +1032,8 @@ function Events() {
         </div>
         {staleEvents && staleEvents.length > 0 && (
           <WarningMessage>
-            There have been new mints in {staleEvents.length} POAP{staleEvents.length === 1 ? '' : 's'} since cached,{' '}
+            There have been new mints in {staleEvents.length}{' '}
+            POAP{staleEvents.length === 1 ? '' : 's'} since cached,{' '}
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
@@ -1000,16 +1074,19 @@ function Events() {
                 )}
                 {!loadingCollections && !collectionsError && collectionData && (
                   <CollectionSet
-                    showEmpty={metrics && Object.values(metrics).reduce((total, metric) => total + metric.collectionsIncludes, 0) > 0}
+                    showEmpty={sumCollectionsIncludes() > 0}
                     emptyMessage={(
                       <>
-                        No collections found that includes exactly all {Object.keys(events).length} POAPs,{' '}
-                        <ButtonLink onClick={handleViewAll}>view related collections</ButtonLink>.
+                        No collections found that includes exactly all{' '}
+                        {Object.keys(events).length} POAPs,{' '}
+                        <ButtonLink onClick={handleViewAll}>
+                          view related collections
+                        </ButtonLink>.
                       </>
                     )}
                     collectionMap={{
                       [`${collectionData.collections.length} collections`]: collectionData.collections,
-                      [`${collectionData.related.length} related collections`]: searchParams.get('all') === 'true' ? collectionData.related : [],
+                      [`${collectionData.related.length} related collections`]: all ? collectionData.related : [],
                     }}
                   />
                 )}
@@ -1019,7 +1096,7 @@ function Events() {
               owners={owners}
               inCommon={inCommon}
               events={allEvents}
-              all={searchParams.get('all') === 'true'}
+              all={all}
             />
             <InCommon
               inCommon={inCommon}
