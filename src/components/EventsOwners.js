@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { chunks } from '../utils/array'
 import { DropProps } from '../models/drop'
-import { getAddressInCommonEventIds, mergeAddressesInCommon } from '../models/in-common'
+import { filterInCommon, getAddressInCommonAddresses, getAddressInCommonEventIds, sortInCommonEntries } from '../models/in-common'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
 import AddressOwner from './AddressOwner'
@@ -40,8 +40,8 @@ function inverseOwnersSortedEntries(owners) {
  */
 function EventsOwners({
   children,
-  owners = {},
-  inCommon = {},
+  owners,
+  inCommon: initialInCommon = {},
   events = {},
   all = false,
 }) {
@@ -52,27 +52,39 @@ function EventsOwners({
 
   let ownersEntries = inverseOwnersSortedEntries(owners)
 
-  const ownersEventIds = Object.keys(owners).map((rawEventId) => parseInt(rawEventId))
+  const ownersEventIds = Object.keys(owners).map(
+    (rawEventId) => parseInt(rawEventId)
+  )
 
   const eventsTotal = ownersEventIds.length
   const ownersTotal = ownersEntries.length
 
+  /**
+   * @type {string[]}
+   */
   const inCommonAddresses = []
-  let inCommonOwnersTotal = 0
 
   for (const [ownerAddress, ownerEventIds] of ownersEntries) {
     if (ownerEventIds.length === eventsTotal) {
       inCommonAddresses.push(ownerAddress)
-      inCommonOwnersTotal++
     }
   }
+
+  const inCommonOwnersTotal = inCommonAddresses.length
 
   if (ownersTotal > inCommonOwnersTotal && !showAll && !all) {
     ownersEntries = ownersEntries.slice(0, inCommonOwnersTotal)
   }
 
   const ownersEntriesChunks = chunks(ownersEntries, 10)
-  const inCommonEntries = Object.entries(inCommon)
+
+  const inCommonEntries = sortInCommonEntries(
+    Object
+      .entries(filterInCommon(initialInCommon))
+      .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+  )
+
+  const inCommon = Object.fromEntries(inCommonEntries)
 
   return (
     <div className="events-owners">
@@ -87,17 +99,13 @@ function EventsOwners({
                 {ownersEntriesChunk.map(
                   ([address, eventIds]) => {
                     const inCommonEventIds = getAddressInCommonEventIds(
-                      Object.fromEntries(inCommonEntries),
+                      inCommon,
                       address
                     )
-                    const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
-                      Object.fromEntries(
-                        inCommonEntries.filter(
-                          ([inCommonEventId]) => inCommonEventIds.includes(parseInt(inCommonEventId))
-                        )
-                      )
-                    ).filter(
-                      (inCommonAddress) => inCommonAddress.toLowerCase() !== address.toLowerCase()
+                    const inCommonAddresses = getAddressInCommonAddresses(
+                      inCommon,
+                      inCommonEventIds,
+                      address
                     )
                     return (
                       <li key={address} className="owners-item">

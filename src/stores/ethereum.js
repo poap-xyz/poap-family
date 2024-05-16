@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { ENS_RESOLVE_BATCH_SIZE } from '../models/ethereum'
 import {
@@ -7,25 +8,58 @@ import {
 } from '../loaders/ethereum'
 
 export const ResolverEnsContext = createContext({
+  /**
+   * @type {Record<string, string>}
+   */
   addresses: {},
-  resolveAddress: async (ensName) => '',
+  /**
+   * @type {(ensName: string) => Promise<string | null>}
+   */
+  resolveAddress: async (ensName) => null,
+  /**
+   * @type {Record<string, string>}
+   */
   avatars: {},
-  resolveMeta: async (ensName, address) => {},
-  resolve: async (ensName, full = false) => {},
+  /**
+   * @type {(ensName: string, address?: string) => Promise<{ avatar: string | null }>}
+   */
+  resolveMeta: async (ensName, address) => ({ avatar: null }),
 })
 
 export const ReverseEnsContext = createContext({
+  /**
+   * @type {Record<string, string>}
+   */
   ensNames: {},
-  resolveEnsNames: async (addresses, resolve = false) => {},
+  /**
+   * @type {(addresses: string[], resolve?: boolean) => Promise<Record<string, string>>}
+   */
+  resolveEnsNames: async (addresses, resolve = false) => ({}),
+  /**
+   * @type {(address: string, ensName: string) => void}
+   */
   setEnsName: (address, ensName) => {},
+  /**
+   * @type {(address: string) => boolean}
+   */
   isNotFound: (address) => false,
 })
 
 function ResolverEnsProvider({ children }) {
+  /**
+   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   */
   const [addressByEnsName, setAddressByEnsName] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   */
   const [avatarByEnsName, setAvatarByEnsName] = useState({})
 
   const resolveAddress = useCallback(
+    /**
+     * @param {string} ensName
+     * @returns {Promise<string | null>}
+     */
     async (ensName) => {
       if (Object.keys(addressByEnsName).indexOf(ensName) !== -1) {
         return addressByEnsName[ensName]
@@ -48,6 +82,11 @@ function ResolverEnsProvider({ children }) {
   )
 
   const resolveAvatar = useCallback(
+    /**
+     * @param {string} ensName
+     * @param {string} [address]
+     * @returns {Promise<string | null>}
+     */
     async (ensName, address) => {
       if (Object.keys(avatarByEnsName).indexOf(ensName) !== -1) {
         return avatarByEnsName[ensName]
@@ -73,24 +112,16 @@ function ResolverEnsProvider({ children }) {
   )
 
   const resolveMeta = useCallback(
+    /**
+     * @param {string} ensName
+     * @param {string} [address]
+     * @returns {Promise<{ avatar: string | null }>}
+     */
     async (ensName, address) => {
       const avatar = await resolveAvatar(ensName, address)
       return { avatar }
     },
     [resolveAvatar]
-  )
-
-  const resolve = useCallback(
-    async (ensName, full = false) => {
-      if (full) {
-        const address = await resolveAddress(ensName)
-        const meta = await resolveMeta(ensName, address)
-        return { address, meta }
-      } else {
-        return await resolveAddress(ensName)
-      }
-    },
-    [resolveAddress, resolveMeta]
   )
 
   const value = useMemo(
@@ -99,9 +130,8 @@ function ResolverEnsProvider({ children }) {
       resolveAddress,
       avatars: avatarByEnsName,
       resolveMeta,
-      resolve,
     }),
-    [addressByEnsName, resolveAddress, avatarByEnsName, resolveMeta, resolve]
+    [addressByEnsName, resolveAddress, avatarByEnsName, resolveMeta]
   )
 
   return (
@@ -128,6 +158,11 @@ function ReverseEnsProvider({
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
 
   const resolveNames = useCallback(
+    /**
+     * @param {string[]} names
+     * @param {string[]} addresses
+     * @returns {Promise<void>}
+     */
     (names, addresses) => {
       let promise = new Promise((r) => r())
       for (let i = 0; i < names.length; i += limitEnsNames) {
@@ -139,12 +174,17 @@ function ReverseEnsProvider({
           )
         )
       }
-      return promise
+      return promise.then(() => {})
     },
     [limitEnsNames, resolveMeta]
   )
 
   const resolveEnsNames = useCallback(
+    /**
+     * @param {string[]} addresses
+     * @param {boolean} resolve
+     * @returns {Promise<Record<string, string>>}
+     */
     async (addresses, resolve = false) => {
       const oldAddresses = Object.keys(ensByAddress)
       const givenOldAddresses = oldAddresses.filter(
@@ -173,7 +213,8 @@ function ReverseEnsProvider({
                 ([resolvedAddresses, resolvedEnsNames], [address, ensName]) => [
                   [...resolvedAddresses, address],
                   [...resolvedEnsNames, ensName]
-                ]
+                ],
+                [[], []]
               )
             resolveNames(resolvedEnsNames, resolvedAddresses)
           }
@@ -201,6 +242,10 @@ function ReverseEnsProvider({
     [ensByAddress, resolveNames]
   )
 
+  /**
+   * @param {string} address
+   * @param {string} ensName
+   */
   function set(address, ensName) {
     setEnsByAddress((oldEnsByAddress) => ({
       ...oldEnsByAddress,
@@ -209,6 +254,10 @@ function ReverseEnsProvider({
   }
 
   const isNotFound = useCallback(
+    /**
+     * @param {string} address
+     * @returns {boolean}
+     */
     (address) => {
       return notFoundAddresses.indexOf(address) !== -1
     },
@@ -232,6 +281,9 @@ function ReverseEnsProvider({
   )
 }
 
+/**
+ * @param {PropTypes.InferProps<EnsProvider.propTypes>} props
+ */
 export function EnsProvider({ children }) {
   return (
     <ResolverEnsProvider>
@@ -240,4 +292,8 @@ export function EnsProvider({ children }) {
       </ReverseEnsProvider>
     </ResolverEnsProvider>
   )
+}
+
+EnsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 }

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
 
 const matomoHost = process.env.REACT_APP_MATOMO_HOST
@@ -16,6 +17,9 @@ const matomo = matomoHost
   })
   : undefined
 
+/**
+ * @param {PropTypes.InferProps<AnalyticsProvider.propTypes>} props
+ */
 export function AnalyticsProvider({ children }) {
   if (!matomo) {
     return children
@@ -26,4 +30,8 @@ export function AnalyticsProvider({ children }) {
       {children}
     </MatomoProvider>
   )
+}
+
+AnalyticsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 }
