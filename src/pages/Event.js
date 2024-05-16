@@ -43,7 +43,13 @@ function Event() {
    * @type {ReturnType<typeof useState<number | null>>}
    */
   const [cachedTs, setCachedTs] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Record<number, string[]>>>}
+   */
   const [inCommon, setInCommon] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>>>}
+   */
   const [events, setEvents] = useState({})
   /**
    * @type {ReturnType<typeof useState<Awaited<ReturnType<findEventsCollections>> | null>>}
@@ -113,8 +119,17 @@ function Event() {
   )
 
   const process = useCallback(
+    /**
+     * @returns {AbortController[]}
+     */
     () => {
+      /**
+       * @type {AbortController[]}
+       */
       const controllers = []
+      /**
+       * @type {string[]}
+       */
       const processedOwners = []
       setLoading(true)
       setErrors([])
