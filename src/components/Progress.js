@@ -1,9 +1,13 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { clsx } from 'clsx'
 import { secondsInTheFuture } from '../utils/date'
 import { formatByte, formatPercentage } from '../utils/number'
 import '../styles/progress.css'
 
+/**
+ * @param {PropTypes.InferProps<Progress.propTypes>} props
+ */
 function Progress({
   value,
   max,
@@ -51,6 +55,15 @@ function Progress({
       )}
     </div>
   )
+}
+
+Progress.propTypes = {
+  value: PropTypes.number,
+  max: PropTypes.number,
+  showValue: PropTypes.bool,
+  showPercent: PropTypes.bool,
+  eta: PropTypes.number,
+  rate: PropTypes.number,
 }
 
 export default Progress

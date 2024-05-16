@@ -1,8 +1,23 @@
+import PropTypes from 'prop-types'
+import { DropProps } from '../models/drop'
 import { getRandomInt } from '../utils/number'
 import '../styles/poap.css'
 
-function TokenImage({ event, size, resize = true, imgix = false, original = false, ...props }) {
-  let imageUrl = original ? event.original_url ?? event.image_url : event.image_url
+/**
+ * @param {PropTypes.InferProps<TokenImage.propTypes>} props
+ */
+function TokenImage({
+  event,
+  size,
+  imgSize,
+  resize = true,
+  imgix = false,
+  original = false,
+}) {
+  let imageUrl = original
+    ? event.original_url ?? event.image_url
+    : event.image_url
+
   if (resize) {
     if (imgix) {
       const url = new URL(imageUrl)
@@ -33,16 +48,25 @@ function TokenImage({ event, size, resize = true, imgix = false, original = fals
       imageUrl += `?size=${poapSize}`
     }
   }
+
   return (
     <img
       src={imageUrl}
       alt={event.name}
       title={event.name}
       className="poap"
-      style={{ width: `${size}px`, height: `${size}px` }}
-      {...props}
+      style={{ width: `${imgSize ?? size}px`, height: `${imgSize ?? size}px` }}
     />
   )
+}
+
+TokenImage.propTypes = {
+  event: PropTypes.shape(DropProps).isRequired,
+  size: PropTypes.number.isRequired,
+  imgSize: PropTypes.number,
+  resize: PropTypes.bool,
+  imgix: PropTypes.bool,
+  original: PropTypes.bool,
 }
 
 export default TokenImage

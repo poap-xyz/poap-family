@@ -5,7 +5,7 @@ import { POAP, POAP_API_URL, POAP_API_KEY, POAP_FETCH_RETRIES } from '../models/
  * Fetch all POAP for given drop.
  *
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @param {number} limit
  * @returns {Promise<ReturnType<POAP>[]>}
  */
@@ -119,7 +119,7 @@ export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
  * Fetch all POAP for given address.
  *
  * @param {string} address
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @returns {Promise<ReturnType<POAP>[]>}
  */
 export async function scanAddress(address, abortSignal) {

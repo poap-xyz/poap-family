@@ -1,10 +1,17 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { Fish } from 'iconoir-react'
 import Button from './Button'
 import ButtonGroup from './ButtonGroup'
 import '../styles/input-passphrase.css'
 
-function InputPassphraseForm({ onSubmit = () => {}, onClose = () => {} }) {
+/**
+ * @param {PropTypes.InferProps<InputPassphraseForm.propTypes>} props
+ */
+function InputPassphraseForm({
+  onSubmit = (passphrase) => {},
+  onClose = () => {},
+}) {
   /**
    * @type {ReturnType<typeof useState<string>>}
    */
@@ -50,6 +57,11 @@ function InputPassphraseForm({ onSubmit = () => {}, onClose = () => {} }) {
       </ButtonGroup>
     </div>
   )
+}
+
+InputPassphraseForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 }
 
 export default InputPassphraseForm

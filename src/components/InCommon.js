@@ -1,8 +1,10 @@
 import toColor from '@mapbox/to-color'
+import PropTypes from 'prop-types'
 import { createRef, useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { SettingsContext } from '../stores/cache'
+import { DropProps } from '../models/drop'
 import { filterAndSortInCommon, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT, mergeAddressesInCommon } from '../models/in-common'
 import { intersection } from '../utils/array'
 import ButtonLink from './ButtonLink'
@@ -24,6 +26,9 @@ function getColorForAddress(address) {
   }).getColor().hsl.formatted
 }
 
+/**
+ * @param {PropTypes.InferProps<InCommon.propTypes>} props
+ */
 function InCommon({
   children,
   inCommon = {},
@@ -293,6 +298,17 @@ function InCommon({
       }
     </div>
   )
+}
+
+InCommon.propTypes = {
+  children: PropTypes.node,
+  inCommon: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  events: PropTypes.objectOf(PropTypes.shape(DropProps)).isRequired,
+  showCount: PropTypes.number,
+  showActive: PropTypes.bool,
+  createButtons: PropTypes.func,
+  createActiveTopButtons: PropTypes.func,
+  createActiveBottomButtons: PropTypes.func,
 }
 
 export default InCommon

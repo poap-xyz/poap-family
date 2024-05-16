@@ -34,25 +34,59 @@ import '../styles/event.css'
 
 function Event() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { setTitle } = useContext(HTMLContext)
   const { settings } = useContext(SettingsContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const { event, owners, ts, metrics } = useLoaderData()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { setTitle } = useContext(HTMLContext)
+  /**
+   * @type {ReturnType<typeof useState<number | null>>}
+   */
   const [cachedTs, setCachedTs] = useState(null)
   const [inCommon, setInCommon] = useState({})
   const [events, setEvents] = useState({})
+  /**
+   * @type {ReturnType<typeof useState<Awaited<ReturnType<findEventsCollections>> | null>>}
+   */
   const [collectionData, setCollectionData] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loading, setLoading] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<number>>}
+   */
   const [loadedCount, setLoadedCount] = useState(0)
+  /**
+   * @type {ReturnType<typeof useState<{ progress: number; estimated: number; rate: number; } | null>>}
+   */
   const [loadedProgress, setLoadedProgress] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [loadingCollections, setLoadingCollections] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Array<{ address: string; error: Error }>>>}
+   */
   const [errors, setErrors] = useState([])
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
   const [caching, setCaching] = useState(false)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [cachingError, setCachingError] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [collectionsError, setCollectionsError] = useState(null)
 
   const processAddress = useCallback(
+    /**
+     * @param {string} address
+     * @param {AbortSignal} [abortSignal]
+     */
     (address, abortSignal) => scanAddress(address, abortSignal).then(
       (ownerTokens) => {
         for (const ownerToken of ownerTokens) {
@@ -119,11 +153,9 @@ function Event() {
               setCachedTs(Math.trunc(Date.now() / 1000))
             },
             (err) => {
-              const error = new Error('Could not cache drop')
-              error.reason = err
               console.error(err)
               setCaching(false)
-              setCachingError(error)
+              setCachingError(new Error('Could not cache drop', { cause: err }))
             }
           )
         }
@@ -189,15 +221,11 @@ function Event() {
 
   const loadCollections = useCallback(
     () => {
+      if (!metrics || metrics.collectionsIncludes === 0) {
+        return
+      }
       setLoadingCollections(true)
-      ;(
-        metrics && metrics.collectionsIncludes > 0
-          ? findEventsCollections([event.id])
-          : Promise.resolve({
-            collections: [],
-            related: [],
-          })
-      ).then((eventCollectionsData) => {
+      findEventsCollections([event.id]).then((eventCollectionsData) => {
         setCollectionData(eventCollectionsData)
         setLoadingCollections(false)
       }).catch((err) => {
@@ -226,6 +254,9 @@ function Event() {
     ]
   )
 
+  /**
+   * @param {string} address
+   */
   const retryAddress = (address) => {
     setErrors((prevErrors) => {
       const newErrors = []
@@ -240,7 +271,7 @@ function Event() {
   }
 
   const refreshCache = () => {
-    setSearchParams({ force: true })
+    setSearchParams({ force: 'true' })
     setCachedTs(null)
     setEvents({})
     setInCommon({})
@@ -248,10 +279,16 @@ function Event() {
     setCollectionData(null)
   }
 
+  /**
+   * @param {number} eventId
+   */
   const addEvent = (eventId) => {
     navigate(`/events/${parseEventIds(`${event.id},${eventId}`).join(',')}`)
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const addEvents = (eventIds) => {
     if (eventIds.length === 0) {
       return
@@ -259,6 +296,9 @@ function Event() {
     navigate(`/events/${parseEventIds(`${event.id},${eventIds.join(',')}`).join(',')}`)
   }
 
+  /**
+   * @param {number[]} eventIds
+   */
   const openEvents = (eventIds) => {
     if (eventIds.length === 0) {
       return
@@ -279,23 +319,19 @@ function Event() {
             event={event}
             stats={{
               'collectors': metrics && metrics.emailReservations > 0
-                ? formatStat(owners.length + metrics.emailReservations)
-                : (
-                  ts === null
-                    ? formatStat(owners.length)
-                    : {
-                      text: formatStat(owners.length),
-                      title: `Cached ${formatDateAgo(ts)}`,
-                    }
-                ),
-              'mints': !metrics || metrics.emailReservations === 0 ? undefined : (
-                ts === null
-                  ? formatStat(owners.length)
-                  : {
-                    text: formatStat(owners.length),
-                    title: `Cached ${formatDateAgo(ts)}`,
+                ? {
+                    text: formatStat(owners.length + metrics.emailReservations),
                   }
-              ),
+                : {
+                    text: formatStat(owners.length),
+                    title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
+                  },
+              'mints': metrics && metrics.emailReservations > 0
+                ? {
+                    text: formatStat(owners.length),
+                    title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
+                  }
+                : undefined,
               'reservations': metrics && metrics.emailReservations > 0
                 ? {
                   text: formatStat(metrics.emailReservations),
@@ -309,13 +345,15 @@ function Event() {
                 }
                 : undefined,
               'collections': metrics && metrics.collectionsIncludes > 0
-                ? formatStat(metrics.collectionsIncludes)
+                ? {
+                    text: formatStat(metrics.collectionsIncludes),
+                  }
                 : undefined,
               'moments': metrics && metrics.momentsUploaded > 0
                 ? {
                   text: formatStat(metrics.momentsUploaded),
                   title: `View uploaded moments on ${event.name}`,
-                  link: `${POAP_MOMENTS_URL}/drop/${event.id}`,
+                  href: `${POAP_MOMENTS_URL}/drop/${event.id}`,
                   external: true,
                 }
                 : undefined,
@@ -371,9 +409,16 @@ function Event() {
               </div>
             }
             {cachingError &&
-              <div className="caching-error" title={cachingError.reason ? `${cachingError.reason}` : undefined}>
+              <div className="caching-error">
                 <span className="caching-error-label">Error</span>
-                {cachingError.message}
+                {cachingError.cause
+                  ? (
+                      <span title={`${cachingError.cause}`}>
+                        {cachingError.message}
+                      </span>
+                    )
+                  : cachingError.message
+                }
               </div>
             }
             {cachedTs && !caching &&
@@ -430,9 +475,7 @@ function Event() {
                   {!loadingCollections && collectionsError && (
                     <Card>
                       <h4>Collections</h4>
-                      <ErrorMessage>
-                        <p>{collectionsError}</p>
-                      </ErrorMessage>
+                      <ErrorMessage error={collectionsError} />
                     </Card>
                   )}
                   {!loadingCollections && !collectionsError && collectionData && (
@@ -471,8 +514,6 @@ function Event() {
                     <ButtonAdd
                       key="add"
                       onAdd={() => addEvent(eventId)}
-                      secondary={true}
-                      borderless={true}
                       title={`Combines drop #${eventId}`}
                     />,
                   ])}

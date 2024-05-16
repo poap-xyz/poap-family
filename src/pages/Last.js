@@ -28,22 +28,26 @@ function Last() {
     () => {
       if (!searchParams.has('page')) {
         if (perPage !== DEFAULT_PER_PAGE) {
-          setSearchParams({ page, qty: perPage })
+          setSearchParams({ page: String(page), qty: String(perPage) })
         } else {
-          setSearchParams({ page })
+          setSearchParams({ page: String(page) })
         }
       }
     },
     [page, perPage, searchParams, setSearchParams]
   )
 
+  /**
+   * @param {number} newPage
+   * @param {number} newPerPage
+   */
   const changePage = (newPage, newPerPage) => {
     if (newPerPage && newPerPage !== DEFAULT_PER_PAGE) {
-      setSearchParams({ page: newPage, qty: newPerPage })
+      setSearchParams({ page: String(newPage), qty: String(newPerPage) })
     } else if (perPage !== DEFAULT_PER_PAGE) {
-      setSearchParams({ page: newPage, qty: perPage })
+      setSearchParams({ page: String(newPage), qty: String(perPage) })
     } else {
-      setSearchParams({ page: newPage })
+      setSearchParams({ page: String(newPage) })
     }
   }
 

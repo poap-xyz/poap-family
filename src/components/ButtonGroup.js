@@ -1,7 +1,15 @@
+import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import '../styles/button-group.css'
 
-function ButtonGroup({ children, right = false, vertical = false }) {
+/**
+ * @param {PropTypes.InferProps<ButtonGroup.propTypes>} props
+ */
+function ButtonGroup({
+  children,
+  right = false,
+  vertical = false,
+}) {
   return (
     <div
       className={clsx('button-group', {
@@ -12,6 +20,12 @@ function ButtonGroup({ children, right = false, vertical = false }) {
       {children}
     </div>
   )
+}
+
+ButtonGroup.propTypes = {
+  children: PropTypes.node.isRequired,
+  right: PropTypes.bool,
+  vertical: PropTypes.bool
 }
 
 export default ButtonGroup

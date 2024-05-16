@@ -1,5 +1,7 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { chunks } from '../utils/array'
+import { DropProps } from '../models/drop'
 import { getAddressInCommonEventIds, mergeAddressesInCommon } from '../models/in-common'
 import ButtonLink from './ButtonLink'
 import Card from './Card'
@@ -33,6 +35,9 @@ function inverseOwnersSortedEntries(owners) {
   return result
 }
 
+/**
+ * @param {PropTypes.InferProps<EventsOwners.propTypes>} props
+ */
 function EventsOwners({
   children,
   owners = {},
@@ -151,6 +156,14 @@ function EventsOwners({
       </Card>
     </div>
   )
+}
+
+EventsOwners.propTypes = {
+  children: PropTypes.node.isRequired,
+  owners: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  inCommon: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
+  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
+  all: PropTypes.bool,
 }
 
 export default EventsOwners

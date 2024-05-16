@@ -1,8 +1,12 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import '../styles/menu-item.css'
 
+/**
+ * @param {PropTypes.InferProps<MenuItem.propTypes>} props
+ */
 function MenuItem({
   icon,
   label,
@@ -61,6 +65,18 @@ function MenuItem({
       )}
     </div>
   )
+}
+
+MenuItem.propTypes = {
+  icon: PropTypes.node,
+  label: PropTypes.string,
+  title: PropTypes.string,
+  href: PropTypes.string,
+  to: PropTypes.string,
+  open: PropTypes.bool,
+  external: PropTypes.bool,
+  onClick: PropTypes.func,
+  children: PropTypes.node,
 }
 
 export default MenuItem

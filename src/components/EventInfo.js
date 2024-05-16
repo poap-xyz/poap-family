@@ -1,6 +1,8 @@
+import PropTypes from 'prop-types'
 import { Fragment, useState } from 'react'
 import { clsx } from 'clsx'
 import { FastArrowLeft, FastArrowRight } from 'iconoir-react'
+import { DropProps } from '../models/drop'
 import Ilustration from '../images/Illustration_Cities_BuenosAires.png'
 import Card from './Card'
 import Stats from './Stats'
@@ -11,7 +13,16 @@ import { formatDate } from '../utils/date'
 import linkify from '../utils/linkify'
 import '../styles/event-info.css'
 
-function EventInfo({ event, stats = {}, highlightStat, buttons = [], children }) {
+/**
+ * @param {PropTypes.InferProps<EventInfo.propTypes>} props
+ */
+function EventInfo({
+  event,
+  stats = {},
+  highlightStat,
+  buttons = [],
+  children,
+}) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -45,9 +56,9 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
         </div>
       )}
       <Card
-        style={{
-          backgroundImage: `url(${Ilustration})`,
-          backgroundPosition: '-3rem -8rem',
+        ilustration={{
+          url: Ilustration,
+          pos: '-3rem -8rem',
         }}
       >
         <div className="event-info">
@@ -61,13 +72,35 @@ function EventInfo({ event, stats = {}, highlightStat, buttons = [], children })
               <div className="place">{event.city}, {event.country}</div>
             )}
             <Stats stats={stats} highlight={highlightStat} />
-            <EventButtons event={event} buttons={buttons} viewInGallery={true} />
+            <EventButtons
+              event={event}
+              buttons={buttons}
+              viewInGallery={true}
+            />
             {children}
           </div>
         </div>
       </Card>
     </div>
   )
+}
+
+EventInfo.propTypes = {
+  event: PropTypes.shape(DropProps).isRequired,
+  stats: (
+    PropTypes.objectOf(
+      PropTypes.shape({
+        text: PropTypes.string.isRequired,
+        title: PropTypes.string,
+        href: PropTypes.string,
+        external: PropTypes.bool,
+        small: PropTypes.bool,
+      })
+    ).isRequired
+  ),
+  highlightStat: PropTypes.string,
+  buttons: PropTypes.node,
+  children: PropTypes.node,
 }
 
 export default EventInfo

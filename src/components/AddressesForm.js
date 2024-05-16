@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { parseAddresses } from '../models/address'
 import Button from './Button'
@@ -6,6 +7,9 @@ import ErrorMessage from './ErrorMessage'
 import ButtonClose from './ButtonClose'
 import '../styles/addresses-form.css'
 
+/**
+ * @param {PropTypes.InferProps<AddressesForm.propTypes>} props
+ */
 function AddressesForm({
   addresses = [],
   onSubmit =
@@ -85,6 +89,12 @@ function AddressesForm({
       </div>
     </Card>
   )
+}
+
+AddressesForm.propTypes = {
+  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
 }
 
 export default AddressesForm

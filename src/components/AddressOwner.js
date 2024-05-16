@@ -1,12 +1,17 @@
+import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { SettingsContext } from '../stores/cache'
 import { ReverseEnsContext } from '../stores/ethereum'
 import { POAP_SCAN_URL } from '../models/poap'
+import { DropProps } from '../models/drop'
 import POAP_Stamp from '../images/POAP_Stamp.svg'
 import TokenImage from './TokenImage'
 import ButtonAddressProfile from './ButtonAddressProfile'
 import '../styles/owner.css'
 
+/**
+ * @param {PropTypes.InferProps<AddressOwner.propTypes>} props
+ */
 function AddressOwner({
   address,
   events,
@@ -57,6 +62,16 @@ function AddressOwner({
       )}
     </div>
   )
+}
+
+AddressOwner.propTypes = {
+  address: PropTypes.string.isRequired,
+  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
+  eventIds: PropTypes.arrayOf(PropTypes.number),
+  ownerEventIds: PropTypes.arrayOf(PropTypes.number),
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
+  linkToScan: PropTypes.bool,
 }
 
 export default AddressOwner

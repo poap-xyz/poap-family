@@ -1,12 +1,12 @@
 import axios from 'axios'
-import { FAMILY_API_KEY, FAMILY_API_URL } from '../models/api'
+import { CachedEvent, FAMILY_API_KEY, FAMILY_API_URL, InCommon } from '../models/api'
 import { encodeExpiryDates } from '../models/event'
 import { Drop, DropMetrics, DropOwners } from '../models/drop'
 import { HttpError } from '../models/error'
 
 /**
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @param {boolean} includeDescription
  * @param {boolean} includeMetrics
  * @param {boolean} refresh
@@ -126,17 +126,18 @@ export async function putEventInCommon(eventId, inCommon) {
   )
 
   if (response.status !== 200 && response.status !== 201) {
-    throw new Error(
-      `Drop ${eventId} in common save failed (status ${response.status})`
+    throw new HttpError(
+      `Drop ${eventId} in common save failed (status ${response.status})`,
+      { status: response.status }
     )
   }
 }
 
 /**
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
- *   inCommon: Record<number, string[]>
+ *   inCommon: ReturnType<InCommon>
  *   events: Record<number, ReturnType<Drop>>
  *   ts: number
  * } | null>}
@@ -192,10 +193,13 @@ export async function getInCommonEvents(eventId, abortSignal) {
   }
 
   return {
-    inCommon: body.inCommon,
+    inCommon: InCommon(body.inCommon),
     events: Object.fromEntries(
       Object.entries(body.events).map(
-        ([eventId, event]) => ([eventId, Drop(event)])
+        ([eventId, event]) => ([
+          eventId,
+          Drop(event, /*includeDescription*/false),
+        ])
       )
     ),
     ts: body.ts,
@@ -204,11 +208,11 @@ export async function getInCommonEvents(eventId, abortSignal) {
 
 /**
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {(progressEvent: { progress?: number; rate?: number; estimated?: number }) => void} onProgress
+ * @param {AbortSignal} [abortSignal]
+ * @param {(progressEvent: { progress?: number; rate?: number; estimated?: number }) => void} [onProgress]
  * @returns {Promise<{
  *   inCommon: Record<number, string[]>
- *   events: Record<number, ReturnType<Event>>
+ *   events: Record<number, ReturnType<Drop>>
  *   ts: number
  * } | null>}
  */
@@ -292,7 +296,10 @@ export async function getInCommonEventsWithProgress(
     inCommon: response.data.inCommon,
     events: Object.fromEntries(
       Object.entries(response.data.events).map(
-        ([eventId, event]) => ([eventId, Drop(event)])
+        ([eventId, event]) => ([
+          eventId,
+          Drop(event, /*includeDescription*/false),
+        ])
       )
     ),
     ts: response.data.ts,
@@ -305,13 +312,7 @@ export async function getInCommonEventsWithProgress(
  * @returns {Promise<{
  *   pages: number
  *   total: number
- *   lastEvents: Array<{
- *     id: number
- *     name: string
- *     image_url: string
- *     cached_ts: number
- *     in_common_count: number
- *   }>
+ *   lastEvents: Array<ReturnType<CachedEvent>>
  * }>}
  */
 export async function getLastEvents(page = 1, qty = 3) {
@@ -364,13 +365,13 @@ export async function getLastEvents(page = 1, qty = 3) {
   return {
     pages: body.pages,
     total: body.total,
-    lastEvents: body.lastEvents,
+    lastEvents: body.lastEvents.map((cachedEvent) => CachedEvent(cachedEvent)),
   }
 }
 
 /**
  * @param {number[]} eventIds
- * @param {AbortSignal | undefined | null} abortSignal
+ * @param {AbortSignal} [abortSignal]
  * @returns {Promise<Record<number, ReturnType<Drop>>>}
  */
 export async function getEvents(eventIds, abortSignal) {
@@ -438,15 +439,15 @@ export async function getEvents(eventIds, abortSignal) {
 
   return Object.fromEntries(
     Object.entries(body).map(
-      ([eventId, event]) => [eventId, Drop(event)]
+      ([eventId, event]) => [eventId, Drop(event, /*includeDescription*/false)]
     )
   )
 }
 
 /**
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {boolean} refresh
+ * @param {AbortSignal} [abortSignal]
+ * @param {boolean} [refresh]
  * @returns {Promise<ReturnType<DropOwners> | null>}
  */
 export async function getEventOwners(eventId, abortSignal, refresh = false) {
@@ -492,8 +493,8 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
 
 /**
  * @param {number[]} eventIds
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {Record<number, Date> | undefined} expiryDates
+ * @param {AbortSignal} [abortSignal]
+ * @param {Record<number, Date> | undefined} [expiryDates]
  * @returns {Promise<Record<number, ReturnType<DropOwners>>>}
  */
 export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
@@ -570,8 +571,8 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
 
 /**
  * @param {number} eventId
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {boolean} refresh
+ * @param {AbortSignal} [abortSignal]
+ * @param {boolean} [refresh]
  * @returns {Promise<ReturnType<DropMetrics> | null>}
  */
 export async function getEventMetrics(eventId, abortSignal, refresh = false) {
@@ -618,8 +619,8 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
 
 /**
  * @param {number[]} eventIds
- * @param {AbortSignal | undefined | null} abortSignal
- * @param {Record<number, Date> | undefined} expiryDates
+ * @param {AbortSignal} [abortSignal]
+ * @param {Record<number, Date> | undefined} [expiryDates]
  * @returns {Promise<Record<number, ReturnType<DropMetrics>>>}
  */
 export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {

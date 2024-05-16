@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { QuestionMark } from 'iconoir-react'
 import { SettingsContext } from '../stores/cache'
@@ -7,7 +8,13 @@ import LogoMenu from './LogoMenu'
 import MenuItem from './MenuItem'
 import '../styles/page.css'
 
-function Page({ children, showCorner = true }) {
+/**
+ * @param {PropTypes.InferProps<Page.propTypes>} props
+ */
+function Page({
+  children,
+  showCorner = true,
+}) {
   const { settings } = useContext(SettingsContext)
 
   return (
@@ -19,8 +26,7 @@ function Page({ children, showCorner = true }) {
             icon={<QuestionMark />}
             title="Help"
             href="https://poap.zendesk.com/hc/en-us/articles/24008770288909-How-to-navigate-POAP-Family"
-            target="_blank"
-            rel="noopener noreferrer"
+            external={true}
           />
         </LogoMenu>
         {settings && !settings.feedbackShown && <Feedback />}
@@ -35,6 +41,11 @@ function Page({ children, showCorner = true }) {
       </div>
     </div>
   )
+}
+
+Page.propTypes = {
+  children: PropTypes.node.isRequired,
+  showCorner: PropTypes.bool,
 }
 
 export default Page

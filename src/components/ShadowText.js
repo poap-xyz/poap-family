@@ -1,7 +1,16 @@
+import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import '../styles/shadow-text.css'
 
-function ShadowText({ children, grow = false, medium = false, small = false }) {
+/**
+ * @param {PropTypes.InferProps<ShadowText.propTypes>} props
+ */
+function ShadowText({
+  children,
+  grow = false,
+  medium = false,
+  small = false,
+}) {
   return (
     <div className="shadow-text">
       <div
@@ -16,6 +25,13 @@ function ShadowText({ children, grow = false, medium = false, small = false }) {
       </div>
     </div>
   )
+}
+
+ShadowText.propTypes = {
+  children: PropTypes.node.isRequired,
+  grow: PropTypes.bool,
+  medium: PropTypes.bool,
+  small: PropTypes.bool,
 }
 
 export default ShadowText
