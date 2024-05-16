@@ -92,10 +92,8 @@ function LastEvents({
           setLoading(false)
         },
         (err) => {
-          const error = new Error('Unavailable')
-          error.reason = err
           console.error(err)
-          setError(error)
+          setError(new Error('Unavailable', { cause: err }))
           setCachedEvents([])
           setLoading(false)
         }
@@ -121,10 +119,8 @@ function LastEvents({
         setLoading(false)
       },
       (err) => {
-        const error = new Error('Unavailable')
-        error.reason = err
         console.error(err)
-        setError(error)
+        setError(new Error('Unavailable', { cause: err }))
         setCachedEvents([])
         setLoading(false)
       }
