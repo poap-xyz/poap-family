@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { formatStat } from '../utils/number'
 import { parseAddress, parseAddresses } from '../models/address'
 import { parseEventIds } from '../models/event'
+import { AbortedError } from '../models/error'
 import { HTMLContext } from '../stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from '../stores/ethereum'
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
@@ -91,7 +92,7 @@ function Addresses() {
         }
         return newLoading
       })
-      if (!err.aborted) {
+      if (!(err instanceof AbortedError) && !err.aborted) {
         setErrorsByAddress((oldErrors) => ({ ...oldErrors, [address]: err }))
       }
       throw err
@@ -124,7 +125,7 @@ function Addresses() {
         }
       }
       promise.catch((err) => {
-        if (!err.aborted) {
+        if (!(err instanceof AbortedError) && !err.aborted) {
           console.error(err)
         }
       })
@@ -176,7 +177,7 @@ function Addresses() {
             }
             return newLoading
           })
-          if (!err.aborted) {
+          if (!(err instanceof AbortedError) && !err.aborted) {
             setErrorsByIndex((oldErrors) => ({ ...oldErrors, [index]: err }))
           }
           return Promise.reject(err)
@@ -236,7 +237,7 @@ function Addresses() {
             }
           }
           promise.catch((err) => {
-            if (!err.aborted) {
+            if (!(err instanceof AbortedError) && !err.aborted) {
               console.error(err)
             }
           })
@@ -494,7 +495,7 @@ function Addresses() {
     const entry = addresses[index]
     if (entry && entry.ens) {
       processEnsName(entry.ens, index).catch((err) => {
-        if (!err.aborted) {
+        if (!(err instanceof AbortedError) && !err.aborted) {
           console.error(err)
         }
       })
