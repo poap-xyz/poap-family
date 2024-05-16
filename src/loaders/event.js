@@ -2,6 +2,7 @@ import { filterInvalidOwners } from '../models/address'
 import { DEFAULT_SEARCH_LIMIT, parseEventIds } from '../models/event'
 import { Drop } from '../models/drop'
 import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
+import { HttpError } from '../models/error'
 import { getEventAndOwners, getEventMetrics, getEvents } from './api'
 import { fetchPOAPs } from './poap'
 
@@ -58,14 +59,16 @@ export async function searchEvents(
     }
 
     if (message) {
-      throw new Error(
+      throw new HttpError(
         `Search events was not success ` +
-        `(status ${response.status}): ${message}`
+        `(status ${response.status}): ${message}`,
+        { status: response.status }
       )
     } else {
-      throw new Error(
+      throw new HttpError(
         `Search events was not success ` +
-        `(status ${response.status})`
+        `(status ${response.status})`,
+        { status: response.status }
       )
     }
   }
@@ -172,12 +175,14 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
 
       for (const id of ids) {
         if (message) {
-          errorsMap[id] = new Error(
-            `Response was not success (status ${response.status}): ${message}`
+          errorsMap[id] = new HttpError(
+            `Response was not success (status ${response.status}): ${message}`,
+            { status: response.status }
           )
         } else {
-          errorsMap[id] = new Error(
-            `Response was not success (status ${response.status})`
+          errorsMap[id] = new HttpError(
+            `Response was not success (status ${response.status})`,
+            { status: response.status }
           )
         }
       }
@@ -201,10 +206,10 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
 
         for (const id of ids) {
           if (!(id in eventsMap)) {
-            const error = new Error(`Event '${id}' not found on response`)
-            error.status = 404
-            error.statusText = 'Not Found'
-            errorsMap[id] = error
+            errorsMap[id] = new HttpError(
+              `Event '${id}' not found on response`,
+              { status: 404 }
+            )
           }
         }
       } else {
@@ -266,15 +271,17 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
       console.error(err)
     }
 
-    throw new Error(
-      `Fetch event '${eventId}' response was not success: ${message}`
+    throw new HttpError(
+      `Fetch event '${eventId}' response was not success: ${message}`,
+      { status: 400 }
     )
   }
 
   if (response.status !== 200) {
-    throw new Error(
+    throw new HttpError(
       `Fetch event '${eventId}' response was not success ` +
-      `(status ${response.status})`
+      `(status ${response.status})`,
+      { status: response.status }
     )
   }
 
@@ -432,8 +439,12 @@ export async function eventsLoader({ params, request }) {
     const errorsByEventId = Object.assign({}, errors)
     const eventsNotFound = await Promise.allSettled(
       Object.entries(errors)
-        .filter(([, error]) => error.status === 404)
-        .map(([eventId]) => fetchEvent(eventId))
+        .filter(
+          ([, error]) => error instanceof HttpError && error.status === 404
+        )
+        .map(([rawEventId]) =>
+          fetchEvent(parseInt(rawEventId), /*includeDescription*/false)
+        )
     )
 
     for (const eventResult of eventsNotFound) {
@@ -462,8 +473,7 @@ export async function eventsLoader({ params, request }) {
               eventId,
               {
                 message: error.message,
-                status: error.status,
-                statusText: error.statusText,
+                status: error instanceof HttpError ? error.status : undefined,
               },
             ])
           )
