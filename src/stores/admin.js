@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { createContext, useCallback, useMemo, useState } from 'react'
 import { auth } from '../loaders/api'
 
@@ -6,10 +7,17 @@ export const AdminContext = createContext({
   passphrase: null,
   loading: false,
   error: null,
-  authenticate: (passphrase) => {},
+  authenticate:
+    /**
+     * @type {(passphrase: string) => void}
+     */
+    (passphrase) => {},
   reset: () => {},
 })
 
+/**
+ * @param {PropTypes.InferProps<AdminProvider.propTypes>} props
+ */
 export function AdminProvider({ children }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -32,6 +40,9 @@ export function AdminProvider({ children }) {
   const [error, setError] = useState(null)
 
   const authenticate = useCallback(
+    /**
+     * @param {string} passphrase
+     */
     (passphrase) => {
       setLoading(true)
       setPassphrase(passphrase)
@@ -53,7 +64,7 @@ export function AdminProvider({ children }) {
   const reset = useCallback(
     () => {
       setPassphrase(null)
-      setError(false)
+      setError(null)
     },
     []
   )
@@ -82,4 +93,8 @@ export function AdminProvider({ children }) {
       {children}
     </AdminContext.Provider>
   )
+}
+
+AdminProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 }

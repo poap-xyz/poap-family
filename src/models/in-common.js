@@ -10,6 +10,9 @@ export const INCOMMON_ADDRESSES_LIMIT = 10
  * @returns {Record<number, string[]>}
  */
 export function filterInCommon(inCommon) {
+  if (typeof inCommon !== 'object') {
+    return {}
+  }
   // With at least one in-common address.
   return Object.fromEntries(
     Object.entries(inCommon).filter(
@@ -102,4 +105,29 @@ export function getAddressInCommonEventIds(inCommon, address) {
     }
   }
   return eventIds
+}
+
+/**
+ * Given the list of events that the address has in common, retrieve all other
+ * addresses that share the same events. The given {eventIds} must be the
+ * result of `getAddressInCommonEventIds(inCommon, address)`.
+ *
+ * @param {Record<number, string[]>} inCommon
+ * @param {number[]} eventIds
+ * @param {string} address
+ * @returns {string[]}
+ */
+export function getAddressInCommonAddresses(inCommon, eventIds, address) {
+  if (eventIds.length < 2) {
+    return []
+  }
+  return mergeAddressesInCommon(
+    Object.fromEntries(
+      Object.entries(inCommon).filter(
+        ([inCommonEventId]) => eventIds.includes(parseInt(inCommonEventId))
+      )
+    )
+  ).filter(
+    (inCommonAddress) => inCommonAddress.toLowerCase() !== address.toLowerCase()
+  )
 }
