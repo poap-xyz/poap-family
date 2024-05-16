@@ -8,7 +8,7 @@ import { getEventAndOwners, getEventMetrics, getEventsMetrics, getEventsOwners, 
 import { fetchPOAPs, scanAddress } from '../loaders/poap'
 import { findEventsCollections } from '../loaders/collection'
 import { filterInvalidOwners } from '../models/address'
-import { filterAndSortInCommon, mergeAllInCommon } from '../models/in-common'
+import { filterInCommon, mergeAllInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
 import { AbortedError } from '../models/error'
 import { formatDate } from '../utils/date'
@@ -638,10 +638,12 @@ function Events() {
               !(eventId in errors) &&
               !(eventId in loading)
             ) {
-              const inCommonProcessed = filterAndSortInCommon(
+              const inCommonProcessed = filterInCommon(
                 eventData[eventId].inCommon
               )
-              const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
+              const inCommonProcessedEventIds = Object
+                .keys(inCommonProcessed)
+                .map((rawEventId) => parseInt(rawEventId))
               if (inCommonProcessedEventIds.length > 0) {
                 removeErrors(eventId)
                 setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_CACHING }))
