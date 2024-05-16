@@ -10,7 +10,7 @@ import { scanAddress } from '../loaders/poap'
 import { getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
 import { findEventsCollections } from '../loaders/collection'
 import { parseEventIds } from '../models/event'
-import { filterAndSortInCommon } from '../models/in-common'
+import { filterInCommon } from '../models/in-common'
 import { POAP_MOMENTS_URL } from '../models/poap'
 import Timestamp from '../components/Timestamp'
 import Page from '../components/Page'
@@ -142,8 +142,10 @@ function Event() {
   useEffect(
     () => {
       if (loadedCount === owners.length && !cachedTs) {
-        const inCommonProcessed = filterAndSortInCommon(inCommon)
-        const inCommonProcessedEventIds = Object.keys(inCommonProcessed)
+        const inCommonProcessed = filterInCommon(inCommon)
+        const inCommonProcessedEventIds = Object
+          .keys(inCommonProcessed)
+          .map((rawEventId) => parseInt(rawEventId))
         if (inCommonProcessedEventIds.length > 0) {
           setCaching(true)
           setCachingError(null)

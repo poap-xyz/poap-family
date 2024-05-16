@@ -1,7 +1,8 @@
 /**
  * Returns elements found in all array arguments.
  *
- * @param {...unknown[]} array
+ * @template T
+ * @param {...T[]} array
  */
 export function intersection(array) {
   const result = []
