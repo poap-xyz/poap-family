@@ -1,7 +1,7 @@
 /**
  * Returns elements found in all array arguments.
  *
- * @param {unknown[]} array
+ * @param {...unknown[]} array
  */
 export function intersection(array) {
   const result = []
@@ -58,7 +58,8 @@ export function equals(a, b) {
 /**
  * Split an array into smaller chunks.
  *
- * @param {unknown[]} array
+ * @template T
+ * @param {T[]} array
  * @param {number} len
  */
 export function chunks(array, len = 1) {

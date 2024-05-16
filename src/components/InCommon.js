@@ -30,9 +30,9 @@ function InCommon({
   events = {},
   showCount = 0,
   showActive = true,
-  createButtons = (eventIds) => ([]),
-  createActiveTopButtons = (eventId) => ([]),
-  createActiveBottomButtons = (eventId) => ([]),
+  createButtons = (eventIds) => [],
+  createActiveTopButtons = (eventId) => [],
+  createActiveBottomButtons = (eventId) => [],
 }) {
   const { settings } = useContext(SettingsContext)
   /**
@@ -193,7 +193,7 @@ function InCommon({
               <div
                 key={eventId}
                 className={clsx('in-common-event', {
-                  selected: activeEventIds.indexOf(eventId) !== -1,
+                  selected: activeEventIds.indexOf(parseInt(eventId)) !== -1,
                   perfect: showCount > 0 && showCount === addresses.length,
                 })}
                 title={events[eventId].name}
@@ -250,7 +250,7 @@ function InCommon({
                       const inCommonAddresses = inCommonEventIds.length < 2 ? [] : mergeAddressesInCommon(
                         Object.fromEntries(
                           inCommonEntries.filter(
-                            ([inCommonEventId]) => inCommonEventIds.includes(inCommonEventId)
+                            ([inCommonEventId]) => inCommonEventIds.includes(parseInt(inCommonEventId))
                           )
                         )
                       ).filter(

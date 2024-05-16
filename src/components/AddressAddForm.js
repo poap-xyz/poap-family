@@ -5,7 +5,13 @@ import Button from './Button'
 import ErrorMessage from './ErrorMessage'
 import '../styles/address-add.css'
 
-function AddressAddForm({ onSubmit = (addresses) => {} }) {
+function AddressAddForm({
+  onSubmit =
+    /**
+     * @param {string[]} addresses
+     */
+    (addresses) => {},
+}) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(null)
 

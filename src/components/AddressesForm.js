@@ -8,8 +8,12 @@ import '../styles/addresses-form.css'
 
 function AddressesForm({
   addresses = [],
-  onSubmit = (addresses) => {},
-  onClose = null,
+  onSubmit =
+    /**
+     * @param {string[]} addresses
+     */
+    (addresses) => {},
+  onClose,
 }) {
   /**
    * @type {ReturnType<typeof useState<string>>}

@@ -9,17 +9,17 @@ function MenuItem({
   title,
   href,
   to,
-  opened = false,
+  open: initialOpen = false,
+  external = false,
   onClick,
   children,
-  ...props
 }) {
   const navigate = useNavigate()
 
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
-  const [open, setOpen] = useState(opened)
+  const [open, setOpen] = useState(initialOpen)
 
   const handleClick = (event) => {
     event.preventDefault()
@@ -37,13 +37,18 @@ function MenuItem({
   return (
     <div className={clsx('menu-item', { open })}>
       {href && !to && !onClick && !children ? (
-        <a href={href} className="menu-link" {...props}>
+        <a
+          href={href}
+          className="menu-link"
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener noreferrer' : undefined}
+        >
         {icon
           ? <span className="menu-link-icon" title={title ?? label}>{icon}</span>
           : <span className="menu-link-label" title={title}>{label}</span>}
         </a>
       ) : (
-        <button className="menu-button" onClick={handleClick} {...props}>
+        <button className="menu-button" onClick={handleClick}>
           {icon
             ? <span className="menu-button-icon" title={title ?? label}>{icon}</span>
             : <span className="menu-button-label" title={title}>{label}</span>}

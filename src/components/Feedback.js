@@ -7,8 +7,16 @@ import Button from './Button'
 import ButtonLink from './ButtonLink'
 import '../styles/feedback.css'
 
+/**
+ * @param {{ pathname: string; search: string; hash: string }} url
+ * @returns {string}
+ */
 function getCurrentUrl(url) {
-  return `${url.pathname}${url.search ? `${url.search}` : ''}${url.hash ? `${url.hash}` : ''}`
+  return (
+    `${url.pathname}` +
+    `${url.search ? `${url.search}` : ''}` +
+    `${url.hash ? `${url.hash}` : ''}`
+  )
 }
 
 function Feedback() {

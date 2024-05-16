@@ -28,7 +28,7 @@ function CollectionSet({
   }
 
   const collectionEntries = Object.entries(collectionMap).filter(
-    ([label, collections]) => collections.length > 0
+    ([, collections]) => collections.length > 0
   )
 
   return (
