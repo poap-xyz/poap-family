@@ -1,11 +1,9 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { SettingsContext } from '../stores/cache'
-import { ReverseEnsContext } from '../stores/ethereum'
-import { POAP_SCAN_URL } from '../models/poap'
 import { DropProps } from '../models/drop'
-import POAP_Stamp from '../images/POAP_Stamp.svg'
 import TokenImage from './TokenImage'
+import LinkToScan from './LinkToScan'
 import ButtonAddressProfile from './ButtonAddressProfile'
 import '../styles/owner.css'
 
@@ -21,8 +19,15 @@ function AddressOwner({
   inCommonAddresses = [],
   linkToScan = false,
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
   const { settings } = useContext(SettingsContext)
+
+  const hasEvents = (
+    events != null &&
+    typeof events === 'object' &&
+    eventIds != null &&
+    Array.isArray(eventIds) &&
+    eventIds.length > 0
+  )
 
   return (
     <div className="owner">
@@ -36,45 +41,28 @@ function AddressOwner({
               inCommonAddresses={inCommonAddresses}
             />
           )
-          : (
-            <a
-              href={`${POAP_SCAN_URL}/${address}`}
-              title={`Scan ${address in ensNames ? ensNames[address] : address}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {address in ensNames
-                ? <span className="ens">{ensNames[address]}</span>
-                : <code>{address}</code>
-              }
-            </a>
-          )
+          : <LinkToScan address={address} />
         }
       </div>
       {linkToScan && (!settings || settings.openProfiles) && (
-        <a
-          className="owner-scan"
-          href={`${POAP_SCAN_URL}/${address}`}
-          title={`Scan ${address in ensNames ? ensNames[address] : address}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src={POAP_Stamp} alt={`Scan ${address}`} />
-        </a>
+        <LinkToScan address={address} className="owner-scan" stamp={true} />
       )}
-      {events != null && typeof events === 'object' && eventIds != null && Array.isArray(eventIds) && (
+      {hasEvents && (
         <div className="owner-events">
           {eventIds.map(
-            (eventId) => eventId in events && ownerEventIds.indexOf(eventId) !== -1
-              ? (
-                  <TokenImage
-                    key={eventId}
-                    event={events[eventId]}
-                    size={18}
-                    resize={true}
-                  />
-                )
-              : <div key={eventId} className="owner-event-empty">{' '}</div>
+            (eventId) =>
+              eventId in events &&
+              ownerEventIds != null &&
+              ownerEventIds.includes(eventId)
+                ? (
+                    <TokenImage
+                      key={eventId}
+                      event={events[eventId]}
+                      size={18}
+                      resize={true}
+                    />
+                  )
+                : <div key={eventId} className="owner-event-empty">{' '}</div>
           )}
         </div>
       )}
