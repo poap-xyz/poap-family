@@ -14,7 +14,7 @@ function ButtonExportAddressCsv({
   filename = 'collectors',
   addresses = [],
   children,
-  ...props
+  title,
 }) {
   const { trackLink } = useMatomo()
   const { ensNames } = useContext(ReverseEnsContext)
@@ -38,8 +38,13 @@ function ButtonExportAddressCsv({
   }
 
   return (
-    <Button {...props} icon={<Download />} onClick={handleExportCsv}>
-      {children}
+    <Button
+      title={title}
+      icon={<Download />}
+      secondary={true}
+      onClick={handleExportCsv}
+    >
+      {children ?? 'export csv'}
     </Button>
   )
 }
@@ -47,9 +52,9 @@ function ButtonExportAddressCsv({
 ButtonExportAddressCsv.propTypes = {
   name: PropTypes.string,
   filename: PropTypes.string,
-  addresses: PropTypes.arrayOf(PropTypes.string),
-  children: PropTypes.node.isRequired,
-  ...Button.propTypes,
+  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  children: PropTypes.node,
+  title:  PropTypes.string,
 }
 
 export default ButtonExportAddressCsv

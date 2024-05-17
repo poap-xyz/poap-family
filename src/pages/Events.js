@@ -1338,11 +1338,8 @@ function Events() {
                   }
                   name={Object.keys(events).length === 1 && String(eventId) === String(Object.keys(events)[0]) ? Object.values(events)[0].name : undefined}
                   addresses={inCommon[eventId]}
-                  secondary={true}
                   title={`Generates CSV file with collectors in common between drops #${eventId} and #${Object.keys(events).join(', #')}`}
-                >
-                  export csv
-                </ButtonExportAddressCsv>,
+                />,
                 <ButtonExpand
                   key="expand"
                   title={`Expands collectors in common between drops #${eventId} and #${Object.keys(events).join(', #')}`}
