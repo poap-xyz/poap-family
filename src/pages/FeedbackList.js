@@ -89,10 +89,16 @@ function FeedbackList({ qty = 10 }) {
     [setTitle]
   )
 
+  /**
+   * @param {number} newPage
+   */
   const onPageChange = (newPage) => {
-    setSearchParams({ page: newPage })
+    setSearchParams({ page: String(newPage) })
   }
 
+  /**
+   * @param {number} id
+   */
   const handleDelFeedback = (id) => {
     setFeedback((oldFeedback) => {
       const newFeedback = []
@@ -146,9 +152,7 @@ function FeedbackList({ qty = 10 }) {
             </ul>
           )}
           {error && (
-            <ErrorMessage away={true}>
-              {error.message ?? 'Unknown error'}
-            </ErrorMessage>
+            <ErrorMessage away={true} error={error} />
           )}
           {pages > 1 && (
             <Pagination
