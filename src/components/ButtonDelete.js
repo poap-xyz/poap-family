@@ -7,11 +7,11 @@ import Button from './Button'
  */
 function ButtonDelete({
   onDelete = () => {},
-  ...props
+  title,
 }) {
   return (
     <Button
-      {...props}
+      title={title}
       secondary={true}
       icon={<Minus />}
       onClick={() => onDelete()}
@@ -23,7 +23,7 @@ function ButtonDelete({
 
 ButtonDelete.propTypes = {
   onDelete: PropTypes.func.isRequired,
-  ...Button.propTypes,
+  title: PropTypes.string,
 }
 
 export default ButtonDelete

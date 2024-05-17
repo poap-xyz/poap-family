@@ -148,11 +148,8 @@ function EventsOwners({
               filename={`collectors-drop${Object.keys(events).length === 1 ? '' : 's'}-${Object.keys(events).join('+')}`}
               name={Object.keys(events).length === 1 ? Object.values(events)[0].name : undefined}
               addresses={ownersEntries.map(([address]) => address)}
-              secondary={true}
               title={`Generates CSV file with collectors in common between drop${Object.keys(events).length === 1 ? '' : 's'} #${Object.keys(events).join(', #')}`}
-            >
-              export csv
-            </ButtonExportAddressCsv>
+            />
             <ButtonExpand
               link={true}
               title={`Expands${showAll ? ' all' : ''} collectors${showAll ? '' : ' in common'} between drop${Object.keys(events).length === 1 ? '' : 's'} #${Object.keys(events).join(', #')}`}
@@ -167,7 +164,7 @@ function EventsOwners({
 }
 
 EventsOwners.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   owners: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
   inCommon: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
   events: PropTypes.objectOf(PropTypes.shape(DropProps)),

@@ -140,21 +140,23 @@ function InCommon({
 
   useEffect(
     () => {
-      /**
-       * @type {Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>>}
-       */
-      const refs = {}
-      for (const activeEventId of activeEventIds) {
-        refs[activeEventId] = {}
-        for (const owner of inCommon[activeEventId]) {
-          /**
-           * @type {ReturnType<typeof createRef<HTMLLIElement>>}
-           */
-          const ref = createRef()
-          refs[activeEventId][owner] = ref
+      if (activeEventIds.length > 0) {
+        /**
+         * @type {Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>>}
+         */
+        const refs = {}
+        for (const activeEventId of activeEventIds) {
+          refs[activeEventId] = {}
+          for (const owner of inCommon[activeEventId]) {
+            /**
+             * @type {ReturnType<typeof createRef<HTMLLIElement>>}
+             */
+            const ref = createRef()
+            refs[activeEventId][owner] = ref
+          }
         }
+        setLiRefs(refs)
       }
-      setLiRefs(refs)
     },
     [activeEventIds, inCommon]
   )

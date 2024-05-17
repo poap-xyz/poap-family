@@ -382,11 +382,8 @@ function Event() {
                 filename={`collectors-${event.id}`}
                 name={event.name}
                 addresses={owners}
-                secondary={true}
                 title={`Generates CSV file with collectors of drop #${event.id}`}
-              >
-                export csv
-              </ButtonExportAddressCsv>,
+              />,
               <ButtonMenu
                 key="moments"
                 primary={(
@@ -544,11 +541,8 @@ function Event() {
                       }
                       name={String(eventId) === String(event.id) ? event.name : undefined}
                       addresses={inCommon[eventId]}
-                      secondary={true}
                       title={`Generates CSV file with collectors in common between drops #${eventId} and #${event.id}`}
-                    >
-                      export csv
-                    </ButtonExportAddressCsv>,
+                    />,
                     <ButtonExpand
                       key="expand"
                       title={`Expands collectors in common between drops #${eventId} and #${event.id}`}
