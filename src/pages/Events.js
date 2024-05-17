@@ -1089,6 +1089,7 @@ function Events() {
                   <th className="event-head-actions">
                     <span>In Common</span>
                     <Switch
+                      id="all"
                       checked={all}
                       onChange={(event) => handleAllChange(event.target.checked)}
                       labelOn="X"
