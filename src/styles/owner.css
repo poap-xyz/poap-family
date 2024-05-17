@@ -45,12 +45,3 @@
   background-repeat: no-repeat;
   background-size: 4px 4px;
 }
-
-.owner-scan img {
-  position: relative;
-  top: 1px;
-  left: 1px;
-  margin: 0 auto;
-  width: 14px;
-  height: 14px;
-}
