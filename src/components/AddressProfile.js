@@ -152,9 +152,7 @@ function AddressProfile({
         <Loading small={true} />
       )}
       {error && (
-        <ErrorMessage>
-          <p>{error.message}</p>
-        </ErrorMessage>
+        <ErrorMessage error={error} />
       )}
       {!loading && !error && (
         <>

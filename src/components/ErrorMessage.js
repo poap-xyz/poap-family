@@ -7,6 +7,7 @@ import '../styles/error-message.css'
  */
 function ErrorMessage({
   error,
+  title: errorTitle,
   children,
   small = false,
   away = false,
@@ -21,6 +22,9 @@ function ErrorMessage({
   }
   return (
     <div className={clsx('error-message', { small, away })}>
+      {errorTitle && (
+        <h5>{errorTitle}</h5>
+      )}
       {error && (
         <p>
           {title
@@ -36,6 +40,7 @@ function ErrorMessage({
 
 ErrorMessage.propTypes = {
   error: PropTypes.instanceOf(Error),
+  title: PropTypes.node,
   children: PropTypes.node,
   small: PropTypes.bool,
   away: PropTypes.bool,

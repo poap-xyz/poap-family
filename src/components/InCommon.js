@@ -215,7 +215,9 @@ function InCommon({
       <Card>
         {children}
         {inCommonTotal === 0 && (
-          <ErrorMessage><p>No POAPs in common</p></ErrorMessage>
+          <ErrorMessage>
+            <p>No POAPs in common</p>
+          </ErrorMessage>
         )}
         {inCommonTotal > 0 && (
           <h4>

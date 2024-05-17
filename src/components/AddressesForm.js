@@ -28,9 +28,12 @@ function AddressesForm({
    */
   const [error, setError] = useState(null)
 
-  const handleChange = (event) => {
-    setValue(event.target.value)
-    if (event.target.value.length === 0) {
+  /**
+   * @param {string} newValue
+   */
+  const handleChange = (newValue) => {
+    setValue(newValue)
+    if (newValue.length === 0) {
       setError(null)
     }
   }
@@ -50,12 +53,16 @@ function AddressesForm({
     }
   }
 
-  const onKeyUp = (event) => {
-    if (event.keyCode === 27) { // [Escape]
+  /**
+   * @param {number} keyCode
+   * @param {boolean} [ctrlKey]
+   */
+  const onKeyUp = (keyCode, ctrlKey = false) => {
+    if (keyCode === 27) { // [Escape]
       if (onClose) {
         onClose()
       }
-    } else if (event.ctrlKey && event.keyCode === 13) { // [Enter]
+    } else if (ctrlKey && keyCode === 13) { // [Enter]
       handleSubmit()
     }
   }
@@ -63,7 +70,10 @@ function AddressesForm({
   return (
     <Card>
       <div className="addresses-form">
-        <h4>Enter one collector's address or <abbr title="Ethereum Name Service">ENS</abbr> by line</h4>
+        <h4>
+          Enter one collector's address or{' '}
+          <abbr title="Ethereum Name Service">ENS</abbr> by line
+        </h4>
         {onClose && (
           <div className="addresses-form-actions">
             <ButtonClose onClose={onClose} />
@@ -74,17 +84,17 @@ function AddressesForm({
           rows={15}
           cols={45}
           value={value}
-          onChange={handleChange}
-          onKeyUp={onKeyUp}
+          onChange={(event) => handleChange(event.target.value)}
+          onKeyUp={(event) => onKeyUp(event.keyCode, event.ctrlKey)}
           autoFocus={true}
           className="mono"
         >
         </textarea>
-        <Button onClick={handleSubmit} disabled={value.length === 0}>Find POAPs In Common</Button>
+        <Button onClick={() => handleSubmit()} disabled={value.length === 0}>
+          Find POAPs In Common
+        </Button>
         {error && (
-          <ErrorMessage small={true}>
-            <p>{error.message}</p>
-          </ErrorMessage>
+          <ErrorMessage small={true} error={error} />
         )}
       </div>
     </Card>
