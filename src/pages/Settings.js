@@ -40,25 +40,41 @@ function Settings() {
         <div className="setting">
           <label className="label">Show last drops</label>
           <div className="input">
-            <Switch checked={settings && settings.showLastEvents} onChange={handleShowLastEvents} />
+            <Switch
+              id="showLastEvents"
+              checked={settings && settings.showLastEvents}
+              onChange={handleShowLastEvents}
+            />
           </div>
         </div>
         <div className="setting">
           <label className="label">Auto scroll collectors</label>
           <div className="input">
-            <Switch checked={settings && settings.autoScrollCollectors} onChange={handleAutoScrollCollectors} />
+            <Switch
+              id="autoScrollCollectors"
+              checked={settings && settings.autoScrollCollectors}
+              onChange={handleAutoScrollCollectors}
+            />
           </div>
         </div>
         <div className="setting">
           <label className="label">Open profiles</label>
           <div className="input">
-            <Switch checked={settings && settings.openProfiles} onChange={handleOpenProfiles} />
+            <Switch
+              id="openProfiles"
+              checked={settings && settings.openProfiles}
+              onChange={handleOpenProfiles}
+            />
           </div>
         </div>
         <div className="setting">
           <label className="label">Show collections</label>
           <div className="input">
-            <Switch checked={settings && settings.showCollections} onChange={handleShowCollections} />
+            <Switch
+              id="showCollections"
+              checked={settings && settings.showCollections}
+              onChange={handleShowCollections}
+            />
           </div>
         </div>
       </Card>

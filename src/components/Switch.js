@@ -5,6 +5,7 @@ import '../styles/switch.css'
  * @param {PropTypes.InferProps<Switch.propTypes>} props
  */
 function Switch({
+  id,
   checked,
   onChange,
   labelOff = 'No',
@@ -27,6 +28,7 @@ function Switch({
 }
 
 Switch.propTypes = {
+  id: PropTypes.string.isRequired,
   checked: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
   labelOff: PropTypes.string,
