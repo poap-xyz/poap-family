@@ -25,8 +25,7 @@ function MenuItem({
    */
   const [open, setOpen] = useState(initialOpen)
 
-  const handleClick = (event) => {
-    event.preventDefault()
+  const handleClick = () => {
     if (children) {
       setOpen((o) => !o)
     }
@@ -52,7 +51,10 @@ function MenuItem({
           : <span className="menu-link-label" title={title}>{label}</span>}
         </a>
       ) : (
-        <button className="menu-button" onClick={handleClick}>
+        <button className="menu-button" onClick={(event) => {
+          event.preventDefault()
+          handleClick()
+        }}>
           {icon
             ? <span className="menu-button-icon" title={title ?? label}>{icon}</span>
             : <span className="menu-button-label" title={title}>{label}</span>}

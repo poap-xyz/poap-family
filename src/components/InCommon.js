@@ -201,6 +201,10 @@ function InCommon({
     ))
   }
 
+  /**
+   * @param {number} activeEventId
+   * @param {string} owner
+   */
   const onOwnerLeave = (activeEventId, owner) => {
     setOwnerHighlighted((current) => (
       current === owner &&
