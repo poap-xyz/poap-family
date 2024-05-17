@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { createRef, useContext, useEffect, useState } from 'react'
+import { createRef, useContext, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { SettingsContext } from '../stores/cache'
@@ -65,13 +65,19 @@ function InCommon({
    */
   const [liRefs, setLiRefs] = useState({})
 
-  const inCommonEntries = sortInCommonEntries(
-    Object
-      .entries(filterInCommon(initialInCommon))
-      .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+  const inCommonEntries = useMemo(() =>
+    sortInCommonEntries(
+      Object
+        .entries(filterInCommon(initialInCommon))
+        .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+    ),
+    [initialInCommon]
   )
 
-  const inCommon = Object.fromEntries(inCommonEntries)
+  const inCommon = useMemo(
+    () => Object.fromEntries(inCommonEntries),
+    [inCommonEntries]
+  )
 
   let inCommonEventsAddresses = inCommonEntries.slice()
   let inCommonLimit = INCOMMON_EVENTS_LIMIT
@@ -146,16 +152,20 @@ function InCommon({
          */
         const refs = {}
         for (const activeEventId of activeEventIds) {
-          refs[activeEventId] = {}
-          for (const owner of inCommon[activeEventId]) {
-            /**
-             * @type {ReturnType<typeof createRef<HTMLLIElement>>}
-             */
-            const ref = createRef()
-            refs[activeEventId][owner] = ref
+          if (inCommon[activeEventId].length > 0) {
+            refs[activeEventId] = {}
+            for (const owner of inCommon[activeEventId]) {
+              /**
+               * @type {ReturnType<typeof createRef<HTMLLIElement>>}
+               */
+              const ref = createRef()
+              refs[activeEventId][owner] = ref
+            }
           }
         }
-        setLiRefs(refs)
+        if (Object.keys(refs).length > 0) {
+          setLiRefs(refs)
+        }
       }
     },
     [activeEventIds, inCommon]
@@ -355,7 +365,7 @@ function InCommon({
                   </ul>
                 </div>
                 <EventButtons
-                  event={{ id: activeEventId }}
+                  event={events[activeEventId]}
                   viewInGallery={true}
                   buttons={createActiveBottomButtons(activeEventId)}
                 />
