@@ -26,6 +26,42 @@ export function intersection(array) {
 }
 
 /**
+ * @template T
+ * @param {...T[]} arrays
+ * @returns {T[]}
+ */
+export function union() {
+  /**
+   * @type {Set<T>}
+   */
+  const all = new Set()
+  for (let i = 0; i < arguments.length; i++) {
+    const arg = arguments[i]
+    if (Array.isArray(arg)) {
+      /**
+       * @type {T[]}
+       */
+      const array = arg.flat()
+      for (const item of array) {
+        all.add(item)
+      }
+    } else {
+      all.add(arg)
+    }
+  }
+  return [...all]
+}
+
+/**
+ * @template T
+ * @param {T[]} array
+ * @returns {T[]}
+ */
+export function uniq(array) {
+  return [...new Set([...array])]
+}
+
+/**
  * Returns true when {a} and {b} are equal no matter their order.
  *
  * @param {unknown[]} a

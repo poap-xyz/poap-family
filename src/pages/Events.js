@@ -11,6 +11,7 @@ import { filterInvalidOwners } from '../models/address'
 import { filterInCommon, mergeAllInCommon } from '../models/in-common'
 import { parseEventIds, parseExpiryDates } from '../models/event'
 import { AbortedError } from '../models/error'
+import { union, uniq } from '../utils/array'
 import { formatDate } from '../utils/date'
 import Timestamp from '../components/Timestamp'
 import Card from '../components/Card'
@@ -115,6 +116,93 @@ function Events() {
 
   /**
    * @param {number} eventId
+   * @param {string[]} owners
+   */
+  const updateEventOwners = (eventId, owners) => {
+    setOwners((prevOwners) => ({
+      ...prevOwners,
+      [eventId]: filterInvalidOwners(owners),
+    }))
+  }
+
+  /**
+   * @param {Record<number, string[]>} eventsOwners 
+   */
+  const updateEventsOwners = (eventsOwners) => {
+    setOwners((prevOwners) => ({
+      ...prevOwners,
+      ...Object.fromEntries(
+        Object.entries(eventsOwners).map(
+          ([rawEventId, owners]) => [
+            rawEventId,
+            filterInvalidOwners(owners),
+          ]
+        )
+      ),
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {{ emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }} metrics
+   */
+  const updateEventMetrics = (eventId, metrics) => {
+    if (metrics == null) {
+      return
+    }
+    setMetrics((prevMetrics) => ({
+      ...prevMetrics,
+      [eventId]: metrics,
+    }))
+  }
+
+  /**
+   * @param {Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>} eventsMetrics 
+   */
+  const updateEventsMetrics = (eventsMetrics) => {
+    if (eventsMetrics == null) {
+      return
+    }
+    setMetrics((prevMetrics) => ({
+      ...prevMetrics,
+      ...Object.fromEntries(
+        Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
+      ),
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const setLoadingOwners = (eventId) => {
+    setLoading((alsoLoading) => ({
+      ...alsoLoading,
+      [eventId]: LOADING_OWNERS,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const setLoadingScans = (eventId) => {
+    setLoading((alsoLoading) => ({
+      ...alsoLoading,
+      [eventId]: LOADING_SCANS,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const setLoadingCaching = (eventId) => {
+    setLoading((alsoLoading) => ({
+      ...alsoLoading,
+      [eventId]: LOADING_CACHING,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
    */
   const removeLoading = (eventId) => {
     setLoading((alsoLoading) => {
@@ -134,7 +222,17 @@ function Events() {
   /**
    * @param {number} eventId
    */
-  const removeProgress = (eventId) => {
+  const enableProgress = (eventId) => {
+    setProgress((oldProgress) => ({
+      ...oldProgress,
+      [eventId]: true,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const disableProgress = (eventId) => {
     setProgress((alsoProgress) => {
       /**
        * @type {Record<number, boolean>}
@@ -169,8 +267,19 @@ function Events() {
 
   /**
    * @param {number} eventId
+   * @param {Error} err
    */
-  const removeErrors = (eventId) => {
+  const updateError = (eventId, err) => {
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [eventId]: err,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const removeError = (eventId) => {
     setErrors((alsoErrors) => {
       /**
        * @type {Record<number, Error>}
@@ -182,6 +291,38 @@ function Events() {
         }
       }
       return newErrors
+    })
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {string} address
+   * @param {Error} err
+   */
+  const updateEventOwnerError = (eventId, address, err) => {
+    setEventOwnerErrors((oldEventOwnerErrors) => ({
+      ...oldEventOwnerErrors,
+      [eventId]: {
+        ...(oldEventOwnerErrors[eventId] ?? {}),
+        [address]: err,
+      },
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {string} address
+   */
+  const removeEventOwnerError = (eventId, address) => {
+    setEventOwnerErrors((oldEventOwnerErrors) => {
+      if (eventId in oldEventOwnerErrors && address in oldEventOwnerErrors[eventId]) {
+        if (Object.keys(oldEventOwnerErrors[eventId]).length === 1) {
+          delete oldEventOwnerErrors[eventId]
+        } else {
+          delete oldEventOwnerErrors[eventId][address]
+        }
+      }
+      return oldEventOwnerErrors
     })
   }
 
@@ -203,6 +344,137 @@ function Events() {
     })
   }
 
+  /**
+   * @param {number} eventId
+   * @param {string} address
+   * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
+   */
+  const updateEventOwnerData = (eventId, address, event) => {
+    setEventData((prevEventData) => {
+      if (eventId in prevEventData) {
+        if (event.id in prevEventData[eventId].inCommon) {
+          if (!prevEventData[eventId].inCommon[event.id].includes(address)) {
+            return {
+              ...prevEventData,
+              [eventId]: {
+                events: {
+                  ...prevEventData[eventId].events,
+                  [event.id]: event,
+                },
+                inCommon: {
+                  ...prevEventData[eventId].inCommon,
+                  [event.id]: [
+                    ...prevEventData[eventId].inCommon[event.id],
+                    address,
+                  ],
+                },
+                ts: null,
+              },
+            }
+          }
+          return {
+            ...prevEventData,
+            [eventId]: {
+              events: {
+                ...prevEventData[eventId].events,
+                [event.id]: event,
+              },
+              inCommon: prevEventData[eventId].inCommon,
+              ts: null,
+            },
+          }
+        }
+        return {
+          ...prevEventData,
+          [eventId]: {
+            events: {
+              ...prevEventData[eventId].events,
+              [event.id]: event,
+            },
+            inCommon: {
+              ...prevEventData[eventId].inCommon,
+              [event.id]: [address],
+            },
+            ts: null,
+          },
+        }
+      }
+      return {
+        ...prevEventData,
+        [eventId]: {
+          events: {
+            [event.id]: event,
+          },
+          inCommon: {
+            [event.id]: [address],
+          },
+          ts: null,
+        },
+      }
+    })
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {{ events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number }} data
+   */
+  const updateEventData = (eventId, data) => {
+    setEventData((prevEventData) => ({
+      ...prevEventData,
+      [eventId]: {
+        events: data.events,
+        inCommon: data.inCommon,
+        ts: data.ts,
+      },
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {number} [ts]
+   */
+  const updateEventCachedTs = (eventId, ts) => {
+    if (ts == null) {
+      ts = Math.trunc(Date.now() / 1000)
+    }
+    setEventData((prevEventData) => ({
+      ...prevEventData,
+      [eventId]: {
+        events: prevEventData[eventId].events,
+        inCommon: prevEventData[eventId].inCommon,
+        ts,
+      },
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const incrLoadedCount = (eventId) => {
+    setLoadedCount((prevLoadedCount) => ({
+      ...prevLoadedCount,
+      [eventId]: (prevLoadedCount[eventId] ?? 0) + 1,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   * @param {number} count
+   */
+  const fixLoadedCount = (eventId, count) => {
+    setLoadedCount((prevLoadedCount) => ({
+      ...prevLoadedCount,
+      [eventId]: count,
+    }))
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const addStaleEvent = (eventId) => {
+    setStaleEvents((oldStaleEvents) => uniq([...oldStaleEvents, eventId]))
+  }
+
   const loadCahedOwnersAndMetrics = useCallback(
     /**
      * @param {number} eventId
@@ -213,8 +485,8 @@ function Events() {
       if (eventId in owners) {
         return Promise.resolve()
       }
-      removeErrors(eventId)
-      setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
+      removeError(eventId)
+      setLoadingOwners(eventId)
       return getEventAndOwners(
         eventId,
         abortSignal,
@@ -225,19 +497,19 @@ function Events() {
         (eventAndOwners) => {
           removeLoading(eventId)
           if (eventAndOwners != null) {
-            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: eventAndOwners.owners }))
-            if (eventAndOwners.metrics) {
-              setMetrics((oldReservations) => ({ ...oldReservations, [eventId]: eventAndOwners.metrics }))
-            }
+            updateEventOwners(eventId, eventAndOwners.owners)
+            updateEventMetrics(eventId, eventAndOwners.metrics)
           } else {
-            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: [] }))
+            updateEventOwners(eventId, [])
           }
           return Promise.resolve()
         },
         (err) => {
           removeLoading(eventId)
           if (!(err instanceof AbortedError) && !err.aborted) {
-            setErrors((prevErrors) => ({ ...prevErrors, [eventId]: err }))
+            updateError(eventId, new Error('Could not fetch drop and collectors', {
+              cause: err,
+            }))
             return Promise.reject(err)
           }
           return Promise.resolve()
@@ -257,8 +529,8 @@ function Events() {
       if (eventId in owners) {
         return Promise.resolve()
       }
-      removeErrors(eventId)
-      setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_OWNERS }))
+      removeError(eventId)
+      setLoadingOwners(eventId)
       return Promise.allSettled([
         fetchPOAPs(eventId, abortSignal),
         getEventMetrics(eventId, abortSignal, force),
@@ -266,20 +538,31 @@ function Events() {
         ([eventOwnerTokensResult, eventMetricsResult]) => {
           removeLoading(eventId)
           if (eventOwnerTokensResult.status === 'fulfilled') {
-            const eventOwnerTokens = eventOwnerTokensResult.value
-            const newOwners = filterInvalidOwners(
-              eventOwnerTokens.map((token) => token.owner)
+            updateEventOwners(
+              eventId,
+              eventOwnerTokensResult.value.map((token) => token.owner)
             )
-            setOwners((prevOwners) => ({ ...prevOwners, [eventId]: newOwners }))
           } else {
             console.error(eventOwnerTokensResult.reason)
-            return Promise.reject(new Error(`Tokens for drop '${eventId}' failed to fetch`))
+            if (
+              !(eventOwnerTokensResult.reason instanceof AbortedError) &&
+              !eventOwnerTokensResult.reason.aborted
+            ) {
+              updateError(
+                eventId,
+                new Error(`Tokens for drop '${eventId}' failed to fetch`, {
+                  cause: eventOwnerTokensResult.reason,
+                })
+              )
+            }
+            return Promise.reject(
+              new Error(`Tokens for drop '${eventId}' failed to fetch`, {
+                cause: eventOwnerTokensResult.reason,
+              })
+            )
           }
           if (eventMetricsResult.status === 'fulfilled') {
-            const eventMetrics = eventMetricsResult.value
-            if (eventMetrics) {
-              setMetrics((oldReservations) => ({ ...oldReservations, [eventId]: eventMetrics }))
-            }
+            updateEventMetrics(eventId, eventMetricsResult.value)
           } else {
             console.error(eventMetricsResult.reason)
           }
@@ -288,7 +571,12 @@ function Events() {
         (err) => {
           removeLoading(eventId)
           if (!(err instanceof AbortedError) && !err.aborted) {
-            setErrors((prevErrors) => ({ ...prevErrors, [eventId]: err }))
+            updateError(
+              eventId,
+              new Error('Could not fetch collectors or metrics', {
+                cause: err,
+              })
+            )
             return Promise.reject(err)
           }
           return Promise.resolve()
@@ -310,59 +598,21 @@ function Events() {
       return scanAddress(address, abortSignal).then(
         (ownerTokens) => {
           for (const ownerToken of ownerTokens) {
-            const ownerTokenEventId = ownerToken.event.id
-            setEventData((prevEventData) => {
-              if (eventId in prevEventData) {
-                if (ownerTokenEventId in prevEventData[eventId].inCommon) {
-                  if (prevEventData[eventId].inCommon[ownerTokenEventId].indexOf(address) === -1) {
-                    return {
-                      ...prevEventData,
-                      [eventId]: {
-                        events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                        inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [...prevEventData[eventId].inCommon[ownerTokenEventId], address] },
-                        ts: null,
-                      },
-                    }
-                  }
-                  return {
-                    ...prevEventData,
-                    [eventId]: {
-                      events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                      inCommon: prevEventData[eventId].inCommon,
-                      ts: null,
-                    },
-                  }
-                }
-                return {
-                  ...prevEventData,
-                  [eventId]: {
-                    events: { ...prevEventData[eventId].events, [ownerTokenEventId]: ownerToken.event },
-                    inCommon: { ...prevEventData[eventId].inCommon, [ownerTokenEventId]: [address] },
-                    ts: null,
-                  },
-                }
-              }
-              return {
-                ...prevEventData,
-                [eventId]: {
-                  events: { [ownerTokenEventId]: ownerToken.event },
-                  inCommon: { [ownerTokenEventId]: [address] },
-                  ts: null,
-                },
-              }
-            })
+            if (ownerToken.event) {
+              updateEventOwnerData(eventId, address, ownerToken.event)
+            } else {
+              updateEventOwnerError(
+                eventId,
+                address,
+                new Error(`Missing token event for ${address}`)
+              )
+            }
           }
-          setLoadedCount((prevLoadedCount) => ({ ...prevLoadedCount, [eventId]: (prevLoadedCount[eventId] ?? 0) + 1 }))
+          incrLoadedCount(eventId)
           return Promise.resolve()
         },
         (err) => {
-          setEventOwnerErrors((oldEventOwnerErrors) => ({
-            ...oldEventOwnerErrors,
-            [eventId]: {
-              ...(oldEventOwnerErrors[eventId] ?? {}),
-              [address]: err,
-            },
-          }))
+          updateEventOwnerError(eventId, address, err)
           if (!(err instanceof AbortedError) && !err.aborted) {
             return Promise.reject(err)
           }
@@ -383,22 +633,24 @@ function Events() {
        * @type {string[]}
        */
       const processedOwners = []
-      setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
-      setProgress((oldProgress) => ({ ...oldProgress, [eventId]: true }))
+      setLoadingScans(eventId)
+      enableProgress(eventId)
       let promise = new Promise((r) => { r() })
       for (const owner of owners[eventId]) {
         if (processedOwners.indexOf(owner) !== -1) {
           continue
         }
-        promise = promise.then(
-          () => processEventAddress(eventId, owner, controllers[owner].signal),
-          () => processEventAddress(eventId, owner, controllers[owner].signal)
+        const process = () => processEventAddress(
+          eventId,
+          owner,
+          controllers[owner].signal
         )
+        promise = promise.then(process, process)
         processedOwners.push(owner)
       }
       promise.then(
         () => {
-          removeProgress(eventId)
+          disableProgress(eventId)
           removeLoading(eventId)
         },
         (err) => {
@@ -422,7 +674,9 @@ function Events() {
         setCollectionData(eventCollectionsData)
         setLoadingCollections(false)
       }).catch((err) => {
-        setCollectionsError(err?.message ?? 'Could not load collections')
+        setCollectionsError(new Error('Could not load collections', {
+          cause: err,
+        }))
         setLoadingCollections(false)
       })
     },
@@ -454,12 +708,7 @@ function Events() {
             getEventsMetrics(eventIds, controller.signal, expiryDates),
           ]).then(
             ([eventsOwners, eventsMetrics]) => {
-              if (eventsMetrics) {
-                const foundMetrics = Object.fromEntries(
-                  Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
-                )
-                setMetrics((oldReservations) => ({ ...oldReservations, ...foundMetrics }))
-              }
+              updateEventsMetrics(eventsMetrics)
               if (eventsOwners) {
                 const newOwners = Object.fromEntries(
                   Object.entries(eventsOwners)
@@ -470,21 +719,13 @@ function Events() {
                       ]
                     )
                 )
-                setOwners((oldOwners) => ({ ...oldOwners, ...newOwners }))
+                updateEventsOwners(newOwners)
                 if (Object.keys(newOwners).length === eventIds.length) {
                   resolveEnsNames(
-                    [
-                      ...new Set(
-                        Object.values(newOwners).reduce(
-                          (allOwners, eventOwners) => ([
-                            ...allOwners,
-                            ...eventOwners,
-                          ]),
-                          []
-                        ),
-                      ),
-                    ]
-                  )
+                    union(...Object.values(newOwners))
+                  ).catch((err) => {
+                    console.error(err)
+                  })
                   setStatus(STATUS_LOADING_SCANS)
                 } else {
                   setStatus(STATUS_LOADING_OWNERS)
@@ -506,10 +747,10 @@ function Events() {
         let promise = new Promise((r) => { r() })
         for (const eventId of eventIds) {
           const controller = new AbortController()
-          promise = promise.then(
-            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal),
-            () => force ? loadOwnersAndMetrics(eventId, controller.signal) : loadCahedOwnersAndMetrics(eventId, controller.signal)
-          )
+          const process = () => force
+            ? loadOwnersAndMetrics(eventId, controller.signal)
+            : loadCahedOwnersAndMetrics(eventId, controller.signal)
+          promise = promise.then(process, process)
           controllers.push(controller)
         }
       }
@@ -555,7 +796,7 @@ function Events() {
             {}
           )
           const process = force ? () => processEvent(eventId, ownerControllers) : () => {
-            setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
+            setLoadingScans(eventId)
             return getInCommonEventsWithProgress(
               eventId,
               controller.signal,
@@ -565,22 +806,12 @@ function Events() {
             ).then(
               (result) => {
                 removeLoadedProgress(eventId)
-                if (!result) {
+                if (result == null) {
                   return processEvent(eventId, ownerControllers)
                 } else {
-                  setEventData((prevEventData) => ({
-                    ...prevEventData,
-                    [eventId]: {
-                      events: result.events,
-                      inCommon: result.inCommon,
-                      ts: result.ts,
-                    },
-                  }))
+                  updateEventData(eventId, result)
                   if (eventId in result.inCommon) {
-                    setLoadedCount((prevLoadedCount) => ({
-                      ...prevLoadedCount,
-                      [eventId]: result.inCommon[eventId].length,
-                    }))
+                    fixLoadedCount(eventId, result.inCommon[eventId].length)
                   }
                   removeLoading(eventId)
                   return Promise.resolve()
@@ -616,19 +847,9 @@ function Events() {
     () => {
       if (status === STATUS_INITIAL) {
         if (Object.keys(events).length === Object.keys(owners).length) {
-          resolveEnsNames(
-            [
-              ...new Set(
-                Object.values(owners).reduce(
-                  (allOwners, eventOwners) => ([
-                    ...allOwners,
-                    ...eventOwners,
-                  ]),
-                  []
-                ),
-              )
-            ]
-          )
+          resolveEnsNames(union(...Object.values(owners))).catch((err) => {
+            console.error(err)
+          })
           setStatus(STATUS_LOADING_SCANS)
         }
       } else if (status === STATUS_LOADING_OWNERS) {
@@ -668,30 +889,17 @@ function Events() {
                 .keys(inCommonProcessed)
                 .map((rawEventId) => parseInt(rawEventId))
               if (inCommonProcessedEventIds.length > 0) {
-                removeErrors(eventId)
-                setLoading((alsoLoading) => ({
-                  ...alsoLoading,
-                  [eventId]: LOADING_CACHING,
-                }))
+                removeError(eventId)
+                setLoadingCaching(eventId)
                 putEventInCommon(eventId, inCommonProcessed).then(
                   () => {
-                    setEventData((prevEventData) => ({
-                      ...prevEventData,
-                      [eventId]: {
-                        events: prevEventData[eventId].events,
-                        inCommon: prevEventData[eventId].inCommon,
-                        ts: Math.trunc(Date.now() / 1000),
-                      },
-                    }))
+                    updateEventCachedTs(eventId)
                     removeLoading(eventId)
                   },
                   (err) => {
                     console.error(err)
-                    setErrors((prevErrors) => ({
-                      ...prevErrors,
-                      [eventId]: new Error('Could not cache drop', {
-                        cause: err,
-                      }),
+                    updateError(eventId, new Error('Could not cache drop', {
+                      cause: err,
                     }))
                     removeLoading(eventId)
                   }
@@ -705,7 +913,7 @@ function Events() {
             eventData[eventId].inCommon[eventId].length !== owners[eventId].length
           ) {
             eventsLoaded++
-            setStaleEvents((oldStaleEvents) => ([...new Set([...oldStaleEvents, eventId])]))
+            addStaleEvent(eventId)
           }
         }
         if (eventsLoaded === eventIds.length) {
@@ -736,7 +944,7 @@ function Events() {
    * @param {number} eventId
    */
   const retryLoadOwners = (eventId) => {
-    removeErrors(eventId)
+    removeError(eventId)
     loadCahedOwnersAndMetrics(eventId)
   }
 
@@ -745,21 +953,12 @@ function Events() {
    * @param {string} address
    */
   const retryEventAddress = (eventId, address) => {
-    setLoading((alsoLoading) => ({ ...alsoLoading, [eventId]: LOADING_SCANS }))
-    setProgress((oldProgress) => ({ ...oldProgress, [eventId]: true }))
-    setEventOwnerErrors((oldEventOwnerErrors) => {
-      if (eventId in oldEventOwnerErrors && address in oldEventOwnerErrors[eventId]) {
-        if (Object.keys(oldEventOwnerErrors[eventId]).length === 1) {
-          delete oldEventOwnerErrors[eventId]
-        } else {
-          delete oldEventOwnerErrors[eventId][address]
-        }
-      }
-      return oldEventOwnerErrors
-    })
+    setLoadingScans(eventId)
+    enableProgress(eventId)
+    removeEventOwnerError(eventId, address)
     processEventAddress(eventId, address).then(() => {
       if ((loadedCount[eventId] ?? 0) + 1 === owners[eventId].length) {
-        removeProgress(eventId)
+        disableProgress(eventId)
         removeLoading(eventId)
       }
     })
