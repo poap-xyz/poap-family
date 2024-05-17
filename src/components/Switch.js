@@ -14,6 +14,7 @@ function Switch({
   return (
     <label className="switch">
       <input
+        id={id}
         type="checkbox"
         checked={checked}
         onChange={onChange}
