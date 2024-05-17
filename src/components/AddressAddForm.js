@@ -12,12 +12,21 @@ function AddressAddForm({
      */
     (addresses) => {},
 }) {
+  /**
+   * @type {ReturnType<typeof useState<string>>}
+   */
   const [value, setValue] = useState('')
+  /**
+   * @type {ReturnType<typeof useState<Error | null>>}
+   */
   const [error, setError] = useState(null)
 
-  const handleChange = (event) => {
-    setValue(event.target.value)
-    if (event.target.value.length === 0) {
+  /**
+   * @param {string} newValue
+   */
+  const handleChange = (newValue) => {
+    setValue(newValue)
+    if (newValue.length === 0) {
       setError(null)
     }
   }
@@ -38,10 +47,13 @@ function AddressAddForm({
     }
   }
 
-  const onKeyUp = (event) => {
-    if (event.keyCode === 13) { // [Enter]
+  /**
+   * @param {number} keyCode
+   */
+  const onKeyUp = (keyCode) => {
+    if (keyCode === 13) { // [Enter]
       handleClick()
-    } else if (event.keyCode === 27) { // [Escape]
+    } else if (keyCode === 27) { // [Escape]
       setValue('')
       setError(null)
     }
@@ -56,22 +68,20 @@ function AddressAddForm({
           required={true}
           size={45}
           value={value}
-          onChange={handleChange}
-          onKeyUp={onKeyUp}
+          onChange={(event) => handleChange(event.target.value)}
+          onKeyUp={(event) => onKeyUp(event.keyCode)}
         />
         <Button
           icon={<Plus />}
           secondary={true}
-          onClick={handleClick}
+          onClick={() => handleClick()}
           disabled={value.length === 0}
         >
           Add
         </Button>
       </div>
       {error && (
-        <ErrorMessage small={true}>
-          <p>{error.message}</p>
-        </ErrorMessage>
+        <ErrorMessage small={true} error={error} />
       )}
     </div>
   )

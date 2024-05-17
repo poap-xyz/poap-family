@@ -527,9 +527,7 @@ function Addresses() {
             <Card>
               <div className="addresses-errors">
                 {errors.map((error) => (
-                  <ErrorMessage key={error.message}>
-                    <p>{error.message}</p>
-                  </ErrorMessage>
+                  <ErrorMessage key={error.message} error={error} />
                 ))}
               </div>
             </Card>
@@ -651,9 +649,7 @@ function Addresses() {
           <Card>
             <div className="addresses-errors">
               {errors.map((error) => (
-                <ErrorMessage key={error.message}>
-                  <p>{error.message}</p>
-                </ErrorMessage>
+                <ErrorMessage key={error.message} error={error} />
               ))}
             </div>
           </Card>

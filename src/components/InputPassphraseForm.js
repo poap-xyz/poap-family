@@ -21,16 +21,22 @@ function InputPassphraseForm({
     onSubmit(passphrase)
   }
 
-  const onChange = (event) => {
-    setPassphrase(event.target.value)
+  /**
+   * @param {string} newValue
+   */
+  const onChange = (newValue) => {
+    setPassphrase(newValue)
   }
 
-  const onKeyUp = (event) => {
-    if (event.keyCode === 27) { // [Escape]
+  /**
+   * @param {number} keyCode
+   */
+  const onKeyUp = (keyCode) => {
+    if (keyCode === 27) { // [Escape]
       if (onClose) {
         onClose()
       }
-    } else if (event.keyCode === 13) { // [Enter]
+    } else if (keyCode === 13) { // [Enter]
       handleSubmit()
     }
   }
@@ -42,8 +48,8 @@ function InputPassphraseForm({
         type="password"
         className="input-passphrase"
         value={passphrase}
-        onChange={onChange}
-        onKeyUp={onKeyUp}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyUp={(event) => onKeyUp(event.keyCode)}
         autoFocus={true}
       />
       <ButtonGroup>

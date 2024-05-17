@@ -7,17 +7,24 @@ import ErrorMessage from './ErrorMessage'
  */
 function AddressErrorList({
   errors,
-  onRetry = (address) => {},
+  onRetry =
+    /**
+     * @param {string} address
+     */
+    (address) => {},
 }) {
   if (errors.length === 0) {
-    return undefined
+    return null
   }
+
   return (
     <div className="address-error-list">
       {errors.map((error, index) =>
-        <ErrorMessage key={index}>
-          <p><code>{error.address}</code></p>
-          <p><small>{error.error.message}</small></p>
+        <ErrorMessage
+          key={index}
+          title={<code>{error.address}</code>}
+          error={error.error}
+        >
           <ButtonLink onClick={() => onRetry(error.address)}>retry</ButtonLink>
         </ErrorMessage>
       )}

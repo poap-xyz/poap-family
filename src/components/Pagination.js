@@ -20,6 +20,9 @@ function Pagination({
   const items = []
   const elements = []
 
+  /**
+   * @param {number} current
+   */
   const renderElement = (current) => (
     <Button
       key={current}
@@ -31,6 +34,9 @@ function Pagination({
     </Button>
   )
 
+  /**
+   * @param {number} current
+   */
   const renderBreak = (current) => (
     <span key={current} className="break">...</span>
   )
