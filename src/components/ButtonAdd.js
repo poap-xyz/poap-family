@@ -7,11 +7,11 @@ import Button from './Button'
  */
 function ButtonAdd({
   onAdd = () => {},
-  ...props
+  title,
 }) {
   return (
     <Button
-      {...props}
+      title={title}
       secondary={true}
       borderless={true}
       icon={<Plus />}
@@ -24,7 +24,7 @@ function ButtonAdd({
 
 ButtonAdd.propTypes = {
   onAdd: PropTypes.func.isRequired,
-  ...Button.propTypes,
+  title: PropTypes.string,
 }
 
 export default ButtonAdd
