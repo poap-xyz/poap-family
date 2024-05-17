@@ -311,8 +311,11 @@ function Search() {
     }
   }
 
-  function onQueryKeyUp(event) {
-    if (event.keyCode === 13) { // [Enter]
+  /**
+   * @param {number} keyCode
+   */
+  function onQueryKeyUp(keyCode) {
+    if (keyCode === 13) { // [Enter]
       onSearch()
     }
   }
@@ -580,8 +583,8 @@ function Search() {
             type="search"
             name="query"
             placeholder="Search POAPs"
-            onChange={onQueryChange}
-            onKeyUp={onQueryKeyUp}
+            onChange={() => onQueryChange()}
+            onKeyUp={(event) => onQueryKeyUp(event.keyCode)}
             autoComplete="off"
             maxLength={256}
             size={24}

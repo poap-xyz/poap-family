@@ -10,13 +10,17 @@ import '../styles/cached-drops.css'
  * @param {PropTypes.InferProps<CachedEventList.propTypes>} props
  */
 function CachedEventList({
+  cachedEvents,
   maxHeight,
   tokenImageSize = 48,
   showCachedTs = true,
   showInCommonCount = true,
   showClear = true,
-  cachedEvents,
-  onClear = (eventId) => {},
+  onClear =
+    /**
+     * @param {number} eventId
+     */
+    (eventId) => {},
 }) {
   return (
     <ul className="cached-drops" style={{ maxHeight }}>
@@ -55,12 +59,12 @@ function CachedEventList({
 }
 
 CachedEventList.propTypes = {
+  cachedEvents: PropTypes.arrayOf(PropTypes.shape(CachedEventProps)).isRequired,
   maxHeight: PropTypes.number,
   tokenImageSize: PropTypes.number,
   showCachedTs: PropTypes.bool,
   showInCommonCount: PropTypes.bool,
   showClear: PropTypes.bool,
-  cachedEvents: PropTypes.arrayOf(PropTypes.shape(CachedEventProps)).isRequired,
   onClear: PropTypes.func,
 }
 
