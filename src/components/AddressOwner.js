@@ -37,7 +37,12 @@ function AddressOwner({
             />
           )
           : (
-            <a href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`${POAP_SCAN_URL}/${address}`}
+              title={`Scan ${address in ensNames ? ensNames[address] : address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {address in ensNames
                 ? <span className="ens">{ensNames[address]}</span>
                 : <code>{address}</code>
@@ -47,15 +52,28 @@ function AddressOwner({
         }
       </div>
       {linkToScan && (!settings || settings.openProfiles) && (
-        <a className="owner-scan" href={`${POAP_SCAN_URL}/${address}`} title={`Scan ${address in ensNames ? ensNames[address] : address}`} target="_blank" rel="noopener noreferrer">
+        <a
+          className="owner-scan"
+          href={`${POAP_SCAN_URL}/${address}`}
+          title={`Scan ${address in ensNames ? ensNames[address] : address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <img src={POAP_Stamp} alt={`Scan ${address}`} />
         </a>
       )}
-      {events && typeof events === 'object' && eventIds && Array.isArray(eventIds) && (
+      {events != null && typeof events === 'object' && eventIds != null && Array.isArray(eventIds) && (
         <div className="owner-events">
           {eventIds.map(
             (eventId) => eventId in events && ownerEventIds.indexOf(eventId) !== -1
-              ? <TokenImage key={eventId} event={events[eventId]} size={18} resize={true} />
+              ? (
+                  <TokenImage
+                    key={eventId}
+                    event={events[eventId]}
+                    size={18}
+                    resize={true}
+                  />
+                )
               : <div key={eventId} className="owner-event-empty">{' '}</div>
           )}
         </div>

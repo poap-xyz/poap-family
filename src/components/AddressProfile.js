@@ -193,48 +193,87 @@ function AddressProfile({
             <div className={clsx('profile-poaps', showAllPOAPs && 'show-all')}>
               <h4>{poapsTotal} collected drops
                 {since && (
-                  <span className="profile-since"> since {formatMonthYear(since)}</span>
+                  <span className="profile-since">
+                    {' '}since
+                    {' '}{formatMonthYear(since)}
+                  </span>
                 )}
               </h4>
               {poapsVisible.map((token) => (
                 token.id && token.event && (
-                  <TokenImage key={token.id} event={token.event} size={18} resize={true} />
+                  <TokenImage
+                    key={token.id}
+                    event={token.event}
+                    size={18}
+                    resize={true}
+                  />
                 )
               ))}
               {poapsHasMore && (
                 <div className="show-more">
-                  <ButtonLink onClick={() => setShowAllPOAPs((prevShowAll) => !prevShowAll)}>
-                    {showAllPOAPs ? `show ${POAP_PROFILE_LIMIT}` : `show all ${poapsTotal}`}
+                  <ButtonLink
+                    onClick={() => {
+                      setShowAllPOAPs((prevShowAll) => !prevShowAll)
+                    }}
+                  >
+                    {showAllPOAPs
+                      ? `show ${POAP_PROFILE_LIMIT}`
+                      : `show all ${poapsTotal}`}
                   </ButtonLink>
                 </div>
               )}
             </div>
           )}
           {Array.isArray(inCommonEventIds) && inCommonEventIds.length > 0 && (
-            <div className={clsx('profile-in-common', showAllInCommonEvents && 'show-all')}>
+            <div
+              className={clsx('profile-in-common',
+                showAllInCommonEvents && 'show-all',
+              )}
+            >
               <h4>{inCommonEventsTotal} in common drops</h4>
               {inCommonEventIdsVisible.map((eventId) => (
                 eventId in events && (
-                  <TokenImage key={eventId} event={events[eventId]} size={18} resize={true} />
+                  <TokenImage
+                    key={eventId}
+                    event={events[eventId]}
+                    size={18}
+                    resize={true}
+                  />
                 )
               ))}
               {inCommonEventsHasMore && (
                 <div className="show-more">
-                  <ButtonLink onClick={() => setShowAllInCommonEvents((prevShowAll) => !prevShowAll)}>
-                    {showAllInCommonEvents ? `show ${INCOMMON_EVENTS_LIMIT}` : `show all ${inCommonEventsTotal}`}
+                  <ButtonLink
+                    onClick={() => {
+                      setShowAllInCommonEvents((prevShowAll) => !prevShowAll)
+                    }}
+                  >
+                    {showAllInCommonEvents
+                      ? `show ${INCOMMON_EVENTS_LIMIT}`
+                      : `show all ${inCommonEventsTotal}`}
                   </ButtonLink>
                 </div>
               )}
             </div>
           )}
           {Array.isArray(inCommonAddresses) && inCommonAddresses.length > 0 && (
-            <div className={clsx('profile-in-common', showAllInCommonAddresses && 'show-all')}>
+            <div
+              className={clsx('profile-in-common',
+                showAllInCommonAddresses && 'show-all',
+              )}
+            >
               <h4>{inCommonAddressesTotal} in common collectors</h4>
               <AddressesList addresses={inCommonAddressesVisible} />
               {inCommonAddressesHasMore && (
                 <div className="show-more">
-                  <ButtonLink onClick={() => setShowAllInCommonAddresses((prevShowAll) => !prevShowAll)}>
-                    {showAllInCommonAddresses ? `show ${INCOMMON_ADDRESSES_LIMIT}` : `show all ${inCommonAddressesTotal}`}
+                  <ButtonLink
+                    onClick={() => {
+                      setShowAllInCommonAddresses((prevShowAll) => !prevShowAll)
+                    }}
+                  >
+                    {showAllInCommonAddresses
+                      ? `show ${INCOMMON_ADDRESSES_LIMIT}`
+                      : `show all ${inCommonAddressesTotal}`}
                   </ButtonLink>
                 </div>
               )}
