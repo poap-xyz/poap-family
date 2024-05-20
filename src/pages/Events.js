@@ -507,7 +507,9 @@ function Events() {
             updateEventOwners(eventId, eventAndOwners.owners)
             updateEventMetrics(eventId, eventAndOwners.metrics)
           } else {
-            updateEventOwners(eventId, [])
+            const error = new Error('Could not fetch drop and collectors')
+            updateError(eventId, error)
+            return Promise.reject(error)
           }
           return Promise.resolve()
         },
@@ -719,10 +721,11 @@ function Events() {
               if (eventsOwners) {
                 const newOwners = Object.fromEntries(
                   Object.entries(eventsOwners)
+                    .filter(([, eventOwners]) => eventOwners != null)
                     .map(
-                      ([eventId, eventOwners]) => [
-                        eventId,
-                        eventOwners == null ? [] : eventOwners.owners,
+                      ([rawEventId, eventOwners]) => [
+                        rawEventId,
+                        eventOwners.owners,
                       ]
                     )
                 )
@@ -952,7 +955,9 @@ function Events() {
    */
   const retryLoadOwners = (eventId) => {
     removeError(eventId)
-    loadCahedOwnersAndMetrics(eventId)
+    loadCahedOwnersAndMetrics(eventId).catch((err) => {
+      console.error(err)
+    })
   }
 
   /**
