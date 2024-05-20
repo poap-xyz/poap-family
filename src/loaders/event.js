@@ -144,10 +144,10 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
         }
       )
     } catch (err) {
-      console.error(err)
-
       for (const id of ids) {
-        errorsMap[id] = new Error(`Response was not success (network error)`)
+        errorsMap[id] = new Error(`Response was not success (network error)`, {
+          cause: err,
+        })
       }
 
       continue
@@ -240,12 +240,22 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
  * @returns {Promise<ReturnType<Drop> | null>}
  */
 export async function fetchEvent(eventId, includeDescription, abortSignal) {
-  const response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': POAP_API_KEY,
-    },
-  })
+  /**
+   * @type {Response | undefined}
+   */
+  let response
+  try {
+    response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': POAP_API_KEY,
+      },
+    })
+  } catch (err) {
+    throw new Error(`Response was not success (network error)`, {
+      cause: err,
+    })
+  }
 
   if (response.status === 404) {
     return null
