@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import { OpenNewWindow } from 'iconoir-react'
-import '../styles/link-button.css'
+import 'styles/link-button.css'
 
 /**
  * @param {PropTypes.InferProps<LinkButton.propTypes>} props
