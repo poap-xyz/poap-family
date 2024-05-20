@@ -88,7 +88,7 @@ function PageError({
           typeof error === 'object' &&
           'message' in error &&
           error.message != null &&
-          typeof error.message === 'number'
+          typeof error.message === 'string'
         ) && (
           <p>{error.message}</p>
         )}
@@ -117,7 +117,7 @@ function PageError({
                     typeof error === 'object' &&
                     'statusText' in error &&
                     error.statusText != null &&
-                    typeof error.statusText === 'number'
+                    typeof error.statusText === 'string'
                   ) && (
                     <b>{error.statusText}</b>
                   )}
@@ -126,7 +126,7 @@ function PageError({
                     typeof error === 'object' &&
                     'message' in error &&
                     error.message != null &&
-                    typeof error.message === 'number'
+                    typeof error.message === 'string'
                   ) && (
                     error.message
                   )}
