@@ -613,7 +613,7 @@ function Events() {
               updateEventOwnerError(
                 eventId,
                 address,
-                new Error(`Missing token event for ${address}`)
+                new Error(`Missing token drop for ${address}`)
               )
             }
           }
@@ -621,7 +621,13 @@ function Events() {
           return Promise.resolve()
         },
         (err) => {
-          updateEventOwnerError(eventId, address, err)
+          updateEventOwnerError(
+            eventId,
+            address,
+            new Error(`Missing token drop for ${address}`, {
+              cause: err,
+            })
+          )
           if (!(err instanceof AbortedError) && !err.aborted) {
             return Promise.reject(err)
           }
@@ -973,6 +979,8 @@ function Events() {
         disableProgress(eventId)
         removeLoading(eventId)
       }
+    }).catch((err) => {
+      console.error(err)
     })
   }
 
