@@ -246,7 +246,7 @@ function Event() {
         setCollectionData(eventCollectionsData)
         setLoadingCollections(false)
       }).catch((err) => {
-        setCollectionsError(err?.message ?? 'Could not load collections')
+        setCollectionsError(err)
         setLoadingCollections(false)
       })
     },
