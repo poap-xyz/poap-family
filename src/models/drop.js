@@ -189,3 +189,91 @@ export function DropMetrics(eventMetrics) {
     ts: eventMetrics.ts,
   }
 }
+
+/**
+ * @param {unknown} data
+ * @param {boolean} [includeDescription]
+ * @param {boolean} [includeMetrics]
+ * @returns {{
+ *   event: ReturnType<typeof Drop>
+ *   owners: string[]
+ *   ts: number | null
+ *   metrics: ReturnType<typeof DropMetrics> | null
+ * }}
+ */
+export function DropData(
+  data,
+  includeDescription = false,
+  includeMetrics = true,
+) {
+  if (
+    data == null ||
+    typeof data !== 'object' ||
+    !('event' in data) ||
+    !('owners' in data) ||
+    !('ts' in data)
+  ) {
+    throw new Error('Malformed drop data')
+  }
+  /**
+   * @type {{
+   *   owners: string[]
+   *   ts: number | null
+   * }}
+   */
+  let dropOwners
+  if (data.ts == null) {
+    if (
+      !Array.isArray(data.owners) ||
+      !data.owners.every((owner) =>
+        owner != null &&
+        typeof owner === 'string'
+      )
+    ) {
+      throw new Error('Malformed owners')
+    }
+    dropOwners = {
+      owners: data.owners,
+      ts: null,
+    }
+  } else {
+    dropOwners = DropOwners({
+      owners: data.owners,
+      ts: data.ts,
+    })
+  }
+  if (!includeMetrics) {
+    return {
+      event: Drop(data.event, includeDescription),
+      owners: dropOwners.owners,
+      ts: dropOwners.ts,
+      metrics: null,
+    }
+  }
+  if (!('metrics' in data)) {
+    throw new Error('Malformed drop data')
+  }
+  return {
+    event: Drop(data.event, includeDescription),
+    owners: dropOwners.owners,
+    ts: dropOwners.ts,
+    metrics: DropMetrics(data.metrics),
+  }
+}
+
+/**
+ * @param {unknown} drops
+ * @param {boolean} [includeDescription]
+ * @returns {Record<number, ReturnType<typeof Drop>>}
+ */
+export function Drops(drops, includeDescription = false) {
+  if (typeof drops !== 'object') {
+    throw new Error('Invalid drops')
+  }
+
+  return Object.fromEntries(
+    Object.entries(drops).map(
+      ([eventId, event]) => [eventId, Drop(event, includeDescription)]
+    )
+  )
+}

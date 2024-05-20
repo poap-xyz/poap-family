@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
 import { Upload } from 'iconoir-react'
 import { formatStat } from 'utils/number'
@@ -10,6 +10,7 @@ import { scanAddress } from 'loaders/poap'
 import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
 import { findEventsCollections } from 'loaders/collection'
 import { parseEventIds } from 'models/event'
+import { DropData } from 'models/drop'
 import { filterInCommon } from 'models/in-common'
 import { POAP_MOMENTS_URL } from 'models/poap'
 import Timestamp from 'components/Timestamp'
@@ -38,7 +39,7 @@ function Event() {
   const { setTitle } = useContext(HTMLContext)
   const { settings } = useContext(SettingsContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
-  const { event, owners, ts, metrics } = useLoaderData()
+  const loaderData = useLoaderData()
   /**
    * @type {ReturnType<typeof useState<number | null>>}
    */
@@ -87,6 +88,15 @@ function Event() {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [collectionsError, setCollectionsError] = useState(null)
+
+  const { event, owners, ts, metrics } = useMemo(
+    () => DropData(
+      loaderData,
+      /*includeDescription*/true,
+      /*includeMetrics*/true,
+    ),
+    [loaderData]
+  )
 
   const processAddress = useCallback(
     /**

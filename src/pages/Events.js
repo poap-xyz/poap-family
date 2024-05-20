@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { SettingsContext } from 'stores/cache'
@@ -17,6 +17,7 @@ import { findEventsCollections } from 'loaders/collection'
 import { filterInvalidOwners } from 'models/address'
 import { filterInCommon, mergeAllInCommon } from 'models/in-common'
 import { parseEventIds, parseExpiryDates } from 'models/event'
+import { Drops } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
@@ -60,7 +61,7 @@ function Events() {
   const { settings } = useContext(SettingsContext)
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
-  const events = useLoaderData()
+  const loaderData = useLoaderData()
   /**
    * @type {ReturnType<typeof useState<Record<number, string[]>>>}
    */
@@ -120,6 +121,11 @@ function Events() {
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
+
+  const events = useMemo(
+    () => Drops(loaderData, /*includeDescription*/false),
+    [loaderData]
+  )
 
   /**
    * @param {number} eventId
