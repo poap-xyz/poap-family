@@ -140,7 +140,7 @@ export function DropOwners(eventOwners) {
     eventOwners.ts == null ||
     typeof eventOwners.ts !== 'number'
   ) {
-    throw new Error('Malformed event owners')
+    throw new Error('Malformed drop owners')
   }
   return {
     owners: eventOwners.owners,
@@ -178,7 +178,7 @@ export function DropMetrics(eventMetrics) {
     !('ts' in eventMetrics) ||
     typeof eventMetrics.ts !== 'number'
   ) {
-    throw new Error('Malformed event metrics')
+    throw new Error('Malformed drop metrics')
   }
   return {
     emailReservations: eventMetrics.emailReservations,
