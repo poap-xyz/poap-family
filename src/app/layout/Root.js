@@ -1,9 +1,9 @@
 import { useContext, useEffect } from 'react'
 import { useFetcher, useNavigation, Outlet } from 'react-router-dom'
 import { useMatomo } from '@datapunt/matomo-tracker-react'
-import { HTMLContext } from '../../stores/html'
-import Loading from '../../components/Loading'
-import CenterPage from '../../components/CenterPage'
+import { HTMLContext } from 'stores/html'
+import Loading from 'components/Loading'
+import CenterPage from 'components/CenterPage'
 
 export default function Root() {
   const fetcher = useFetcher()

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
-import '../styles/menu-item.css'
+import 'styles/menu-item.css'
 
 /**
  * @param {PropTypes.InferProps<MenuItem.propTypes>} props

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/shadow-text.css'
+import 'styles/shadow-text.css'
 
 /**
  * @param {PropTypes.InferProps<ShadowText.propTypes>} props

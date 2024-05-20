@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { createContext, useEffect, useState } from 'react'
-import { getSettings, saveSettings } from '../loaders/cache'
-import { DEFAULT_SETTINGS } from '../models/cache'
+import { getSettings, saveSettings } from 'loaders/cache'
+import { DEFAULT_SETTINGS } from 'models/cache'
 
 export const SettingsContext = createContext({
   settings: DEFAULT_SETTINGS,

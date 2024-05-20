@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/button-group.css'
+import 'styles/button-group.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonGroup.propTypes>} props

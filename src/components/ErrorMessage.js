@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/error-message.css'
+import 'styles/error-message.css'
 
 /**
  * @param {PropTypes.InferProps<ErrorMessage.propTypes>} props

@@ -1,5 +1,5 @@
-import { HttpError } from '../models/error'
-import { COMPASS_KEY, COMPASS_URL } from '../models/compass'
+import { HttpError } from 'models/error'
+import { COMPASS_KEY, COMPASS_URL } from 'models/compass'
 
 /**
  * @param {string} query

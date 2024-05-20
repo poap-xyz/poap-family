@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom'
 import { clsx } from 'clsx'
-import ButtonLink from './ButtonLink'
-import CenterPage from './CenterPage'
-import '../styles/page-error.css'
+import ButtonLink from 'components/ButtonLink'
+import CenterPage from 'components/CenterPage'
+import 'styles/page-error.css'
 
 const CLASSES = {
   400: 'badrequest',

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/status.css'
+import 'styles/status.css'
 
 /**
  * @param {PropTypes.InferProps<Status.propTypes>} props

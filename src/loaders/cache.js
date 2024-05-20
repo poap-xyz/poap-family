@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS } from '../models/cache'
+import { DEFAULT_SETTINGS } from 'models/cache'
 
 /**
  * @returns {typeof DEFAULT_SETTINGS}

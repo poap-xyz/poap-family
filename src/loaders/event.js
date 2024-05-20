@@ -1,10 +1,10 @@
-import { filterInvalidOwners } from '../models/address'
-import { DEFAULT_SEARCH_LIMIT, parseEventIds } from '../models/event'
-import { Drop } from '../models/drop'
-import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
-import { HttpError } from '../models/error'
-import { getEventAndOwners, getEventMetrics, getEvents } from './api'
-import { fetchPOAPs } from './poap'
+import { filterInvalidOwners } from 'models/address'
+import { DEFAULT_SEARCH_LIMIT, parseEventIds } from 'models/event'
+import { Drop } from 'models/drop'
+import { POAP_API_URL, POAP_API_KEY } from 'models/poap'
+import { HttpError } from 'models/error'
+import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
+import { fetchPOAPs } from 'loaders/poap'
 
 /**
  * @param {string} query

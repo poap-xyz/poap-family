@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { parseEventIds } from '../models/event'
-import PageError from './PageError'
+import { parseEventIds } from 'models/event'
+import PageError from 'components/PageError'
 
 function EventsPageError() {
   const navigate = useNavigate()

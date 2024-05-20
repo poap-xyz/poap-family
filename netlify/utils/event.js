@@ -1,4 +1,4 @@
-import { formatDate } from './date.js'
+import { formatDate } from 'utils/date'
 
 export function encodeEvent(eventInfo) {
   const eventLocation = encodeLocation(eventInfo.event)

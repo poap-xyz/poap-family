@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
-import { DropProps } from '../models/drop'
-import TokenImage from './TokenImage'
-import '../styles/event-count.css'
+import { DropProps } from 'models/drop'
+import TokenImage from 'components/TokenImage'
+import 'styles/event-count.css'
 
 /**
  * @param {PropTypes.InferProps<EventCount.propTypes>} props

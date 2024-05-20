@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import '../styles/center-page.css'
+import 'styles/center-page.css'
 
 /**
  * @param {PropTypes.InferProps<CenterPage.propTypes>} props

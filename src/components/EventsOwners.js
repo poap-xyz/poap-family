@@ -1,15 +1,20 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { chunks } from '../utils/array'
-import { DropProps } from '../models/drop'
-import { filterInCommon, getAddressInCommonAddresses, getAddressInCommonEventIds, sortInCommonEntries } from '../models/in-common'
-import ButtonLink from './ButtonLink'
-import Card from './Card'
-import AddressOwner from './AddressOwner'
-import ButtonExportAddressCsv from './ButtonExportAddressCsv'
-import ButtonGroup from './ButtonGroup'
-import ButtonExpand from './ButtonExpand'
-import '../styles/events-owners.css'
+import { chunks } from 'utils/array'
+import { DropProps } from 'models/drop'
+import {
+  filterInCommon,
+  getAddressInCommonAddresses,
+  getAddressInCommonEventIds,
+  sortInCommonEntries,
+} from 'models/in-common'
+import ButtonLink from 'components/ButtonLink'
+import Card from 'components/Card'
+import AddressOwner from 'components/AddressOwner'
+import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
+import ButtonGroup from 'components/ButtonGroup'
+import ButtonExpand from 'components/ButtonExpand'
+import 'styles/events-owners.css'
 
 /**
  * @param {Record<number, string[]>} owners

@@ -1,5 +1,10 @@
-import { AbortedError, HttpError } from '../models/error'
-import { POAP, POAP_API_URL, POAP_API_KEY, POAP_FETCH_RETRIES } from '../models/poap'
+import { AbortedError, HttpError } from 'models/error'
+import {
+  POAP,
+  POAP_API_URL,
+  POAP_API_KEY,
+  POAP_FETCH_RETRIES,
+} from 'models/poap'
 
 /**
  * Fetch all POAP for given drop.

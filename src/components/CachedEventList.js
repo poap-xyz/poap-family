@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CachedEventProps } from '../models/api'
-import Timestamp from './Timestamp'
-import ButtonLink from './ButtonLink'
-import TokenImage from './TokenImage'
-import '../styles/cached-drops.css'
+import { CachedEventProps } from 'models/api'
+import Timestamp from 'components/Timestamp'
+import ButtonLink from 'components/ButtonLink'
+import TokenImage from 'components/TokenImage'
+import 'styles/cached-drops.css'
 
 /**
  * @param {PropTypes.InferProps<CachedEventList.propTypes>} props

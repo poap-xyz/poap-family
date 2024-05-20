@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { getRandomInt } from '../utils/number'
+import { getRandomInt } from 'utils/number'
 
 export const COLLECTIONS_LIMIT = 7
 

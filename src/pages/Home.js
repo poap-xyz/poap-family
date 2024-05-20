@@ -1,14 +1,14 @@
 import { useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import packageJson from '../../package.json'
-import { HTMLContext } from '../stores/html'
-import { SettingsContext } from '../stores/cache'
-import CenterPage from '../components/CenterPage'
-import ExternalLink from '../components/ExternalLink'
-import Search from '../components/Search'
-import Welcome from '../components/Welcome'
-import LastEvents from '../components/LastEvents'
-import '../styles/home.css'
+import { HTMLContext } from 'stores/html'
+import { SettingsContext } from 'stores/cache'
+import CenterPage from 'components/CenterPage'
+import ExternalLink from 'components/ExternalLink'
+import Search from 'components/Search'
+import Welcome from 'components/Welcome'
+import LastEvents from 'components/LastEvents'
+import 'styles/home.css'
 
 const VERSION_BASE_URL = process.env.REACT_APP_VERSION_BASE_URL
 

@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { clsx } from 'clsx'
-import { POAP_SCAN_URL } from '../models/poap'
-import { ReverseEnsContext } from '../stores/ethereum'
-import '../styles/collector.css'
+import { POAP_SCAN_URL } from 'models/poap'
+import { ReverseEnsContext } from 'stores/ethereum'
+import 'styles/collector.css'
 
 /**
  * @param {PropTypes.InferProps<AddressCollector.propTypes>} props

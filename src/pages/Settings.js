@@ -1,12 +1,12 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SettingsContext } from '../stores/cache'
-import { HTMLContext } from '../stores/html'
-import ButtonLink from '../components/ButtonLink'
-import Card from '../components/Card'
-import CenterPage from '../components/CenterPage'
-import Switch from '../components/Switch'
-import '../styles/settings.css'
+import { SettingsContext } from 'stores/cache'
+import { HTMLContext } from 'stores/html'
+import ButtonLink from 'components/ButtonLink'
+import Card from 'components/Card'
+import CenterPage from 'components/CenterPage'
+import Switch from 'components/Switch'
+import 'styles/settings.css'
 
 function Settings() {
   const navigate = useNavigate()

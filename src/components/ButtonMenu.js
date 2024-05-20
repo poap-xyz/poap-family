@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import ButtonGroup from './ButtonGroup'
-import '../styles/button-menu.css'
+import ButtonGroup from 'components/ButtonGroup'
+import 'styles/button-menu.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonMenu.propTypes>} props

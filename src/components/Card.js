@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/card.css'
+import 'styles/card.css'
 
 /**
  * @param {PropTypes.InferProps<Card.propTypes>} props

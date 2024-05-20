@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import { POAP_GALLERY_URL } from '../models/poap'
-import { DropProps } from '../models/drop'
-import LinkButton from './LinkButton'
-import '../styles/event-buttons.css'
+import { POAP_GALLERY_URL } from 'models/poap'
+import { DropProps } from 'models/drop'
+import LinkButton from 'components/LinkButton'
+import 'styles/event-buttons.css'
 
 /**
  * @param {PropTypes.InferProps<EventButtons.propTypes>} props

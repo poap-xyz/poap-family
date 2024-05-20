@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { addFeedback } from '../loaders/api'
-import { SettingsContext } from '../stores/cache'
-import Button from './Button'
-import ButtonLink from './ButtonLink'
-import '../styles/feedback.css'
+import { addFeedback } from 'loaders/api'
+import { SettingsContext } from 'stores/cache'
+import Button from 'components/Button'
+import ButtonLink from 'components/ButtonLink'
+import 'styles/feedback.css'
 
 /**
  * @param {{ pathname: string; search: string; hash: string }} url
