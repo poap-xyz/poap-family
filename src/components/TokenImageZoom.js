@@ -99,9 +99,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             <div className="token-image-zoom-container token-image-zoom-error">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
-                <ErrorMessage>
-                  <p>Artwork could not be loaded</p>
-                </ErrorMessage>
+                <ErrorMessage message="Artwork could not be loaded" />
               </Card>
             </div>
           )}

@@ -176,9 +176,7 @@ function AddressProfile({
                 </div>
               )}
               error={() => (
-                <ErrorMessage>
-                  <p>Avatar could not be loaded</p>
-                </ErrorMessage>
+                <ErrorMessage message="Avatar could not be loaded" />
               )}
             />
           )}

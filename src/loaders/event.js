@@ -145,9 +145,10 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
       )
     } catch (err) {
       for (const id of ids) {
-        errorsMap[id] = new Error(`Response was not success (network error)`, {
-          cause: err,
-        })
+        errorsMap[id] = new Error(
+          `Cannot fetch drop ${id}: response was not success (network error)`,
+          { cause: err }
+        )
       }
 
       continue
@@ -252,9 +253,10 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
       },
     })
   } catch (err) {
-    throw new Error(`Response was not success (network error)`, {
-      cause: err,
-    })
+    throw new Error(
+      `Cannot fetch drop ${eventId}: response was not success (network error)`,
+      { cause: err }
+    )
   }
 
   if (response.status === 404) {
@@ -395,55 +397,44 @@ export async function eventsLoader({ params, request }) {
 
   const force = new URL(request.url).searchParams.get('force') === 'true'
 
+  /**
+   * @type {Record<number, ReturnType<Drop> | undefined>}
+   */
+  let events
+
+  /**
+   * @type {number[] | undefined}
+   */
+  let notFoundEventIds
+
   if (!force) {
     try {
-      const events = await getEvents(eventIds)
-
-      if (events) {
-        /**
-         * @type {number[]}
-         */
-        const notFoundEventIds = []
-
-        for (const eventId of eventIds) {
-          if (!(eventId in events)) {
-            notFoundEventIds.push(eventId)
-          }
-        }
-
-        if (notFoundEventIds.length > 0) {
-          throw new Response(
-            JSON.stringify({
-              errorsByEventId: notFoundEventIds.reduce(
-                (errorsByEventId, notFoundEventId) => ({
-                  ...errorsByEventId,
-                  [notFoundEventId]: {
-                    message: `The event ${notFoundEventId} was not found`,
-                    status: 404,
-                    statusText: 'Event not found',
-                  },
-                }),
-                {}
-              ),
-            }),
-            {
-              status: 503,
-              statusText: 'Fetch events not found',
-              headers: {
-                'content-type': 'application/json',
-              },
-            }
-          )
-        }
-
-        return events
-      }
+      events = await getEvents(eventIds)
     } catch (err) {
       console.error(err)
     }
+    if (events) {
+      notFoundEventIds = []
+
+      for (const eventId of eventIds) {
+        if (!(eventId in events)) {
+          notFoundEventIds.push(eventId)
+        }
+      }
+
+      if (notFoundEventIds.length === 0) {
+        return events
+      }
+    }
   }
 
-  const [events, errors] = await fetchEventsOrErrors(eventIds)
+  if (!events) {
+    events = {}
+  }
+
+  const [freshEvents, errors] = await fetchEventsOrErrors(
+    notFoundEventIds ?? eventIds
+  )
 
   if (Object.keys(errors).length > 0) {
     const errorsByEventId = Object.assign({}, errors)
@@ -492,7 +483,7 @@ export async function eventsLoader({ params, request }) {
 
       throw new Response(response, {
         status: 503,
-        statusText: 'Fetch events failed',
+        statusText: 'Missing drops',
         headers: {
           'content-type': 'application/json',
         },
@@ -500,5 +491,8 @@ export async function eventsLoader({ params, request }) {
     }
   }
 
-  return events
+  return {
+    ...events,
+    ...freshEvents,
+  }
 }
