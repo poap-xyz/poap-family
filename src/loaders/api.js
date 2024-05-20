@@ -19,7 +19,7 @@ import { HttpError } from 'models/error'
  *   event: ReturnType<Drop>
  *   owners: string[]
  *   ts: number
- *   metrics: ReturnType<DropMetrics> | null
+ *   metrics: ReturnType<typeof DropMetrics> | null
  * } | null>}
  */
 export async function getEventAndOwners(
@@ -143,7 +143,7 @@ export async function putEventInCommon(eventId, inCommon) {
  * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
  *   inCommon: ReturnType<InCommon>
- *   events: Record<number, ReturnType<Drop>>
+ *   events: Record<number, ReturnType<typeof Drop>>
  *   ts: number
  * } | null>}
  */
@@ -217,7 +217,7 @@ export async function getInCommonEvents(eventId, abortSignal) {
  * @param {(progressEvent: { progress?: number; rate?: number; estimated?: number }) => void} [onProgress]
  * @returns {Promise<{
  *   inCommon: Record<number, string[]>
- *   events: Record<number, ReturnType<Drop>>
+ *   events: Record<number, ReturnType<typeof Drop>>
  *   ts: number
  * } | null>}
  */
@@ -317,7 +317,7 @@ export async function getInCommonEventsWithProgress(
  * @returns {Promise<{
  *   pages: number
  *   total: number
- *   lastEvents: Array<ReturnType<CachedEvent>>
+ *   lastEvents: Array<ReturnType<typeof CachedEvent>>
  * }>}
  */
 export async function getLastEvents(page = 1, qty = 3) {
@@ -377,7 +377,7 @@ export async function getLastEvents(page = 1, qty = 3) {
 /**
  * @param {number[]} eventIds
  * @param {AbortSignal} [abortSignal]
- * @returns {Promise<Record<number, ReturnType<Drop>>>}
+ * @returns {Promise<Record<number, ReturnType<typeof Drop>>>}
  */
 export async function getEvents(eventIds, abortSignal) {
   if (!FAMILY_API_KEY) {
@@ -453,7 +453,7 @@ export async function getEvents(eventIds, abortSignal) {
  * @param {number} eventId
  * @param {AbortSignal} [abortSignal]
  * @param {boolean} [refresh]
- * @returns {Promise<ReturnType<DropOwners> | null>}
+ * @returns {Promise<ReturnType<typeof DropOwners> | null>}
  */
 export async function getEventOwners(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
@@ -500,7 +500,7 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
  * @param {number[]} eventIds
  * @param {AbortSignal} [abortSignal]
  * @param {Record<number, Date> | undefined} [expiryDates]
- * @returns {Promise<Record<number, ReturnType<DropOwners>>>}
+ * @returns {Promise<Record<number, ReturnType<typeof DropOwners>>>}
  */
 export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
@@ -578,7 +578,7 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
  * @param {number} eventId
  * @param {AbortSignal} [abortSignal]
  * @param {boolean} [refresh]
- * @returns {Promise<ReturnType<DropMetrics> | null>}
+ * @returns {Promise<ReturnType<typeof DropMetrics> | null>}
  */
 export async function getEventMetrics(eventId, abortSignal, refresh = false) {
   if (!FAMILY_API_KEY) {
@@ -626,7 +626,7 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
  * @param {number[]} eventIds
  * @param {AbortSignal} [abortSignal]
  * @param {Record<number, Date> | undefined} [expiryDates]
- * @returns {Promise<Record<number, ReturnType<DropMetrics>>>}
+ * @returns {Promise<Record<number, ReturnType<typeof DropMetrics>>>}
  */
 export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   if (!FAMILY_API_KEY) {
