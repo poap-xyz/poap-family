@@ -1,4 +1,4 @@
-.token-image-zoom-in-button {
+.token-image-zoom .token-image-zoom-in-button {
   appearance: none;
   outline: none;
   border-width: 0;
@@ -6,7 +6,7 @@
   cursor: zoom-in;
 }
 
-.token-image-zoom-out-button {
+.token-image-zoom-modal .token-image-zoom-out-button {
   appearance: none;
   outline: none;
   border-width: 0;
@@ -14,18 +14,7 @@
   cursor: zoom-out;
 }
 
-.token-image-zoom-modal {
-  height: 100%;
-}
-
-.token-image-zoom-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.token-image-zoom-container .button-close {
+.token-image-zoom-modal .button-close {
   position: absolute;
   top: 12px;
   right: 24px;

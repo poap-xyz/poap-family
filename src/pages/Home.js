@@ -25,20 +25,20 @@ function Home() {
 
   return (
     <CenterPage>
-      {settings && !settings.welcomeShown && <Welcome showHelp={true} />}
+      {settings && !settings.welcomeShown && (
+        <Welcome showHelp={true} />
+      )}
       <Search />
-      <div className="drop-lists">
-        {settings && settings.showLastEvents && (
-          <LastEvents
-            page={1}
-            perPage={3}
-            showRefresh={true}
-            showMore={true}
-            maxPages={3}
-            moreQty={10}
-          />
-        )}
-      </div>
+      {settings && settings.showLastEvents && (
+        <LastEvents
+          page={1}
+          perPage={3}
+          showRefresh={true}
+          showMore={true}
+          maxPages={3}
+          moreQty={10}
+        />
+      )}
       <div className="footer">
         <Link className="link" to="/last">last</Link>
         <span className="dot">·</span>

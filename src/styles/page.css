@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.page-aside {
+.page .page-aside {
   height: calc(100% - .5rem);
   width: 4.2rem;
   z-index: 99;
@@ -15,13 +15,13 @@
   right: 1rem;
 }
 
-.page-content {
+.page .page-content {
   flex-grow: 1;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
 
-.corner-bg {
+.page .page-content .corner-bg {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -29,24 +29,29 @@
 }
 
 @media only screen and (min-width: 1024px) {
-  .page-aside {
+  .page .page-aside {
     position: inherit;
     margin: .5rem 1rem 0 0;
   }
-  .page-content {
+
+  .page .page-content {
     width: calc(100% - 5.2rem);
   }
-  .logo-menu-card {
+
+  .logo-menu .logo-menu-card {
     background-color: transparent !important;
     border-color: transparent !important;
   }
-  .logo-menu-content {
+
+  .logo-menu .logo-menu-card .logo-menu-content {
     display: block !important;
   }
+
   .logo {
     border: 1px solid transparent;
     border-radius: 3.25rem;
   }
+
   .logo:hover {
     background-color: white;
     border-color: #5e58a5;

@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import { useContext, useState } from 'react'
-import ReactModal from 'react-modal'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { DropProps } from 'models/drop'
+import Modal from 'components/Modal'
 import Card from 'components/Card'
 import ButtonClose from 'components/ButtonClose'
 import ButtonLink from 'components/ButtonLink'
@@ -36,15 +36,12 @@ function ButtonAddressProfile({
           : <code>{address}</code>
         }
       </ButtonLink>
-      <ReactModal
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        contentLabel={address in ensNames ? ensNames[address] : address}
-        className="button-address-profile-modal"
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title={address in ensNames ? ensNames[address] : address}
       >
-        <div className="button-address-profile-container">
+        <div className="button-address-profile-modal">
           <Card>
             <ButtonClose onClose={() => setShowModal(false)} />
             <AddressProfile
@@ -55,7 +52,7 @@ function ButtonAddressProfile({
             />
           </Card>
         </div>
-      </ReactModal>
+      </Modal>
     </>
   )
 }

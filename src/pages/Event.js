@@ -367,53 +367,64 @@ function Event() {
     }
   }
 
+  const stats = useMemo(
+    () => {
+      const stats = {
+        'collectors': metrics && metrics.emailReservations > 0
+          ? {
+              text: formatStat(owners.length + metrics.emailReservations),
+            }
+          : {
+              text: formatStat(owners.length),
+              title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
+            },
+      }
+
+      if (metrics && metrics.emailReservations > 0) {
+        stats['mints'] = {
+          text: formatStat(owners.length),
+          title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
+        }
+        stats['reservations'] = {
+          text: formatStat(metrics.emailReservations),
+          title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
+        }
+      }
+
+      if (metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0) {
+        stats['email conversion'] = {
+          text: formatStat(metrics.emailClaimsMinted),
+          title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
+        }
+      }
+
+      if (metrics && metrics.collectionsIncludes > 0) {
+        stats['collections'] = {
+          text: formatStat(metrics.collectionsIncludes),
+        }
+      }
+
+      if (metrics && metrics.momentsUploaded > 0) {
+        stats['moments'] = {
+          text: formatStat(metrics.momentsUploaded),
+          title: `View uploaded moments on ${event.name}`,
+          href: `${POAP_MOMENTS_URL}/drop/${event.id}`,
+          external: true,
+        }
+      }
+
+      return stats
+    },
+    [event, owners.length, ts, metrics]
+  )
+
   return (
     <Page>
       <div className="event">
         <div className="event-header-info">
           <EventInfo
             event={event}
-            stats={{
-              'collectors': metrics && metrics.emailReservations > 0
-                ? {
-                    text: formatStat(owners.length + metrics.emailReservations),
-                  }
-                : {
-                    text: formatStat(owners.length),
-                    title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
-                  },
-              'mints': metrics && metrics.emailReservations > 0
-                ? {
-                    text: formatStat(owners.length),
-                    title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
-                  }
-                : undefined,
-              'reservations': metrics && metrics.emailReservations > 0
-                ? {
-                  text: formatStat(metrics.emailReservations),
-                  title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
-                }
-                : undefined,
-              'email conversion': metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0
-                ? {
-                  text: formatStat(metrics.emailClaimsMinted),
-                  title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
-                }
-                : undefined,
-              'collections': metrics && metrics.collectionsIncludes > 0
-                ? {
-                    text: formatStat(metrics.collectionsIncludes),
-                  }
-                : undefined,
-              'moments': metrics && metrics.momentsUploaded > 0
-                ? {
-                  text: formatStat(metrics.momentsUploaded),
-                  title: `View uploaded moments on ${event.name}`,
-                  href: `${POAP_MOMENTS_URL}/drop/${event.id}`,
-                  external: true,
-                }
-                : undefined,
-            }}
+            stats={stats}
             highlightStat="collectors"
             buttons={[
               <ButtonExportAddressCsv
@@ -506,7 +517,15 @@ function Event() {
             </Card>
           :
             <>
-              {cachedTs && (!ts || ts > cachedTs) && event.id in inCommon && inCommon[event.id].length < owners.length && (
+              {(
+                cachedTs &&
+                (
+                  !ts ||
+                  ts > cachedTs
+                ) &&
+                event.id in inCommon &&
+                inCommon[event.id].length !== owners.length
+              ) && (
                 <WarningMessage>
                   There have been new mints since this POAP was cached,{' '}
                   <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
@@ -519,19 +538,23 @@ function Event() {
               )}
               {settings.showCollections && (
                 <>
-                  {loadingCollections && !collectionsError && (
+                  {loadingCollections && collectionsError == null && (
                     <Card>
                       <h4>Collections</h4>
                       <Loading />
                     </Card>
                   )}
-                  {!loadingCollections && collectionsError && (
+                  {!loadingCollections && collectionsError != null && (
                     <Card>
                       <h4>Collections</h4>
                       <ErrorMessage error={collectionsError} />
                     </Card>
                   )}
-                  {!loadingCollections && !collectionsError && collectionData && (
+                  {(
+                    !loadingCollections &&
+                    collectionsError == null &&
+                    collectionData != null
+                  ) && (
                     <CollectionSet
                       showEmpty={metrics && metrics.collectionsIncludes > 0}
                       emptyMessage={`No collections found that includes ${event.name}`}

@@ -105,6 +105,11 @@ export function CollectionWithDrops(collectionWithDrops) {
   }
 }
 
+/**
+ * @param {string} imageUrl
+ * @param {string | number | { w: number; h: number }} size
+ * @returns {string}
+ */
 export function resizeCollectionImageUrl(imageUrl, size) {
   if (imageUrl.indexOf('collections-media-production') >= 0) {
     const url = new URL(imageUrl)

@@ -114,6 +114,9 @@ function Search() {
     [] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
+  /**
+   * @param {number} eventId
+   */
   const findEvent = (eventId) => {
     const controller = new AbortController()
     setLoadingById({
@@ -133,7 +136,7 @@ function Search() {
         if (result) {
           setEventById(result)
         } else {
-          setErrorById(new Error(`Event ${eventId} not found`))
+          setErrorById(new Error(`Drop ${eventId} not found`))
         }
       },
       (err) => {
@@ -152,6 +155,10 @@ function Search() {
     )
   }
 
+  /**
+   * @param {string} value
+   * @param {number} page
+   */
   const search = (value, page = 1) => {
     setQueryPage(page)
     setErrorSearch(null)
@@ -340,7 +347,7 @@ function Search() {
         () => {
           search(value, 1)
           if (/^[0-9]+$/.test(value)) {
-            findEvent(value)
+            findEvent(parseInt(value))
           } else {
             setErrorById(null)
             setEventById(null)
@@ -460,23 +467,6 @@ function Search() {
     setErrorSubmit(null)
   }
 
-  const selectedNotInEvents = selectedEvents
-    .filter(
-      (selected) => -1 === queryEvents.findIndex(
-        (queried) => queried.id === selected.id
-      )
-    )
-  const selectedNotInCollections = selectedCollections
-    .filter(
-      (selected) => -1 === queryCollections.findIndex(
-        (queried) => queried.id === selected.id
-      )
-    )
-  const selectedCollectionsTotalDrops = selectedCollections.reduce(
-    (total, collection) => total + collection.dropIds.length,
-    0
-  )
-
   /**
    * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
    */
@@ -498,7 +488,10 @@ function Search() {
               (selected) => selected.id === event.id
             )}
             onChange={(changeEvent) => {
-              onSelectEventChange(event.id, !!changeEvent.target.checked)
+              onSelectEventChange(
+                event.id,
+                changeEvent.target.checked
+              )
             }}
           />
         </div>
@@ -554,7 +547,7 @@ function Search() {
             onChange={(changeEvent) => {
               onSelectCollectionChange(
                 collection.id,
-                !!changeEvent.target.checked
+                changeEvent.target.checked
               )
             }}
           />
@@ -563,148 +556,190 @@ function Search() {
     </div>
   )
 
-  const pages = Math.ceil(
-    Math.max(queryTotal, queryTotalCollections) / SEARCH_LIMIT
+  const selectedNotInEvents = selectedEvents.filter(
+    (selected) => -1 === queryEvents.findIndex(
+      (queried) => queried.id === selected.id
+    )
+  )
+  const selectedNotInCollections = selectedCollections.filter(
+    (selected) => -1 === queryCollections.findIndex(
+      (queried) => queried.id === selected.id
+    )
+  )
+  const selectedCollectionsTotalDrops = selectedCollections.reduce(
+    (total, collection) => total + collection.dropIds.length,
+    0
   )
 
+  const maxTotal = Math.max(queryTotal, queryTotalCollections)
+  const pages = Math.ceil(maxTotal / SEARCH_LIMIT)
+
+  /**
+   * @param {number} newPage
+   */
+  const onPageChange = (newPage) => {
+    const value = queryRef.current ? queryRef.current.value : ''
+    if (value.length > 0) {
+      search(value, newPage)
+    }
+  }
+
   return (
-    <Card>
-      <form
-        role="search"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSearch()
-        }}
-      >
-        <div className="search">
-          <input
-            ref={queryRef}
-            className="query"
-            type="search"
-            name="query"
-            placeholder="Search POAPs"
-            onChange={() => onQueryChange()}
-            onKeyUp={(event) => onQueryKeyUp(event.keyCode)}
-            autoComplete="off"
-            maxLength={256}
-            size={24}
-          />
-          <input
-            className="go"
-            type="submit"
-            value="Find POAPs In Common"
-            disabled={!eventById &&
-              selectedEvents.length === 0 &&
-              selectedCollections.length === 0}
-          />
-        </div>
-      </form>
-      {(
-        !errorById &&
-        !errorSearch &&
-        !errorSearchCollections &&
-        !errorSubmit &&
-        selectedEvents.length === 0 &&
-        selectedCollections.length === 0 &&
-        queryEvents.length === 0 &&
-        queryCollections.length === 0 &&
-        !loadingById.state &&
-        !loadingSearch.state &&
-        !loadingSearchCollections.state &&
-        !eventById
-      ) && (
-        <div className="search-options">
-          <Link className="link" to="/addresses">manually enter collections</Link>
-        </div>
-      )}
-      {errorById && queryEvents.length === 0 && queryCollections.length === 0 && (
-        <div className="drop-error">
-          <p>{errorById.message}</p>
-        </div>
-      )}
-      {errorSearch && !eventById && (
-        <div className="drop-error">
-          <p>{errorSearch.message}</p>
-        </div>
-      )}
-      {errorSearchCollections && !eventById && (
-        <div className="drop-error">
-          <p>{errorSearchCollections.message}</p>
-        </div>
-      )}
-      {errorSubmit && (
-        <div className="drop-error">
-          <p>{errorSubmit.message}</p>
-        </div>
-      )}
-      {(
-        selectedEvents.length > 0 ||
-        selectedCollections.length > 0 ||
-        queryEvents.length > 0 ||
-        queryCollections.length > 0
-      ) && (
-        <div className="drop-header">
-          {selectedCollections.length > 0 && (
-            <>
-              <h3 className="soft">
-                {selectedCollections.length} collection{selectedCollections.length === 1 ? '' : 's'} w/{selectedCollectionsTotalDrops} drop{selectedCollectionsTotalDrops === 1 ? '' : 's'} =
-              </h3>
-            </>
-          )}
-          <h3>{selectedEvents.length + selectedCollectionsTotalDrops} drop{selectedEvents.length + selectedCollectionsTotalDrops === 1 ? '' : 's'}</h3>
-        </div>
-      )}
-      {selectedNotInCollections.length > 0 && (
-        <>{selectedNotInCollections.map((collection) => renderCollection(collection))}</>
-      )}
-      {selectedNotInEvents.length > 0 && (
-        <>{selectedNotInEvents.map((event) => renderEvent(event))}</>
-      )}
-      {(
-        selectedNotInCollections.length > 0 ||
-        selectedNotInEvents.length > 0
-      ) && (
-        queryEvents.length > 0 ||
-        queryCollections.length > 0 ||
-        loadingById.state ||
-        loadingSearch.state ||
-        loadingSearchCollections.state
-      ) && (
-        <hr className="drop-separator" />
-      )}
-      {(loadingById.state || loadingSearch.state || loadingSearchCollections.state) && (
-        <div className="drop-preview">
-          <div className="drop-info">
-            <div className="drop-image loading-element">{' '}</div>
-            <div className="drop-name loading-element" />
+    <div className="search">
+      <Card>
+        <form
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSearch()
+          }}
+        >
+          <div className="search-form">
+            <input
+              ref={queryRef}
+              className="query"
+              type="search"
+              name="query"
+              placeholder="Search POAPs"
+              onChange={() => onQueryChange()}
+              onKeyUp={(event) => onQueryKeyUp(event.keyCode)}
+              autoComplete="off"
+              maxLength={256}
+              size={24}
+            />
+            <input
+              className="go"
+              type="submit"
+              value="Find POAPs In Common"
+              disabled={!eventById &&
+                selectedEvents.length === 0 &&
+                selectedCollections.length === 0}
+            />
           </div>
-        </div>
-      )}
-      {eventById && renderEvent(eventById)}
-      {queryCollections.length > 0 && (
-        queryCollections.map((collection) => renderCollection(collection))
-      )}
-      {queryEvents.length > 0 && (
-        queryEvents.map((event) => (!eventById || eventById.id !== event.id) && (
-          renderEvent(event)
-        ))
-      )}
-      {queryEvents.length > 0 && pages > 1 && (
-        <div className="drop-pagination">
-          <Pagination
-            page={queryPage}
-            pages={pages}
-            total={Math.max(queryTotal, queryTotalCollections)}
-            onPage={(newPage) => {
-              const value = queryRef.current ? queryRef.current.value : ''
-              if (value.length > 0) {
-                search(value, newPage)
-              }
-            }}
-          />
-        </div>
-      )}
-    </Card>
+        </form>
+        {(
+          !errorById &&
+          !errorSearch &&
+          !errorSearchCollections &&
+          !errorSubmit &&
+          selectedEvents.length === 0 &&
+          selectedCollections.length === 0 &&
+          queryEvents.length === 0 &&
+          queryCollections.length === 0 &&
+          !loadingById.state &&
+          !loadingSearch.state &&
+          !loadingSearchCollections.state &&
+          !eventById
+        ) && (
+          <div className="search-options">
+            <Link className="link" to="/addresses">
+              manually enter collections
+            </Link>
+          </div>
+        )}
+        {errorById && queryEvents.length === 0 && queryCollections.length === 0 && (
+          <div className="search-error">
+            <p>{errorById.message}</p>
+          </div>
+        )}
+        {errorSearch && !eventById && (
+          <div className="search-error">
+            <p>{errorSearch.message}</p>
+          </div>
+        )}
+        {errorSearchCollections && !eventById && (
+          <div className="search-error">
+            <p>{errorSearchCollections.message}</p>
+          </div>
+        )}
+        {errorSubmit && (
+          <div className="search-error">
+            <p>{errorSubmit.message}</p>
+          </div>
+        )}
+        {(
+          selectedEvents.length > 0 ||
+          selectedCollections.length > 0 ||
+          queryEvents.length > 0 ||
+          queryCollections.length > 0
+        ) && (
+          <div className="search-header">
+            {selectedCollections.length > 0 && (
+              <h3 className="soft">
+                {selectedCollections.length}{' '}
+                collection{selectedCollections.length === 1 ? '' : 's'}{' '}
+                w/{selectedCollectionsTotalDrops}{' '}
+                drop{selectedCollectionsTotalDrops === 1 ? '' : 's'} =
+              </h3>
+            )}
+            <h3>
+              {selectedEvents.length + selectedCollectionsTotalDrops}{' '}
+              drop{selectedEvents.length + selectedCollectionsTotalDrops === 1 ? '' : 's'}
+            </h3>
+          </div>
+        )}
+        {selectedNotInCollections.length > 0 && (
+          selectedNotInCollections.map(
+            (collection) => renderCollection(collection)
+          )
+        )}
+        {selectedNotInEvents.length > 0 && (
+          selectedNotInEvents.map(
+            (event) => renderEvent(event)
+          )
+        )}
+        {(
+          selectedNotInCollections.length > 0 ||
+          selectedNotInEvents.length > 0
+        ) && (
+          queryEvents.length > 0 ||
+          queryCollections.length > 0 ||
+          loadingById.state ||
+          loadingSearch.state ||
+          loadingSearchCollections.state
+        ) && (
+          <hr className="search-separator" />
+        )}
+        {(
+          loadingById.state ||
+          loadingSearch.state ||
+          loadingSearchCollections.state
+        ) && (
+          <div className="drop-preview">
+            <div className="drop-info">
+              <div className="drop-image loading-element">{' '}</div>
+              <div className="drop-name loading-element" />
+            </div>
+          </div>
+        )}
+        {eventById && (
+          renderEvent(eventById)
+        )}
+        {queryCollections.length > 0 && (
+          queryCollections.map(
+            (collection) => renderCollection(collection)
+          )
+        )}
+        {queryEvents.length > 0 && (
+          queryEvents.map((event) => (
+            !eventById ||
+            eventById.id !== event.id
+          ) && (
+            renderEvent(event)
+          ))
+        )}
+        {queryEvents.length > 0 && pages > 1 && (
+          <div className="search-pagination">
+            <Pagination
+              page={queryPage}
+              pages={pages}
+              total={maxTotal}
+              onPage={onPageChange}
+            />
+          </div>
+        )}
+      </Card>
+    </div>
   )
 }
 

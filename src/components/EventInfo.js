@@ -18,7 +18,7 @@ import 'styles/event-info.css'
  */
 function EventInfo({
   event,
-  stats = {},
+  stats,
   highlightStat,
   buttons = [],
   children,

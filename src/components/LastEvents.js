@@ -174,7 +174,6 @@ function LastEvents({
         {cachedEvents.length > 0 && !loading && (
           <CachedEventList
             cachedEvents={cachedEvents}
-            showClear={false}
           />
         )}
         {error && !loading &&

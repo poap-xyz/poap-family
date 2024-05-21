@@ -1,6 +1,8 @@
 .welcome {
   position: relative;
-  margin: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  min-width: 23rem;
 }
 
 .welcome::before {
@@ -15,7 +17,7 @@
   opacity: .25;
 }
 
-.welcome-content {
+.welcome .welcome-content {
   position: relative;
   background-color: #C2E6F5;
   border: 1px solid #6692A4;
@@ -23,13 +25,13 @@
   border-radius: 3.2rem;
 }
 
-.welcome-content .link {
+.welcome .welcome-content .link {
   background-color: transparent;
   border-width: 0;
   color: blue;
   cursor: pointer;
 }
 
-.welcome-content .link:hover {
+.welcome .welcome-content .link:hover {
   text-decoration: underline;
 }

@@ -1168,73 +1168,93 @@ function Events() {
               <tbody>
                 {Object.values(events).map((event) => (
                   <tr key={event.id}>
-                    <td>
-                      <div className="event-cell-info">
-                        <div className="event-image">
-                          <TokenImageZoom
-                            event={event}
-                            zoomSize={512}
-                            size={48}
-                          />
-                          <Link
-                            to={`/event/${event.id}`}
-                            className="event-id"
-                          >
-                            #{event.id}
-                          </Link>
+                    <td className="event-cell-info">
+                      <div className="event-image">
+                        <TokenImageZoom
+                          event={event}
+                          zoomSize={512}
+                          size={48}
+                        />
+                        <Link
+                          to={`/event/${event.id}`}
+                          className="event-id"
+                        >
+                          #{event.id}
+                        </Link>
+                      </div>
+                      <div className="event-data">
+                        <h2>{event.name}</h2>
+                        <div className="event-date">
+                          {formatDate(event.start_date)}
                         </div>
-                        <div className="event-data">
-                          <h2>{event.name}</h2>
-                          <div className="event-date">
-                            {formatDate(event.start_date)}
+                        {event.city && event.country && (
+                          <div className="place">
+                            {event.city}, {event.country}
                           </div>
-                          {event.city && event.country && (
-                            <div className="place">
-                              {event.city}, {event.country}
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </td>
-                    <td className="event-cell-owners">
+                    <td className="event-cell-metrics">
                       {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && (
                         <Loading small={true} />
                       )}
                       {event.id in owners && (
                         <ShadowText grow={true} medium={true}>
                           {formatStat(owners[event.id].length)}
-                          {event.id in metrics && metrics[event.id] && typeof metrics[event.id].emailReservations === 'number' && metrics[event.id].emailReservations > 0 && ` + ${formatStat(metrics[event.id].emailReservations)}`}
+                          {(
+                            event.id in metrics &&
+                            metrics[event.id] &&
+                            metrics[event.id].emailReservations > 0
+                          ) && ` + ${formatStat(metrics[event.id].emailReservations)}`}
                         </ShadowText>
                       )}
                     </td>
-                    <td>
-                      <div className="event-status">
-                        <Status
-                          loading={(status === STATUS_INITIAL || event.id in loading) && loading[event.id] !== LOADING_CACHING && !(event.id in errors)}
-                          caching={event.id in loading && loading[event.id] === LOADING_CACHING && !(event.id in errors)}
-                          error={event.id in errors || (event.id in eventOwnerErrors && !(status === STATUS_INITIAL || event.id in loading))}
-                        />
-                        {event.id in errors && (
-                          <>
-                            <span
-                              className="status-error-message"
-                              title={errors[event.id].cause
-                                ? `${errors[event.id].cause}`
-                                : undefined}
-                            >
-                              {errors[event.id].message}
-                            </span>
-                            {' '}
-                            <ButtonLink
-                              onClick={() => retryLoadOwners(event.id)}
-                            >
-                              retry
-                            </ButtonLink>
-                          </>
-                        )}
-                      </div>
+                    <td className="event-cell-status">
+                      <Status
+                        loading={
+                          (
+                            status === STATUS_INITIAL ||
+                            event.id in loading
+                          ) &&
+                          loading[event.id] !== LOADING_CACHING &&
+                          !(event.id in errors)
+                        }
+                        caching={
+                          event.id in loading &&
+                          loading[event.id] === LOADING_CACHING &&
+                          !(event.id in errors)
+                        }
+                        error={
+                          event.id in errors ||
+                          (
+                            event.id in eventOwnerErrors &&
+                            !(
+                              status === STATUS_INITIAL ||
+                              event.id in loading
+                            )
+                          )
+                        }
+                      />
+                      {event.id in errors && (
+                        <>
+                          <span
+                            className="status-error-message"
+                            title={errors[event.id].cause
+                              ? `${errors[event.id].cause}`
+                              : undefined}
+                          >
+                            {errors[event.id].message}
+                          </span>
+                          {' '}
+                          <ButtonLink
+                            onClick={() => retryLoadOwners(event.id)}
+                          >
+                            retry
+                          </ButtonLink>
+                        </>
+                      )}
                     </td>
-                    <td>
+                    <td className="event-cell-progress">
                       {event.id in loadedProgress && (
                         <Progress
                           value={loadedProgress[event.id].progress}
@@ -1256,8 +1276,13 @@ function Events() {
                       )}
                       {event.id in eventOwnerErrors && Object.entries(eventOwnerErrors[event.id]).map(
                         ([address, error]) => (
-                          <p key={address} className="status-error-message">
-                            <code>[{address}]</code>{' '}{error.message}{' '}
+                          <p key={address} className="address-error-message">
+                            <code>[{address}]</code>{' '}
+                            <span
+                              title={error.cause ? `${error.cause}` : undefined}
+                            >
+                              {error.message}
+                            </span>{' '}
                             <ButtonLink
                               onClick={() => {
                                 retryEventAddress(event.id, address)
@@ -1271,13 +1296,23 @@ function Events() {
                       {event.id in eventData && eventData[event.id].ts != null && (
                         <p className="status-cached-ts">
                           Cached <Timestamp ts={eventData[event.id].ts} />
-                          {!(event.id in loading) && event.id in eventData && event.id in eventData[event.id].inCommon && eventData[event.id].inCommon[event.id].length !== owners[event.id].length && (
-                            <>{' '}<WarningIcon title="There have been new mints since this POAP was cached" /></>
+                          {(
+                            !(event.id in loading) &&
+                            event.id in eventData &&
+                            event.id in eventData[event.id].inCommon &&
+                            eventData[event.id].inCommon[event.id].length !== owners[event.id].length
+                          ) && (
+                            <>
+                              {' '}
+                              <WarningIcon
+                                title="There have been new mints since this POAP was cached"
+                              />
+                            </>
                           )}
                         </p>
                       )}
                     </td>
-                    <td align="right">
+                    <td className="event-cell-actions">
                       <EventButtonGroup event={event} right={true}>
                         <ButtonDelete
                           onDelete={() => delEvent(event.id)}
