@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types'
 import { createRef, useContext, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { clsx } from 'clsx'
 import { SettingsContext } from 'stores/cache'
 import { DropProps } from 'models/drop'
 import {
@@ -15,13 +13,12 @@ import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
-import EventHeader from 'components/EventHeader'
 import ErrorMessage from 'components/ErrorMessage'
-import EventCount from 'components/EventCount'
+import EventHeader from 'components/EventHeader'
+import EventsPowers from 'components/EventsPowers'
 import EventButtonGroup from 'components/EventButtonGroup'
 import AddressOwner from 'components/AddressOwner'
 import ButtonGroup from 'components/ButtonGroup'
-import TokenImage from 'components/TokenImage'
 import ButtonClose from 'components/ButtonClose'
 import 'styles/in-common.css'
 
@@ -32,7 +29,7 @@ function InCommon({
   children,
   inCommon: initialInCommon = {},
   events = {},
-  showCount = 0,
+  showCount,
   showActive = true,
   createButtons =
     /**
@@ -85,27 +82,41 @@ function InCommon({
     [inCommonEntries]
   )
 
-  let inCommonEventsAddresses = inCommonEntries.slice()
-  let inCommonLimit = INCOMMON_EVENTS_LIMIT
+  const inCommonLimit = useMemo(
+    () => {
+      if (showCount == null) {
+        return INCOMMON_EVENTS_LIMIT
+      }
+      return inCommonEntries.reduce(
+        (limit, [, addresses]) => {
+          if (addresses.length === showCount) {
+            return limit + 1
+          }
+          return limit
+        },
+        0
+      )
+    },
+    [inCommonEntries, showCount]
+  )
 
-  if (showCount != null && showCount > 0) {
-    inCommonLimit = inCommonEventsAddresses.reduce(
-      (limit, [, addresses]) => {
-        if (addresses.length === showCount) {
-          return limit + 1
-        }
-        return limit
-      },
-      0
-    )
-  }
+  const inCommonEventsAddresses = useMemo(
+    () => {
+      if (!showAll && inCommonEntries.length > inCommonLimit) {
+        return inCommonEntries.slice(0, inCommonLimit)
+      }
+      return inCommonEntries.slice()
+    },
+    [inCommonEntries, inCommonLimit, showAll]
+  )
 
-  const inCommonTotal = inCommonEventsAddresses.length
-  const hasMore = inCommonTotal > inCommonLimit
-
-  if (hasMore && !showAll) {
-    inCommonEventsAddresses = inCommonEventsAddresses.slice(0, inCommonLimit)
-  }
+  const powers = useMemo(
+    () => inCommonEventsAddresses.map(([eventId, addresses]) => ({
+      eventId,
+      power: addresses.length,
+    })),
+    [inCommonEventsAddresses]
+  )
 
   /**
    * @param {number} eventId
@@ -139,19 +150,26 @@ function InCommon({
     }
   }
 
-  const activeAdressesColors = activeEventIds.length < 2 ? {} :
-    Object.fromEntries(
-      intersection(
-        // @ts-ignore
-        ...activeEventIds.map((activeEventId) => inCommon[activeEventId])
-      )
-      .map(
-        (address) => [
-          address,
-          getColorForSeed(address),
-        ]
-      )
-    )
+  const activeAdressesColors = useMemo(
+    () => activeEventIds.length < 2
+      ? {}
+      : Object.fromEntries(
+        intersection(
+          // @ts-ignore
+          ...activeEventIds.map((activeEventId) => inCommon[activeEventId])
+        )
+        .map(
+          (address) => [
+            address,
+            getColorForSeed(address),
+          ]
+        )
+      ),
+    [activeEventIds, inCommon]
+  )
+
+  const inCommonTotal = inCommonEntries.length
+  const hasMore = inCommonTotal > inCommonLimit
 
   useEffect(
     () => {
@@ -244,57 +262,20 @@ function InCommon({
         )}
         {inCommonTotal > 0 && (
           <h4>
-            {showCount != null && showCount > 0 && `${inCommonLimit} of `}
+            {showCount != null && `${inCommonLimit} of `}
             {inCommonTotal}{' '}
             drop{inCommonTotal === 1 ? '' : 's'}{' '}
             in common
           </h4>
         )}
-        <div className={clsx('in-common-events', showAll && 'show-all')}>
-          {inCommonEventsAddresses.map(
-            ([eventId, addresses]) => (
-              <div
-                key={eventId}
-                className={clsx('in-common-event', {
-                  selected: activeEventIds.indexOf(eventId) !== -1,
-                  perfect:
-                    showCount != null &&
-                    showCount > 0 &&
-                    showCount === addresses.length,
-                })}
-                title={events[eventId].name}
-              >
-                <button
-                  className="event-button"
-                  onClick={() => toggleActiveEventId(eventId)}
-                >
-                  {
-                    showCount != null &&
-                    showCount > 0 &&
-                    showCount === addresses.length
-                      ? (
-                        <div className="event-image">
-                          <TokenImage event={events[eventId]} size={64} />
-                        </div>
-                      )
-                      : (
-                        <EventCount
-                          event={events[eventId]}
-                          count={addresses.length}
-                          size={64}
-                        />
-                      )
-                  }
-                </button>
-                <Link
-                  to={`/event/${eventId}`}
-                  className="event-id"
-                >
-                  #{eventId}
-                </Link>
-              </div>
-            )
-          )}
+        <EventsPowers
+          showAll={showAll}
+          perfectPower={showCount}
+          selectedEventIds={activeEventIds}
+          onSelect={toggleActiveEventId}
+          events={events}
+          powers={powers}
+        >
           {hasMore && (
             <div className="show-more">
               <ButtonLink
@@ -307,7 +288,7 @@ function InCommon({
               </ButtonLink>
             </div>
           )}
-        </div>
+        </EventsPowers>
         {inCommonTotal > 0 && (
           <ButtonGroup right={true}>
             {createButtons != null &&
