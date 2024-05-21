@@ -52,8 +52,10 @@ function ButtonExpand({
 }
 
 ButtonExpand.propTypes = {
-  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
-  eventIds: PropTypes.arrayOf(PropTypes.number),
+  addresses: PropTypes.arrayOf(
+    PropTypes.string.isRequired
+  ).isRequired,
+  eventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
   link: PropTypes.bool,
   title: PropTypes.string,
 }

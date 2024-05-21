@@ -107,11 +107,22 @@ function Addresses() {
     setLoadingByAddress((prevLoading) => ({ ...prevLoading, [address]: true }))
     try {
       const tokens = await scanAddress(address, controller.signal)
-      setLoadedCount((prevLoadedCount) => prevLoadedCount + 1)
+      setLoadedCount((prevLoadedCount) => (prevLoadedCount ?? 0) + 1)
       setPowers((oldPowers) => ({ ...oldPowers, [address]: tokens.length }))
       for (const token of tokens) {
-        const eventId = token.event.id
+        const event = token.event
+        if (event == null) {
+          setErrorsByAddress((oldErrors) => ({
+            ...oldErrors,
+            [address]: new Error(`Could not find POAP ${token.id}`),
+          }))
+          continue
+        }
+        const eventId = event.id
         setInCommon((prevInCommon) => {
+          if (!prevInCommon) {
+            return { [eventId]: [address] }
+          }
           if (eventId in prevInCommon) {
             if (prevInCommon[eventId].indexOf(address) === -1) {
               prevInCommon[eventId].push(address)
@@ -121,9 +132,15 @@ function Addresses() {
           }
           return prevInCommon
         })
-        setEvents((prevEvents) => ({ ...prevEvents, [eventId]: token.event }))
+        setEvents((prevEvents) => ({
+          ...prevEvents,
+          [eventId]: event,
+        }))
       }
       setLoadingByAddress((oldLoading) => {
+        if (oldLoading == null) {
+          return {}
+        }
         /**
          * @type {Record<string, boolean>}
          */
@@ -137,6 +154,9 @@ function Addresses() {
       })
     } catch (err) {
       setLoadingByAddress((oldLoading) => {
+        if (oldLoading == null) {
+          return {}
+        }
         /**
          * @type {Record<string, boolean>}
          */
@@ -148,8 +168,18 @@ function Addresses() {
         }
         return newLoading
       })
-      if (!(err instanceof AbortedError) && !err.aborted) {
-        setErrorsByAddress((oldErrors) => ({ ...oldErrors, [address]: err }))
+      if (!(err instanceof AbortedError)) {
+        if (err instanceof Error) {
+          setErrorsByAddress((oldErrors) => ({
+            ...oldErrors,
+            [address]: err,
+          }))
+        } else {
+          setErrorsByAddress((oldErrors) => ({
+            ...oldErrors,
+            [address]: new Error('Load collector failed', { cause: err }),
+          }))
+        }
       }
       throw err
     }
@@ -166,7 +196,7 @@ function Addresses() {
       setEvents({})
       setPowers({})
       setErrorsByAddress({})
-      let promise = new Promise((r) => r())
+      let promise = new Promise((r) => r(undefined))
       /**
        * @type {Record<string, AbortController>}
        */
@@ -207,6 +237,9 @@ function Addresses() {
         (ensNameAddress)  => {
           if (ensNameAddress) {
             setLoadingByIndex((oldLoading) => {
+              if (oldLoading == null) {
+                return {}
+              }
               /**
                * @type {Record<number, boolean>}
                */
@@ -223,6 +256,9 @@ function Addresses() {
             return Promise.resolve(ensNameAddress)
           } else {
             setLoadingByIndex((oldLoading) => {
+              if (oldLoading == null) {
+                return {}
+              }
               /**
                * @type {Record<number, boolean>}
                */
@@ -234,13 +270,16 @@ function Addresses() {
               }
               return newLoading
             })
-            const err = new Error(`Could not resolve ${ensName}`)
-            setErrorsByIndex((oldErrors) => ({ ...oldErrors, [index]: err }))
-            return Promise.reject(err)
+            const error = new Error(`Could not resolve ${ensName}`)
+            setErrorsByIndex((oldErrors) => ({ ...oldErrors, [index]: error }))
+            return Promise.reject(error)
           }
         },
         (err) => {
           setLoadingByIndex((oldLoading) => {
+            if (oldLoading == null) {
+              return {}
+            }
             /**
              * @type {Record<number, boolean>}
              */
@@ -276,7 +315,7 @@ function Addresses() {
           .map((input) => input.address)
         if (missingEnsNames.length > 0) {
           resolveEnsNames(missingEnsNames).catch((err) => {
-            setErrors((oldErrors) => ([...oldErrors, err]))
+            setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
           })
         }
       }
@@ -300,10 +339,21 @@ function Addresses() {
           )
         if (missingAddresses.length > 0) {
           setState(STATE_ENS_RESOLVING)
-          let promise = new Promise((r) => r())
+          let promise = new Promise((r) => r(undefined))
           for (const { ens, index } of missingAddresses) {
             if (ens in addressByEnsName) {
-              setCollectors((oldCollectors) => ({ ...oldCollectors, [index]: addressByEnsName[ens] }))
+              const address = addressByEnsName[ens]
+              if (address != null) {
+                setCollectors((oldCollectors) => ({
+                  ...oldCollectors,
+                  [index]: address,
+                }))
+              } else {
+                setErrorsByIndex((oldErrors) => ({
+                  ...oldErrors,
+                  [index]: new Error(`Address for ${ens} not found`),
+                }))
+              }
             } else {
               promise = promise.then(
                 () => processEnsName(ens, index),
@@ -312,7 +362,7 @@ function Addresses() {
             }
           }
           promise.catch((err) => {
-            if (!(err instanceof AbortedError) && !err.aborted) {
+            if (!(err instanceof AbortedError)) {
               console.error(err)
             }
           })
@@ -327,6 +377,9 @@ function Addresses() {
       if (addresses === null) {
         return
       }
+      /**
+       * @type {AbortController[]}
+       */
       let controllers = []
       const resolved = Object.values(collectors)
       if (resolved.length === addresses.length) {
@@ -358,16 +411,22 @@ function Addresses() {
 
   const searchEvents = useMemo(
     () => parseEventIds(
-      searchParams.get('events')
+      searchParams.get('events') ?? ''
     ),
     [searchParams]
   )
 
   useEffect(
     () => {
-      const controller= new AbortController()
-      const requests = []
-      const onHashChange = (ev, initial = false) => {
+      const controller = new AbortController()
+      /**
+       * @type {AbortController[]}
+       */
+      const controllers = []
+      /**
+       * @param {HashChangeEvent} event
+       */
+      const onHashChange = (event, initial = false) => {
         setState(STATE_INIT_PARSING)
         setErrors([])
         setErrorsByAddress({})
@@ -396,7 +455,7 @@ function Addresses() {
         } else if (searchEvents.length > 0) {
           setLoadingEventsOwners(true)
           if (searchParams.get('force') === 'true') {
-            let promise = new Promise((resolve) => resolve())
+            let promise = new Promise((r) => r(undefined))
             for (const searchEventId of searchEvents) {
               const controller = new AbortController()
               promise = promise.then(() => {
@@ -421,11 +480,11 @@ function Addresses() {
                   },
                   (err) => {
                     setLoadingEventsOwners(false)
-                    setErrors((oldErrors) => ([...oldErrors, err]))
+                    setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
                   }
                 )
               })
-              requests.push(controller)
+              controllers.push(controller)
             }
           } else {
             getEventsOwners(searchEvents, controller.signal).then(
@@ -453,12 +512,12 @@ function Addresses() {
                     )
                   )
                 } else {
-                  setErrors((oldErrors) => ([...oldErrors, new Error(`Events owners could not be loaded`)]))
+                  setErrors((oldErrors) => ([...(oldErrors ?? []), new Error(`Events owners could not be loaded`)]))
                 }
               },
               (err) => {
                 setLoadingEventsOwners(false)
-                setErrors((oldErrors) => ([...oldErrors, err]))
+                setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
               }
             )
           }
@@ -471,7 +530,7 @@ function Addresses() {
       window.addEventListener('hashchange', onHashChange, false)
       return () => {
         controller.abort()
-        for (const request of requests) {
+        for (const request of controllers) {
           request.abort()
         }
         window.removeEventListener('hashchange', onHashChange, false)
@@ -571,6 +630,9 @@ function Addresses() {
    */
   const retryResolveAddress = (index) => {
     setErrorsByIndex((prevErrors) => {
+      if (prevErrors == null) {
+        return {}
+      }
       /**
        * @type {Record<number, Error>}
        */
@@ -583,7 +645,7 @@ function Addresses() {
       return newErrors
     })
     const entry = addresses[index]
-    if (entry && entry.ens) {
+    if (entry != null && entry.ens) {
       processEnsName(entry.ens, index).catch((err) => {
         if (!(err instanceof AbortedError) && !err.aborted) {
           console.error(err)
@@ -666,7 +728,11 @@ function Addresses() {
                 ))}
                 <th className="collector-head-actions">
                   <ButtonGroup>
-                    <ButtonEdit key="edit" secondary={true} borderless={true} onEdit={() => edit()} />
+                    <ButtonEdit
+                      key="edit"
+                      onEdit={() => edit()}
+                      title="Manually enter the list of addresses"
+                    />
                   </ButtonGroup>
                 </th>
               </tr>

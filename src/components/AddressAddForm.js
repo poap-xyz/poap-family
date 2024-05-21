@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { Plus } from 'iconoir-react'
 import { parseAddresses } from 'models/address'
@@ -5,6 +6,9 @@ import Button from 'components/Button'
 import ErrorMessage from 'components/ErrorMessage'
 import 'styles/address-add.css'
 
+/**
+ * @param {PropTypes.InferProps<AddressAddForm.propTypes>} props
+ */
 function AddressAddForm({
   onSubmit =
     /**
@@ -85,6 +89,10 @@ function AddressAddForm({
       )}
     </div>
   )
+}
+
+AddressAddForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
 }
 
 export default AddressAddForm

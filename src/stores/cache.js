@@ -16,9 +16,9 @@ export const SettingsContext = createContext({
  */
 export function SettingsProvider({ children }) {
   /**
-   * @type {ReturnType<typeof useState<typeof DEFAULT_SETTINGS | null>>}
+   * @type {ReturnType<typeof useState<typeof DEFAULT_SETTINGS>>}
    */
-  const [settings, setSettings] = useState(null)
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS)
 
   useEffect(
     () => {
@@ -35,6 +35,12 @@ export function SettingsProvider({ children }) {
    */
   const set = (key, value) => {
     setSettings((oldSettings) => {
+      if (!oldSettings) {
+        return { ...DEFAULT_SETTINGS, [key]: value }
+      }
+      /**
+       * @type {typeof DEFAULT_SETTINGS}
+       */
       const newSettings = { ...oldSettings, [key]: value }
       saveSettings(newSettings)
       return newSettings

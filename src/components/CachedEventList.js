@@ -23,7 +23,7 @@ function CachedEventList({
     (eventId) => {},
 }) {
   return (
-    <ul className="cached-drops" style={{ maxHeight }}>
+    <ul className="cached-drops" style={{ maxHeight: maxHeight ?? undefined }}>
       {cachedEvents.map((cachedEvent, index) =>
         <li key={`${cachedEvent.id}-${index}`}>
           <div className="cached-drop">
@@ -36,7 +36,11 @@ function CachedEventList({
               <div className="name">
                 <h4 title={cachedEvent.name}>{cachedEvent.name}</h4>
                 {showClear && (
-                  <ButtonLink onClick={() => onClear(cachedEvent.id)}>clear</ButtonLink>
+                  <ButtonLink
+                    onClick={() => onClear != null && onClear(cachedEvent.id)}
+                  >
+                    clear
+                  </ButtonLink>
                 )}
               </div>
               <div className="sub-info">
@@ -46,7 +50,10 @@ function CachedEventList({
                   </p>}
                 {showInCommonCount &&
                   <p>
-                    <span className="in-common-count">{cachedEvent.in_common_count}</span>{' '}
+                    <span className="in-common-count">
+                      {cachedEvent.in_common_count}
+                    </span>
+                    {' '}
                     <Link to={`/event/${cachedEvent.id}`}>in common</Link>
                   </p>}
               </div>
@@ -59,7 +66,9 @@ function CachedEventList({
 }
 
 CachedEventList.propTypes = {
-  cachedEvents: PropTypes.arrayOf(PropTypes.shape(CachedEventProps)).isRequired,
+  cachedEvents: PropTypes.arrayOf(
+    PropTypes.shape(CachedEventProps).isRequired
+  ).isRequired,
   maxHeight: PropTypes.number,
   tokenImageSize: PropTypes.number,
   showCachedTs: PropTypes.bool,

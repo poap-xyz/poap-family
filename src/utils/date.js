@@ -5,6 +5,9 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
+/**
+ * @param {Date | number | string} date
+ */
 export function formatDate(date) {
   return dayjs(date).format('ll')
 }
@@ -31,10 +34,16 @@ export function secondsInTheFuture(secs) {
   return dayjs(ts).fromNow()
 }
 
-export function formatMonthYear(d) {
-  return dayjs(d).format('MMM \'YY')
+/**
+ * @param {Date | number | string} date
+ */
+export function formatMonthYear(date) {
+  return dayjs(date).format('MMM \'YY')
 }
 
+/**
+ * @param {Date | number | string} date
+ */
 export function parseEndOfDayDate(date) {
   return dayjs(date).endOf('day').toDate()
 }

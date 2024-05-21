@@ -14,7 +14,7 @@ import 'styles/button-address-profile.css'
  */
 function ButtonAddressProfile({
   address,
-  events = {},
+  events,
   inCommonEventIds = [],
   inCommonAddresses = [],
 }) {
@@ -62,9 +62,11 @@ function ButtonAddressProfile({
 
 ButtonAddressProfile.propTypes = {
   address: PropTypes.string.isRequired,
-  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
-  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
-  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
+  events: PropTypes.objectOf(
+    PropTypes.shape(DropProps).isRequired
+  ).isRequired,
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string.isRequired),
 }
 
 export default ButtonAddressProfile

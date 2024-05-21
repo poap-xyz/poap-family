@@ -9,7 +9,7 @@ import {
 
 export const ResolverEnsContext = createContext({
   /**
-   * @type {Record<string, string>}
+   * @type {Record<string, string | null>}
    */
   addresses: {},
   /**
@@ -17,7 +17,7 @@ export const ResolverEnsContext = createContext({
    */
   resolveAddress: async (ensName) => null,
   /**
-   * @type {Record<string, string>}
+   * @type {Record<string, string | null>}
    */
   avatars: {},
   /**
@@ -45,13 +45,16 @@ export const ReverseEnsContext = createContext({
   isNotFound: (address) => false,
 })
 
+/**
+ * @param {PropTypes.InferProps<ResolverEnsProvider.propTypes>} props
+ */
 function ResolverEnsProvider({ children }) {
   /**
-   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   * @type {ReturnType<typeof useState<Record<string, string | null>>>}
    */
   const [addressByEnsName, setAddressByEnsName] = useState({})
   /**
-   * @type {ReturnType<typeof useState<Record<string, string>>>}
+   * @type {ReturnType<typeof useState<Record<string, string | null>>>}
    */
   const [avatarByEnsName, setAvatarByEnsName] = useState({})
 
@@ -72,7 +75,7 @@ function ResolverEnsProvider({ children }) {
         }))
       } else {
         setAddressByEnsName((oldAddressByEnsName) => ({
-          ...oldAddressByEnsName,
+          ...(oldAddressByEnsName ?? {}),
           [ensName]: null,
         }))
       }
@@ -102,7 +105,7 @@ function ResolverEnsProvider({ children }) {
         }))
       } else {
         setAvatarByEnsName((oldAvatarByEnsName) => ({
-          ...oldAvatarByEnsName,
+          ...(oldAvatarByEnsName ?? {}),
           [ensName]: null,
         }))
       }
@@ -141,6 +144,13 @@ function ResolverEnsProvider({ children }) {
   )
 }
 
+ResolverEnsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+}
+
+/**
+ * @param {PropTypes.InferProps<ReverseEnsProvider.propTypes>} props
+ */
 function ReverseEnsProvider({
   children,
   limitEnsNames = ENS_RESOLVE_BATCH_SIZE,
@@ -157,6 +167,12 @@ function ReverseEnsProvider({
    */
   const [notFoundAddresses, setNotFoundAddresses] = useState([])
 
+  // Number of ENS names to resolve at a time.
+  const batchSize = useMemo(
+    () => limitEnsNames ?? ENS_RESOLVE_BATCH_SIZE,
+    [limitEnsNames]
+  )
+
   const resolveNames = useCallback(
     /**
      * @param {string[]} names
@@ -164,11 +180,11 @@ function ReverseEnsProvider({
      * @returns {Promise<void>}
      */
     (names, addresses) => {
-      let promise = new Promise((r) => r())
-      for (let i = 0; i < names.length; i += limitEnsNames) {
+      let promise = new Promise((r) => r(undefined))
+      for (let i = 0; i < names.length; i += batchSize) {
         promise = promise.then(
           () => Promise.allSettled(
-            names.slice(i, i + limitEnsNames).map(
+            names.slice(i, i + batchSize).map(
               (name) => resolveMeta(name, addresses ? addresses[i] : undefined)
             )
           )
@@ -176,7 +192,7 @@ function ReverseEnsProvider({
       }
       return promise.then(() => {})
     },
-    [limitEnsNames, resolveMeta]
+    [batchSize, resolveMeta]
   )
 
   const resolveEnsNames = useCallback(
@@ -210,6 +226,11 @@ function ReverseEnsProvider({
             const [resolvedAddresses, resolvedEnsNames] = Object
               .entries(resolved)
               .reduce(
+                /**
+                 * @param {[string[], string[]]} param0
+                 * @param {[string, string]} param1
+                 * @returns {[string[], string[]]}
+                 */
                 ([resolvedAddresses, resolvedEnsNames], [address, ensName]) => [
                   [...resolvedAddresses, address],
                   [...resolvedEnsNames, ensName]
@@ -223,7 +244,7 @@ function ReverseEnsProvider({
       setNotFoundAddresses(
         (oldNotFoundByAddress) => ([
           ...new Set([
-            ...oldNotFoundByAddress,
+            ...(oldNotFoundByAddress ?? []),
             ...newAddresses.filter((address) => !(address in ensNames)),
           ])
         ])
@@ -279,6 +300,11 @@ function ReverseEnsProvider({
       {children}
     </ReverseEnsContext.Provider>
   )
+}
+
+ReverseEnsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  limitEnsNames: PropTypes.number,
 }
 
 /**

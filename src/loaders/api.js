@@ -249,21 +249,29 @@ export async function getInCommonEventsWithProgress(
       }
     )
   } catch (err) {
-    if (err.response) {
-      if (err.response.status === 404) {
-        return null
-      }
+    const status =
+      err != null &&
+      typeof err === 'object' &&
+      'response' in err &&
+      err.response != null &&
+      typeof err.response === 'object' &&
+      'status' in err.response &&
+      err.response.status != null &&
+      typeof err.response.status === 'number'
+        ? err.response.status
+        : 500
 
-      console.error(err)
-
-      throw new Error(
-        `Drop ${eventId} in common failed to fetch ` +
-        `(status ${err.response.status})`
-      )
+    if (status === 404) {
+      return null
     }
 
     console.error(err)
 
+    throw new Error(
+      `Drop ${eventId} in common failed to fetch (status ${status})`
+    )
+  }
+  if (response == null) {
     throw new Error(`Drop ${eventId} in common failed to fetch`)
   }
 
@@ -438,7 +446,7 @@ export async function getEvents(eventIds, abortSignal) {
    */
   const body = await response.json()
 
-  if (typeof body !== 'object') {
+  if (body == null || typeof body !== 'object') {
     throw new Error(`Malformed drops (type ${typeof body})`)
   }
 
@@ -489,7 +497,7 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
    */
   const body = await response.json()
 
-  if (typeof body !== 'object') {
+  if (body == null || typeof body !== 'object') {
     throw new Error(`Malformed drop owners (type ${typeof body})`)
   }
 
@@ -563,7 +571,7 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
    */
   const body = await response.json()
 
-  if (typeof body !== 'object') {
+  if (body == null || typeof body !== 'object') {
     throw new Error(`Malformed drops owners (type ${typeof body})`)
   }
 
@@ -615,7 +623,7 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
    */
   const body = await response.json()
 
-  if (typeof body !== 'object') {
+  if (body == null || typeof body !== 'object') {
     throw new Error(`Malformed drops metrics (type ${typeof body})`)
   }
 
@@ -689,7 +697,7 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
    */
   const body = await response.json()
 
-  if (typeof body !== 'object') {
+  if (body == null || typeof body !== 'object') {
     throw new Error(`Malformed drops metrics (type ${typeof body})`)
   }
 

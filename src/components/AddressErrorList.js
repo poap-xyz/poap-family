@@ -38,7 +38,7 @@ AddressErrorList.propTypes = {
       PropTypes.shape({
         address: PropTypes.string.isRequired,
         error: PropTypes.instanceOf(Error).isRequired,
-      })
+      }).isRequired
     ).isRequired
   ),
   onRetry: PropTypes.func.isRequired,

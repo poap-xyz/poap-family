@@ -7,7 +7,7 @@ const regexp =
  * Splits a text by its URLs and wrap them in Anchor component.
  *
  * @param {string} text
- * @param {React.FC} Anchor
+ * @param {React.FC<{ href: string; children: React.ReactNode }>} Anchor
  * @returns {React.ReactNode[]}
  */
 export default function linkify(text, Anchor) {
