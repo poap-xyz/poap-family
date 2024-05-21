@@ -2,9 +2,12 @@
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
-  overflow: scroll;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+}
+
+.center-page > * {
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

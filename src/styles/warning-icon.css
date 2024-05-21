@@ -4,3 +4,7 @@
   border-bottom: 1px dotted #D4BE74;
   cursor: help;
 }
+
+.warning-icon .icon::before {
+  content: "⚠";
+}

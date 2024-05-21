@@ -20,6 +20,7 @@ function Button({
       className={clsx('button', {
         active,
         disabled,
+        primary: !secondary,
         secondary,
         borderless,
       })}

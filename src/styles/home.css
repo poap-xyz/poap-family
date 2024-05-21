@@ -1,22 +1,3 @@
-.drop-lists {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  left: 0;
-  right: 0;
-  width: 100%;
-  overflow-x: auto;
-}
-
-@media only screen and (max-width: 500px) {
-  .drop-lists {
-    align-items: start;
-    justify-content: start;
-  }
-}
-
 .footer {
   display: flex;
   gap: .5rem;

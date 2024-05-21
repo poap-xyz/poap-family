@@ -2,18 +2,7 @@
   font-size: 100%;
 }
 
-.button-address-profile-modal {
-  height: 100%;
-}
-
-.button-address-profile-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.button-address-profile-container .button-close {
+.button-address-profile-modal .button-close {
   position: absolute;
   top: 12px;
   right: 24px;

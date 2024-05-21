@@ -9,11 +9,11 @@
   border-spacing: 0 .5rem;
 }
 
-.events table thead .event-head {
+.events table thead tr th.event-head {
   text-align: left;
 }
 
-.events table thead .event-head-actions {
+.events table thead tr th.event-head-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -26,66 +26,67 @@
   border: 1px dotted #B5AEFF;
 }
 
-.events table tbody td {
+.events table tbody tr td {
   padding: .5rem;
 }
 
-.event-cell-info {
+.events table tbody tr td.event-cell-info {
   display: flex;
 }
 
-.event-cell-info .event-image {
+.events table tbody tr td.event-cell-info .event-image {
   text-align: center;
   overflow-wrap: break-word;
   max-width: 72px;
 }
 
-.event-cell-info .event-id {
+.events table tbody tr td.event-cell-info .event-id {
   display: block;
   cursor: pointer;
   font-size: 80%;
   margin: 4px;
 }
 
-.event-cell-info .event-data {
+.events table tbody tr td.event-cell-info .event-data {
   margin-left: 1rem;
 }
 
-.events span.status-error-message {
+.events table tbody tr td.event-cell-metrics {
+  text-align: center;
+}
+
+.events .status-error-message {
   margin-left: .5rem;
 }
 
-.events p.status-error-message {
+.events .address-error-message {
   margin-top: .2rem;
   margin-bottom: .2rem;
   color: #e6698c;
 }
 
-.events p.status-cached-ts {
+.events .status-cached-ts {
   white-space: nowrap;
 }
 
-.event-cell-owners {
-  text-align: center;
-}
-
 @media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
-  .events table, .events thead, .events tbody, .events th, .events td, .events tr {
+  .events table,
+  .events table thead,
+  .events table tbody,
+  .events table tbody tr,
+  .events table tbody tr td {
     display: block;
   }
-  .events thead tr {
+
+  .events table thead tr {
     display: none;
   }
-  .events tr {
+
+  .events table tbody tr {
     margin: 0 0 1rem 0;
   }
-  .events td {
-    padding-left: 50%;
-  }
-}
 
-@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
-  .events .in-common .active-events {
-    top: 100%;
+  .events table tbody tr td.event-cell-progress {
+    text-align: center;
   }
 }

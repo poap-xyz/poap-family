@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import { clsx } from 'clsx'
 import { formatMonthYear } from 'utils/date'
-import { POAP_SCAN_URL, findInitialPOAPDate } from 'models/poap'
+import { findInitialPOAPDate } from 'models/poap'
 import { DropProps } from 'models/drop'
 import {
   INCOMMON_ADDRESSES_LIMIT,
@@ -12,7 +12,7 @@ import {
 import { POAP_PROFILE_LIMIT } from 'models/poap'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { scanAddress } from 'loaders/poap'
-import ExternalLink from 'components/ExternalLink'
+import LinkToScan from 'components/LinkToScan'
 import AddressesList from 'components/AddressesList'
 import TokenImage from 'components/TokenImage'
 import ButtonLink from 'components/ButtonLink'
@@ -183,13 +183,7 @@ function AddressProfile({
               )}
             />
           )}
-          <ExternalLink
-            className="profile-address"
-            href={`${POAP_SCAN_URL}/${address}`}
-            title={`Scan ${address in ensNames ? ensNames[address] : address}`}
-          >
-            <code>{address}</code>
-          </ExternalLink>
+          <LinkToScan className="profile-address" address={address} />
           {address in ensNames && (
             <big className="profile-ens">{ensNames[address]}</big>
           )}

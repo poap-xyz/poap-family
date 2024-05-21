@@ -3,9 +3,14 @@
   top: 1rem;
 }
 
-.logo-menu-card {
+.logo-menu .logo-menu-card {
   border: 1px solid transparent;
   border-radius: 3.25rem;
+}
+
+.logo-menu .logo-menu-card:hover {
+  background-color: white;
+  border-color: #5e58a5;
 }
 
 .logo-menu .logo-menu-content {
@@ -13,11 +18,6 @@
   padding: 0 .7rem .7rem .7rem;
 }
 
-.logo-menu-card:hover {
-  background-color: white;
-  border-color: #5e58a5;
-}
-
-.logo-menu-card:hover .logo-menu-content {
+.logo-menu .logo-menu-card:hover .logo-menu-content {
   display: block;
 }

@@ -1,0 +1,59 @@
+.cached-event-list {
+  list-style-type: none;
+  overflow: auto;
+}
+
+.cached-event-list li {
+  margin: .5rem 0;
+}
+
+.cached-event-list li:hover {
+  cursor: pointer;
+  background-color: #B5AEFF;
+}
+
+.cached-event {
+  border: 1px dotted #B5AEFF;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.cached-event .cached-event-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cached-event .cached-event-card .event-id {
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  font-size: 80%;
+  margin: 1px;
+}
+
+.cached-event .cached-event-info h4 {
+  display: inline-block;
+  max-width: 330px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cached-event .cached-event-info .cached-event-data {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.cached-event .cached-event-info .cached-event-data .in-common-count {
+  font-weight: 700;
+  font-size: 120%;
+}
+
+.cached-event .cached-event-info .cached-event-data .cached-ts {
+  font-size: 11px;
+}

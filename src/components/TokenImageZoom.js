@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
-import ReactModal from 'react-modal'
 import { DropProps } from 'models/drop'
+import Modal from 'components/Modal'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
 import TokenImage from 'components/TokenImage'
@@ -27,19 +27,16 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
       >
         <TokenImage event={event} size={size} resize={true} />
       </button>
-      <ReactModal
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        contentLabel={event.name}
-        className="token-image-zoom-modal"
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        title={event.name}
       >
         <LazyImage
           src={event.image_url}
           alt={event.name}
           placeholder={({ imageProps, ref }) => (
-            <div className="token-image-zoom-container token-image-zoom-placeholder" ref={ref}>
+            <div className="token-image-zoom-modal token-image-zoom-placeholder" ref={ref}>
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
                 <button
@@ -58,7 +55,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             </div>
           )}
           actual={({ imageProps }) => (
-            <div className="token-image-zoom-container token-image-zoom-actual">
+            <div className="token-image-zoom-modal token-image-zoom-actual">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
                 <button
@@ -76,7 +73,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             </div>
           )}
           loading={() => (
-            <div className="token-image-zoom-container token-image-zoom-loading">
+            <div className="token-image-zoom-modal token-image-zoom-loading">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
                 <Loading small={true} />
@@ -96,7 +93,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             </div>
           )}
           error={() => (
-            <div className="token-image-zoom-container token-image-zoom-error">
+            <div className="token-image-zoom-modal token-image-zoom-error">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
                 <ErrorMessage message="Artwork could not be loaded" />
@@ -104,7 +101,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             </div>
           )}
         />
-      </ReactModal>
+      </Modal>
     </div>
   )
 }
