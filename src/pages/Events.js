@@ -23,7 +23,7 @@ import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
-import EventButtons from 'components/EventButtons'
+import EventButtonGroup from 'components/EventButtonGroup'
 import Page from 'components/Page'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Status from 'components/Status'
@@ -1278,17 +1278,12 @@ function Events() {
                       )}
                     </td>
                     <td align="right">
-                      <EventButtons
-                        event={event}
-                        buttons={[
-                          <ButtonDelete
-                            key="del"
-                            onDelete={() => delEvent(event.id)}
-                            title={`Removes drop #${event.id}`}
-                          />,
-                        ]}
-                        invert={true}
-                      />
+                      <EventButtonGroup event={event} right={true}>
+                        <ButtonDelete
+                          onDelete={() => delEvent(event.id)}
+                          title={`Removes drop #${event.id}`}
+                        />
+                      </EventButtonGroup>
                     </td>
                   </tr>
                 ))}

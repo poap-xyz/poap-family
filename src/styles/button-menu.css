@@ -9,6 +9,7 @@
   transform: scaleY(0);
   transform-origin: top center;
   overflow: hidden;
+  padding-top: .5rem;
 }
 
 .button-menu:hover .button-menu-content {

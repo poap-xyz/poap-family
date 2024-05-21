@@ -9,7 +9,7 @@ import Ilustration from 'images/Illustration_Cities_BuenosAires.png'
 import Card from 'components/Card'
 import Stats from 'components/Stats'
 import TokenImageZoom from 'components/TokenImageZoom'
-import EventButtons from 'components/EventButtons'
+import EventButtonGroup from 'components/EventButtonGroup'
 import ExternalLink from 'components/ExternalLink'
 import 'styles/event-info.css'
 
@@ -72,11 +72,9 @@ function EventInfo({
               <div className="place">{event.city}, {event.country}</div>
             )}
             <Stats stats={stats} highlight={highlightStat} />
-            <EventButtons
-              event={event}
-              buttons={buttons}
-              viewInGallery={true}
-            />
+            <EventButtonGroup event={event} viewInGallery={true}>
+              {buttons}
+            </EventButtonGroup>
             {children}
           </div>
         </div>

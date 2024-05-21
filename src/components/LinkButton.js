@@ -13,6 +13,7 @@ function LinkButton({
   children,
   external = false,
   secondary = false,
+  className,
 }) {
   if (external && !icon) {
     icon = <OpenNewWindow width={16} height={16} />
@@ -21,7 +22,9 @@ function LinkButton({
     <a
       href={href}
       title={title}
-      className={clsx('link-button', secondary ? 'secondary' : 'primary')}
+      className={clsx('link-button', className,
+        secondary ? 'secondary' : 'primary',
+      )}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
     >
@@ -44,6 +47,7 @@ LinkButton.propTypes = {
   children: PropTypes.node,
   external: PropTypes.bool,
   secondary: PropTypes.bool,
+  className: PropTypes.string,
 }
 
 export default LinkButton
