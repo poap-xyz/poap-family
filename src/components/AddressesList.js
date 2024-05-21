@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
-import { POAP_SCAN_URL } from '../models/poap'
-import { ReverseEnsContext } from '../stores/ethereum'
-import '../styles/addresses-list.css'
+import { POAP_SCAN_URL } from 'models/poap'
+import { ReverseEnsContext } from 'stores/ethereum'
+import 'styles/addresses-list.css'
 
 /**
  * @param {PropTypes.InferProps<AddressesList.propTypes>} props

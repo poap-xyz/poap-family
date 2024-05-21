@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
-import { ENS_RESOLVE_BATCH_SIZE } from '../models/ethereum'
+import { ENS_RESOLVE_BATCH_SIZE } from 'models/ethereum'
 import {
   resolveAddress as ethereumResolveAddress,
   resolveEnsNames as ethereumResolveEnsNames,
   resolveEnsAvatar as ethereumResolveEnsAvatar
-} from '../loaders/ethereum'
+} from 'loaders/ethereum'
 
 export const ResolverEnsContext = createContext({
   /**

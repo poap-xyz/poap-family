@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
-import { SettingsContext } from '../stores/cache'
-import { DropProps } from '../models/drop'
-import TokenImage from './TokenImage'
-import LinkToScan from './LinkToScan'
-import ButtonAddressProfile from './ButtonAddressProfile'
-import '../styles/owner.css'
+import { SettingsContext } from 'stores/cache'
+import { DropProps } from 'models/drop'
+import TokenImage from 'components/TokenImage'
+import LinkToScan from 'components/LinkToScan'
+import ButtonAddressProfile from 'components/ButtonAddressProfile'
+import 'styles/owner.css'
 
 /**
  * @param {PropTypes.InferProps<AddressOwner.propTypes>} props

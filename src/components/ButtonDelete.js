@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Minus } from 'iconoir-react'
-import Button from './Button'
+import Button from 'components/Button'
 
 /**
  * @param {PropTypes.InferProps<ButtonDelete.propTypes>} props

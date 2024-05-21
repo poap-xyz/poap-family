@@ -5,7 +5,7 @@ import {
   MAINNET_ENS_REVERSE_RECORDS,
   ENS_REVERSE_RECORDS_BATCH_SIZE,
   ENS_RESOLVE_MAX_ERRORS,
-} from '../models/ethereum'
+} from 'models/ethereum'
 
 const ensProvider = new StaticJsonRpcProvider(MAINNET_PROVIDER_URL, 'mainnet')
 const ensReverseRecordsContract = new Contract(

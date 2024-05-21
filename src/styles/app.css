@@ -55,10 +55,6 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-.icon.warning::before {
-  content: "⚠";
-}
-
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: .5rem;

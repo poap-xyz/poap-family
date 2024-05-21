@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { clsx } from 'clsx'
-import { secondsInTheFuture } from '../utils/date'
-import { formatByte, formatPercentage } from '../utils/number'
-import '../styles/loading.css'
+import { secondsInTheFuture } from 'utils/date'
+import { formatByte, formatPercentage } from 'utils/number'
+import 'styles/loading.css'
 
 /**
  * @param {PropTypes.InferProps<Loading.propTypes>} props

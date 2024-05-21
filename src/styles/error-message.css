@@ -1,21 +1,47 @@
 .error-message {
   background-color: #E9A1B6;
-  color: #F8D1D2;
-  text-align: center;
-  font-size: 32px;
   border-radius: 3.2rem;
   padding: 1.2rem;
+}
+
+.error-message.away {
+  margin-top: 1rem;
+}
+
+.error-message .message {
+  color: #F8D1D2;
+  font-size: 32px;
   margin-bottom: 1px;
 }
 
 .error-message.small {
   background-color: transparent;
-  color: #E9A1B6;
   border: 1px solid #E9A1B6;
-  font-size: 12px;
   padding: .2rem;
 }
 
-.error-message.away {
-  margin-top: 1rem;
+.error-message.small .message {
+  color: #E9A1B6;
+  font-size: 12px;
+}
+
+.error-message .error {
+  display: flex;
+}
+
+.error-message .error .message {
+  flex-grow: 1;
+}
+
+.error-message .error .actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.error-message .cause-button {
+  border-width: 0;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
 }

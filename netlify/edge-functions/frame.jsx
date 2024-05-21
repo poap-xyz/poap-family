@@ -2,11 +2,11 @@
 import { ImageResponse } from 'https://deno.land/x/og_edge/mod.ts'
 import { getEnv } from '../loaders/env.js'
 import { getEventsInfo } from '../loaders/api.js'
+import { intersection } from '../utils/array.js'
 import { parseEventIds, sortEvents } from '../utils/event.js'
 import { renderEventsImages } from '../utils/image.js'
 import { EventHeader } from '../components/EventHeader.jsx'
 import { Stats } from '../components/Stats.jsx'
-import { intersection } from '../../src/utils/array.js'
 
 function parseRequestUrl(requestUrl) {
   const url = new URL(requestUrl)

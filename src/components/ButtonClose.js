@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Xmark } from 'iconoir-react'
-import '../styles/button-close.css'
+import 'styles/button-close.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonClose.propTypes>} props

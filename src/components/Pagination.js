@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import Button from './Button'
-import '../styles/pagination.css'
+import Button from 'components/Button'
+import 'styles/pagination.css'
 
 /**
  * @param {PropTypes.InferProps<Pagination.propTypes>} props

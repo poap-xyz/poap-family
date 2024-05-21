@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { clsx } from 'clsx'
-import { ReverseEnsContext } from '../stores/ethereum'
-import { POAP_SCAN_URL } from '../models/poap'
-import POAP_Stamp from '../images/POAP_Stamp.svg'
-import '../styles/link-to-scan.css'
+import { ReverseEnsContext } from 'stores/ethereum'
+import { POAP_SCAN_URL } from 'models/poap'
+import POAP_Stamp from 'images/POAP_Stamp.svg'
+import 'styles/link-to-scan.css'
 
 /**
  * @param {PropTypes.InferProps<LinkToScan.propTypes>} props

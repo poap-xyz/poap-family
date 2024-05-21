@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
 import { OpenNewWindow } from 'iconoir-react'
-import '../styles/external-link.css'
+import 'styles/external-link.css'
 
 /**
  * @param {PropTypes.InferProps<ExternalLink.propTypes>} props

@@ -2,13 +2,13 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import ReactModal from 'react-modal'
-import { DropProps } from '../models/drop'
-import Card from './Card'
-import ErrorMessage from './ErrorMessage'
-import TokenImage from './TokenImage'
-import ButtonClose from './ButtonClose'
-import Loading from './Loading'
-import '../styles/token-image-zoom.css'
+import { DropProps } from 'models/drop'
+import Card from 'components/Card'
+import ErrorMessage from 'components/ErrorMessage'
+import TokenImage from 'components/TokenImage'
+import ButtonClose from 'components/ButtonClose'
+import Loading from 'components/Loading'
+import 'styles/token-image-zoom.css'
 
 /**
  * @param {PropTypes.InferProps<TokenImageZoom.propTypes>} props
@@ -99,9 +99,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }) {
             <div className="token-image-zoom-container token-image-zoom-error">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
-                <ErrorMessage>
-                  <p>Artwork could not be loaded</p>
-                </ErrorMessage>
+                <ErrorMessage message="Artwork could not be loaded" />
               </Card>
             </div>
           )}

@@ -1,4 +1,4 @@
-import { parseEndOfDayDate } from '../utils/date'
+import { parseEndOfDayDate } from 'utils/date'
 
 export const SEARCH_LIMIT = 10
 

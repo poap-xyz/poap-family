@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import ShadowText from './ShadowText'
-import '../styles/stats.css'
+import ShadowText from 'components/ShadowText'
+import 'styles/stats.css'
 
 /**
  * @param {PropTypes.InferProps<Stats.propTypes>} props

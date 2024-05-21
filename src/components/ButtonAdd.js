@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Plus } from 'iconoir-react'
-import Button from './Button'
+import Button from 'components/Button'
 
 /**
  * @param {PropTypes.InferProps<ButtonAdd.propTypes>} props

@@ -2,22 +2,28 @@ import PropTypes from 'prop-types'
 import { createRef, useContext, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { SettingsContext } from '../stores/cache'
-import { DropProps } from '../models/drop'
-import { filterInCommon, getAddressInCommonAddresses, getAddressInCommonEventIds, INCOMMON_EVENTS_LIMIT, sortInCommonEntries } from '../models/in-common'
-import { intersection } from '../utils/array'
-import { getColorForSeed } from '../utils/color'
-import ButtonLink from './ButtonLink'
-import Card from './Card'
-import EventHeader from './EventHeader'
-import ErrorMessage from './ErrorMessage'
-import EventCount from './EventCount'
-import EventButtons from './EventButtons'
-import AddressOwner from './AddressOwner'
-import ButtonGroup from './ButtonGroup'
-import TokenImage from './TokenImage'
-import ButtonClose from './ButtonClose'
-import '../styles/in-common.css'
+import { SettingsContext } from 'stores/cache'
+import { DropProps } from 'models/drop'
+import {
+  filterInCommon,
+  getAddressInCommonAddresses,
+  getAddressInCommonEventIds,
+  INCOMMON_EVENTS_LIMIT,
+  sortInCommonEntries,
+} from 'models/in-common'
+import { intersection } from 'utils/array'
+import { getColorForSeed } from 'utils/color'
+import ButtonLink from 'components/ButtonLink'
+import Card from 'components/Card'
+import EventHeader from 'components/EventHeader'
+import ErrorMessage from 'components/ErrorMessage'
+import EventCount from 'components/EventCount'
+import EventButtons from 'components/EventButtons'
+import AddressOwner from 'components/AddressOwner'
+import ButtonGroup from 'components/ButtonGroup'
+import TokenImage from 'components/TokenImage'
+import ButtonClose from 'components/ButtonClose'
+import 'styles/in-common.css'
 
 /**
  * @param {PropTypes.InferProps<InCommon.propTypes>} props
@@ -231,9 +237,7 @@ function InCommon({
       <Card>
         {children}
         {inCommonTotal === 0 && (
-          <ErrorMessage>
-            <p>No POAPs in common</p>
-          </ErrorMessage>
+          <ErrorMessage message="No POAPs in common" />
         )}
         {inCommonTotal > 0 && (
           <h4>

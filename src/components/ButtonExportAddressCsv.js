@@ -3,8 +3,8 @@ import { useMatomo } from '@datapunt/matomo-tracker-react'
 import download from 'downloadjs'
 import { Download } from 'iconoir-react'
 import { useContext } from 'react'
-import { ReverseEnsContext } from '../stores/ethereum'
-import Button from './Button'
+import { ReverseEnsContext } from 'stores/ethereum'
+import Button from 'components/Button'
 
 /**
  * @param {PropTypes.InferProps<ButtonExportAddressCsv.propTypes>} props
