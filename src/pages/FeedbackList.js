@@ -56,7 +56,7 @@ function FeedbackList({ qty = 10 }) {
 
   useEffect(
     () => {
-      if (!authenticated) {
+      if (!authenticated || passphrase == null) {
         return
       }
       setLoading(true)
@@ -100,7 +100,13 @@ function FeedbackList({ qty = 10 }) {
    * @param {number} id
    */
   const handleDelFeedback = (id) => {
+    if (!authenticated || passphrase == null) {
+      return
+    }
     setFeedback((oldFeedback) => {
+      if (oldFeedback == null) {
+        return []
+      }
       const newFeedback = []
       for (let i = 0; i < oldFeedback.length; i++) {
         if (oldFeedback[i].id !== id) {

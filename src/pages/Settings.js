@@ -20,17 +20,29 @@ function Settings() {
     [setTitle]
   )
 
-  const handleShowLastEvents = (event) => {
-    set('showLastEvents', !!event.target.checked)
+  /**
+   * @param {boolean} checked
+   */
+  const handleShowLastEvents = (checked) => {
+    set('showLastEvents', checked)
   }
-  const handleAutoScrollCollectors = (event) => {
-    set('autoScrollCollectors', !!event.target.checked)
+  /**
+   * @param {boolean} checked
+   */
+  const handleAutoScrollCollectors = (checked) => {
+    set('autoScrollCollectors', checked)
   }
-  const handleOpenProfiles = (event) => {
-    set('openProfiles', !!event.target.checked)
+  /**
+   * @param {boolean} checked
+   */
+  const handleOpenProfiles = (checked) => {
+    set('openProfiles', checked)
   }
-  const handleShowCollections = (event) => {
-    set('showCollections', !!event.target.checked)
+  /**
+   * @param {boolean} checked
+   */
+  const handleShowCollections = (checked) => {
+    set('showCollections', checked)
   }
 
   return (
@@ -43,7 +55,9 @@ function Settings() {
             <Switch
               id="showLastEvents"
               checked={settings && settings.showLastEvents}
-              onChange={handleShowLastEvents}
+              onChange={(event) => {
+                handleShowLastEvents(event.target.checked)
+              }}
             />
           </div>
         </div>
@@ -53,7 +67,9 @@ function Settings() {
             <Switch
               id="autoScrollCollectors"
               checked={settings && settings.autoScrollCollectors}
-              onChange={handleAutoScrollCollectors}
+              onChange={(event) => {
+                handleAutoScrollCollectors(event.target.checked)
+              }}
             />
           </div>
         </div>
@@ -63,7 +79,9 @@ function Settings() {
             <Switch
               id="openProfiles"
               checked={settings && settings.openProfiles}
-              onChange={handleOpenProfiles}
+              onChange={(event) => {
+                handleOpenProfiles(event.target.checked)
+              }}
             />
           </div>
         </div>
@@ -73,7 +91,9 @@ function Settings() {
             <Switch
               id="showCollections"
               checked={settings && settings.showCollections}
-              onChange={handleShowCollections}
+              onChange={(event) => {
+                handleShowCollections(event.target.checked)
+              }}
             />
           </div>
         </div>

@@ -30,6 +30,7 @@ function Home() {
       <div className="drop-lists">
         {settings && settings.showLastEvents && (
           <LastEvents
+            page={1}
             perPage={3}
             showRefresh={true}
             showMore={true}

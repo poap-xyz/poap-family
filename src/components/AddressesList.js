@@ -34,7 +34,7 @@ function AddressesList({
 }
 
 AddressesList.propTypes = {
-  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  addresses: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 }
 
 export default AddressesList

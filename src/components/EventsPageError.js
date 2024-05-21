@@ -18,7 +18,7 @@ function EventsPageError() {
    * @param {number} eventId
    */
   const delEvent = (eventId) => {
-    const eventIds = parseEventIds(rawEventIds).filter(
+    const eventIds = parseEventIds(String(rawEventIds)).filter(
       (paramEventId) => String(paramEventId) !== String(eventId)
     )
     if (eventIds.length === 1) {
@@ -35,7 +35,7 @@ function EventsPageError() {
    */
   const delEvents = (eventIds) => {
     const oldEventIds = eventIds.map((eventId) => String(eventId))
-    const newEventIds = parseEventIds(rawEventIds).filter(
+    const newEventIds = parseEventIds(String(rawEventIds)).filter(
       (paramEventId) => oldEventIds.indexOf(String(paramEventId)) === -1
     )
     if (newEventIds.length > 0) {

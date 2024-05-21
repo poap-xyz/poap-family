@@ -4,8 +4,14 @@ import { auth } from 'loaders/api'
 
 export const AdminContext = createContext({
   authenticated: false,
+  /**
+   * @type {string | null}
+   */
   passphrase: null,
   loading: false,
+  /**
+   * @type {Error | null}
+   */
   error: null,
   authenticate:
     /**

@@ -94,7 +94,9 @@ function CollectionList({
 }
 
 CollectionList.propTypes = {
-  collections: PropTypes.arrayOf(PropTypes.shape(CollectionProps)).isRequired,
+  collections: PropTypes.arrayOf(
+    PropTypes.shape(CollectionProps).isRequired
+  ).isRequired,
   showLogo: PropTypes.bool,
 }
 

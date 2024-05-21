@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { chunks } from 'utils/array'
 import { DropProps } from 'models/drop'
 import {
@@ -83,10 +83,13 @@ function EventsOwners({
 
   const ownersEntriesChunks = chunks(ownersEntries, 10)
 
-  const inCommonEntries = sortInCommonEntries(
-    Object
-      .entries(filterInCommon(initialInCommon))
-      .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+  const inCommonEntries = useMemo(
+    () => initialInCommon == null ? [] : sortInCommonEntries(
+      Object
+        .entries(filterInCommon(initialInCommon))
+        .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+    ),
+    [initialInCommon]
   )
 
   const inCommon = Object.fromEntries(inCommonEntries)
@@ -170,9 +173,19 @@ function EventsOwners({
 
 EventsOwners.propTypes = {
   children: PropTypes.node,
-  owners: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  inCommon: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
+  owners: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.string.isRequired
+    ).isRequired
+  ).isRequired,
+  inCommon: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.string.isRequired
+    ).isRequired
+  ),
+  events: PropTypes.objectOf(
+    PropTypes.shape(DropProps).isRequired
+  ).isRequired,
   all: PropTypes.bool,
 }
 

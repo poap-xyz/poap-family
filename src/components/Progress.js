@@ -37,10 +37,10 @@ function Progress({
               className="show-details"
               onClick={() => setShowDetails((showing) => !showing)}
             >
-              {formatPercentage(value)}
+              {formatPercentage(value ?? 0)}
             </button>
           )}
-          {!hasDetails && formatPercentage(value)}
+          {!hasDetails && formatPercentage(value ?? 0)}
         </span>}
       </div>
       {showDetails && (

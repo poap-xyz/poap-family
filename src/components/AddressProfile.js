@@ -25,7 +25,7 @@ import 'styles/address-profile.css'
  */
 function AddressProfile({
   address,
-  events = {},
+  events,
   inCommonEventIds = [],
   inCommonAddresses = [],
 }) {
@@ -52,7 +52,7 @@ function AddressProfile({
    */
   const [error, setError] = useState(null)
   /**
-   * @type {ReturnType<typeof useState<Awaited<ReturnType<scanAddress>>> | null>}
+   * @type {ReturnType<typeof useState<Awaited<ReturnType<scanAddress>> | null>>}
    */
   const [poaps, setPOAPs] = useState(null)
   /**
@@ -60,28 +60,28 @@ function AddressProfile({
    */
   const [since, setSince] = useState(null)
 
-  const poapsTotal = poaps === null ? 0 : poaps.length
+  const poapsTotal = poaps == null ? 0 : poaps.length
   const poapsHasMore = poapsTotal > POAP_PROFILE_LIMIT
 
-  let poapsVisible = poaps === null ? [] : poaps.slice()
+  let poapsVisible = poaps == null ? [] : poaps.slice()
   if (poapsHasMore && !showAllPOAPs) {
-    poapsVisible = poaps.slice(0, POAP_PROFILE_LIMIT)
+    poapsVisible = poapsVisible.slice(0, POAP_PROFILE_LIMIT)
   }
 
-  const inCommonEventsTotal = inCommonEventIds.length
+  const inCommonEventsTotal = inCommonEventIds == null ? 0 : inCommonEventIds.length
   const inCommonEventsHasMore = inCommonEventsTotal > INCOMMON_EVENTS_LIMIT
 
-  let inCommonEventIdsVisible = inCommonEventIds.slice()
+  let inCommonEventIdsVisible = inCommonEventIds == null ? [] : inCommonEventIds.slice()
   if (inCommonEventsHasMore && !showAllInCommonEvents) {
-    inCommonEventIdsVisible = inCommonEventIds.slice(0, INCOMMON_EVENTS_LIMIT)
+    inCommonEventIdsVisible = inCommonEventIdsVisible.slice(0, INCOMMON_EVENTS_LIMIT)
   }
 
-  const inCommonAddressesTotal = inCommonAddresses.length
+  const inCommonAddressesTotal = inCommonAddresses == null ? 0 : inCommonAddresses.length
   const inCommonAddressesHasMore = inCommonAddressesTotal > INCOMMON_ADDRESSES_LIMIT
 
-  let inCommonAddressesVisible = inCommonAddresses.slice()
+  let inCommonAddressesVisible = inCommonAddresses == null ? [] : inCommonAddresses.slice()
   if (inCommonAddressesHasMore && !showAllInCommonAddresses) {
-    inCommonAddressesVisible = inCommonAddresses.slice(0, INCOMMON_ADDRESSES_LIMIT)
+    inCommonAddressesVisible = inCommonAddressesVisible.slice(0, INCOMMON_ADDRESSES_LIMIT)
   }
 
   useEffect(
@@ -94,13 +94,13 @@ function AddressProfile({
         ) &&
         !error
       ) {
-        setLoading((prevLoading) => prevLoading + 1)
+        setLoading((prevLoading) => (prevLoading ?? 0) + 1)
         resolveMeta(ensNames[address], address).then(
           (meta) => {
-            setLoading((prevLoading) => prevLoading - 1)
+            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
           },
           (err) => {
-            setLoading((prevLoading) => prevLoading - 1)
+            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
             setError(err)
           }
         )
@@ -111,23 +111,23 @@ function AddressProfile({
 
   useEffect(
     () => {
+      /**
+       * @type {AbortController | undefined}
+       */
       let controller
-      if (
-        poaps === null &&
-        !error
-      ) {
+      if (poaps == null && error == null) {
         controller = new AbortController()
-        setLoading((prevLoading) => prevLoading + 1)
+        setLoading((prevLoading) => (prevLoading ?? 0) + 1)
         scanAddress(address, controller.signal).then(
           (foundPOAPs) => {
-            setLoading((prevLoading) => prevLoading - 1)
+            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
             setPOAPs(foundPOAPs)
             if (Array.isArray(foundPOAPs) && foundPOAPs.length > 0) {
               setSince(findInitialPOAPDate(foundPOAPs))
             }
           },
           (err) => {
-            setLoading((prevLoading) => prevLoading - 1)
+            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
             setError(err)
             setPOAPs([])
           }
@@ -144,7 +144,10 @@ function AddressProfile({
 
   const hasAvatarImage = (
     address in ensNames &&
+    ensNames[address] != null &&
+    ensNames[address] in avatars &&
     avatars[ensNames[address]] != null &&
+    typeof avatars[ensNames[address]] === 'string' &&
     avatars[ensNames[address]].startsWith('http') &&
     !avatars[ensNames[address]].endsWith('json')
   )
@@ -190,7 +193,7 @@ function AddressProfile({
           {address in ensNames && (
             <big className="profile-ens">{ensNames[address]}</big>
           )}
-          {poaps !== null && Array.isArray(poaps) && poaps.length > 0 && (
+          {poaps != null && Array.isArray(poaps) && poaps.length > 0 && (
             <div className={clsx('profile-poaps', showAllPOAPs && 'show-all')}>
               <h4>{poapsTotal} collected drops
                 {since && (
@@ -288,9 +291,11 @@ function AddressProfile({
 
 AddressProfile.propTypes = {
   address: PropTypes.string.isRequired,
-  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
-  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
-  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
+  events: PropTypes.objectOf(
+    PropTypes.shape(DropProps).isRequired
+  ).isRequired,
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string.isRequired),
 }
 
 export default AddressProfile

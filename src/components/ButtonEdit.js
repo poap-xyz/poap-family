@@ -7,11 +7,13 @@ import Button from 'components/Button'
  */
 function ButtonEdit({
   onEdit = () => {},
-  ...props
+  title,
 }) {
   return (
     <Button
-      {...props}
+      title={title}
+      secondary={true}
+      borderless={true}
       icon={<EditPencil />}
       onClick={() => onEdit()}
     >
@@ -22,7 +24,7 @@ function ButtonEdit({
 
 ButtonEdit.propTypes = {
   onEdit: PropTypes.func.isRequired,
-  ...Button.propTypes,
+  title: PropTypes.string,
 }
 
 export default ButtonEdit

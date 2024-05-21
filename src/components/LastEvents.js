@@ -38,11 +38,11 @@ function LastEvents({
   /**
    * @type {ReturnType<typeof useState<number>>}
    */
-  const [page, setPage] = useState(initialPage)
+  const [page, setPage] = useState(initialPage ?? DEFAULT_PAGE)
   /**
    * @type {ReturnType<typeof useState<number>>}
    */
-  const [perPage, setPerPage] = useState(initialPerPage)
+  const [perPage, setPerPage] = useState(initialPerPage ?? DEFAULT_PER_PAGE)
   /**
    * @type {ReturnType<typeof useState<number>>}
    */
@@ -66,14 +66,18 @@ function LastEvents({
 
   useEffect(
     () => {
-      setPage(initialPage)
+      if (initialPage != null) {
+        setPage(initialPage)
+      }
     },
     [initialPage]
   )
 
   useEffect(
     () => {
-      setPerPage(initialPerPage)
+      if (initialPerPage != null) {
+        setPerPage(initialPerPage)
+      }
     },
     [initialPerPage]
   )
@@ -145,7 +149,9 @@ function LastEvents({
             <ButtonLink
               onClick={() => {
                 setPerPage(10)
-                onPageChange(1, 10)
+                if (onPageChange != null) {
+                  onPageChange(1, 10)
+                }
               }}
               disabled={perPage === 10}
             >
@@ -155,7 +161,9 @@ function LastEvents({
             <ButtonLink
               onClick={() => {
                 setPerPage(10)
-                onPageChange(1, 100)
+                if (onPageChange != null) {
+                  onPageChange(1, 100)
+                }
               }}
               disabled={perPage === 100}
             >
@@ -175,14 +183,22 @@ function LastEvents({
         {pages > 1 && !loading && (
           <Pagination
             page={page}
-            pages={maxPages > 0 && maxPages < pages ? maxPages : pages}
+            pages={
+              maxPages != null &&
+              maxPages > 0 &&
+              maxPages < pages
+                ? maxPages
+                : pages
+            }
             total={total}
             onPage={(newPage) => {
               setPage(newPage)
-              onPageChange(newPage, perPage)
+              if (onPageChange != null) {
+                onPageChange(newPage, perPage)
+              }
             }}
           >
-            {maxPages > 0 && showMore && (
+            {maxPages != null && maxPages > 0 && showMore && (
               <Button
                 onClick={() => {
                   navigate(`/last?page=${Math.trunc(page * perPage / moreQty + 1)}&qty=${moreQty}`)
@@ -202,7 +218,7 @@ function LastEvents({
 LastEvents.propTypes = {
   page: PropTypes.number.isRequired,
   perPage: PropTypes.number,
-  onPageChange: PropTypes.func.isRequired,
+  onPageChange: PropTypes.func,
   showRefresh: PropTypes.bool,
   showMore: PropTypes.bool,
   moreQty: PropTypes.number,

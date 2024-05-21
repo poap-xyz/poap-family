@@ -52,8 +52,8 @@ CollectionSet.propTypes = {
   collectionMap: (
     PropTypes.objectOf(
       PropTypes.arrayOf(
-        PropTypes.shape(CollectionProps)
-      )
+        PropTypes.shape(CollectionProps).isRequired
+      ).isRequired
     ).isRequired
   ),
   showEmpty: PropTypes.bool,

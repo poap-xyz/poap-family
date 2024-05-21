@@ -2,9 +2,11 @@ import PropTypes from 'prop-types'
 import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
 
 const matomoHost = process.env.REACT_APP_MATOMO_HOST
-const matomoSiteId = parseInt(process.env.REACT_APP_MATOMO_SITE_ID)
+const matomoSiteId = process.env.REACT_APP_MATOMO_SITE_ID
+  ? parseInt(process.env.REACT_APP_MATOMO_SITE_ID)
+  : undefined
 
-const matomo = matomoHost
+const matomo = matomoHost && matomoSiteId
   ? createInstance({
     siteId: matomoSiteId,
     urlBase: `https://${matomoHost}`,

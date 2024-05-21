@@ -5,6 +5,9 @@
  * @param {...T[]} array
  */
 export function intersection(array) {
+  if (array == null) {
+    return []
+  }
   const result = []
   const argsLength = arguments.length
   for (var i = 0, length = array.length; i < length; i++) {

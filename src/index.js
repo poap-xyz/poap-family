@@ -5,5 +5,7 @@ import App from 'app/App'
 
 const rootElement = document.getElementById('root')
 
-ReactModal.setAppElement(rootElement)
-ReactDOM.createRoot(rootElement).render(<App />)
+if (rootElement != null) {
+  ReactModal.setAppElement(rootElement)
+  ReactDOM.createRoot(rootElement).render(<App />)
+}

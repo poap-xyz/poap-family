@@ -91,7 +91,7 @@ function Events() {
    */
   const [loadingCollections, setLoadingCollections] = useState(false)
   /**
-   * @type {ReturnType<typeof useState<Record<number, { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number }>>>}
+   * @type {ReturnType<typeof useState<Record<number, { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number | null }>>>}
    */
   const [eventData, setEventData] = useState({})
   /**
@@ -219,6 +219,9 @@ function Events() {
    */
   const removeLoading = (eventId) => {
     setLoading((alsoLoading) => {
+      if (alsoLoading == null) {
+        return {}
+      }
       /**
        * @type {Record<number, number>}
        */
@@ -247,6 +250,9 @@ function Events() {
    */
   const disableProgress = (eventId) => {
     setProgress((alsoProgress) => {
+      if (alsoProgress == null) {
+        return {}
+      }
       /**
        * @type {Record<number, boolean>}
        */
@@ -294,6 +300,9 @@ function Events() {
    */
   const removeError = (eventId) => {
     setErrors((alsoErrors) => {
+      if (alsoErrors == null) {
+        return {}
+      }
       /**
        * @type {Record<number, Error>}
        */
@@ -314,9 +323,9 @@ function Events() {
    */
   const updateEventOwnerError = (eventId, address, err) => {
     setEventOwnerErrors((oldEventOwnerErrors) => ({
-      ...oldEventOwnerErrors,
+      ...(oldEventOwnerErrors ?? {}),
       [eventId]: {
-        ...(oldEventOwnerErrors[eventId] ?? {}),
+        ...((oldEventOwnerErrors ?? {})[eventId] ?? {}),
         [address]: err,
       },
     }))
@@ -328,6 +337,9 @@ function Events() {
    */
   const removeEventOwnerError = (eventId, address) => {
     setEventOwnerErrors((oldEventOwnerErrors) => {
+      if (oldEventOwnerErrors == null) {
+        return {}
+      }
       if (eventId in oldEventOwnerErrors && address in oldEventOwnerErrors[eventId]) {
         if (Object.keys(oldEventOwnerErrors[eventId]).length === 1) {
           delete oldEventOwnerErrors[eventId]
@@ -344,6 +356,9 @@ function Events() {
    */
   const removeEventOwnerErrors = (eventId) => {
     setEventOwnerErrors((alsoErrors) => {
+      if (alsoErrors == null) {
+        return {}
+      }
       /**
        * @type {Record<number, Record<string, Error>>}
        */
@@ -364,6 +379,19 @@ function Events() {
    */
   const updateEventOwnerData = (eventId, address, event) => {
     setEventData((prevEventData) => {
+      if (prevEventData == null) {
+        return {
+          [eventId]: {
+            events: {
+              [event.id]: event,
+            },
+            inCommon: {
+              [event.id]: [address],
+            },
+            ts: null,
+          },
+        }
+      }
       if (eventId in prevEventData) {
         if (event.id in prevEventData[eventId].inCommon) {
           if (!prevEventData[eventId].inCommon[event.id].includes(address)) {
@@ -451,10 +479,10 @@ function Events() {
       ts = Math.trunc(Date.now() / 1000)
     }
     setEventData((prevEventData) => ({
-      ...prevEventData,
+      ...(prevEventData ?? {}),
       [eventId]: {
-        events: prevEventData[eventId].events,
-        inCommon: prevEventData[eventId].inCommon,
+        events: (prevEventData ?? {})[eventId].events,
+        inCommon: (prevEventData ?? {})[eventId].inCommon,
         ts,
       },
     }))
@@ -466,7 +494,7 @@ function Events() {
   const incrLoadedCount = (eventId) => {
     setLoadedCount((prevLoadedCount) => ({
       ...prevLoadedCount,
-      [eventId]: (prevLoadedCount[eventId] ?? 0) + 1,
+      [eventId]: ((prevLoadedCount ?? {})[eventId] ?? 0) + 1,
     }))
   }
 
@@ -485,7 +513,10 @@ function Events() {
    * @param {number} eventId
    */
   const addStaleEvent = (eventId) => {
-    setStaleEvents((oldStaleEvents) => uniq([...oldStaleEvents, eventId]))
+    setStaleEvents((oldStaleEvents) => uniq([
+      ...(oldStaleEvents ?? []),
+      eventId,
+    ]))
   }
 
   const loadCahedOwnersAndMetrics = useCallback(
@@ -511,7 +542,9 @@ function Events() {
           removeLoading(eventId)
           if (eventAndOwners != null) {
             updateEventOwners(eventId, eventAndOwners.owners)
-            updateEventMetrics(eventId, eventAndOwners.metrics)
+            if (eventAndOwners.metrics) {
+              updateEventMetrics(eventId, eventAndOwners.metrics)
+            }
           } else {
             const error = new Error('Could not fetch drop and collectors')
             updateError(eventId, error)
@@ -577,7 +610,9 @@ function Events() {
             )
           }
           if (eventMetricsResult.status === 'fulfilled') {
-            updateEventMetrics(eventId, eventMetricsResult.value)
+            if (eventMetricsResult.value) {
+              updateEventMetrics(eventId, eventMetricsResult.value)
+            }
           } else {
             console.error(eventMetricsResult.reason)
           }
@@ -656,7 +691,7 @@ function Events() {
       const processedOwners = []
       setLoadingScans(eventId)
       enableProgress(eventId)
-      let promise = new Promise((r) => { r() })
+      let promise = new Promise((r) => { r(undefined) })
       for (const owner of owners[eventId]) {
         if (processedOwners.indexOf(owner) !== -1) {
           continue
@@ -766,7 +801,7 @@ function Events() {
           setStatus(STATUS_LOADING_OWNERS)
         }
       } else if (status === STATUS_LOADING_OWNERS) {
-        let promise = new Promise((r) => { r() })
+        let promise = new Promise((r) => { r(undefined) })
         for (const eventId of eventIds) {
           const controller = new AbortController()
           const process = () => force
@@ -804,7 +839,7 @@ function Events() {
        */
       const controllers = []
       if (status === STATUS_LOADING_SCANS) {
-        let promise = new Promise((r) => { r() })
+        let promise = new Promise((r) => { r(undefined) })
         for (const eventId of eventIds) {
           const controller = new AbortController()
           /**
@@ -823,7 +858,12 @@ function Events() {
               eventId,
               controller.signal,
               /*onProgress*/({ progress, estimated, rate }) => {
-                setLoadedProgress((alsoProgress) => ({ ...alsoProgress, [eventId]: { progress, estimated, rate } }))
+                if (progress != null && estimated != null && rate != null) {
+                  setLoadedProgress((alsoProgress) => ({
+                    ...alsoProgress,
+                    [eventId]: { progress, estimated, rate },
+                  }))
+                }
               }
             ).then(
               (result) => {
@@ -1001,7 +1041,7 @@ function Events() {
    * @param {number} eventId
    */
   const delEvent = (eventId) => {
-    const eventIds = parseEventIds(rawEventIds).filter(
+    const eventIds = parseEventIds(String(rawEventIds)).filter(
       (paramEventId) => String(paramEventId) !== String(eventId)
     )
     if (eventIds.length === 1) {
@@ -1228,7 +1268,7 @@ function Events() {
                           </p>
                         )
                       )}
-                      {event.id in eventData && eventData[event.id].ts && (
+                      {event.id in eventData && eventData[event.id].ts != null && (
                         <p className="status-cached-ts">
                           Cached <Timestamp ts={eventData[event.id].ts} />
                           {!(event.id in loading) && event.id in eventData && event.id in eventData[event.id].inCommon && eventData[event.id].inCommon[event.id].length !== owners[event.id].length && (

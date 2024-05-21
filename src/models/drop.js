@@ -125,10 +125,8 @@ export const DropProps = {
 * }}
 */
 export function DropOwners(eventOwners) {
-  if (eventOwners == null) {
-    return null
-  }
   if (
+    eventOwners == null ||
     typeof eventOwners !== 'object' ||
     !('owners' in eventOwners) ||
     !Array.isArray(eventOwners.owners) ||
@@ -157,7 +155,7 @@ export function DropOwners(eventOwners) {
 *   momentsUploaded: number
 *   collectionsIncludes: number
 *   ts: number
-* }}
+* } | null}
 */
 export function DropMetrics(eventMetrics) {
   if (eventMetrics == null) {
@@ -267,7 +265,7 @@ export function DropData(
  * @returns {Record<number, ReturnType<typeof Drop>>}
  */
 export function Drops(drops, includeDescription = false) {
-  if (typeof drops !== 'object') {
+  if (drops == null || typeof drops !== 'object') {
     throw new Error('Invalid drops')
   }
 

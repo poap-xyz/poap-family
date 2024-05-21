@@ -102,7 +102,7 @@ function AddressesForm({
 }
 
 AddressesForm.propTypes = {
-  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  addresses: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func,
 }
