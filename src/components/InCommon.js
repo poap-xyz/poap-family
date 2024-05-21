@@ -82,27 +82,33 @@ function InCommon({
     [inCommonEntries]
   )
 
-  let inCommonEventsAddresses = inCommonEntries.slice()
-  let inCommonLimit = INCOMMON_EVENTS_LIMIT
+  const inCommonLimit = useMemo(
+    () => {
+      if (showCount == null) {
+        return INCOMMON_EVENTS_LIMIT
+      }
+      return inCommonEntries.reduce(
+        (limit, [, addresses]) => {
+          if (addresses.length === showCount) {
+            return limit + 1
+          }
+          return limit
+        },
+        0
+      )
+    },
+    [inCommonEntries, showCount]
+  )
 
-  if (showCount != null) {
-    inCommonLimit = inCommonEventsAddresses.reduce(
-      (limit, [, addresses]) => {
-        if (addresses.length === showCount) {
-          return limit + 1
-        }
-        return limit
-      },
-      0
-    )
-  }
-
-  const inCommonTotal = inCommonEventsAddresses.length
-  const hasMore = inCommonTotal > inCommonLimit
-
-  if (hasMore && !showAll) {
-    inCommonEventsAddresses = inCommonEventsAddresses.slice(0, inCommonLimit)
-  }
+  const inCommonEventsAddresses = useMemo(
+    () => {
+      if (!showAll && inCommonEntries.length > inCommonLimit) {
+        return inCommonEntries.slice(0, inCommonLimit)
+      }
+      return inCommonEntries.slice()
+    },
+    [inCommonEntries, inCommonLimit, showAll]
+  )
 
   const powers = useMemo(
     () => inCommonEventsAddresses.map(([eventId, addresses]) => ({
@@ -144,19 +150,26 @@ function InCommon({
     }
   }
 
-  const activeAdressesColors = activeEventIds.length < 2 ? {} :
-    Object.fromEntries(
-      intersection(
-        // @ts-ignore
-        ...activeEventIds.map((activeEventId) => inCommon[activeEventId])
-      )
-      .map(
-        (address) => [
-          address,
-          getColorForSeed(address),
-        ]
-      )
-    )
+  const activeAdressesColors = useMemo(
+    () => activeEventIds.length < 2
+      ? {}
+      : Object.fromEntries(
+        intersection(
+          // @ts-ignore
+          ...activeEventIds.map((activeEventId) => inCommon[activeEventId])
+        )
+        .map(
+          (address) => [
+            address,
+            getColorForSeed(address),
+          ]
+        )
+      ),
+    [activeEventIds, inCommon]
+  )
+
+  const inCommonTotal = inCommonEntries.length
+  const hasMore = inCommonTotal > inCommonLimit
 
   useEffect(
     () => {
