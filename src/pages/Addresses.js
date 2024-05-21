@@ -8,6 +8,7 @@ import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { fetchPOAPs, scanAddress } from 'loaders/poap'
 import { getEventsOwners } from 'loaders/api'
+import { uniq } from 'utils/array'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
 import CenterPage from 'components/CenterPage'
@@ -47,7 +48,7 @@ function Addresses() {
    */
   const [state, setState] = useState(STATE_INIT_PARSING)
   /**
-   * @type {ReturnType<typeof useState<ReturnType<parseAddresses> | null>>}
+   * @type {ReturnType<typeof useState<ReturnType<typeof parseAddresses> | null>>}
    */
   const [addresses, setAddresses] = useState(null)
   /**
@@ -101,89 +102,204 @@ function Addresses() {
 
   /**
    * @param {string} address
-   * @param {AbortController} controller
    */
-  const loadCollector = async (address, controller) => {
-    setLoadingByAddress((prevLoading) => ({ ...prevLoading, [address]: true }))
-    try {
-      const tokens = await scanAddress(address, controller.signal)
-      setLoadedCount((prevLoadedCount) => (prevLoadedCount ?? 0) + 1)
-      setPowers((oldPowers) => ({ ...oldPowers, [address]: tokens.length }))
-      for (const token of tokens) {
-        const event = token.event
-        if (event == null) {
-          setErrorsByAddress((oldErrors) => ({
-            ...oldErrors,
-            [address]: new Error(`Could not find POAP ${token.id}`),
-          }))
-          continue
-        }
-        const eventId = event.id
-        setInCommon((prevInCommon) => {
-          if (!prevInCommon) {
-            return { [eventId]: [address] }
-          }
-          if (eventId in prevInCommon) {
-            if (prevInCommon[eventId].indexOf(address) === -1) {
-              prevInCommon[eventId].push(address)
-            }
-          } else {
-            prevInCommon[eventId] = [address]
-          }
-          return prevInCommon
-        })
-        setEvents((prevEvents) => ({
-          ...prevEvents,
-          [eventId]: event,
-        }))
-      }
-      setLoadingByAddress((oldLoading) => {
-        if (oldLoading == null) {
-          return {}
-        }
-        /**
-         * @type {Record<string, boolean>}
-         */
-        const newLoading = {}
-        for (const [loadingAddress, loading] of Object.entries(oldLoading)) {
-          if (address !== loadingAddress) {
-            newLoading[loadingAddress] = loading
-          }
-        }
-        return newLoading
-      })
-    } catch (err) {
-      setLoadingByAddress((oldLoading) => {
-        if (oldLoading == null) {
-          return {}
-        }
-        /**
-         * @type {Record<string, boolean>}
-         */
-        const newLoading = {}
-        for (const [loadingAddress, loading] of Object.entries(oldLoading)) {
-          if (address !== loadingAddress) {
-            newLoading[loadingAddress] = loading
-          }
-        }
-        return newLoading
-      })
-      if (!(err instanceof AbortedError)) {
-        if (err instanceof Error) {
-          setErrorsByAddress((oldErrors) => ({
-            ...oldErrors,
-            [address]: err,
-          }))
-        } else {
-          setErrorsByAddress((oldErrors) => ({
-            ...oldErrors,
-            [address]: new Error('Load collector failed', { cause: err }),
-          }))
-        }
-      }
-      throw err
-    }
+  const enableLoadingByAddress = (address) => {
+    setLoadingByAddress((prevLoading) => ({
+      ...(prevLoading ?? {}),
+      [address]: true,
+    }))
   }
+
+  /**
+   * @param {string} address
+   */
+  const disableLoadingByAddress = (address) => {
+    setLoadingByAddress((prevLoading) => {
+      if (prevLoading == null) {
+        return {}
+      }
+      /**
+       * @type {Record<string, boolean>}
+       */
+      const nextLoading = {}
+      for (const [loadingAddress, loading] of Object.entries(prevLoading)) {
+        if (address !== loadingAddress) {
+          nextLoading[loadingAddress] = loading
+        }
+      }
+      return nextLoading
+    })
+  }
+
+  /**
+   * @param {string} address
+   * @param {Error} error
+   */
+  const setErrorByAddress = (address, error) => {
+    setErrorsByAddress((prevErrors) => ({
+      ...(prevErrors ?? {}),
+      [address]: error,
+    }))
+  }
+
+  const incrLoadedCount = () => {
+    setLoadedCount((prevLoadedCount) => (prevLoadedCount ?? 0) + 1)
+  }
+
+  /**
+   * @param {string} address
+   * @param {number} power
+   */
+  const setPower = (address, power) => {
+    setPowers((oldPowers) => ({
+      ...oldPowers,
+      [address]: power,
+    }))
+  }
+
+  /**
+   * @param {string} address
+   * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
+   */
+  const updateAddressEvent = (address, event) => {
+    const eventId = event.id
+    setInCommon((alsoInCommon) => {
+      if (!alsoInCommon) {
+        return { [eventId]: [address] }
+      }
+      if (eventId in alsoInCommon) {
+        if (!alsoInCommon[eventId].includes(address)) {
+          alsoInCommon[eventId].push(address)
+        }
+      } else {
+        alsoInCommon[eventId] = [address]
+      }
+      return alsoInCommon
+    })
+    setEvents((prevEvents) => ({
+      ...prevEvents,
+      [eventId]: event,
+    }))
+  }
+
+  /**
+   * @param {number} index
+   */
+  const enableLoadingByIndex = (index) => {
+    setLoadingByIndex((prevLoading) => ({
+      ...(prevLoading ?? {}),
+      [index]: true,
+    }))
+  }
+
+  /**
+   * @param {number} index
+   */
+  const disableLoadingByIndex = (index) => {
+    setLoadingByIndex((oldLoading) => {
+      if (oldLoading == null) {
+        return {}
+      }
+      /**
+       * @type {Record<number, boolean>}
+       */
+      const newLoading = {}
+      for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
+        if (String(index) !== String(loadingIndex)) {
+          newLoading[loadingIndex] = loading
+        }
+      }
+      return newLoading
+    })
+  }
+
+  /**
+   * @param {number} index
+   * @param {Error} error
+   */
+  const setErrorByIndex = (index, error) => {
+    setErrorsByIndex((oldErrors) => ({
+      ...(oldErrors ?? {}),
+      [index]: error,
+    }))
+  }
+
+  /**
+   * @param {Error} error
+   */
+  const addError = (error) => {
+    setErrors((oldErrors) => ([...(oldErrors ?? []), error]))
+  }
+
+  /**
+   * @param {ReturnType<typeof parseAddresses>} addresses
+   */
+  const updateAddresses = (addresses) => {
+    setAddresses(addresses)
+    setCollectors(
+      addresses.reduce(
+        (collectors, input, index) => {
+          if (input.address !== null) {
+            return { ...collectors, [index]: input.address }
+          }
+          return collectors
+        },
+        {}
+      )
+    )
+  }
+
+  /**
+   * @param {number} index
+   * @param {string} address
+   */
+  const setCollector = (index, address) => {
+    setCollectors((oldCollectors) => ({
+      ...oldCollectors,
+      [index]: address,
+    }))
+  }
+
+  const loadCollector = useCallback(
+    /**
+     * @param {string} address
+     * @param {AbortController} controller
+     */
+    async (address, controller) => {
+      enableLoadingByAddress(address)
+      try {
+        const tokens = await scanAddress(address, controller.signal)
+        incrLoadedCount()
+        setPower(address, tokens.length)
+        for (const token of tokens) {
+          const event = token.event
+          if (event == null) {
+            setErrorByAddress(
+              address,
+              new Error(`Could not find POAP ${token.id}`)
+            )
+            continue
+          }
+          updateAddressEvent(address, event)
+        }
+        disableLoadingByAddress(address)
+      } catch (err) {
+        if (!(err instanceof AbortedError)) {
+          if (err instanceof Error) {
+            setErrorByAddress(address, err)
+          } else {
+            setErrorByAddress(
+              address,
+              new Error('Load collector failed', { cause: err })
+            )
+          }
+        }
+        disableLoadingByAddress(address)
+        throw err
+      }
+    },
+    []
+  )
 
   const processCollectors = useCallback(
     /**
@@ -206,7 +322,10 @@ function Addresses() {
           continue
         }
         if (address in controllers) {
-          setRepeatedByAddress((oldErrors) => ({ ...oldErrors, [address]: true }))
+          setRepeatedByAddress((prevErrors) => ({
+            ...(prevErrors ?? {}),
+            [address]: true,
+          }))
         } else {
           controllers[address] = new AbortController()
           promise = promise.then(
@@ -216,13 +335,13 @@ function Addresses() {
         }
       }
       promise.catch((err) => {
-        if (!(err instanceof AbortedError) && !err.aborted) {
+        if (!(err instanceof AbortedError)) {
           console.error(err)
         }
       })
       return controllers
     },
-    []
+    [loadCollector]
   )
 
   const processEnsName = useCallback(
@@ -232,73 +351,132 @@ function Addresses() {
      * @returns {Promise<string>}
      */
     (ensName, index) => {
-      setLoadingByIndex((prevLoading) => ({ ...prevLoading, [index]: true }))
+      enableLoadingByIndex(index)
       return resolveAddress(ensName).then(
         (ensNameAddress)  => {
-          if (ensNameAddress) {
-            setLoadingByIndex((oldLoading) => {
-              if (oldLoading == null) {
-                return {}
-              }
-              /**
-               * @type {Record<number, boolean>}
-               */
-              const newLoading = {}
-              for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
-                if (String(index) !== String(loadingIndex)) {
-                  newLoading[loadingIndex] = loading
-                }
-              }
-              return newLoading
-            })
-            setCollectors((oldCollectors) => ({ ...oldCollectors, [index]: ensNameAddress }))
+          if (ensNameAddress != null) {
+            disableLoadingByIndex(index)
+            setCollector(index, ensNameAddress)
             setEnsName(ensNameAddress, ensName)
             return Promise.resolve(ensNameAddress)
           } else {
-            setLoadingByIndex((oldLoading) => {
-              if (oldLoading == null) {
-                return {}
-              }
-              /**
-               * @type {Record<number, boolean>}
-               */
-              const newLoading = {}
-              for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
-                if (String(index) !== String(loadingIndex)) {
-                  newLoading[loadingIndex] = loading
-                }
-              }
-              return newLoading
-            })
-            const error = new Error(`Could not resolve ${ensName}`)
-            setErrorsByIndex((oldErrors) => ({ ...oldErrors, [index]: error }))
+            console.debug(ensName, ensNameAddress)
+            disableLoadingByIndex(index)
+            const error = new Error(`Address for ${ensName} not found`)
+            setErrorByIndex(index, error)
             return Promise.reject(error)
           }
         },
         (err) => {
-          setLoadingByIndex((oldLoading) => {
-            if (oldLoading == null) {
-              return {}
-            }
-            /**
-             * @type {Record<number, boolean>}
-             */
-            const newLoading = {}
-            for (const [loadingIndex, loading] of Object.entries(oldLoading)) {
-              if (String(index) !== String(loadingIndex)) {
-                newLoading[loadingIndex] = loading
-              }
-            }
-            return newLoading
-          })
-          if (!(err instanceof AbortedError) && !err.aborted) {
-            setErrorsByIndex((oldErrors) => ({ ...oldErrors, [index]: err }))
+          disableLoadingByIndex(index)
+          if (!(err instanceof AbortedError)) {
+            setErrorByIndex(
+              index,
+              new Error(`Could not resolve ${ensName}`, { cause: err })
+            )
           }
           return Promise.reject(err)
         }
       )
     },
     [resolveAddress, setEnsName]
+  )
+
+  const searchEvents = useMemo(
+    () => parseEventIds(
+      searchParams.get('events') ?? ''
+    ),
+    [searchParams]
+  )
+
+  const force = useMemo(
+    () => searchParams.get('force') === 'true',
+    [searchParams]
+  )
+
+  const updateCollectionFromHash = useCallback(
+    (initial = false) => {
+      /**
+       * @type {AbortController[]}
+       */
+      const controllers = []
+      setState(STATE_INIT_PARSING)
+      setErrors([])
+      setErrorsByAddress({})
+      setErrorsByIndex({})
+      setInCommon({})
+      setEvents({})
+      setPowers({})
+      let hash = window.location.hash
+      if (hash.startsWith('#')) {
+        hash = hash.substring(1)
+      }
+      if (hash.length > 0) {
+        const addresses = parseAddresses(hash, ',')
+        updateAddresses(addresses)
+      } else if (searchEvents.length > 0) {
+        setLoadingEventsOwners(true)
+        if (force) {
+          let promise = new Promise((r) => r(undefined))
+          for (const searchEventId of searchEvents) {
+            const controller = new AbortController()
+            promise = promise.then(() => {
+              fetchPOAPs(searchEventId, controller.signal).then(
+                (tokens) => {
+                  setLoadingEventsOwners(false)
+                  const owners = uniq(tokens.map((token) => token.owner))
+                  const addresses = owners.map((owner) => parseAddress(owner))
+                  updateAddresses(addresses)
+                },
+                (err) => {
+                  setLoadingEventsOwners(false)
+                  addError(
+                    new Error(`Cannot load drop ${searchEventId}`, {
+                      cause: err,
+                    })
+                  )
+                }
+              )
+            })
+            controllers.push(controller)
+          }
+        } else {
+          const controller = new AbortController()
+          getEventsOwners(searchEvents, controller.signal).then(
+            (ownersMap) => {
+              setLoadingEventsOwners(false)
+              if (ownersMap) {
+                const uniqueOwners = Object.values(ownersMap).reduce(
+                  (allOwners, eventOwners) => new Set([
+                    ...allOwners,
+                    ...(eventOwners?.owners ?? []),
+                  ]),
+                  new Set()
+                )
+                const addresses = [...uniqueOwners].map(
+                  (owner) => parseAddress(owner)
+                )
+                updateAddresses(addresses)
+              } else {
+                addError(new Error(`Drop owners could not be loaded`))
+              }
+            },
+            (err) => {
+              setLoadingEventsOwners(false)
+              addError(new Error(`Drop owners could not be loaded`, {
+                cause: err,
+              }))
+            }
+          )
+          controllers.push(controller)
+        }
+      } else if (!initial) {
+        setAddresses(null)
+        setCollectors({})
+      }
+      return controllers
+    },
+    [searchEvents, force]
   )
 
   useEffect(
@@ -344,15 +522,12 @@ function Addresses() {
             if (ens in addressByEnsName) {
               const address = addressByEnsName[ens]
               if (address != null) {
-                setCollectors((oldCollectors) => ({
-                  ...oldCollectors,
-                  [index]: address,
-                }))
+                setCollector(index, address)
               } else {
-                setErrorsByIndex((oldErrors) => ({
-                  ...oldErrors,
-                  [index]: new Error(`Address for ${ens} not found`),
-                }))
+                setErrorByIndex(
+                  index,
+                  new Error(`Address for ${ens} not found`)
+                )
               }
             } else {
               promise = promise.then(
@@ -369,7 +544,15 @@ function Addresses() {
         }
       }
     },
-    [state, addresses, collectors, addressByEnsName, loadingByIndex, errorsByIndex, processEnsName]
+    [
+      state,
+      addresses,
+      collectors,
+      addressByEnsName,
+      loadingByIndex,
+      errorsByIndex,
+      processEnsName,
+    ]
   )
 
   useEffect(
@@ -409,134 +592,21 @@ function Addresses() {
     [loadedCount, addresses]
   )
 
-  const searchEvents = useMemo(
-    () => parseEventIds(
-      searchParams.get('events') ?? ''
-    ),
-    [searchParams]
-  )
-
   useEffect(
     () => {
-      const controller = new AbortController()
-      /**
-       * @type {AbortController[]}
-       */
-      const controllers = []
-      /**
-       * @param {HashChangeEvent} event
-       */
-      const onHashChange = (event, initial = false) => {
-        setState(STATE_INIT_PARSING)
-        setErrors([])
-        setErrorsByAddress({})
-        setErrorsByIndex({})
-        setInCommon({})
-        setEvents({})
-        setPowers({})
-        let hash = window.location.hash
-        if (hash.startsWith('#')) {
-          hash = hash.substring(1)
-        }
-        if (hash.length > 0) {
-          const addresses = parseAddresses(hash, ',')
-          setAddresses(addresses)
-          setCollectors(
-            addresses.reduce(
-              (collectors, input, index) => {
-                if (input.address !== null) {
-                  return { ...collectors, [index]: input.address }
-                }
-                return collectors
-              },
-              {}
-            )
-          )
-        } else if (searchEvents.length > 0) {
-          setLoadingEventsOwners(true)
-          if (searchParams.get('force') === 'true') {
-            let promise = new Promise((r) => r(undefined))
-            for (const searchEventId of searchEvents) {
-              const controller = new AbortController()
-              promise = promise.then(() => {
-                fetchPOAPs(searchEventId, controller.signal).then(
-                  (tokens) => {
-                    setLoadingEventsOwners(false)
-                    const owners = tokens.map((token) => token.owner)
-                    const uniqueOwners = owners.filter((value, index, all) => all.indexOf(value) === index)
-                    const addresses = [...uniqueOwners].map((owner) => parseAddress(owner))
-                    setAddresses(addresses)
-                    setCollectors(
-                      addresses.reduce(
-                        (collectors, input, index) => {
-                          if (input.address !== null) {
-                            return { ...collectors, [index]: input.address }
-                          }
-                          return collectors
-                        },
-                        {}
-                      )
-                    )
-                  },
-                  (err) => {
-                    setLoadingEventsOwners(false)
-                    setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
-                  }
-                )
-              })
-              controllers.push(controller)
-            }
-          } else {
-            getEventsOwners(searchEvents, controller.signal).then(
-              (ownersMap) => {
-                setLoadingEventsOwners(false)
-                if (ownersMap) {
-                  const uniqueOwners = Object.values(ownersMap).reduce(
-                    (allOwners, eventOwners) => new Set([
-                      ...allOwners,
-                      ...(eventOwners?.owners ?? []),
-                    ]),
-                    new Set()
-                  )
-                  const addresses = [...uniqueOwners].map((owner) => parseAddress(owner))
-                  setAddresses(addresses)
-                  setCollectors(
-                    addresses.reduce(
-                      (collectors, input, index) => {
-                        if (input.address !== null) {
-                          return { ...collectors, [index]: input.address }
-                        }
-                        return collectors
-                      },
-                      {}
-                    )
-                  )
-                } else {
-                  setErrors((oldErrors) => ([...(oldErrors ?? []), new Error(`Events owners could not be loaded`)]))
-                }
-              },
-              (err) => {
-                setLoadingEventsOwners(false)
-                setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
-              }
-            )
-          }
-        } else if (!initial) {
-          setAddresses(null)
-          setCollectors({})
-        }
+      let controllers = updateCollectionFromHash(true)
+      const onHashChange = () => {
+        controllers = updateCollectionFromHash()
       }
-      onHashChange({}, true)
       window.addEventListener('hashchange', onHashChange, false)
       return () => {
-        controller.abort()
-        for (const request of controllers) {
-          request.abort()
+        for (const controller of controllers) {
+          controller.abort()
         }
         window.removeEventListener('hashchange', onHashChange, false)
       }
     },
-    [searchEvents, searchParams]
+    [updateCollectionFromHash]
   )
 
   useEffect(
@@ -592,7 +662,9 @@ function Addresses() {
             </Card>
           )}
           <AddressesForm
-            addresses={addresses === null ? [] : addresses.map((input) => input.raw)}
+            addresses={addresses === null
+              ? []
+              : addresses.map((input) => input.raw)}
             onSubmit={openAddresses}
             onClose={editMode ? closeEditMode : undefined}
           />
@@ -614,13 +686,13 @@ function Addresses() {
       /**
        * @type {Record<string, Error>}
        */
-      const newErrors = {}
+      const nextErrors = {}
       for (const [errorAddress, error] of Object.entries(prevErrors)) {
         if (errorAddress !== address) {
-          newErrors[errorAddress] = error
+          nextErrors[errorAddress] = error
         }
       }
-      return newErrors
+      return nextErrors
     })
     loadCollector(address, new AbortController())
   }
@@ -636,13 +708,14 @@ function Addresses() {
       /**
        * @type {Record<number, Error>}
        */
-      const newErrors = {}
+      const nextErrors = {}
       for (const [errorIndex, error] of Object.entries(prevErrors)) {
+        console.debug(String(errorIndex), String(index))
         if (String(errorIndex) !== String(index)) {
-          newErrors[errorIndex] = error
+          nextErrors[errorIndex] = error
         }
       }
-      return newErrors
+      return nextErrors
     })
     const entry = addresses[index]
     if (entry != null && entry.ens) {
@@ -671,12 +744,12 @@ function Addresses() {
   }
 
   /**
-   * @param {string[]} addresses
+   * @param {string[]} moreAddresses
    */
-  const addAddresses = (addresses) => {
-    if (addresses.length > 0) {
+  const addAddresses = (moreAddresses) => {
+    if (moreAddresses.length > 0) {
       setEditMode(false)
-      window.location.hash = `${window.location.hash},${addresses.join(',')}`
+      window.location.hash = `${window.location.hash},${moreAddresses.join(',')}`
     }
   }
 
@@ -720,7 +793,10 @@ function Addresses() {
           <table>
             <thead>
               <tr>
-                <th className="collector-head">{addresses.length} collector{addresses.length === 1 ? '' : 's'}</th>
+                <th className="collector-head">
+                  {addresses.length}{' '}
+                  collector{addresses.length === 1 ? '' : 's'}
+                </th>
                 <th></th>
                 <th>Power</th>
                 {searchEvents.map((eventId) => (
@@ -741,7 +817,11 @@ function Addresses() {
               {addresses.map(({ address, ens, raw }, index) => (
                 <tr key={`${index}-${raw}`}>
                   <td>
-                    <AddressCollector address={address ?? collectors[index]} ens={ens} bigEns={true} />
+                    <AddressCollector
+                      address={address ?? collectors[index]}
+                      ens={ens}
+                      bigEns={true}
+                    />
                   </td>
                   <td>
                     <div className="collector-status">
@@ -751,16 +831,32 @@ function Addresses() {
                       />
                       {(address ?? collectors[index]) in errorsByAddress && (
                         <>
-                          <span className="status-error-message">{errorsByAddress[address ?? collectors[index]].message}</span>{' '}
+                          <span className="status-error-message">
+                            {errorsByAddress[address ?? collectors[index]].message}
+                          </span>
+                          {' '}
                           {!repeatedByAddress[address ?? collectors[index]] && (
-                            <ButtonLink onClick={() => retryLoadCollector(address ?? collectors[index])}>retry</ButtonLink>
+                            <ButtonLink
+                              onClick={() => {
+                                retryLoadCollector(address ?? collectors[index])
+                              }}
+                            >
+                              retry
+                            </ButtonLink>
                           )}
                         </>
                       )}
                       {index in errorsByIndex && (
                         <>
-                          <span className="status-error-message">{errorsByIndex[index].message}</span>{' '}
-                          <ButtonLink onClick={() => retryResolveAddress(index)}>retry</ButtonLink>
+                          <span className="status-error-message">
+                            {errorsByIndex[index].message}
+                          </span>
+                          {' '}
+                          <ButtonLink
+                            onClick={() => retryResolveAddress(index)}
+                          >
+                            retry
+                          </ButtonLink>
                         </>
                       )}
                     </div>
@@ -777,21 +873,29 @@ function Addresses() {
                       !((address ?? collectors[index]) in loadingByAddress) &&
                       !((address ?? collectors[index]) in errorsByAddress) &&
                       (
-                        <ShadowText grow={true} medium={true}>{formatStat(powers[(address ?? collectors[index])])}</ShadowText>
+                        <ShadowText
+                          grow={true}
+                          medium={true}
+                        >
+                          {formatStat(powers[(address ?? collectors[index])])}
+                        </ShadowText>
                       )
                     }
                   </td>
                   {searchEvents.map((eventId) => (
                     <td key={eventId}>
-                      {eventId in inCommon && inCommon[eventId].includes(address) && eventId in events && (
-                        <TokenImage event={events[eventId]} size={48} />
-                      )}
+                      {
+                        eventId in inCommon &&
+                        inCommon[eventId].includes(address) &&
+                        eventId in events && (
+                          <TokenImage event={events[eventId]} size={48} />
+                        )
+                      }
                     </td>
                   ))}
                   <td className="collector-cell-actions">
                     <ButtonGroup>
                       <ButtonDelete
-                        key="del"
                         onDelete={() => delAddress(index)}
                         title={`Removes ${addresses[index].raw}`}
                       />
