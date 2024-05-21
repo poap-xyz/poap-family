@@ -1,4 +1,5 @@
-.poap {
+.token-image {
+  display: inline-block;
   border-radius: 50%;
   overflow: hidden;
   object-fit: cover;
