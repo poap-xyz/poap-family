@@ -27,18 +27,20 @@ export function joinEventIds(eventIds) {
 
 /**
  * @param {Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>} events
- * @returns {Record<number, Date | undefined>}
+ * @returns {Record<number, Date>}
  */
 export function parseExpiryDates(events) {
   return Object.fromEntries(
-    Object.entries(events).map(
-      ([eventId, event]) => ([
-        eventId,
-        event?.expiry_date
-          ? parseEndOfDayDate(event.expiry_date)
-          : undefined,
-      ])
-    )
+    Object.entries(events)
+      .map(
+        ([eventId, event]) => ([
+          eventId,
+          event?.expiry_date
+            ? parseEndOfDayDate(event.expiry_date)
+            : undefined,
+        ])
+      )
+      .filter(([, endOfDayDate]) => endOfDayDate != null)
   )
 }
 

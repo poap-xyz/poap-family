@@ -24,7 +24,7 @@ function Stats({ stats, highlight }) {
           >
             <div className="stat-content">
               <ShadowText
-                medium={highlight && highlight !== statName && !stat.small}
+                medium={!!highlight && highlight !== statName && !stat.small}
                 small={stat.small}
               >
                 {stat.text}
@@ -75,7 +75,7 @@ Stats.propTypes = {
         href: PropTypes.string,
         external: PropTypes.bool,
         small: PropTypes.bool,
-      })
+      }).isRequired
     ).isRequired
   ),
   highlight: PropTypes.string,

@@ -27,7 +27,7 @@ function ExternalLink({
 }
 
 ExternalLink.propTypes = {
-  href: PropTypes.string,
+  href: PropTypes.string.isRequired,
   children: PropTypes.node,
   className: PropTypes.string,
   title: PropTypes.string,

@@ -1,13 +1,22 @@
 import numbro from 'numbro'
 
+/**
+ * @param {string | number} n
+ */
 export function formatStat(n) {
   return numbro(n).format({ thousandSeparated: false })
 }
 
+/**
+ * @param {string | number} n
+ */
 export function formatPercentage(n) {
   return numbro(n).format({ mantissa: 0, output: 'percent' })
 }
 
+/**
+ * @param {string | number} n
+ */
 export function formatByte(n) {
   return numbro(n).format({ output: 'byte', base: 'binary', mantissa: 0 })
 }

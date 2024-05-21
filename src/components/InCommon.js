@@ -88,7 +88,7 @@ function InCommon({
   let inCommonEventsAddresses = inCommonEntries.slice()
   let inCommonLimit = INCOMMON_EVENTS_LIMIT
 
-  if (showCount > 0) {
+  if (showCount != null && showCount > 0) {
     inCommonLimit = inCommonEventsAddresses.reduce(
       (limit, [, addresses]) => {
         if (addresses.length === showCount) {
@@ -112,6 +112,9 @@ function InCommon({
    */
   const removeActiveEventId = (eventId) => {
     setActiveEventIds((prevActiveEventIds) => {
+      if (prevActiveEventIds == null) {
+        return []
+      }
       const newActiveEventIds = []
       for (const activeEventId of prevActiveEventIds) {
         if (activeEventId !== eventId) {
@@ -128,7 +131,7 @@ function InCommon({
   const toggleActiveEventId = (eventId) => {
     if (activeEventIds.indexOf(eventId) === -1) {
       setActiveEventIds((prevActiveEventIds) => ([
-        ...prevActiveEventIds,
+        ...(prevActiveEventIds ?? []),
         eventId,
       ]))
     } else {
@@ -241,7 +244,7 @@ function InCommon({
         )}
         {inCommonTotal > 0 && (
           <h4>
-            {showCount > 0 && `${inCommonLimit} of `}
+            {showCount != null && showCount > 0 && `${inCommonLimit} of `}
             {inCommonTotal}{' '}
             drop{inCommonTotal === 1 ? '' : 's'}{' '}
             in common
@@ -254,7 +257,10 @@ function InCommon({
                 key={eventId}
                 className={clsx('in-common-event', {
                   selected: activeEventIds.indexOf(eventId) !== -1,
-                  perfect: showCount > 0 && showCount === addresses.length,
+                  perfect:
+                    showCount != null &&
+                    showCount > 0 &&
+                    showCount === addresses.length,
                 })}
                 title={events[eventId].name}
               >
@@ -262,19 +268,22 @@ function InCommon({
                   className="event-button"
                   onClick={() => toggleActiveEventId(eventId)}
                 >
-                  {showCount > 0 && showCount === addresses.length
-                    ? (
-                      <div className="event-image">
-                        <TokenImage event={events[eventId]} size={64} />
-                      </div>
-                    )
-                    : (
-                      <EventCount
-                        event={events[eventId]}
-                        count={addresses.length}
-                        size={64}
-                      />
-                    )
+                  {
+                    showCount != null &&
+                    showCount > 0 &&
+                    showCount === addresses.length
+                      ? (
+                        <div className="event-image">
+                          <TokenImage event={events[eventId]} size={64} />
+                        </div>
+                      )
+                      : (
+                        <EventCount
+                          event={events[eventId]}
+                          count={addresses.length}
+                          size={64}
+                        />
+                      )
                   }
                 </button>
                 <Link
@@ -301,7 +310,8 @@ function InCommon({
         </div>
         {inCommonTotal > 0 && (
           <ButtonGroup right={true}>
-            {createButtons(activeEventIds)}
+            {createButtons != null &&
+              createButtons(activeEventIds)}
           </ButtonGroup>
         )}
       </Card>
@@ -312,7 +322,8 @@ function InCommon({
               <Card>
                 <EventHeader event={events[activeEventId]} size={48} />
                 <div className="active-event-actions">
-                  {createActiveTopButtons(activeEventId)}
+                  {createActiveTopButtons != null &&
+                    createActiveTopButtons(activeEventId)}
                   <ButtonClose
                     onClose={() => removeActiveEventId(activeEventId)}
                   />
@@ -371,7 +382,8 @@ function InCommon({
                 <EventButtons
                   event={events[activeEventId]}
                   viewInGallery={true}
-                  buttons={createActiveBottomButtons(activeEventId)}
+                  buttons={createActiveBottomButtons != null &&
+                    createActiveBottomButtons(activeEventId)}
                 />
               </Card>
             </div>
@@ -384,8 +396,14 @@ function InCommon({
 
 InCommon.propTypes = {
   children: PropTypes.node,
-  inCommon: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  events: PropTypes.objectOf(PropTypes.shape(DropProps)).isRequired,
+  inCommon: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.string.isRequired
+    ).isRequired
+  ).isRequired,
+  events: PropTypes.objectOf(
+    PropTypes.shape(DropProps).isRequired
+  ).isRequired,
   showCount: PropTypes.number,
   showActive: PropTypes.bool,
   createButtons: PropTypes.func,

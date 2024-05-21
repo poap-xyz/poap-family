@@ -8,9 +8,12 @@
  */
 export function getSearchParamNumber(searchParams, key, defaultValue) {
   if (searchParams.has(key)) {
-    const n = parseInt(searchParams.get(key))
-    if (!isNaN(n)) {
-      return n
+    const value = searchParams.get(key)
+    if (value != null) {
+      const n = parseInt(value)
+      if (!isNaN(n)) {
+        return n
+      }
     }
   }
   return defaultValue

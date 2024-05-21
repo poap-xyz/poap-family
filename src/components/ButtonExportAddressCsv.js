@@ -52,7 +52,9 @@ function ButtonExportAddressCsv({
 ButtonExportAddressCsv.propTypes = {
   name: PropTypes.string,
   filename: PropTypes.string,
-  addresses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  addresses: PropTypes.arrayOf(
+    PropTypes.string.isRequired
+  ).isRequired,
   children: PropTypes.node,
   title:  PropTypes.string,
 }

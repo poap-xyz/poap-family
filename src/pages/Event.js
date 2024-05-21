@@ -106,23 +106,42 @@ function Event() {
     (address, abortSignal) => scanAddress(address, abortSignal).then(
       (ownerTokens) => {
         for (const ownerToken of ownerTokens) {
-          const eventId = ownerToken.event.id
-          setInCommon((prevInCommon) => {
-            if (eventId in prevInCommon) {
-              if (prevInCommon[eventId].indexOf(address) === -1) {
-                prevInCommon[eventId].push(address)
+          const event = ownerToken.event
+          if (event != null) {
+            const eventId = event.id
+            setInCommon((prevInCommon) => {
+              if (prevInCommon == null) {
+                return {
+                  [eventId]: [address],
+                }
               }
-            } else {
-              prevInCommon[eventId] = [address]
-            }
-            return prevInCommon
-          })
-          setEvents((prevEvents) => ({ ...prevEvents, [eventId]: ownerToken.event }))
+              if (eventId in prevInCommon) {
+                if (prevInCommon[eventId].indexOf(address) === -1) {
+                  prevInCommon[eventId].push(address)
+                }
+              } else {
+                prevInCommon[eventId] = [address]
+              }
+              return prevInCommon
+            })
+            setEvents((prevEvents) => ({ ...prevEvents, [eventId]: event }))
+          } else {
+            setErrors((prevErrors) => ([
+              ...(prevErrors ?? []),
+              {
+                address,
+                error: new Error(`Could not find POAP ${ownerToken.id}`),
+              },
+            ]))
+          }
         }
-        setLoadedCount((prevLoadedCount) => prevLoadedCount + 1)
+        setLoadedCount((prevLoadedCount) => (prevLoadedCount ?? 0) + 1)
       },
       (err) => {
-        setErrors((prevErrors) => ([...prevErrors, { address, error: err }]))
+        setErrors((prevErrors) => ([
+          ...(prevErrors ?? []),
+          { address, error: err },
+        ]))
       }
     ),
     []
@@ -143,7 +162,7 @@ function Event() {
       const processedOwners = []
       setLoading(true)
       setErrors([])
-      let promise = new Promise((r) => { r() })
+      let promise = new Promise((r) => { r(undefined) })
       for (const owner of owners) {
         if (processedOwners.indexOf(owner) !== -1) {
           continue
@@ -194,9 +213,12 @@ function Event() {
   useEffect(
     () => {
       resolveEnsNames(owners)
-      let requests = []
+      /**
+       * @type {AbortController[]}
+       */
+      let controllers = []
       if (searchParams.get('force') === 'true') {
-        requests = process()
+        controllers = process()
       } else {
         setLoading(true)
         setLoadedCount(0)
@@ -205,13 +227,15 @@ function Event() {
           event.id,
           /*abortSignal*/undefined,
           /*onProgress*/({ progress, estimated, rate }) => {
-            setLoadedProgress({ progress, estimated, rate })
+            if (progress != null && estimated != null && rate != null) {
+              setLoadedProgress({ progress, estimated, rate })
+            }
           }
         ).then(
           (result) => {
             setLoadedProgress(null)
             if (!result) {
-              requests = process()
+              controllers = process()
             } else {
               setEvents(result.events)
               setCachedTs(result.ts)
@@ -226,12 +250,12 @@ function Event() {
           (err) => {
             setLoadedProgress(null)
             console.error(err)
-            requests = process()
+            controllers = process()
           }
         )
       }
       return () => {
-        for (const request of requests) {
+        for (const request of controllers) {
           request.abort()
         }
       }
@@ -288,6 +312,9 @@ function Event() {
    */
   const retryAddress = (address) => {
     setErrors((prevErrors) => {
+      if (prevErrors == null) {
+        return []
+      }
       const newErrors = []
       for (const { error, address: errorAddress } of prevErrors) {
         if (errorAddress !== address) {

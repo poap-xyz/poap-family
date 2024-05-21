@@ -95,7 +95,7 @@ EventInfo.propTypes = {
         href: PropTypes.string,
         external: PropTypes.bool,
         small: PropTypes.bool,
-      })
+      }).isRequired
     ).isRequired
   ),
   highlightStat: PropTypes.string,

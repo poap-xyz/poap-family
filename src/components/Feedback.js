@@ -35,8 +35,11 @@ function Feedback() {
    */
   const [timeoutId, setTimeoutId] = useState(null)
 
-  const handleOnMessageChange = (event) => {
-    setMessage(event.target.value)
+  /**
+   * @param {string} value
+   */
+  const handleOnMessageChange = (value) => {
+    setMessage(value)
   }
 
   const handleSendFeedback = () => {
@@ -83,7 +86,7 @@ function Feedback() {
                 <textarea
                   name="feedback"
                   value={message}
-                  onChange={handleOnMessageChange}
+                  onChange={(event) => handleOnMessageChange(event.target.value)}
                   rows={5}
                   placeholder="What do you think?"
                 ></textarea>

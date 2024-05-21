@@ -72,11 +72,13 @@ function AddressOwner({
 
 AddressOwner.propTypes = {
   address: PropTypes.string.isRequired,
-  events: PropTypes.objectOf(PropTypes.shape(DropProps)),
-  eventIds: PropTypes.arrayOf(PropTypes.number),
-  ownerEventIds: PropTypes.arrayOf(PropTypes.number),
-  inCommonEventIds: PropTypes.arrayOf(PropTypes.number),
-  inCommonAddresses: PropTypes.arrayOf(PropTypes.string),
+  events: PropTypes.objectOf(
+    PropTypes.shape(DropProps).isRequired
+  ).isRequired,
+  eventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
+  ownerEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
+  inCommonEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
+  inCommonAddresses: PropTypes.arrayOf(PropTypes.string.isRequired),
   linkToScan: PropTypes.bool,
 }
 
