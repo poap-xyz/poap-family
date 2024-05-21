@@ -46,6 +46,10 @@
   border-radius: 3.2rem;
 }
 
+.link-button:not(.disabled).primary {
+  margin-left: 1rem;
+}
+
 .link-button.primary .link-button-content {
   color: white;
   stroke: white;
