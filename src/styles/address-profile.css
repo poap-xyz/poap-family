@@ -20,6 +20,10 @@
   left: 48px;
 }
 
+.profile-address {
+  word-break: break-all;
+}
+
 .profile-ens {
   font-size: 160%;
 }

@@ -183,7 +183,7 @@ function AddressProfile({
               )}
             />
           )}
-          <LinkToScan address={address} />
+          <LinkToScan className="profile-address" address={address} />
           {address in ensNames && (
             <big className="profile-ens">{ensNames[address]}</big>
           )}
