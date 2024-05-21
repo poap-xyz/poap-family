@@ -1,24 +1,24 @@
 import PropTypes from 'prop-types'
 import { DropProps } from 'models/drop'
 import TokenImage from 'components/TokenImage'
-import 'styles/event-count.css'
+import 'styles/event-power.css'
 
 /**
- * @param {PropTypes.InferProps<EventCount.propTypes>} props
+ * @param {PropTypes.InferProps<EventPower.propTypes>} props
  */
-function EventCount({ event, count, size = 64 }) {
+function EventPower({ event, count, size = 64 }) {
   return (
-    <div className="event-count">
+    <div className="event-power">
       <TokenImage event={event} size={size} />
-      <span className="count">{count}</span>
+      <span className="power">{count}</span>
     </div>
   )
 }
 
-EventCount.propTypes = {
+EventPower.propTypes = {
   event: PropTypes.shape(DropProps).isRequired,
   count: PropTypes.number.isRequired,
   size: PropTypes.number,
 }
 
-export default EventCount
+export default EventPower
