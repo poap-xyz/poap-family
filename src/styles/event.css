@@ -20,7 +20,7 @@
   margin-top: 3px;
 }
 
-.event .caching-error span.caching-error-label {
+.event .caching-error .caching-error-label {
   font-size: 7px;
   border-radius: 7px;
   padding: 2px 6px;
@@ -31,10 +31,4 @@
   color: #F8D1D2;
   border: 1px dashed #e76e90;
   margin-right: .5rem;
-}
-
-@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
-  .event .in-common .active-events {
-    top: 100%;
-  }
 }
