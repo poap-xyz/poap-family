@@ -10,6 +10,9 @@ function Status({
   caching,
   error,
 }) {
+  if (!loading && !caching && !error) {
+    return null
+  }
   return (
     <div
       className={clsx('status',
