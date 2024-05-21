@@ -3,6 +3,8 @@
   flex-direction: row;
   overflow-y: hidden;
   overflow-x: scroll;
+  margin-bottom: .5rem;
+  scroll-margin-bottom: .5rem;
 }
 
 .events-owners .in-common-owners ul.owners {

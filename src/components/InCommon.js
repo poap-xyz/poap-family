@@ -18,7 +18,7 @@ import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
 import ErrorMessage from 'components/ErrorMessage'
 import EventCount from 'components/EventCount'
-import EventButtons from 'components/EventButtons'
+import EventButtonGroup from 'components/EventButtonGroup'
 import AddressOwner from 'components/AddressOwner'
 import ButtonGroup from 'components/ButtonGroup'
 import TokenImage from 'components/TokenImage'
@@ -379,12 +379,13 @@ function InCommon({
                     })}
                   </ul>
                 </div>
-                <EventButtons
+                <EventButtonGroup
                   event={events[activeEventId]}
                   viewInGallery={true}
-                  buttons={createActiveBottomButtons != null &&
+                >
+                  {createActiveBottomButtons != null &&
                     createActiveBottomButtons(activeEventId)}
-                />
+                </EventButtonGroup>
               </Card>
             </div>
           )}
