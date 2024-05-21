@@ -2,50 +2,6 @@
   width: 100%;
 }
 
-.in-common .event-button {
-  background: transparent;
-  border-width: 0;
-  cursor: pointer;
-}
-
-.in-common .in-common-event {
-  display: inline-block;
-  border: .1rem solid transparent;
-  border-radius: 12px;
-  margin: .2rem;
-  overflow-wrap: break-word;
-  width: 72px;
-}
-
-.in-common .show-all .in-common-event.perfect {
-  background-color: #eee;
-  border-color: #cdcdcd;
-}
-
-.in-common .in-common-event.selected {
-  background-color: #7d73e2 !important;
-  border-color: #473e6b !important;
-}
-
-.in-common .in-common-event .event-image {
-  display: inline-block;
-  margin: 4px;
-  width: 64px;
-  height: 64px;
-}
-
-.in-common .in-common-event .event-id {
-  text-align: center;
-  display: block;
-  cursor: pointer;
-  font-size: 80%;
-  margin: .1rem;
-}
-
-.in-common .in-common-event.selected .event-id {
-  color: white;
-}
-
 .in-common .show-more {
   display: inline-block;
   margin-left: .5rem;
