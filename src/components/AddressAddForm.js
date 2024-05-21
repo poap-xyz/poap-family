@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Plus } from 'iconoir-react'
-import { parseAddresses } from '../models/address'
-import Button from './Button'
-import ErrorMessage from './ErrorMessage'
-import '../styles/address-add.css'
+import { parseAddresses } from 'models/address'
+import Button from 'components/Button'
+import ErrorMessage from 'components/ErrorMessage'
+import 'styles/address-add.css'
 
 function AddressAddForm({
   onSubmit =

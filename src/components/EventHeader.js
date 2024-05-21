@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { DropProps } from '../models/drop'
-import TokenImageZoom from './TokenImageZoom'
-import '../styles/event-header.css'
+import { DropProps } from 'models/drop'
+import TokenImageZoom from 'components/TokenImageZoom'
+import 'styles/event-header.css'
 
 /**
  * @param {PropTypes.InferProps<EventHeader.propTypes>} props

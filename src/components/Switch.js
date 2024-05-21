@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import '../styles/switch.css'
+import 'styles/switch.css'
 
 /**
  * @param {PropTypes.InferProps<Switch.propTypes>} props

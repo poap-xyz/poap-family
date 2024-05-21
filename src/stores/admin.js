@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { createContext, useCallback, useMemo, useState } from 'react'
-import { auth } from '../loaders/api'
+import { auth } from 'loaders/api'
 
 export const AdminContext = createContext({
   authenticated: false,

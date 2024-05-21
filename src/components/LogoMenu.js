@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import Logo from './Logo'
-import '../styles/logo-menu.css'
+import Logo from 'components/Logo'
+import 'styles/logo-menu.css'
 
 /**
  * @param {PropTypes.InferProps<LogoMenu.propTypes>} props

@@ -12,7 +12,7 @@ export function formatDate(date) {
 /**
  * Relative time for timestamp in the past.
  *
- * @param {number} ts
+ * @param {Date | number} ts
  */
 export function formatDateAgo(ts) {
   if (typeof ts === 'number') {

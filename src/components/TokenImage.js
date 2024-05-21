@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
-import { DropProps } from '../models/drop'
-import { getRandomInt } from '../utils/number'
-import '../styles/poap.css'
+import { DropProps } from 'models/drop'
+import { getRandomInt } from 'utils/number'
+import 'styles/poap.css'
 
 /**
  * @param {PropTypes.InferProps<TokenImage.propTypes>} props

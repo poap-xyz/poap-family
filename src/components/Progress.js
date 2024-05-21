@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { clsx } from 'clsx'
-import { secondsInTheFuture } from '../utils/date'
-import { formatByte, formatPercentage } from '../utils/number'
-import '../styles/progress.css'
+import { secondsInTheFuture } from 'utils/date'
+import { formatByte, formatPercentage } from 'utils/number'
+import 'styles/progress.css'
 
 /**
  * @param {PropTypes.InferProps<Progress.propTypes>} props

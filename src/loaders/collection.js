@@ -1,6 +1,10 @@
-import { Collection, CollectionWithDrops } from '../models/collection'
-import { DEFAULT_COMPASS_LIMIT } from '../models/compass'
-import { queryAggregateCountCompass, queryAllCompass, queryManyCompass } from './compass'
+import { Collection, CollectionWithDrops } from 'models/collection'
+import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
+import {
+  queryAggregateCountCompass,
+  queryAllCompass,
+  queryManyCompass,
+} from 'loaders/compass'
 
 /**
  * Retrieve collections that has all given drops and collections that only have

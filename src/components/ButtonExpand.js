@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 import { Expand } from 'iconoir-react'
-import LinkButton from './LinkButton'
-import Button from './Button'
+import LinkButton from 'components/LinkButton'
+import Button from 'components/Button'
 
 /**
  * @param {PropTypes.InferProps<ButtonExpand.propTypes>} props

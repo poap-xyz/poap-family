@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import '../styles/warning-message.css'
+import 'styles/warning-message.css'
 
 /**
  * @param {PropTypes.InferProps<WarningMessage.propTypes>} props

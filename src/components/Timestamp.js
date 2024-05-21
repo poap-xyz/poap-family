@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { formatDateAgo } from '../utils/date'
+import { formatDateAgo } from 'utils/date'
 
 /**
  * @param {PropTypes.InferProps<Timestamp.propTypes>} props

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { clsx } from 'clsx'
-import '../styles/button-link.css'
+import 'styles/button-link.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonLink.propTypes>} props

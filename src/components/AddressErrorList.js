@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import ButtonLink from './ButtonLink'
-import ErrorMessage from './ErrorMessage'
+import ButtonLink from 'components/ButtonLink'
+import ErrorMessage from 'components/ErrorMessage'
 
 /**
  * @param {PropTypes.InferProps<AddressErrorList.propTypes>} props

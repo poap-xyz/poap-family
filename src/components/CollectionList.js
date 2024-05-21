@@ -1,9 +1,13 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { COLLECTIONS_LIMIT, CollectionProps, resizeCollectionImageUrl } from '../models/collection'
-import { POAP_COLLECTIONS_URL } from '../models/poap'
-import ButtonLink from './ButtonLink'
-import '../styles/collection.css'
+import {
+  COLLECTIONS_LIMIT,
+  CollectionProps,
+  resizeCollectionImageUrl,
+} from 'models/collection'
+import { POAP_COLLECTIONS_URL } from 'models/poap'
+import ButtonLink from 'components/ButtonLink'
+import 'styles/collection.css'
 
 /**
  * @param {PropTypes.InferProps<CollectionList.propTypes>} props

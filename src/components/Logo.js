@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import POAP from '../images/POAP.png'
-import '../styles/logo.css'
+import POAP from 'images/POAP.png'
+import 'styles/logo.css'
 
 /**
  * @param {PropTypes.InferProps<Logo.propTypes>} props

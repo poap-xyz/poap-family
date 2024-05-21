@@ -1,4 +1,4 @@
-import { POAP_SCAN_URL } from '../models/poap'
+import { POAP_SCAN_URL } from 'models/poap'
 
 const regexp =
   /https?:\/\/(www.)?[a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/gi;
@@ -7,7 +7,7 @@ const regexp =
  * Splits a text by its URLs and wrap them in Anchor component.
  *
  * @param {string} text
- * @param {React.ComponentType} Anchor
+ * @param {React.FC} Anchor
  * @returns {React.ReactNode[]}
  */
 export default function linkify(text, Anchor) {

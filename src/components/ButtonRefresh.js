@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import '../styles/button-refresh.css'
+import 'styles/button-refresh.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonRefresh.propTypes>} props

@@ -1,10 +1,10 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { HTMLContext } from '../stores/html'
-import { getSearchParamNumber } from '../utils/url'
-import ButtonLink from '../components/ButtonLink'
-import LastEvents from '../components/LastEvents'
-import Page from '../components/Page'
+import { HTMLContext } from 'stores/html'
+import { getSearchParamNumber } from 'utils/url'
+import ButtonLink from 'components/ButtonLink'
+import LastEvents from 'components/LastEvents'
+import Page from 'components/Page'
 
 const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 8

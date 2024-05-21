@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { parseAddresses } from '../models/address'
-import Button from './Button'
-import Card from './Card'
-import ErrorMessage from './ErrorMessage'
-import ButtonClose from './ButtonClose'
-import '../styles/addresses-form.css'
+import { parseAddresses } from 'models/address'
+import Button from 'components/Button'
+import Card from 'components/Card'
+import ErrorMessage from 'components/ErrorMessage'
+import ButtonClose from 'components/ButtonClose'
+import 'styles/addresses-form.css'
 
 /**
  * @param {PropTypes.InferProps<AddressesForm.propTypes>} props

@@ -1,10 +1,10 @@
-import { filterInvalidOwners } from '../models/address'
-import { DEFAULT_SEARCH_LIMIT, parseEventIds } from '../models/event'
-import { Drop } from '../models/drop'
-import { POAP_API_URL, POAP_API_KEY } from '../models/poap'
-import { HttpError } from '../models/error'
-import { getEventAndOwners, getEventMetrics, getEvents } from './api'
-import { fetchPOAPs } from './poap'
+import { filterInvalidOwners } from 'models/address'
+import { DEFAULT_SEARCH_LIMIT, parseEventIds } from 'models/event'
+import { Drop } from 'models/drop'
+import { POAP_API_URL, POAP_API_KEY } from 'models/poap'
+import { HttpError } from 'models/error'
+import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
+import { fetchPOAPs } from 'loaders/poap'
 
 /**
  * @param {string} query
@@ -144,10 +144,11 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
         }
       )
     } catch (err) {
-      console.error(err)
-
       for (const id of ids) {
-        errorsMap[id] = new Error(`Response was not success (network error)`)
+        errorsMap[id] = new Error(
+          `Cannot fetch drop ${id}: response was not success (network error)`,
+          { cause: err }
+        )
       }
 
       continue
@@ -176,12 +177,14 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
       for (const id of ids) {
         if (message) {
           errorsMap[id] = new HttpError(
-            `Response was not success (status ${response.status}): ${message}`,
+            `Cannot fetch drop ${id}: ` +
+            `response was not success (status ${response.status}): ${message}`,
             { status: response.status }
           )
         } else {
           errorsMap[id] = new HttpError(
-            `Response was not success (status ${response.status})`,
+            `Cannot fetch drop ${id}: ` +
+            `response was not success (status ${response.status})`,
             { status: response.status }
           )
         }
@@ -207,7 +210,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
         for (const id of ids) {
           if (!(id in eventsMap)) {
             errorsMap[id] = new HttpError(
-              `Event '${id}' not found on response`,
+              `Drop '${id}' not found on response`,
               { status: 404 }
             )
           }
@@ -215,7 +218,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
       } else {
         for (const id of ids) {
           if (!(id in eventsMap)) {
-            errorsMap[id] = new Error(`Malformed response event '${id}'`)
+            errorsMap[id] = new Error(`Malformed drop response '${id}'`)
           }
         }
       }
@@ -224,7 +227,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
 
       for (const id of ids) {
         if (!(id in eventsMap)) {
-          errorsMap[id] = new Error(`Malformed event '${id}': ${err.message}`)
+          errorsMap[id] = new Error(`Malformed drop '${id}': ${err.message}`)
         }
       }
     }
@@ -240,12 +243,23 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
  * @returns {Promise<ReturnType<Drop> | null>}
  */
 export async function fetchEvent(eventId, includeDescription, abortSignal) {
-  const response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    headers: {
-      'x-api-key': POAP_API_KEY,
-    },
-  })
+  /**
+   * @type {Response | undefined}
+   */
+  let response
+  try {
+    response = await fetch(`${POAP_API_URL}/events/id/${eventId}`, {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      headers: {
+        'x-api-key': POAP_API_KEY,
+      },
+    })
+  } catch (err) {
+    throw new Error(
+      `Cannot fetch drop ${eventId}: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status === 404) {
     return null
@@ -272,14 +286,14 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
     }
 
     throw new HttpError(
-      `Fetch event '${eventId}' response was not success: ${message}`,
+      `Fetch drop '${eventId}' response was not success: ${message}`,
       { status: 400 }
     )
   }
 
   if (response.status !== 200) {
     throw new HttpError(
-      `Fetch event '${eventId}' response was not success ` +
+      `Fetch drop '${eventId}' response was not success ` +
       `(status ${response.status})`,
       { status: response.status }
     )
@@ -288,7 +302,7 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
   const body = await response.json()
 
   if (typeof body !== 'object') {
-    throw new Error(`Malformed event (type ${typeof body})`)
+    throw new Error(`Malformed drop (type ${typeof body})`)
   }
 
   return Drop(body, includeDescription)
@@ -322,7 +336,7 @@ export async function eventLoader({ params, request }) {
   if (!event) {
     throw new Response('', {
       status: 404,
-      statusText: 'Event not found',
+      statusText: 'Drop not found',
     })
   }
 
@@ -334,7 +348,7 @@ export async function eventLoader({ params, request }) {
   if (tokensSettled.status === 'rejected') {
     throw new Response('', {
       status: 503,
-      statusText: 'Event could not be fetch from POAP API',
+      statusText: 'Drop could not be fetch from POAP API',
     })
   }
 
@@ -359,14 +373,14 @@ export async function eventsLoader({ params, request }) {
   if (eventIds.length === 0) {
     throw new Response('', {
       status: 404,
-      statusText: 'Events not found',
+      statusText: 'Drops not found',
     })
   }
 
   if (params.eventIds !== eventIds.join(',')) {
     throw new Response('', {
       status: 301,
-      statusText: 'Events given unordered',
+      statusText: 'Drops given unordered',
       headers: {
         location: `/events/${eventIds.join(',')}`,
       },
@@ -376,7 +390,7 @@ export async function eventsLoader({ params, request }) {
   if (eventIds.length === 1) {
     throw new Response('', {
       status: 301,
-      statusText: 'One event',
+      statusText: 'One drop',
       headers: {
         location: `/event/${eventIds[0]}`,
       },
@@ -385,55 +399,44 @@ export async function eventsLoader({ params, request }) {
 
   const force = new URL(request.url).searchParams.get('force') === 'true'
 
+  /**
+   * @type {Record<number, ReturnType<Drop> | undefined>}
+   */
+  let events
+
+  /**
+   * @type {number[] | undefined}
+   */
+  let notFoundEventIds
+
   if (!force) {
     try {
-      const events = await getEvents(eventIds)
-
-      if (events) {
-        /**
-         * @type {number[]}
-         */
-        const notFoundEventIds = []
-
-        for (const eventId of eventIds) {
-          if (!(eventId in events)) {
-            notFoundEventIds.push(eventId)
-          }
-        }
-
-        if (notFoundEventIds.length > 0) {
-          throw new Response(
-            JSON.stringify({
-              errorsByEventId: notFoundEventIds.reduce(
-                (errorsByEventId, notFoundEventId) => ({
-                  ...errorsByEventId,
-                  [notFoundEventId]: {
-                    message: `The event ${notFoundEventId} was not found`,
-                    status: 404,
-                    statusText: 'Event not found',
-                  },
-                }),
-                {}
-              ),
-            }),
-            {
-              status: 503,
-              statusText: 'Fetch events not found',
-              headers: {
-                'content-type': 'application/json',
-              },
-            }
-          )
-        }
-
-        return events
-      }
+      events = await getEvents(eventIds)
     } catch (err) {
       console.error(err)
     }
+    if (events) {
+      notFoundEventIds = []
+
+      for (const eventId of eventIds) {
+        if (!(eventId in events)) {
+          notFoundEventIds.push(eventId)
+        }
+      }
+
+      if (notFoundEventIds.length === 0) {
+        return events
+      }
+    }
   }
 
-  const [events, errors] = await fetchEventsOrErrors(eventIds)
+  if (!events) {
+    events = {}
+  }
+
+  const [freshEvents, errors] = await fetchEventsOrErrors(
+    notFoundEventIds ?? eventIds
+  )
 
   if (Object.keys(errors).length > 0) {
     const errorsByEventId = Object.assign({}, errors)
@@ -482,7 +485,7 @@ export async function eventsLoader({ params, request }) {
 
       throw new Response(response, {
         status: 503,
-        statusText: 'Fetch events failed',
+        statusText: 'Missing drops',
         headers: {
           'content-type': 'application/json',
         },
@@ -490,5 +493,8 @@ export async function eventsLoader({ params, request }) {
     }
   }
 
-  return events
+  return {
+    ...events,
+    ...freshEvents,
+  }
 }

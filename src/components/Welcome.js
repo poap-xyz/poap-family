@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
-import { SettingsContext } from '../stores/cache'
-import ButtonLink from './ButtonLink'
-import ExternalLink from './ExternalLink'
-import '../styles/welcome.css'
+import { SettingsContext } from 'stores/cache'
+import ButtonLink from 'components/ButtonLink'
+import ExternalLink from 'components/ExternalLink'
+import 'styles/welcome.css'
 
 /**
  * @param {PropTypes.InferProps<Welcome.propTypes>} props

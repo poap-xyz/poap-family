@@ -1,4 +1,4 @@
-import { Drop } from './drop'
+import { Drop } from 'models/drop'
 
 export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
 export const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY

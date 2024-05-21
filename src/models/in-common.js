@@ -1,4 +1,4 @@
-import { equals, intersection } from '../utils/array'
+import { equals, intersection } from 'utils/array'
 
 export const INCOMMON_EVENTS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10

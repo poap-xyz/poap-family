@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { Fragment } from 'react'
-import { CollectionProps } from '../models/collection'
-import Card from './Card'
-import CollectionList from './CollectionList'
-import WarningMessage from './WarningMessage'
+import { CollectionProps } from 'models/collection'
+import Card from 'components/Card'
+import CollectionList from 'components/CollectionList'
+import WarningMessage from 'components/WarningMessage'
 
 /**
  * @param {PropTypes.InferProps<CollectionSet.propTypes>} props

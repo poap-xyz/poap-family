@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
 import { QuestionMark } from 'iconoir-react'
-import { SettingsContext } from '../stores/cache'
-import CornerBackground from '../images/Corner_Background.svg'
-import Feedback from './Feedback'
-import LogoMenu from './LogoMenu'
-import MenuItem from './MenuItem'
-import '../styles/page.css'
+import { SettingsContext } from 'stores/cache'
+import CornerBackground from 'images/Corner_Background.svg'
+import Feedback from 'components/Feedback'
+import LogoMenu from 'components/LogoMenu'
+import MenuItem from 'components/MenuItem'
+import 'styles/page.css'
 
 /**
  * @param {PropTypes.InferProps<Page.propTypes>} props

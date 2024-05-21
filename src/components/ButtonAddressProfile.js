@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types'
 import { useContext, useState } from 'react'
 import ReactModal from 'react-modal'
-import { ReverseEnsContext } from '../stores/ethereum'
-import { DropProps } from '../models/drop'
-import Card from './Card'
-import ButtonClose from './ButtonClose'
-import ButtonLink from './ButtonLink'
-import AddressProfile from './AddressProfile'
-import '../styles/button-address-profile.css'
+import { ReverseEnsContext } from 'stores/ethereum'
+import { DropProps } from 'models/drop'
+import Card from 'components/Card'
+import ButtonClose from 'components/ButtonClose'
+import ButtonLink from 'components/ButtonLink'
+import AddressProfile from 'components/AddressProfile'
+import 'styles/button-address-profile.css'
 
 /**
  * @param {PropTypes.InferProps<ButtonAddressProfile.propTypes>} props

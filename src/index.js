@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import ReactModal from 'react-modal'
-import App from './app/App'
+import App from 'app/App'
 
 const rootElement = document.getElementById('root')
 

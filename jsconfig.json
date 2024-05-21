@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "resolveJsonModule": true,
+    "baseUrl": "src",
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"]
+}

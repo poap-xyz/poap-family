@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types'
 import { useState } from 'react'
 import { Fish } from 'iconoir-react'
-import Button from './Button'
-import ButtonGroup from './ButtonGroup'
-import '../styles/input-passphrase.css'
+import Button from 'components/Button'
+import ButtonGroup from 'components/ButtonGroup'
+import 'styles/input-passphrase.css'
 
 /**
  * @param {PropTypes.InferProps<InputPassphraseForm.propTypes>} props

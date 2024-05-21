@@ -1,36 +1,37 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
 import { Upload } from 'iconoir-react'
-import { formatStat } from '../utils/number'
-import { formatDateAgo } from '../utils/date'
-import { HTMLContext } from '../stores/html'
-import { SettingsContext } from '../stores/cache'
-import { ReverseEnsContext } from '../stores/ethereum'
-import { scanAddress } from '../loaders/poap'
-import { getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
-import { findEventsCollections } from '../loaders/collection'
-import { parseEventIds } from '../models/event'
-import { filterInCommon } from '../models/in-common'
-import { POAP_MOMENTS_URL } from '../models/poap'
-import Timestamp from '../components/Timestamp'
-import Page from '../components/Page'
-import Card from '../components/Card'
-import Button from '../components/Button'
-import Loading from '../components/Loading'
-import InCommon from '../components/InCommon'
-import EventInfo from '../components/EventInfo'
-import CollectionSet from '../components/CollectionSet'
-import AddressErrorList from '../components/AddressErrorList'
-import WarningMessage from '../components/WarningMessage'
-import ErrorMessage from '../components/ErrorMessage'
-import ButtonLink from '../components/ButtonLink'
-import Progress from '../components/Progress'
-import ButtonExportAddressCsv from '../components/ButtonExportAddressCsv'
-import ButtonAdd from '../components/ButtonAdd'
-import ButtonExpand from '../components/ButtonExpand'
-import ButtonMenu from '../components/ButtonMenu'
-import LinkButton from '../components/LinkButton'
-import '../styles/event.css'
+import { formatStat } from 'utils/number'
+import { formatDateAgo } from 'utils/date'
+import { HTMLContext } from 'stores/html'
+import { SettingsContext } from 'stores/cache'
+import { ReverseEnsContext } from 'stores/ethereum'
+import { scanAddress } from 'loaders/poap'
+import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
+import { findEventsCollections } from 'loaders/collection'
+import { parseEventIds } from 'models/event'
+import { DropData } from 'models/drop'
+import { filterInCommon } from 'models/in-common'
+import { POAP_MOMENTS_URL } from 'models/poap'
+import Timestamp from 'components/Timestamp'
+import Page from 'components/Page'
+import Card from 'components/Card'
+import Button from 'components/Button'
+import Loading from 'components/Loading'
+import InCommon from 'components/InCommon'
+import EventInfo from 'components/EventInfo'
+import CollectionSet from 'components/CollectionSet'
+import AddressErrorList from 'components/AddressErrorList'
+import WarningMessage from 'components/WarningMessage'
+import ErrorMessage from 'components/ErrorMessage'
+import ButtonLink from 'components/ButtonLink'
+import Progress from 'components/Progress'
+import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
+import ButtonAdd from 'components/ButtonAdd'
+import ButtonExpand from 'components/ButtonExpand'
+import ButtonMenu from 'components/ButtonMenu'
+import LinkButton from 'components/LinkButton'
+import 'styles/event.css'
 
 function Event() {
   const navigate = useNavigate()
@@ -38,7 +39,7 @@ function Event() {
   const { setTitle } = useContext(HTMLContext)
   const { settings } = useContext(SettingsContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
-  const { event, owners, ts, metrics } = useLoaderData()
+  const loaderData = useLoaderData()
   /**
    * @type {ReturnType<typeof useState<number | null>>}
    */
@@ -87,6 +88,15 @@ function Event() {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [collectionsError, setCollectionsError] = useState(null)
+
+  const { event, owners, ts, metrics } = useMemo(
+    () => DropData(
+      loaderData,
+      /*includeDescription*/true,
+      /*includeMetrics*/true,
+    ),
+    [loaderData]
+  )
 
   const processAddress = useCallback(
     /**
@@ -246,7 +256,9 @@ function Event() {
         setCollectionData(eventCollectionsData)
         setLoadingCollections(false)
       }).catch((err) => {
-        setCollectionsError(err?.message ?? 'Could not load collections')
+        setCollectionsError(new Error('Could not load collections', {
+          cause: err,
+        }))
         setLoadingCollections(false)
       })
     },

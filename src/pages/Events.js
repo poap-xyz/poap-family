@@ -1,41 +1,49 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { formatStat } from '../utils/number'
-import { SettingsContext } from '../stores/cache'
-import { HTMLContext } from '../stores/html'
-import { ReverseEnsContext } from '../stores/ethereum'
-import { getEventAndOwners, getEventMetrics, getEventsMetrics, getEventsOwners, getInCommonEventsWithProgress, putEventInCommon } from '../loaders/api'
-import { fetchPOAPs, scanAddress } from '../loaders/poap'
-import { findEventsCollections } from '../loaders/collection'
-import { filterInvalidOwners } from '../models/address'
-import { filterInCommon, mergeAllInCommon } from '../models/in-common'
-import { parseEventIds, parseExpiryDates } from '../models/event'
-import { AbortedError } from '../models/error'
-import { union, uniq } from '../utils/array'
-import { formatDate } from '../utils/date'
-import Timestamp from '../components/Timestamp'
-import Card from '../components/Card'
-import EventButtons from '../components/EventButtons'
-import Page from '../components/Page'
-import TokenImageZoom from '../components/TokenImageZoom'
-import Status from '../components/Status'
-import Loading from '../components/Loading'
-import ShadowText from '../components/ShadowText'
-import ButtonLink from '../components/ButtonLink'
-import Progress from '../components/Progress'
-import InCommon from '../components/InCommon'
-import CollectionSet from '../components/CollectionSet'
-import EventsOwners from '../components/EventsOwners'
-import Button from '../components/Button'
-import Switch from '../components/Switch'
-import WarningIcon from '../components/WarningIcon'
-import WarningMessage from '../components/WarningMessage'
-import ErrorMessage from '../components/ErrorMessage'
-import ButtonExportAddressCsv from '../components/ButtonExportAddressCsv'
-import ButtonAdd from '../components/ButtonAdd'
-import ButtonDelete from '../components/ButtonDelete'
-import ButtonExpand from '../components/ButtonExpand'
-import '../styles/events.css'
+import { formatStat } from 'utils/number'
+import { SettingsContext } from 'stores/cache'
+import { HTMLContext } from 'stores/html'
+import { ReverseEnsContext } from 'stores/ethereum'
+import {
+  getEventAndOwners,
+  getEventMetrics,
+  getEventsMetrics,
+  getEventsOwners,
+  getInCommonEventsWithProgress,
+  putEventInCommon,
+} from 'loaders/api'
+import { fetchPOAPs, scanAddress } from 'loaders/poap'
+import { findEventsCollections } from 'loaders/collection'
+import { filterInvalidOwners } from 'models/address'
+import { filterInCommon, mergeAllInCommon } from 'models/in-common'
+import { parseEventIds, parseExpiryDates } from 'models/event'
+import { Drops } from 'models/drop'
+import { AbortedError } from 'models/error'
+import { union, uniq } from 'utils/array'
+import { formatDate } from 'utils/date'
+import Timestamp from 'components/Timestamp'
+import Card from 'components/Card'
+import EventButtons from 'components/EventButtons'
+import Page from 'components/Page'
+import TokenImageZoom from 'components/TokenImageZoom'
+import Status from 'components/Status'
+import Loading from 'components/Loading'
+import ShadowText from 'components/ShadowText'
+import ButtonLink from 'components/ButtonLink'
+import Progress from 'components/Progress'
+import InCommon from 'components/InCommon'
+import CollectionSet from 'components/CollectionSet'
+import EventsOwners from 'components/EventsOwners'
+import Button from 'components/Button'
+import Switch from 'components/Switch'
+import WarningIcon from 'components/WarningIcon'
+import WarningMessage from 'components/WarningMessage'
+import ErrorMessage from 'components/ErrorMessage'
+import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
+import ButtonAdd from 'components/ButtonAdd'
+import ButtonDelete from 'components/ButtonDelete'
+import ButtonExpand from 'components/ButtonExpand'
+import 'styles/events.css'
 
 const STATUS_INITIAL = 0
 const STATUS_LOADING_OWNERS = 1
@@ -53,7 +61,7 @@ function Events() {
   const { settings } = useContext(SettingsContext)
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
-  const events = useLoaderData()
+  const loaderData = useLoaderData()
   /**
    * @type {ReturnType<typeof useState<Record<number, string[]>>>}
    */
@@ -113,6 +121,11 @@ function Events() {
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
+
+  const events = useMemo(
+    () => Drops(loaderData, /*includeDescription*/false),
+    [loaderData]
+  )
 
   /**
    * @param {number} eventId
@@ -500,7 +513,9 @@ function Events() {
             updateEventOwners(eventId, eventAndOwners.owners)
             updateEventMetrics(eventId, eventAndOwners.metrics)
           } else {
-            updateEventOwners(eventId, [])
+            const error = new Error('Could not fetch drop and collectors')
+            updateError(eventId, error)
+            return Promise.reject(error)
           }
           return Promise.resolve()
         },
@@ -604,7 +619,7 @@ function Events() {
               updateEventOwnerError(
                 eventId,
                 address,
-                new Error(`Missing token event for ${address}`)
+                new Error(`Missing token drop for ${address}`)
               )
             }
           }
@@ -612,7 +627,13 @@ function Events() {
           return Promise.resolve()
         },
         (err) => {
-          updateEventOwnerError(eventId, address, err)
+          updateEventOwnerError(
+            eventId,
+            address,
+            new Error(`Missing token drop for ${address}`, {
+              cause: err,
+            })
+          )
           if (!(err instanceof AbortedError) && !err.aborted) {
             return Promise.reject(err)
           }
@@ -712,10 +733,11 @@ function Events() {
               if (eventsOwners) {
                 const newOwners = Object.fromEntries(
                   Object.entries(eventsOwners)
+                    .filter(([, eventOwners]) => eventOwners != null)
                     .map(
-                      ([eventId, eventOwners]) => [
-                        eventId,
-                        eventOwners == null ? [] : eventOwners.owners,
+                      ([rawEventId, eventOwners]) => [
+                        rawEventId,
+                        eventOwners.owners,
                       ]
                     )
                 )
@@ -945,7 +967,9 @@ function Events() {
    */
   const retryLoadOwners = (eventId) => {
     removeError(eventId)
-    loadCahedOwnersAndMetrics(eventId)
+    loadCahedOwnersAndMetrics(eventId).catch((err) => {
+      console.error(err)
+    })
   }
 
   /**
@@ -961,6 +985,8 @@ function Events() {
         disableProgress(eventId)
         removeLoading(eventId)
       }
+    }).catch((err) => {
+      console.error(err)
     })
   }
 
