@@ -17,6 +17,10 @@
   transition: background-color .3s ease-out;
 }
 
+.button:not(.disabled).primary {
+  margin-left: .5rem;
+}
+
 .button.primary .button-content {
   background-color: #968cff;
   color: white;
