@@ -20,7 +20,7 @@ function EventInfo({
   event,
   stats,
   highlightStat,
-  buttons = [],
+  buttons,
   children,
 }) {
   /**
