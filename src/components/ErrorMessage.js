@@ -94,7 +94,7 @@ function ErrorMessage({
         </div>
       )}
       {message && (
-        <p className="message">{children}</p>
+        <p className="message">{message}</p>
       )}
       {typeof children === 'string'
         ? <p className="message">{children}</p>
