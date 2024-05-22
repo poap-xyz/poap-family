@@ -29,19 +29,19 @@ function InCommon({
      * @param {number[]} eventIds
      * @returns {import('react').ReactNode}
      */
-    (eventIds) => [],
+    (eventIds) => null,
   createActiveTopButtons =
     /**
      * @param {number} eventId
      * @returns {import('react').ReactNode}
      */
-    (eventId) => [],
+    (eventId) => null,
   createActiveBottomButtons =
     /**
      * @param {number} eventId
      * @returns {import('react').ReactNode}
      */
-    (eventId) => [],
+    (eventId) => null,
 }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -185,19 +185,21 @@ function InCommon({
           eventIds={activeEventIds}
           events={events}
           inCommon={inCommon}
-          createHeaderActions={(eventId) => {
-            const buttons = []
-            if (createActiveTopButtons) {
-              buttons.push(...createActiveTopButtons(eventId))
-            }
-            buttons.push(
-              <ButtonClose
-                key="del"
-                onClose={() => removeActiveEventId(eventId)}
-              />
+          createHeaderActions={
+            /**
+             * @param {number} eventId
+             */
+            (eventId) => (
+              <>
+                {createActiveTopButtons != null &&
+                  createActiveTopButtons(eventId)}
+                <ButtonClose
+                  key="del"
+                  onClose={() => removeActiveEventId(eventId)}
+                />
+              </>
             )
-            return buttons
-          }}
+          }
           createBottomButtons={createActiveBottomButtons}
         />
       }
