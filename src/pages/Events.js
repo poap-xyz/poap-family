@@ -554,7 +554,7 @@ function Events() {
         },
         (err) => {
           removeLoading(eventId)
-          if (!(err instanceof AbortedError) && !err.aborted) {
+          if (!(err instanceof AbortedError)) {
             updateError(eventId, new Error('Could not fetch drop and collectors', {
               cause: err,
             }))
@@ -620,7 +620,7 @@ function Events() {
         },
         (err) => {
           removeLoading(eventId)
-          if (!(err instanceof AbortedError) && !err.aborted) {
+          if (!(err instanceof AbortedError)) {
             updateError(
               eventId,
               new Error('Could not fetch collectors or metrics', {
@@ -662,14 +662,14 @@ function Events() {
           return Promise.resolve()
         },
         (err) => {
-          updateEventOwnerError(
-            eventId,
-            address,
-            new Error(`Missing token drop for ${address}`, {
-              cause: err,
-            })
-          )
-          if (!(err instanceof AbortedError) && !err.aborted) {
+          if (!(err instanceof AbortedError)) {
+            updateEventOwnerError(
+              eventId,
+              address,
+              new Error(`Missing token drop for ${address}`, {
+                cause: err,
+              })
+            )
             return Promise.reject(err)
           }
           return Promise.resolve()
@@ -710,7 +710,7 @@ function Events() {
           removeLoading(eventId)
         },
         (err) => {
-          if (!(err instanceof AbortedError) && !err.aborted) {
+          if (!(err instanceof AbortedError)) {
             console.error(err)
           }
         }
