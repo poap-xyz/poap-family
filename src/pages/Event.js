@@ -28,6 +28,7 @@ import Progress from 'components/Progress'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonAdd from 'components/ButtonAdd'
 import ButtonExpand from 'components/ButtonExpand'
+import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
 import 'styles/event.css'
 
@@ -430,18 +431,16 @@ function Event() {
             event={event}
             stats={stats}
             highlightStat="collectors"
-            buttons={
-              <>
-                <ButtonExportAddressCsv
-                  filename={`collectors-${event.id}`}
-                  name={event.name}
-                  addresses={owners}
-                  title={`Generates CSV file with collectors of drop #${event.id}`}
-                />
-                <EventButtonMoments event={event} />
-              </>
-            }
           >
+            <EventButtonGroup event={event} viewInGallery={true}>
+              <ButtonExportAddressCsv
+                filename={`collectors-${event.id}`}
+                name={event.name}
+                addresses={owners}
+                title={`Generates CSV file with collectors of drop #${event.id}`}
+              />
+              <EventButtonMoments event={event} />
+            </EventButtonGroup>
             {caching &&
               <div className="caching">
                 Caching{' '}<Progress />

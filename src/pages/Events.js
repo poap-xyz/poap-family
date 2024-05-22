@@ -1342,7 +1342,11 @@ function Events() {
                       )}
                     </td>
                     <td className="event-cell-actions">
-                      <EventButtonGroup event={event} right={true}>
+                      <EventButtonGroup
+                        event={event}
+                        right={true}
+                        viewInGallery={true}
+                      >
                         <ButtonDelete
                           onDelete={() => delEvent(event.id)}
                           title={`Removes drop #${event.id}`}
