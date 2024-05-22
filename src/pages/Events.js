@@ -1107,22 +1107,33 @@ function Events() {
   /**
    * @type {Record<number, string[]>}
    */
-  let inCommon = {}
-  if (status === STATUS_LOADING_COMPLETE) {
-    inCommon = mergeAllInCommon(
-      Object.values(eventData).map(
-        (oneEventData) => oneEventData?.inCommon ?? {}
-      ),
-      all
-    )
-  }
+  const inCommon = useMemo(
+    () => {
+      if (status !== STATUS_LOADING_COMPLETE) {
+        return {}
+      }
+      return mergeAllInCommon(
+        Object.values(eventData).map(
+          (oneEventData) => oneEventData?.inCommon ?? {}
+        ),
+        all
+      )
+    },
+    [eventData, status, all]
+  )
 
   /**
    * @type {Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>}
    */
-  const allEvents = Object.values(eventData).reduce(
-    (allEvents, data) => ({ ...allEvents, ...data.events }),
-    {}
+  const allEvents = useMemo(
+    () => Object.values(eventData).reduce(
+      (allEvents, data) => ({
+        ...allEvents,
+        ...data.events,
+      }),
+      {}
+    ),
+    [eventData]
   )
 
   const refreshCache = () => {
@@ -1407,7 +1418,7 @@ function Events() {
               </>
             )}
             <EventsOwners
-              owners={owners}
+              eventsOwners={owners}
               inCommon={inCommon}
               events={allEvents}
               all={all}
