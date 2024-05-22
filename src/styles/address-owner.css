@@ -1,21 +1,21 @@
-.owner {
+.address-owner {
   display: flex;
   gap: .5rem;
   justify-content: space-between;
 }
 
-.owner .owner-name {
+.address-owner .owner-name {
   flex-grow: 1;
   width: 25.8rem;
 }
 
-.owner-event-empty {
+.address-owner .owner-event-empty {
   display: inline-block;
   width: 18px;
   height: 18px;
 }
 
-.owner-scan {
+.address-owner .owner-scan {
   width: 16px;
   height: 16px;
   background:
@@ -32,7 +32,7 @@
   cursor: pointer;
 }
 
-.owner-scan:hover {
+.address-owner .owner-scan:hover {
   background:
     linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 0,
     linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 100%,
