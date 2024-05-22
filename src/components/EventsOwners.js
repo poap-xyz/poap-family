@@ -55,7 +55,10 @@ function EventsOwners({
    */
   const [showAll, setShowAll] = useState(all)
 
-  let ownersEntries = inverseOwnersSortedEntries(owners)
+  let ownersEntries = useMemo(
+    () => inverseOwnersSortedEntries(owners),
+    [owners]
+  )
 
   const ownersEventIds = Object.keys(owners).map(
     (rawEventId) => parseInt(rawEventId)
@@ -67,13 +70,18 @@ function EventsOwners({
   /**
    * @type {string[]}
    */
-  const inCommonAddresses = []
-
-  for (const [ownerAddress, ownerEventIds] of ownersEntries) {
-    if (ownerEventIds.length === eventsTotal) {
-      inCommonAddresses.push(ownerAddress)
-    }
-  }
+  const inCommonAddresses = useMemo(
+    () => {
+      const inCommonAddresses = []
+      for (const [ownerAddress, ownerEventIds] of ownersEntries) {
+        if (ownerEventIds.length === eventsTotal) {
+          inCommonAddresses.push(ownerAddress)
+        }
+      }
+      return inCommonAddresses
+    },
+    [ownersEntries, eventsTotal]
+  )
 
   const inCommonOwnersTotal = inCommonAddresses.length
 
