@@ -5,7 +5,7 @@ import { DropProps } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import LinkToScan from 'components/LinkToScan'
 import ButtonAddressProfile from 'components/ButtonAddressProfile'
-import 'styles/owner.css'
+import 'styles/address-owner.css'
 
 /**
  * @param {PropTypes.InferProps<AddressOwner.propTypes>} props
@@ -30,7 +30,7 @@ function AddressOwner({
   )
 
   return (
-    <div className="owner">
+    <div className="address-owner">
       <div className="owner-name">
         {settings && settings.openProfiles
           ? (
