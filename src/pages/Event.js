@@ -27,9 +27,9 @@ import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonAdd from 'components/ButtonAdd'
-import ButtonExpand from 'components/ButtonExpand'
 import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
+import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/event.css'
 
 function Event() {
@@ -437,7 +437,9 @@ function Event() {
                 filename={`collectors-${event.id}`}
                 name={event.name}
                 addresses={owners}
-                title={`Generates CSV file with collectors of drop #${event.id}`}
+                title={
+                  `Generates CSV file with collectors of drop #${event.id}`
+                }
               />
               <EventButtonMoments event={event} />
             </EventButtonGroup>
@@ -560,31 +562,35 @@ function Event() {
                       Open
                     </Button>,
                   ])}
-                  createActiveTopButtons={(eventId) => (String(eventId) === String(event.id) ? [] : [
-                    <ButtonAdd
-                      key="add"
-                      onAdd={() => addEvent(eventId)}
-                      title={`Combines drop #${eventId}`}
-                    />,
-                  ])}
-                  createActiveBottomButtons={(eventId) => ([
-                    <ButtonExportAddressCsv
-                      key="export-csv"
-                      filename={
-                        String(eventId) === String(event.id)
-                          ? `collectors-${eventId}-in-common`
-                          : `collectors-${eventId}-in-common-drop-${event.id}`
-                      }
-                      name={String(eventId) === String(event.id) ? event.name : undefined}
-                      addresses={inCommon[eventId]}
-                      title={`Generates CSV file with collectors in common between drops #${eventId} and #${event.id}`}
-                    />,
-                    <ButtonExpand
-                      key="expand"
-                      title={`Expands collectors in common between drops #${eventId} and #${event.id}`}
-                      addresses={inCommon[eventId]}
-                    />,
-                  ])}
+                  createActiveTopButtons={
+                    /**
+                     * @param {number} eventId
+                     */
+                    (eventId) => (
+                      String(eventId) === String(event.id)
+                        ? null
+                        : (
+                            <ButtonAdd
+                              key="add"
+                              onAdd={() => addEvent(eventId)}
+                              title={`Combines drop #${eventId}`}
+                            />
+                          )
+                    )
+                  }
+                  createActiveBottomButtons={
+                    /**
+                     * @param {number} eventId
+                     */
+                    (eventId) => (
+                      <EventCompareButtons
+                        eventId={eventId}
+                        eventIds={[event.id]}
+                        events={events}
+                        inCommon={inCommon}
+                      />
+                    )
+                  }
                 />
               )}
             </>
