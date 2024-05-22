@@ -153,7 +153,7 @@ function EventsOwners({
             </ul>
           ))}
         </div>
-        {inCommonOwnersTotal === 0 && ownersEvents.length === 0 && (
+        {inCommonOwnersTotal === 0 && ownersTotal === 0 && (
           <div className="show-more">
             <ButtonLink
               onClick={() => setShowAll((prevShowAll) => !prevShowAll)}
@@ -171,7 +171,7 @@ function EventsOwners({
             </ButtonLink>
           </div>
         )}
-        {ownersEvents.length > 0 && (
+        {ownersTotal > 0 && (
           <ButtonGroup right={true}>
             <ButtonExportAddressCsv
               filename={
