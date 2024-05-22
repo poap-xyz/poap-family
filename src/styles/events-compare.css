@@ -1,0 +1,65 @@
+.events-compare {
+  display: flex;
+  overflow-x: auto;
+  /* position: absolute; */
+  left: 0;
+  right: 0;
+}
+
+.events-compare .event-compare {
+  position: relative;
+}
+
+.events-compare .event-compare .event-compare-actions {
+  position: absolute;
+  top: 12px;
+  right: 24px;
+}
+
+.events-compare .event-compare .event-compare-owners {
+  margin-bottom: .5rem;
+  max-height: 57rem;
+  overflow-y: scroll;
+  scroll-margin-left: .5rem;
+}
+
+.events-compare .event-compare .close {
+  margin-left: .5rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  padding: .1rem;
+}
+
+.events-compare .event-compare .close svg {
+  position: relative;
+  top: 2px;
+  text-align: center;
+}
+
+.events-compare .event-compare .close:hover {
+  background-color: #eee;
+  border-color: black;
+  cursor: pointer;
+}
+
+.events-compare .event-compare h4 {
+  margin-top: 1rem;
+}
+
+.events-compare .event-compare ul.owners {
+  min-height: 101%;
+  list-style-type: none;
+  margin-bottom: .5rem;
+}
+
+.events-compare .event-compare .owners li {
+  border: .2rem dashed transparent;
+  margin: .1rem 0;
+  padding: .2rem;
+}
+
+.events-compare .event-compare .owners li:hover {
+  border-color: black;
+}
+
