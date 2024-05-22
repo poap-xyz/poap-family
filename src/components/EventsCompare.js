@@ -12,6 +12,7 @@ import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
 import AddressOwner from 'components/AddressOwner'
 import EventButtonGroup from 'components/EventButtonGroup'
+import 'styles/events-compare.css'
 
 /**
  * @param {PropTypes.InferProps<EventsCompare.propTypes>} props
@@ -134,13 +135,13 @@ function EventsCompare({
   }
 
   return (
-    <div className="active-events">
+    <div className="events-compare">
       {eventIds.map((eventId) =>
-        <div className="active-event" key={eventId}>
+        <div className="event-compare" key={eventId}>
           <Card>
             <EventHeader event={events[eventId]} size={48} />
             {createHeaderActions != null && (
-              <div className="active-event-actions">
+              <div className="event-compare-actions">
                 {createHeaderActions(eventId)}
               </div>
             )}
@@ -149,7 +150,7 @@ function EventsCompare({
               collector{inCommon[eventId].length === 1 ? '' : 's'}
               {' '}in common
             </h4>
-            <div className="active-event-owners">
+            <div className="event-compare-owners">
               <ul className="owners">
                 {inCommon[eventId].map((owner) => {
                   const inCommonEventIds = getAddressInCommonEventIds(
