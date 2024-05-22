@@ -65,7 +65,7 @@ function Event() {
    */
   const [loadedCount, setLoadedCount] = useState(0)
   /**
-   * @type {ReturnType<typeof useState<{ progress: number; estimated: number; rate: number; } | null>>}
+   * @type {ReturnType<typeof useState<{ progress: number; estimated: number | null; rate: number | null; } | null>>}
    */
   const [loadedProgress, setLoadedProgress] = useState(null)
   /**
@@ -227,8 +227,14 @@ function Event() {
           event.id,
           /*abortSignal*/undefined,
           /*onProgress*/({ progress, estimated, rate }) => {
-            if (progress != null && estimated != null && rate != null) {
-              setLoadedProgress({ progress, estimated, rate })
+            if (progress != null) {
+              setLoadedProgress({
+                progress,
+                estimated: estimated ?? null,
+                rate: rate ?? null,
+              })
+            } else {
+              setLoadedProgress(null)
             }
           }
         ).then(

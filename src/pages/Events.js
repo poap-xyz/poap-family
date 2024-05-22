@@ -107,7 +107,7 @@ function Events() {
    */
   const [loadedCount, setLoadedCount] = useState({})
   /**
-   * @type {ReturnType<typeof useState<Record<number, { progress: number; estimated: number; rate: number; }>>>}
+   * @type {ReturnType<typeof useState<Record<number, { progress: number; estimated: number | null; rate: number | null; }>>>}
    */
   const [loadedProgress, setLoadedProgress] = useState({})
   /**
@@ -271,6 +271,9 @@ function Events() {
    */
   const removeLoadedProgress = (eventId) => {
     setLoadedProgress((alsoProgress) => {
+      if (alsoProgress == null) {
+        return {}
+      }
       /**
        * @type {Record<number, { progress: number; estimated: number; rate: number; }>}
        */
@@ -710,6 +713,8 @@ function Events() {
           removeLoading(eventId)
         },
         (err) => {
+          disableProgress(eventId)
+          removeLoading(eventId)
           if (!(err instanceof AbortedError)) {
             console.error(err)
           }
@@ -858,15 +863,22 @@ function Events() {
               eventId,
               controller.signal,
               /*onProgress*/({ progress, estimated, rate }) => {
-                if (progress != null && estimated != null && rate != null) {
+                if (progress != null) {
                   setLoadedProgress((alsoProgress) => ({
                     ...alsoProgress,
-                    [eventId]: { progress, estimated, rate },
+                    [eventId]: {
+                      progress,
+                      estimated: estimated ?? null,
+                      rate: rate ?? null,
+                    },
                   }))
+                } else {
+                  removeLoadedProgress(eventId)
                 }
               }
             ).then(
               (result) => {
+                removeLoading(eventId)
                 removeLoadedProgress(eventId)
                 if (result == null) {
                   return processEvent(eventId, ownerControllers)
@@ -875,11 +887,11 @@ function Events() {
                   if (eventId in result.inCommon) {
                     fixLoadedCount(eventId, result.inCommon[eventId].length)
                   }
-                  removeLoading(eventId)
                   return Promise.resolve()
                 }
               },
               (err) => {
+                removeLoading(eventId)
                 removeLoadedProgress(eventId)
                 console.error(err)
                 return processEvent(eventId, ownerControllers)
@@ -1195,7 +1207,13 @@ function Events() {
                       </div>
                     </td>
                     <td className="event-cell-metrics">
-                      {(status === STATUS_INITIAL || (event.id in loading && loading[event.id] === LOADING_OWNERS)) && !(event.id in owners) && (
+                      {(
+                        status === STATUS_INITIAL ||
+                        (
+                          event.id in loading &&
+                          loading[event.id] === LOADING_OWNERS
+                        )
+                      ) && !(event.id in owners) && (
                         <Loading small={true} />
                       )}
                       {event.id in owners && (
@@ -1255,7 +1273,7 @@ function Events() {
                       )}
                     </td>
                     <td className="event-cell-progress">
-                      {event.id in loadedProgress && (
+                      {event.id in loadedProgress && loading[event.id] === LOADING_SCANS && (
                         <Progress
                           value={loadedProgress[event.id].progress}
                           max={1}
