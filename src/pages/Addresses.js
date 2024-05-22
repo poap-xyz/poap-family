@@ -720,7 +720,7 @@ function Addresses() {
     const entry = addresses[index]
     if (entry != null && entry.ens) {
       processEnsName(entry.ens, index).catch((err) => {
-        if (!(err instanceof AbortedError) && !err.aborted) {
+        if (!(err instanceof AbortedError)) {
           console.error(err)
         }
       })
