@@ -1,23 +1,16 @@
 import PropTypes from 'prop-types'
-import { createRef, useContext, useEffect, useMemo, useState } from 'react'
-import { SettingsContext } from 'stores/cache'
+import { useMemo, useState } from 'react'
 import { DropProps } from 'models/drop'
 import {
   filterInCommon,
-  getAddressInCommonAddresses,
-  getAddressInCommonEventIds,
   INCOMMON_EVENTS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
-import { intersection } from 'utils/array'
-import { getColorForSeed } from 'utils/color'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
-import EventHeader from 'components/EventHeader'
 import EventsPowers from 'components/EventsPowers'
-import EventButtonGroup from 'components/EventButtonGroup'
-import AddressOwner from 'components/AddressOwner'
+import EventsCompare from 'components/EventsCompare'
 import ButtonGroup from 'components/ButtonGroup'
 import ButtonClose from 'components/ButtonClose'
 import 'styles/in-common.css'
@@ -50,7 +43,6 @@ function InCommon({
      */
     (eventId) => [],
 }) {
-  const { settings } = useContext(SettingsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -59,14 +51,6 @@ function InCommon({
    * @type {ReturnType<typeof useState<number[]>>}
    */
   const [activeEventIds, setActiveEventIds] = useState([])
-  /**
-   * @type {ReturnType<typeof useState<string | null>>}
-   */
-  const [ownerHighlighted, setOwnerHighlighted] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>>>>}
-   */
-  const [liRefs, setLiRefs] = useState({})
 
   const inCommonEntries = useMemo(() =>
     sortInCommonEntries(
@@ -150,108 +134,8 @@ function InCommon({
     }
   }
 
-  const activeAdressesColors = useMemo(
-    () => activeEventIds.length < 2
-      ? {}
-      : Object.fromEntries(
-        intersection(
-          // @ts-ignore
-          ...activeEventIds.map((activeEventId) => inCommon[activeEventId])
-        )
-        .map(
-          (address) => [
-            address,
-            getColorForSeed(address),
-          ]
-        )
-      ),
-    [activeEventIds, inCommon]
-  )
-
   const inCommonTotal = inCommonEntries.length
   const hasMore = inCommonTotal > inCommonLimit
-
-  useEffect(
-    () => {
-      if (activeEventIds.length > 0) {
-        /**
-         * @type {Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>>}
-         */
-        const refs = {}
-        for (const activeEventId of activeEventIds) {
-          if (inCommon[activeEventId].length > 0) {
-            refs[activeEventId] = {}
-            for (const owner of inCommon[activeEventId]) {
-              /**
-               * @type {ReturnType<typeof createRef<HTMLLIElement>>}
-               */
-              const ref = createRef()
-              refs[activeEventId][owner] = ref
-            }
-          }
-        }
-        if (Object.keys(refs).length > 0) {
-          setLiRefs(refs)
-        }
-      }
-    },
-    [activeEventIds, inCommon]
-  )
-
-  /**
-   * @param {number} activeEventId
-   * @param {string} owner
-   */
-  const onOwnerEnter = (activeEventId, owner) => {
-    if (
-      owner in activeAdressesColors &&
-      settings &&
-      settings.autoScrollCollectors
-    ) {
-      for (const eventId of activeEventIds) {
-        if (
-          eventId !== activeEventId &&
-          eventId && liRefs &&
-          owner in liRefs[eventId] &&
-          liRefs[eventId][owner].current
-        ) {
-          liRefs[eventId][owner].current.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          })
-        }
-      }
-      if (
-        activeEventId in liRefs &&
-        owner in liRefs[activeEventId] &&
-        liRefs[activeEventId][owner].current
-      ) {
-        liRefs[activeEventId][owner].current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-      }
-    }
-    setOwnerHighlighted((current) => (
-      current !== owner &&
-      owner in activeAdressesColors
-        ? owner
-        : current
-    ))
-  }
-
-  /**
-   * @param {number} activeEventId
-   * @param {string} owner
-   */
-  const onOwnerLeave = (activeEventId, owner) => {
-    setOwnerHighlighted((current) => (
-      current === owner &&
-      owner in activeAdressesColors
-        ? null
-        : current
-    ))
-  }
 
   return (
     <div className="in-common">
@@ -297,80 +181,25 @@ function InCommon({
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
-        <div className="active-events">
-          {activeEventIds.map((activeEventId) =>
-            <div className="active-event" key={activeEventId}>
-              <Card>
-                <EventHeader event={events[activeEventId]} size={48} />
-                <div className="active-event-actions">
-                  {createActiveTopButtons != null &&
-                    createActiveTopButtons(activeEventId)}
-                  <ButtonClose
-                    onClose={() => removeActiveEventId(activeEventId)}
-                  />
-                </div>
-                <h4>
-                  {inCommon[activeEventId].length}{' '}
-                  collector{inCommon[activeEventId].length === 1 ? '' : 's'}
-                  {' '}in common
-                </h4>
-                <div className="active-event-owners">
-                  <ul className="owners">
-                    {inCommon[activeEventId].map((owner) => {
-                      const inCommonEventIds = getAddressInCommonEventIds(
-                        inCommon,
-                        owner
-                      )
-                      const inCommonAddresses = getAddressInCommonAddresses(
-                        inCommon,
-                        inCommonEventIds,
-                        owner
-                      )
-                      return (
-                        <li
-                          key={owner}
-                          ref={
-                            activeEventId in liRefs &&
-                            owner in liRefs[activeEventId]
-                              ? liRefs[activeEventId][owner]
-                              : undefined}
-                          style={{
-                            backgroundColor: owner in activeAdressesColors &&
-                              (!ownerHighlighted || ownerHighlighted === owner)
-                                ? activeAdressesColors[owner]
-                                : undefined,
-                          }}
-                          onMouseEnter={() => {
-                            onOwnerEnter(activeEventId, owner)
-                          }}
-                          onMouseLeave={() => {
-                            onOwnerLeave(activeEventId, owner)
-                          }}
-                        >
-                          <AddressOwner
-                            address={owner}
-                            events={events}
-                            inCommonEventIds={inCommonEventIds}
-                            inCommonAddresses={inCommonAddresses}
-                            linkToScan={
-                              !ownerHighlighted || ownerHighlighted === owner}
-                          />
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
-                <EventButtonGroup
-                  event={events[activeEventId]}
-                  viewInGallery={true}
-                >
-                  {createActiveBottomButtons != null &&
-                    createActiveBottomButtons(activeEventId)}
-                </EventButtonGroup>
-              </Card>
-            </div>
-          )}
-        </div>
+        <EventsCompare
+          eventIds={activeEventIds}
+          events={events}
+          inCommon={inCommon}
+          createHeaderActions={(eventId) => {
+            const buttons = []
+            if (createActiveTopButtons) {
+              buttons.push(...createActiveTopButtons(eventId))
+            }
+            buttons.push(
+              <ButtonClose
+                key="del"
+                onClose={() => removeActiveEventId(eventId)}
+              />
+            )
+            return buttons
+          }}
+          createBottomButtons={createActiveBottomButtons}
+        />
       }
     </div>
   )
