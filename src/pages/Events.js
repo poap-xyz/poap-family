@@ -39,10 +39,9 @@ import Switch from 'components/Switch'
 import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
-import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonAdd from 'components/ButtonAdd'
 import ButtonDelete from 'components/ButtonDelete'
-import ButtonExpand from 'components/ButtonExpand'
+import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/events.css'
 
 const STATUS_INITIAL = 0
@@ -125,6 +124,11 @@ function Events() {
   const events = useMemo(
     () => Drops(loaderData, /*includeDescription*/false),
     [loaderData]
+  )
+
+  const eventIds = useMemo(
+    () => Object.keys(events).map((rawEventId) => parseInt(rawEventId)),
+    [events]
   )
 
   /**
@@ -727,9 +731,6 @@ function Events() {
 
   const loadCollections = useCallback(
     () => {
-      const eventIds = Object.keys(events).map(
-        (rawEventId) => parseInt(rawEventId)
-      )
       setLoadingCollections(true)
       findEventsCollections(eventIds).then((eventCollectionsData) => {
         setCollectionData(eventCollectionsData)
@@ -741,7 +742,7 @@ function Events() {
         setLoadingCollections(false)
       })
     },
-    [events]
+    [eventIds]
   )
 
   useEffect(
@@ -753,9 +754,6 @@ function Events() {
 
   useEffect(
     () => {
-      const eventIds = Object.keys(events).map(
-        (rawEventId) => parseInt(rawEventId)
-      )
       /**
        * @type {AbortController[]}
        */
@@ -826,6 +824,7 @@ function Events() {
     },
     [
       events,
+      eventIds,
       status,
       loadCahedOwnersAndMetrics,
       loadOwnersAndMetrics,
@@ -836,9 +835,6 @@ function Events() {
 
   useEffect(
     () => {
-      const eventIds = Object.keys(events).map(
-        (rawEventId) => parseInt(rawEventId)
-      )
       /**
        * @type {AbortController[]}
        */
@@ -914,7 +910,7 @@ function Events() {
         }
       }
     },
-    [events, owners, status, processEvent, force, all]
+    [events, eventIds, owners, status, processEvent, force, all]
   )
 
   useEffect(
@@ -943,9 +939,6 @@ function Events() {
   useEffect(
     () => {
       if (status === STATUS_LOADING_SCANS) {
-        const eventIds = Object.keys(events).map(
-          (rawEventId) => parseInt(rawEventId)
-        )
         let eventsLoaded = 0
         for (const eventId of eventIds) {
           if ((loadedCount[eventId] ?? 0) === owners[eventId].length) {
@@ -995,7 +988,16 @@ function Events() {
         }
       }
     },
-    [status, events, loadedCount, owners, errors, eventData, loading]
+    [
+      status,
+      events,
+      eventIds,
+      loadedCount,
+      owners,
+      errors,
+      eventData,
+      loading,
+    ]
   )
 
   useEffect(
@@ -1053,13 +1055,13 @@ function Events() {
    * @param {number} eventId
    */
   const delEvent = (eventId) => {
-    const eventIds = parseEventIds(String(rawEventIds)).filter(
+    const newEventIds = parseEventIds(String(rawEventIds)).filter(
       (paramEventId) => String(paramEventId) !== String(eventId)
     )
-    if (eventIds.length === 1) {
-      navigate(`/event/${eventIds[0]}`)
-    } else if (eventIds.length > 0) {
-      navigate(`/events/${eventIds.join(',')}`)
+    if (newEventIds.length === 1) {
+      navigate(`/event/${newEventIds[0]}`)
+    } else if (newEventIds.length > 0) {
+      navigate(`/events/${newEventIds.join(',')}`)
     } else {
       navigate('/')
     }
@@ -1342,7 +1344,11 @@ function Events() {
                       )}
                     </td>
                     <td className="event-cell-actions">
-                      <EventButtonGroup event={event} right={true}>
+                      <EventButtonGroup
+                        event={event}
+                        right={true}
+                        viewInGallery={true}
+                      >
                         <ButtonDelete
                           onDelete={() => delEvent(event.id)}
                           title={`Removes drop #${event.id}`}
@@ -1426,52 +1432,72 @@ function Events() {
             <InCommon
               inCommon={inCommon}
               events={allEvents}
-              createButtons={(eventIds) => ([
-                <Button
-                  key="add-all"
-                  disabled={eventIds.length === 0 || eventIds.every((eventId) => eventId in events)}
-                  onClick={() => addEvents(eventIds)}
-                >
-                  Add selected
-                </Button>,
-                <Button
-                  key="open-all"
-                  secondary={true}
-                  disabled={eventIds.length === 0 || (eventIds.every((eventId) => eventId in events) && Object.keys(events).every((eventId) => eventIds.indexOf(eventId) !== -1))}
-                  onClick={() => openEvents(eventIds)}
-                >
-                  Open
-                </Button>,
-              ])}
-              createActiveTopButtons={(eventId) => (eventId in events ? [] : [
-                <ButtonAdd
-                  key="add"
-                  onAdd={() => addEvent(eventId)}
-                  title={`Adds drop #${eventId}`}
-                />,
-              ])}
-              createActiveBottomButtons={(eventId) => ([
-                <ButtonExportAddressCsv
-                  key="export-csv"
-                  filename={
-                    Object.keys(events).length === 1
-                      ? (
-                        String(eventId) === String(Object.keys(events)[0])
-                          ? `collectors-${eventId}-in-common`
-                          : `collectors-${eventId}-in-common-drop-${Object.keys(events)[0]}`
+              createButtons={
+                /**
+                 * @param {number[]} selectedEventIds
+                 */
+                (selectedEventIds) => (
+                  <>
+                    <Button
+                      disabled={
+                        selectedEventIds.length === 0 ||
+                        selectedEventIds.every(
+                          (eventId) => eventIds.includes(eventId)
+                        )
+                      }
+                      onClick={() => addEvents(selectedEventIds)}
+                    >
+                      Add selected
+                    </Button>
+                    <Button
+                      secondary={true}
+                      disabled={
+                        selectedEventIds.length === 0 ||
+                        (
+                          selectedEventIds.every(
+                            (eventId) => eventIds.includes(eventId)
+                          ) &&
+                          eventIds.every(
+                            (eventId) => selectedEventIds.includes(eventId)
+                          )
+                        )
+                      }
+                      onClick={() => openEvents(selectedEventIds)}
+                    >
+                      Open
+                    </Button>
+                  </>
+                )
+              }
+              createActiveTopButtons={
+                /**
+                 * @param {number} eventId
+                 */
+                (eventId) => (
+                  eventIds.includes(eventId)
+                    ? null
+                    : (
+                        <ButtonAdd
+                          key="add"
+                          onAdd={() => addEvent(eventId)}
+                          title={`Combines drop #${eventId}`}
+                        />
                       )
-                      : `collectors-${eventId}-in-common-drops-${Object.keys(events).join('+')}`
-                  }
-                  name={Object.keys(events).length === 1 && String(eventId) === String(Object.keys(events)[0]) ? Object.values(events)[0].name : undefined}
-                  addresses={inCommon[eventId]}
-                  title={`Generates CSV file with collectors in common between drops #${eventId} and #${Object.keys(events).join(', #')}`}
-                />,
-                <ButtonExpand
-                  key="expand"
-                  title={`Expands collectors in common between drops #${eventId} and #${Object.keys(events).join(', #')}`}
-                  addresses={inCommon[eventId]}
-                />,
-              ])}
+                )
+              }
+              createActiveBottomButtons={
+                /**
+                 * @param {number} eventId
+                 */
+                (eventId) => (
+                  <EventCompareButtons
+                    eventId={eventId}
+                    eventIds={eventIds}
+                    events={allEvents}
+                    inCommon={inCommon}
+                  />
+                )
+              }
             />
           </>
         )}
