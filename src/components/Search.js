@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
+import { useAnalytics } from 'stores/analytics'
 import { SettingsContext } from 'stores/cache'
 import { fetchEvent, searchEvents } from 'loaders/event'
 import { searchCollections } from 'loaders/collection'
@@ -13,7 +13,7 @@ import 'styles/search.css'
 
 function Search() {
   const navigate = useNavigate()
-  const { trackSiteSearch } = useMatomo()
+  const { trackSiteSearch } = useAnalytics()
   const { settings } = useContext(SettingsContext)
   /**
    * @type {ReturnType<typeof useRef<HTMLInputElement>>}

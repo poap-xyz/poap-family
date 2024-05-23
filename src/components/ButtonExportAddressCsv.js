@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
-import { useMatomo } from '@datapunt/matomo-tracker-react'
 import download from 'downloadjs'
 import { Download } from 'iconoir-react'
 import { useContext } from 'react'
+import { useAnalytics } from 'stores/analytics'
 import { ReverseEnsContext } from 'stores/ethereum'
 import Button from 'components/Button'
 
@@ -16,7 +16,7 @@ function ButtonExportAddressCsv({
   children,
   title,
 }) {
-  const { trackLink } = useMatomo()
+  const { trackLink } = useAnalytics()
   const { ensNames } = useContext(ReverseEnsContext)
 
   const handleExportCsv = () => {
