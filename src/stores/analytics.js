@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { createInstance, MatomoProvider } from '@datapunt/matomo-tracker-react'
+import { createInstance, MatomoProvider, useMatomo } from 'matomo-react'
 
 const matomoHost = process.env.REACT_APP_MATOMO_HOST
 const matomoSiteId = process.env.REACT_APP_MATOMO_SITE_ID
@@ -12,12 +12,14 @@ const matomo = matomoHost && matomoSiteId
     urlBase: `https://${matomoHost}`,
     srcUrl: `https://cdn.matomo.cloud/${matomoHost}/matomo.js`,
     disabled: false,
-    linkTracking: true,
+    linkTracking: false,
     configurations: {
       disableCookies: true,
     },
   })
   : undefined
+
+export const useAnalytics = () => useMatomo()
 
 /**
  * @param {PropTypes.InferProps<AnalyticsProvider.propTypes>} props
