@@ -8,7 +8,7 @@ import CenterPage from 'components/CenterPage'
 export default function Root() {
   const fetcher = useFetcher()
   const navigation = useNavigation()
-  const { trackPageView } = useAnalytics()
+  const { trackPageView, enableLinkTracking } = useAnalytics()
   const { title } = useContext(HTMLContext)
 
   useEffect(
@@ -27,6 +27,8 @@ export default function Root() {
     },
     [title, trackPageView]
   )
+
+  enableLinkTracking()
 
   if (fetcher.state === 'loading' || navigation.state === 'loading') {
     return (

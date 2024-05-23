@@ -12,7 +12,7 @@ const matomo = matomoHost && matomoSiteId
     urlBase: `https://${matomoHost}`,
     srcUrl: `https://cdn.matomo.cloud/${matomoHost}/matomo.js`,
     disabled: false,
-    linkTracking: true,
+    linkTracking: false,
     configurations: {
       disableCookies: true,
     },
