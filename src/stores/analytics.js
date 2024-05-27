@@ -19,7 +19,29 @@ const matomo = matomoHost && matomoSiteId
   })
   : undefined
 
-export const useAnalytics = () => useMatomo()
+export function useAnalytics() {
+  if (matomo) {
+    return useMatomo()
+  }
+  return {
+    trackLink:
+      /**
+       * @param {{ href: string; linkType: string }} params
+       */
+      (params) => {},
+    trackSiteSearch:
+      /**
+       * @param {{ category: string; keyword: string; count: number }} params
+       */
+      (params) => {},
+    trackPageView:
+      /**
+       * @param {{ href: string; documentTitle: string }} params
+       */
+      (params) => {},
+    enableLinkTracking: () => {},
+  }
+}
 
 /**
  * @param {PropTypes.InferProps<AnalyticsProvider.propTypes>} props
