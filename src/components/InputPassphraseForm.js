@@ -3,13 +3,17 @@ import { useState } from 'react'
 import { Fish } from 'iconoir-react'
 import Button from 'components/Button'
 import ButtonGroup from 'components/ButtonGroup'
-import 'styles/input-passphrase.css'
+import 'styles/input-passphrase-form.css'
 
 /**
  * @param {PropTypes.InferProps<InputPassphraseForm.propTypes>} props
  */
 function InputPassphraseForm({
-  onSubmit = (passphrase) => {},
+  onSubmit =
+    /**
+     * @param {string} passphrase
+     */
+    (passphrase) => {},
   onClose = () => {},
 }) {
   /**
