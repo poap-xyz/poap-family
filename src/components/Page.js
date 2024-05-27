@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types'
-import { useContext } from 'react'
 import { QuestionMark } from 'iconoir-react'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import CornerBackground from 'images/Corner_Background.svg'
 import Feedback from 'components/Feedback'
 import LogoMenu from 'components/LogoMenu'
@@ -15,7 +14,7 @@ function Page({
   children,
   showCorner = true,
 }) {
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
 
   return (
     <div className="page">
@@ -29,7 +28,7 @@ function Page({
             external={true}
           />
         </LogoMenu>
-        {settings && !settings.feedbackShown && <Feedback />}
+        {!settings.feedbackShown && <Feedback />}
       </div>
       <div className="page-content">
         {children}

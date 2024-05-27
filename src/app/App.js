@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AnalyticsProvider } from 'stores/analytics'
 import { AdminProvider } from 'stores/admin'
-import { SettingsProvider } from 'stores/cache'
+import { SettingsProvider } from 'stores/settings'
 import { EnsProvider } from 'stores/ethereum'
 import { HTMLProvider } from 'stores/html'
 import { eventLoader, eventsLoader } from 'loaders/event'
@@ -26,8 +26,8 @@ export default function App() {
     <main className="app">
       <HTMLProvider>
         <AnalyticsProvider>
-          <AdminProvider>
-            <SettingsProvider>
+          <SettingsProvider>
+            <AdminProvider>
               <EnsProvider>
                 <RouterProvider
                   router={createBrowserRouter([
@@ -79,8 +79,8 @@ export default function App() {
                   fallbackElement={<CenterPage><Loading /></CenterPage>}
                 />
               </EnsProvider>
-            </SettingsProvider>
-          </AdminProvider>
+            </AdminProvider>
+          </SettingsProvider>
         </AnalyticsProvider>
       </HTMLProvider>
     </main>

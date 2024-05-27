@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import {
@@ -57,7 +57,7 @@ function Events() {
   const navigate = useNavigate()
   const { eventIds: rawEventIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()

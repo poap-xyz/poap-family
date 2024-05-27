@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
-import { createContext, useEffect, useState } from 'react'
-import { getSettings, saveSettings } from 'loaders/cache'
-import { DEFAULT_SETTINGS } from 'models/cache'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { getSettings, saveSettings } from 'loaders/settings'
+import { DEFAULT_SETTINGS } from 'models/settings'
 
 export const SettingsContext = createContext({
   settings: DEFAULT_SETTINGS,
@@ -10,6 +10,8 @@ export const SettingsContext = createContext({
    */
   set: (key, value) => {},
 })
+
+export const useSettings = () => useContext(SettingsContext)
 
 /**
  * @param {PropTypes.InferProps<SettingsProvider.propTypes>} props
@@ -35,13 +37,15 @@ export function SettingsProvider({ children }) {
    */
   const set = (key, value) => {
     setSettings((oldSettings) => {
-      if (!oldSettings) {
-        return { ...DEFAULT_SETTINGS, [key]: value }
-      }
       /**
        * @type {typeof DEFAULT_SETTINGS}
        */
-      const newSettings = { ...oldSettings, [key]: value }
+      let newSettings
+      if (oldSettings) {
+        newSettings = { ...oldSettings, [key]: value }
+      } else {
+        newSettings = { ...DEFAULT_SETTINGS, [key]: value }
+      }
       saveSettings(newSettings)
       return newSettings
     })

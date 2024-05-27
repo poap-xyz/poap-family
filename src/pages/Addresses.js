@@ -37,8 +37,16 @@ function Addresses() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { resolveAddress, addresses: addressByEnsName } = useContext(ResolverEnsContext)
-  const { resolveEnsNames, setEnsName, ensNames, isNotFound } = useContext(ReverseEnsContext)
+  const {
+    resolveAddress,
+    addresses: addressByEnsName,
+  } = useContext(ResolverEnsContext)
+  const {
+    resolveEnsNames,
+    setEnsName,
+    ensNames,
+    isAddressEndNotFound,
+  } = useContext(ReverseEnsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -487,10 +495,14 @@ function Addresses() {
       if (state === STATE_INIT_PARSING) {
         const missingEnsNames = addresses
           .filter(
-            (input) => input.address !== null && input.ens === null &&
-              !(input.address in ensNames) && !isNotFound(input.address)
+            (input) =>
+              input.address !== null &&
+              input.ens === null &&
+              !(input.address in ensNames) &&
+              !isAddressEndNotFound(input.address)
           )
           .map((input) => input.address)
+
         if (missingEnsNames.length > 0) {
           resolveEnsNames(missingEnsNames).catch((err) => {
             setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
@@ -498,7 +510,7 @@ function Addresses() {
         }
       }
     },
-    [state, addresses, ensNames, isNotFound, resolveEnsNames]
+    [state, addresses, ensNames, isAddressEndNotFound, resolveEnsNames]
   )
 
   useEffect(

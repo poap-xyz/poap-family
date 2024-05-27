@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import packageJson from '../../package.json'
 import { HTMLContext } from 'stores/html'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import CenterPage from 'components/CenterPage'
 import ExternalLink from 'components/ExternalLink'
 import Search from 'components/Search'
@@ -13,7 +13,7 @@ import 'styles/home.css'
 const VERSION_BASE_URL = process.env.REACT_APP_VERSION_BASE_URL
 
 function Home() {
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
   const { setTitle } = useContext(HTMLContext)
 
   useEffect(
@@ -25,11 +25,11 @@ function Home() {
 
   return (
     <CenterPage>
-      {settings && !settings.welcomeShown && (
+      {!settings.welcomeShown && (
         <Welcome showHelp={true} />
       )}
       <Search />
-      {settings && settings.showLastEvents && (
+      {settings.showLastEvents && (
         <LastEvents
           page={1}
           perPage={3}

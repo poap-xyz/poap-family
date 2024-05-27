@@ -3,7 +3,7 @@ import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { formatDateAgo } from 'utils/date'
 import { HTMLContext } from 'stores/html'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { scanAddress } from 'loaders/poap'
 import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
@@ -36,7 +36,7 @@ function Event() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
   /**

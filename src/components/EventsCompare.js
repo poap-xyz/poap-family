@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import { createRef, useContext, useEffect, useMemo, useState } from 'react'
-import { SettingsContext } from 'stores/cache'
+import { createRef, useEffect, useMemo, useState } from 'react'
+import { useSettings } from 'stores/settings'
 import { DropProps } from 'models/drop'
 import {
   getAddressInCommonAddresses,
@@ -24,7 +24,7 @@ function EventsCompare({
   createHeaderActions,
   createBottomButtons,
 }) {
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
   /**
    * @type {ReturnType<typeof useState<string | null>>}
    */
