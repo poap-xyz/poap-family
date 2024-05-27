@@ -1,7 +1,7 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAnalytics } from 'stores/analytics'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import { fetchEvent, searchEvents } from 'loaders/event'
 import { searchCollections } from 'loaders/collection'
 import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
@@ -14,7 +14,7 @@ import 'styles/search.css'
 function Search() {
   const navigate = useNavigate()
   const { trackSiteSearch } = useAnalytics()
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
   /**
    * @type {ReturnType<typeof useRef<HTMLInputElement>>}
    */

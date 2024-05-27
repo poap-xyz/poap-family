@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types'
-import { useContext } from 'react'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import { DropProps } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import LinkToScan from 'components/LinkToScan'
@@ -19,7 +18,7 @@ function AddressOwner({
   inCommonAddresses = [],
   linkToScan = false,
 }) {
-  const { settings } = useContext(SettingsContext)
+  const { settings } = useSettings()
 
   const hasEvents = (
     events != null &&
@@ -32,7 +31,7 @@ function AddressOwner({
   return (
     <div className="address-owner">
       <div className="owner-name">
-        {settings && settings.openProfiles
+        {settings.openProfiles
           ? (
             <ButtonAddressProfile
               address={address}
@@ -44,7 +43,7 @@ function AddressOwner({
           : <LinkToScan address={address} />
         }
       </div>
-      {linkToScan && (!settings || settings.openProfiles) && (
+      {linkToScan && settings.openProfiles && (
         <LinkToScan address={address} className="owner-scan" stamp={true} />
       )}
       {hasEvents && (

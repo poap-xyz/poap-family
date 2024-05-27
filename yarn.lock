@@ -1848,10 +1848,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@mapbox/to-color@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/to-color/-/to-color-2.0.0.tgz#876b677a877a818234265fdd96bbb67df95b9847"
-  integrity sha512-inpsOaIeCtl1qfVJgq2thMuci10nh5qQCWJOA6VAc5OaXhxTL+nZmKe3hIzroEF/4vh7kvLx7rmIrCL6Gd8aew==
+"@mapbox/to-color@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/to-color/-/to-color-2.1.0.tgz#079b5144846860a780a9f44a47a191d35bf006a6"
+  integrity sha512-+ydc5BRAx0GYAFmkC9vjpccmfU+pJ6wDU2LZasf1FcRlDc/k2HVsanx8G3yv1evK/LSVgDCDw7ZZJS9ybuOA+Q==
   dependencies:
     d3-color-difference "^0.1.3"
 

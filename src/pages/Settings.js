@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import { HTMLContext } from 'stores/html'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
@@ -10,7 +10,7 @@ import 'styles/settings.css'
 
 function Settings() {
   const navigate = useNavigate()
-  const { settings, set } = useContext(SettingsContext)
+  const { settings, setSetting } = useSettings()
   const { setTitle } = useContext(HTMLContext)
 
   useEffect(
@@ -24,25 +24,25 @@ function Settings() {
    * @param {boolean} checked
    */
   const handleShowLastEvents = (checked) => {
-    set('showLastEvents', checked)
+    setSetting('showLastEvents', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleAutoScrollCollectors = (checked) => {
-    set('autoScrollCollectors', checked)
+    setSetting('autoScrollCollectors', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleOpenProfiles = (checked) => {
-    set('openProfiles', checked)
+    setSetting('openProfiles', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleShowCollections = (checked) => {
-    set('showCollections', checked)
+    setSetting('showCollections', checked)
   }
 
   return (
@@ -54,7 +54,7 @@ function Settings() {
           <div className="input">
             <Switch
               id="showLastEvents"
-              checked={settings && settings.showLastEvents}
+              checked={settings.showLastEvents}
               onChange={(event) => {
                 handleShowLastEvents(event.target.checked)
               }}
@@ -66,7 +66,7 @@ function Settings() {
           <div className="input">
             <Switch
               id="autoScrollCollectors"
-              checked={settings && settings.autoScrollCollectors}
+              checked={settings.autoScrollCollectors}
               onChange={(event) => {
                 handleAutoScrollCollectors(event.target.checked)
               }}
@@ -78,7 +78,7 @@ function Settings() {
           <div className="input">
             <Switch
               id="openProfiles"
-              checked={settings && settings.openProfiles}
+              checked={settings.openProfiles}
               onChange={(event) => {
                 handleOpenProfiles(event.target.checked)
               }}
@@ -90,7 +90,7 @@ function Settings() {
           <div className="input">
             <Switch
               id="showCollections"
-              checked={settings && settings.showCollections}
+              checked={settings.showCollections}
               onChange={(event) => {
                 handleShowCollections(event.target.checked)
               }}

@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { addFeedback } from 'loaders/api'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import Button from 'components/Button'
 import ButtonLink from 'components/ButtonLink'
 import 'styles/feedback.css'
@@ -21,7 +21,7 @@ function getCurrentUrl(url) {
 
 function Feedback() {
   const location = useLocation()
-  const { set } = useContext(SettingsContext)
+  const { setSetting } = useSettings()
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -57,7 +57,7 @@ function Feedback() {
 
   const handleDismiss = () => {
     setSent(false)
-    set('feedbackShown', true)
+    setSetting('feedbackShown', true)
   }
 
   useEffect(
