@@ -1,0 +1,21 @@
+.address-add-form .address-add-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.address-add-form .address-add-container .address-add-input {
+  outline: none;
+  appearance: none;
+  margin-right: .5rem;
+  height: 2.4rem;
+  border-radius: .4rem;
+  padding: 0 .8rem;
+  background-color: white;
+  color: #7c72e2;
+  border: .1rem solid #dddaff;
+}
+
+.address-add-form .address-add-container .address-add-input:focus {
+  border-color: #7c72e2;
+}
