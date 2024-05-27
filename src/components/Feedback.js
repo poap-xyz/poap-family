@@ -21,7 +21,7 @@ function getCurrentUrl(url) {
 
 function Feedback() {
   const location = useLocation()
-  const { set } = useSettings()
+  const { setSetting } = useSettings()
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -57,7 +57,7 @@ function Feedback() {
 
   const handleDismiss = () => {
     setSent(false)
-    set('feedbackShown', true)
+    setSetting('feedbackShown', true)
   }
 
   useEffect(
