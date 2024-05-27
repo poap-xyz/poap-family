@@ -4,7 +4,7 @@ import { Plus } from 'iconoir-react'
 import { parseAddresses } from 'models/address'
 import Button from 'components/Button'
 import ErrorMessage from 'components/ErrorMessage'
-import 'styles/address-add.css'
+import 'styles/address-add-form.css'
 
 /**
  * @param {PropTypes.InferProps<AddressAddForm.propTypes>} props
@@ -64,8 +64,8 @@ function AddressAddForm({
   }
 
   return (
-    <div className="address-add">
-      <div className="address-add-form">
+    <div className="address-add-form">
+      <div className="address-add-container">
         <input
           className="address-add-input"
           type="text"

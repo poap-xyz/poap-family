@@ -1,22 +1,23 @@
-.collector code, .collector .ens {
+.address-collector .address,
+.address-collector .ens {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.collector.big-address code {
+.address-collector.big-address .address {
   font-size: 160%;
 }
 
-.collector.big-ens .ens {
+.address-collector.big-ens .ens {
   font-size: 160%;
 }
 
 @media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
-  .collector code.short {
+  .address-collector .address.short {
     display: block !important;
   }
-  .collector code.long {
+  .address-collector .address.long {
     display: none !important;
   }
 }
