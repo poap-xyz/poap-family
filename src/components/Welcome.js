@@ -8,10 +8,10 @@ import 'styles/welcome.css'
  * @param {PropTypes.InferProps<Welcome.propTypes>} props
  */
 function Welcome({ showHelp = true }) {
-  const { set } = useSettings()
+  const { setSetting } = useSettings()
 
   const handleDismiss = () => {
-    set('welcomeShown', true)
+    setSetting('welcomeShown', true)
   }
 
   return (

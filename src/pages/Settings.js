@@ -10,7 +10,7 @@ import 'styles/settings.css'
 
 function Settings() {
   const navigate = useNavigate()
-  const { settings, set } = useSettings()
+  const { settings, setSetting } = useSettings()
   const { setTitle } = useContext(HTMLContext)
 
   useEffect(
@@ -24,25 +24,25 @@ function Settings() {
    * @param {boolean} checked
    */
   const handleShowLastEvents = (checked) => {
-    set('showLastEvents', checked)
+    setSetting('showLastEvents', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleAutoScrollCollectors = (checked) => {
-    set('autoScrollCollectors', checked)
+    setSetting('autoScrollCollectors', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleOpenProfiles = (checked) => {
-    set('openProfiles', checked)
+    setSetting('openProfiles', checked)
   }
   /**
    * @param {boolean} checked
    */
   const handleShowCollections = (checked) => {
-    set('showCollections', checked)
+    setSetting('showCollections', checked)
   }
 
   return (
