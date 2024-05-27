@@ -7,7 +7,7 @@ import {
 } from 'models/collection'
 import { POAP_COLLECTIONS_URL } from 'models/poap'
 import ButtonLink from 'components/ButtonLink'
-import 'styles/collection.css'
+import 'styles/collection-list.css'
 
 /**
  * @param {PropTypes.InferProps<CollectionList.propTypes>} props
