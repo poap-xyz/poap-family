@@ -42,7 +42,7 @@ export const ReverseEnsContext = createContext({
   /**
    * @type {(address: string) => boolean}
    */
-  isNotFound: (address) => false,
+  isAddressEndNotFound: (address) => false,
 })
 
 /**
@@ -267,14 +267,14 @@ function ReverseEnsProvider({
    * @param {string} address
    * @param {string} ensName
    */
-  function set(address, ensName) {
+  function setEnsName(address, ensName) {
     setEnsByAddress((oldEnsByAddress) => ({
       ...oldEnsByAddress,
       [address]: ensName,
     }))
   }
 
-  const isNotFound = useCallback(
+  const isAddressEndNotFound = useCallback(
     /**
      * @param {string} address
      * @returns {boolean}
@@ -289,10 +289,10 @@ function ReverseEnsProvider({
     () => ({
       ensNames: ensByAddress,
       resolveEnsNames,
-      setEnsName: set,
-      isNotFound,
+      setEnsName,
+      isAddressEndNotFound,
     }),
-    [ensByAddress, isNotFound, resolveEnsNames]
+    [ensByAddress, isAddressEndNotFound, resolveEnsNames]
   )
 
   return (

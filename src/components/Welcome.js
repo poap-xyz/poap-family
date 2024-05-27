@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types'
-import { useContext } from 'react'
-import { SettingsContext } from 'stores/cache'
+import { useSettings } from 'stores/settings'
 import ButtonLink from 'components/ButtonLink'
 import ExternalLink from 'components/ExternalLink'
 import 'styles/welcome.css'
@@ -9,7 +8,7 @@ import 'styles/welcome.css'
  * @param {PropTypes.InferProps<Welcome.propTypes>} props
  */
 function Welcome({ showHelp = true }) {
-  const { set } = useContext(SettingsContext)
+  const { set } = useSettings()
 
   const handleDismiss = () => {
     set('welcomeShown', true)
