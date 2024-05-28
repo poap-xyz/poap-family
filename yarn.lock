@@ -6449,11 +6449,6 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-matomo-react@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/matomo-react/-/matomo-react-1.0.7.tgz#454e1457ee306bee4f5a25173ab2fc95c55e4e21"
-  integrity sha512-R7K0AxemueBMrjNf8JEcx0HD1rFvRP1AyEunRcjodlm7xCNwBmZzsPGmT3L+30XTZSrk3o58q2akAFgdoMXYmw==
-
 mdn-data@2.0.14:
   version "2.0.14"
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.14.tgz#7113fc4281917d63ce29b43446f701e68c25ba50"

@@ -24,11 +24,10 @@ export default function Root() {
         href: window.location.href,
         documentTitle: title,
       })
+      enableLinkTracking()
     },
-    [title, trackPageView]
+    [title, trackPageView, enableLinkTracking]
   )
-
-  enableLinkTracking()
 
   if (fetcher.state === 'loading' || navigation.state === 'loading') {
     return (
