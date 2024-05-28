@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
-import { createInstance, MatomoProvider, useMatomo } from 'matomo-react'
+import { createContext, useCallback, useContext, useMemo } from 'react'
+import { createInstance } from 'matomo-react'
 
 const matomoHost = process.env.REACT_APP_MATOMO_HOST
 const matomoSiteId = process.env.REACT_APP_MATOMO_SITE_ID
@@ -19,42 +20,102 @@ const matomo = matomoHost && matomoSiteId
   })
   : undefined
 
-export function useAnalytics() {
-  if (matomo) {
-    return useMatomo()
-  }
-  return {
-    trackLink:
-      /**
-       * @param {{ href: string; linkType: string }} params
-       */
-      (params) => {},
-    trackSiteSearch:
-      /**
-       * @param {{ category: string; keyword: string; count: number }} params
-       */
-      (params) => {},
-    trackPageView:
-      /**
-       * @param {{ href: string; documentTitle: string }} params
-       */
-      (params) => {},
-    enableLinkTracking: () => {},
-  }
-}
+const AnalyticsContext = createContext({
+  trackLink:
+    /**
+     * @param {{ href: string; linkType: 'download' | 'link' }} params
+     */
+    (params) => {},
+  trackSiteSearch:
+    /**
+     * @param {{ category: string; keyword: string; count: number }} params
+     */
+    (params) => {},
+  trackPageView:
+    /**
+     * @param {{ href: string; documentTitle: string }} params
+     */
+    (params) => {},
+  enableLinkTracking: () => {},
+})
+
+export const useAnalytics = () => useContext(AnalyticsContext)
 
 /**
  * @param {PropTypes.InferProps<AnalyticsProvider.propTypes>} props
  */
 export function AnalyticsProvider({ children }) {
-  if (!matomo) {
-    return children
-  }
+  const trackLink = useCallback(
+    /**
+     * @param {{ href: string; linkType: 'download' | 'link' }} params
+     */
+    (params) => {
+      if (matomo) {
+        matomo.trackLink({
+          href: params.href,
+          linkType: params.linkType,
+        })
+      }
+    },
+    []
+  )
+
+  const trackSiteSearch = useCallback(
+    /**
+     * @param {{ category: string; keyword: string; count: number }} params
+     */
+    (params) => {
+      if (matomo) {
+        matomo.trackSiteSearch({
+          category: params.category,
+          keyword: params.keyword,
+          count: params.count,
+        })
+      }
+    },
+    []
+  )
+
+  const trackPageView = useCallback(
+    /**
+     * @param {{ href: string; documentTitle: string }} params
+     */
+    (params) => {
+      if (matomo) {
+        matomo.trackPageView({
+          href: params.href,
+          documentTitle: params.documentTitle,
+        })
+      }
+    },
+    []
+  )
+
+  const enableLinkTracking = useCallback(
+    () => {
+      if (matomo) {
+        matomo.enableLinkTracking(true)
+      }
+    },
+    []
+  )
+
+  const value = useMemo(() => ({
+    trackLink,
+    trackSiteSearch,
+    trackPageView,
+    enableLinkTracking,
+  }), [
+    trackLink,
+    trackSiteSearch,
+    trackPageView,
+    enableLinkTracking,
+  ])
 
   return (
-    <MatomoProvider value={matomo}>
+    <AnalyticsContext.Provider value={value}>
       {children}
-    </MatomoProvider>
+    </AnalyticsContext.Provider>
   )
 }
 
