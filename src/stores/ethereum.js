@@ -64,7 +64,7 @@ function ResolverEnsProvider({ children }) {
      * @returns {Promise<string | null>}
      */
     async (ensName) => {
-      if (Object.keys(addressByEnsName).indexOf(ensName) !== -1) {
+      if (Object.keys(addressByEnsName).includes(ensName)) {
         return addressByEnsName[ensName]
       }
       const address = await ethereumResolveAddress(ensName)
@@ -91,7 +91,7 @@ function ResolverEnsProvider({ children }) {
      * @returns {Promise<string | null>}
      */
     async (ensName, address) => {
-      if (Object.keys(avatarByEnsName).indexOf(ensName) !== -1) {
+      if (Object.keys(avatarByEnsName).includes(ensName)) {
         return avatarByEnsName[ensName]
       }
       let avatar = await ethereumResolveEnsAvatar(ensName)
@@ -204,7 +204,7 @@ function ReverseEnsProvider({
     async (addresses, resolve = false) => {
       const oldAddresses = Object.keys(ensByAddress)
       const givenOldAddresses = oldAddresses.filter(
-        (address) => oldAddresses.indexOf(address) !== -1
+        (address) => oldAddresses.includes(address)
       )
       if (givenOldAddresses.length > 0 && resolve) {
         resolveNames(
@@ -213,7 +213,7 @@ function ReverseEnsProvider({
         )
       }
       const newAddresses = addresses.filter(
-        (address) => oldAddresses.indexOf(address) === -1
+        (address) => !oldAddresses.includes(address)
       )
       const ensNames = await ethereumResolveEnsNames(
         newAddresses,
