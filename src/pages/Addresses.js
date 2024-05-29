@@ -368,7 +368,6 @@ function Addresses() {
             setEnsName(ensNameAddress, ensName)
             return Promise.resolve(ensNameAddress)
           } else {
-            console.debug(ensName, ensNameAddress)
             disableLoadingByIndex(index)
             const error = new Error(`Address for ${ensName} not found`)
             setErrorByIndex(index, error)
@@ -722,7 +721,6 @@ function Addresses() {
        */
       const nextErrors = {}
       for (const [errorIndex, error] of Object.entries(prevErrors)) {
-        console.debug(String(errorIndex), String(index))
         if (String(errorIndex) !== String(index)) {
           nextErrors[errorIndex] = error
         }
