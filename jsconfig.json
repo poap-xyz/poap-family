@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "CommonJS",
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "baseUrl": "src",
     "allowJs": true,
