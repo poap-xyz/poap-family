@@ -533,9 +533,6 @@ function Events() {
      * @returns {Promise<void>}
      */
     (eventId, abortSignal) => {
-      if (eventId in owners) {
-        return Promise.resolve()
-      }
       removeError(eventId)
       setLoadingOwners(eventId)
       return getEventAndOwners(
@@ -571,7 +568,7 @@ function Events() {
         }
       )
     },
-    [owners]
+    []
   )
 
   const loadOwnersAndMetrics = useCallback(
@@ -581,9 +578,6 @@ function Events() {
      * @returns {Promise<void>}
      */
     (eventId, abortSignal) => {
-      if (eventId in owners) {
-        return Promise.resolve()
-      }
       removeError(eventId)
       setLoadingOwners(eventId)
       return Promise.allSettled([
@@ -640,7 +634,7 @@ function Events() {
         }
       )
     },
-    [owners, force]
+    [force]
   )
 
   const processEventAddress = useCallback(
@@ -689,27 +683,20 @@ function Events() {
   const processEvent = useCallback(
     /**
      * @param {number} eventId
+     * @param {string[]} addresses
      * @param {Record<string, AbortController>} controllers
      */
-    (eventId, controllers) => {
-      /**
-       * @type {string[]}
-       */
-      const processedOwners = []
+    (eventId, addresses, controllers) => {
       setLoadingScans(eventId)
       enableProgress(eventId)
       let promise = new Promise((r) => { r(undefined) })
-      for (const owner of owners[eventId]) {
-        if (processedOwners.indexOf(owner) !== -1) {
-          continue
-        }
+      for (const owner of addresses) {
         const process = () => processEventAddress(
           eventId,
           owner,
           controllers[owner].signal
         )
         promise = promise.then(process, process)
-        processedOwners.push(owner)
       }
       promise.then(
         () => {
@@ -726,7 +713,7 @@ function Events() {
       )
       return promise
     },
-    [owners, processEventAddress]
+    [processEventAddress]
   )
 
   const loadCollections = useCallback(
@@ -842,57 +829,60 @@ function Events() {
         let promise = new Promise((r) => { r(undefined) })
         for (const eventId of eventIds) {
           const controller = new AbortController()
+          const ownerAddresses = uniq(owners[eventId])
           /**
            * @type {Record<string, AbortController>}
            */
-          const ownerControllers = owners[eventId].reduce(
+          const ownerControllers = ownerAddresses.reduce(
             (controllers, owner) => ({
               ...controllers,
               [owner]: new AbortController(),
             }),
             {}
           )
-          const process = force ? () => processEvent(eventId, ownerControllers) : () => {
-            setLoadingScans(eventId)
-            return getInCommonEventsWithProgress(
-              eventId,
-              controller.signal,
-              /*onProgress*/({ progress, estimated, rate }) => {
-                if (progress != null) {
-                  setLoadedProgress((alsoProgress) => ({
-                    ...alsoProgress,
-                    [eventId]: {
-                      progress,
-                      estimated: estimated ?? null,
-                      rate: rate ?? null,
-                    },
-                  }))
-                } else {
-                  removeLoadedProgress(eventId)
-                }
-              }
-            ).then(
-              (result) => {
-                removeLoading(eventId)
-                removeLoadedProgress(eventId)
-                if (result == null) {
-                  return processEvent(eventId, ownerControllers)
-                } else {
-                  updateEventData(eventId, result)
-                  if (eventId in result.inCommon) {
-                    fixLoadedCount(eventId, result.inCommon[eventId].length)
+          const process = force
+            ? () => processEvent(eventId, ownerAddresses, ownerControllers)
+            : () => {
+              setLoadingScans(eventId)
+              return getInCommonEventsWithProgress(
+                eventId,
+                controller.signal,
+                /*onProgress*/({ progress, estimated, rate }) => {
+                  if (progress != null) {
+                    setLoadedProgress((alsoProgress) => ({
+                      ...alsoProgress,
+                      [eventId]: {
+                        progress,
+                        estimated: estimated ?? null,
+                        rate: rate ?? null,
+                      },
+                    }))
+                  } else {
+                    removeLoadedProgress(eventId)
                   }
-                  return Promise.resolve()
                 }
-              },
-              (err) => {
-                removeLoading(eventId)
-                removeLoadedProgress(eventId)
-                console.error(err)
-                return processEvent(eventId, ownerControllers)
-              }
-            )
-          }
+              ).then(
+                (result) => {
+                  removeLoading(eventId)
+                  removeLoadedProgress(eventId)
+                  if (result == null) {
+                    return processEvent(eventId, ownerAddresses, ownerControllers)
+                  } else {
+                    updateEventData(eventId, result)
+                    if (eventId in result.inCommon) {
+                      fixLoadedCount(eventId, result.inCommon[eventId].length)
+                    }
+                    return Promise.resolve()
+                  }
+                },
+                (err) => {
+                  removeLoading(eventId)
+                  removeLoadedProgress(eventId)
+                  console.error(err)
+                  return processEvent(eventId, ownerAddresses, ownerControllers)
+                }
+              )
+            }
           if (all) {
             controllers.push(...Object.values(ownerControllers))
           } else {
