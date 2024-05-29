@@ -17,7 +17,6 @@ const MATOMO_SITE_ID = process.env.REACT_APP_MATOMO_SITE_ID
  */
 function push(values) {
   if ('_paq' in window) {
-    console.debug(values)
     // @ts-ignore
     window._paq.push(values)
   }
@@ -31,8 +30,6 @@ function load(host, siteId) {
   if ('_paq' in window) {
     return
   }
-
-  console.debug('loading analytics')
 
   let tracker = document.createElement('script')
   tracker.type = 'text/javascript'
