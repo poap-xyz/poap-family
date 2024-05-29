@@ -7,7 +7,6 @@
 }
 
 .page .page-aside {
-  height: calc(100% - .5rem);
   width: 4.2rem;
   z-index: 99;
   position: absolute;
