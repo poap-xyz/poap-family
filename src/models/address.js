@@ -1,4 +1,4 @@
-import { getAddress } from '@ethersproject/address'
+import { normalizeAddress } from 'utils/ethereum'
 
 export const IGNORED_OWNERS = [
   '0x000000000000000000000000000000000000dead',
@@ -14,10 +14,9 @@ export const IGNORED_OWNERS = [
  * }}
  */
 export function parseAddress(address) {
-  try {
-    const parsedAddress = getAddress(address)
-    return { address: parsedAddress, ens: null, raw: address }
-  } catch (err) {
+  if (address.startsWith('0x')) {
+    return { address: normalizeAddress(address), ens: null, raw: address }
+  } else {
     return { address: null, ens: address, raw: address }
   }
 }

@@ -775,15 +775,14 @@ function Events() {
                     .map(
                       ([rawEventId, eventOwners]) => [
                         rawEventId,
-                        eventOwners.owners,
+                        filterInvalidOwners(eventOwners.owners),
                       ]
                     )
                 )
                 updateEventsOwners(newOwners)
                 if (Object.keys(newOwners).length === eventIds.length) {
-                  resolveEnsNames(
-                    union(...Object.values(newOwners))
-                  ).catch((err) => {
+                  const allOwners = union(...Object.values(newOwners))
+                  resolveEnsNames(allOwners).catch((err) => {
                     console.error(err)
                   })
                   setStatus(STATUS_LOADING_SCANS)

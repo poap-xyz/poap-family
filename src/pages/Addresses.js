@@ -368,7 +368,6 @@ function Addresses() {
             setEnsName(ensNameAddress, ensName)
             return Promise.resolve(ensNameAddress)
           } else {
-            console.debug(ensName, ensNameAddress)
             disableLoadingByIndex(index)
             const error = new Error(`Address for ${ensName} not found`)
             setErrorByIndex(index, error)
@@ -422,6 +421,14 @@ function Addresses() {
       if (hash.length > 0) {
         const addresses = parseAddresses(hash, ',')
         updateAddresses(addresses)
+        for (let index = 0; index < addresses.length; index++) {
+          if (
+            addresses[index].address == null &&
+            addresses[index].ens == null
+          ) {
+            setErrorByIndex(index, new Error('Address not found'))
+          }
+        }
       } else if (searchEvents.length > 0) {
         setLoadingEventsOwners(true)
         if (force) {
@@ -722,7 +729,6 @@ function Addresses() {
        */
       const nextErrors = {}
       for (const [errorIndex, error] of Object.entries(prevErrors)) {
-        console.debug(String(errorIndex), String(index))
         if (String(errorIndex) !== String(index)) {
           nextErrors[errorIndex] = error
         }
@@ -730,12 +736,18 @@ function Addresses() {
       return nextErrors
     })
     const entry = addresses[index]
-    if (entry != null && entry.ens) {
+    if (entry == null) {
+      return
+    }
+    if (entry.ens != null) {
       processEnsName(entry.ens, index).catch((err) => {
         if (!(err instanceof AbortedError)) {
           console.error(err)
         }
       })
+    }
+    if (entry.address == null && entry.ens == null) {
+      setErrorByIndex(index, new Error('Address still not found'))
     }
   }
 
@@ -829,11 +841,16 @@ function Addresses() {
               {addresses.map(({ address, ens, raw }, index) => (
                 <tr key={`${index}-${raw}`}>
                   <td>
-                    <AddressCollector
-                      address={address ?? collectors[index]}
-                      ens={ens}
-                      bigEns={true}
-                    />
+                    {(address || collectors[index])
+                      ? (
+                        <AddressCollector
+                          address={address ?? collectors[index]}
+                          ens={ens}
+                          bigEns={true}
+                        />
+                      ) : (
+                        <span>{raw}</span>
+                      )}
                   </td>
                   <td>
                     <div className="collector-status">
