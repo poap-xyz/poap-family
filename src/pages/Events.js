@@ -781,7 +781,7 @@ function Events() {
                 )
                 updateEventsOwners(newOwners)
                 if (Object.keys(newOwners).length === eventIds.length) {
-                  const allOwners = union(...Object.values(newOwners))
+                  const allOwners = uniq(union(...Object.values(newOwners)))
                   resolveEnsNames(allOwners).catch((err) => {
                     console.error(err)
                   })
