@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import POAP from 'images/POAP.png'
+import POAP from 'assets/images/POAP.png'
 import 'styles/logo.css'
 
 /**
