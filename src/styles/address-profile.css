@@ -6,38 +6,30 @@
   gap: .5rem;
 }
 
-.profile-avatar {
-  border-radius: 1rem;
-  border-width: 0;
-  width: 128px;
-  height: 128px;
-  background-color: #efefef;
-}
-
-.profile-avatar .loading {
-  position: relative;
-  top: 48px;
-  left: 48px;
-}
-
-.profile-address {
+.address-profile .profile-address {
   word-break: break-all;
 }
 
-.profile-ens {
+.address-profile .profile-ens {
   font-size: 160%;
 }
 
-.profile-since {
+.address-profile .profile-since {
   font-weight: 400;
 }
 
-.profile-poaps, .profile-in-common {
+.address-profile .profile-poaps,
+.address-profile .profile-in-common {
   margin-top: 2rem;
   min-width: 100%;
   max-width: 32rem;
 }
 
-.profile-poaps img, .profile-in-common img {
+.address-profile .profile-poaps img,
+.address-profile .profile-in-common img {
   margin: .1rem;
+}
+
+.address-profile h4 a {
+  color: black;
 }

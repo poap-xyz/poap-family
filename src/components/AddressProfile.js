@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
-import { useContext, useEffect, useState } from 'react'
-import { LazyImage } from 'react-lazy-images'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { formatMonthYear } from 'utils/date'
 import { findInitialPOAPDate } from 'models/poap'
@@ -10,8 +10,9 @@ import {
   INCOMMON_EVENTS_LIMIT,
 } from 'models/in-common'
 import { POAP_PROFILE_LIMIT } from 'models/poap'
-import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
-import { scanAddress } from 'loaders/poap'
+import { ReverseEnsContext } from 'stores/ethereum'
+import useAddressTokens from 'hooks/useAddressTokens'
+import EnsAvatar from 'components/EnsAvatar'
 import LinkToScan from 'components/LinkToScan'
 import AddressesList from 'components/AddressesList'
 import TokenImage from 'components/TokenImage'
@@ -29,7 +30,6 @@ function AddressProfile({
   inCommonEventIds = [],
   inCommonAddresses = [],
 }) {
-  const { avatars, resolveMeta } = useContext(ResolverEnsContext)
   const { ensNames } = useContext(ReverseEnsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -43,22 +43,13 @@ function AddressProfile({
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [showAllInCommonAddresses, setShowAllInCommonAddresses] = useState(false)
-  /**
-   * @type {ReturnType<typeof useState<number>>}
-   */
-  const [loading, setLoading] = useState(0)
-  /**
-   * @type {ReturnType<typeof useState<Error | null>>}
-   */
-  const [error, setError] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<Awaited<ReturnType<scanAddress>> | null>>}
-   */
-  const [poaps, setPOAPs] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<Date | null>>}
-   */
-  const [since, setSince] = useState(null)
+
+  const {
+    loadingAddressTokens,
+    addressTokensError,
+    tokens: poaps,
+    fetchTokens,
+  } = useAddressTokens(address)
 
   const poapsTotal = poaps == null ? 0 : poaps.length
   const poapsHasMore = poapsTotal > POAP_PROFILE_LIMIT
@@ -86,104 +77,39 @@ function AddressProfile({
 
   useEffect(
     () => {
-      if (
-        address in ensNames &&
-        (
-          !(ensNames[address] in avatars) ||
-          avatars[ensNames[address]] === undefined
-        ) &&
-        !error
-      ) {
-        setLoading((prevLoading) => (prevLoading ?? 0) + 1)
-        resolveMeta(ensNames[address], address).then(
-          (meta) => {
-            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
-          },
-          (err) => {
-            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
-            setError(err)
-          }
-        )
-      }
+      fetchTokens()
     },
-    [address, avatars, ensNames, resolveMeta, error]
+    [fetchTokens]
   )
 
-  useEffect(
+  const since = useMemo(
     () => {
-      /**
-       * @type {AbortController | undefined}
-       */
-      let controller
-      if (poaps == null && error == null) {
-        controller = new AbortController()
-        setLoading((prevLoading) => (prevLoading ?? 0) + 1)
-        scanAddress(address, controller.signal).then(
-          (foundPOAPs) => {
-            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
-            setPOAPs(foundPOAPs)
-            if (Array.isArray(foundPOAPs) && foundPOAPs.length > 0) {
-              setSince(findInitialPOAPDate(foundPOAPs))
-            }
-          },
-          (err) => {
-            setLoading((prevLoading) => (prevLoading ?? 0) - 1)
-            setError(err)
-            setPOAPs([])
-          }
-        )
+      if (poaps == null) {
+        return null
       }
-      return () => {
-        if (controller) {
-          controller.abort()
-        }
-      }
+      return findInitialPOAPDate(poaps)
     },
-    [address, poaps, error]
-  )
-
-  const hasAvatarImage = (
-    address in ensNames &&
-    ensNames[address] != null &&
-    ensNames[address] in avatars &&
-    avatars[ensNames[address]] != null &&
-    typeof avatars[ensNames[address]] === 'string' &&
-    avatars[ensNames[address]].startsWith('http') &&
-    !avatars[ensNames[address]].endsWith('json')
+    [poaps]
   )
 
   return (
     <div className="address-profile">
-      {loading > 0 && (
+      {loadingAddressTokens && (
         <Loading small={true} />
       )}
-      {error && (
-        <ErrorMessage error={error} />
+      {addressTokensError && (
+        <ErrorMessage error={addressTokensError} />
       )}
-      {!loading && !error && (
+      {!loadingAddressTokens && !addressTokensError && (
         <>
-          {hasAvatarImage && (
-            <LazyImage
-              className="profile-avatar"
-              src={avatars[ensNames[address]]}
-              alt={`Avatar of ${ensNames[address]}`}
-              placeholder={({ imageProps, ref }) => (
-                <img ref={ref} {...imageProps} /> // eslint-disable-line jsx-a11y/alt-text
-              )}
-              actual={({ imageProps }) => (
-                <img {...imageProps} /> // eslint-disable-line jsx-a11y/alt-text
-              )}
-              loading={() => (
-                <div className="profile-avatar">
-                  <Loading small={true} />
-                </div>
-              )}
-              error={() => (
-                <ErrorMessage message="Avatar could not be loaded" />
-              )}
-            />
+          {address in ensNames && ensNames[address] != null && (
+            <EnsAvatar ens={ensNames[address]} />
           )}
-          <LinkToScan className="profile-address" address={address} />
+          <LinkToScan
+            className="profile-address"
+            address={address}
+            showEns={false}
+          />
           {address in ensNames && (
             <big className="profile-ens">{ensNames[address]}</big>
           )}
@@ -260,8 +186,15 @@ function AddressProfile({
                 showAllInCommonAddresses && 'show-all',
               )}
             >
-              <h4>{inCommonAddressesTotal} in common collectors</h4>
-              <AddressesList addresses={inCommonAddressesVisible} />
+              <h4>
+                <Link to={`/addresses#${address},${inCommonAddresses.join(',')}`}>
+                  {inCommonAddressesTotal} in common collectors
+                </Link>
+              </h4>
+              <AddressesList
+                addresses={inCommonAddressesVisible}
+                addressToCompare={address}
+              />
               {inCommonAddressesHasMore && (
                 <div className="show-more">
                   <ButtonLink

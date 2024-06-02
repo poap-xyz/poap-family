@@ -14,6 +14,7 @@ function LinkToScan({
   address,
   title,
   stamp = false,
+  showEns = true,
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
 
@@ -35,7 +36,7 @@ function LinkToScan({
             />
           )
         : (
-            address in ensNames
+            showEns && address in ensNames
               ? <span className="ens">{ensNames[address]}</span>
               : <code>{address}</code>
           )
@@ -49,6 +50,7 @@ LinkToScan.propTypes = {
   address: PropTypes.string.isRequired,
   title: PropTypes.string,
   stamp: PropTypes.bool,
+  showEns: PropTypes.bool,
 }
 
 export default LinkToScan
