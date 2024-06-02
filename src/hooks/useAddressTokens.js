@@ -37,10 +37,12 @@ function useAddressTokens(address) {
       scanAddress(address, controller.signal).then(
         (foundPOAPs) => {
           setLoading(false)
+          setController(null)
           setPOAPs(foundPOAPs)
         },
         (err) => {
           setLoading(false)
+          setController(null)
           setError(err)
           setPOAPs(null)
         }
