@@ -98,7 +98,7 @@ function Events() {
    */
   const [eventOwnerErrors, setEventOwnerErrors] = useState({})
   /**
-   * @type {ReturnType<typeof useState<Awaited<ReturnType<findEventsCollections>> | null>>}
+   * @type {ReturnType<typeof useState<Awaited<ReturnType<typeof findEventsCollections>> | null>>}
    */
   const [collectionData, setCollectionData] = useState(null)
   /**
