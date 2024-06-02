@@ -7,7 +7,11 @@ import 'styles/switch.css'
 function Switch({
   id,
   checked,
-  onChange,
+  onChange =
+    /**
+     * @param {boolean} checked
+     */
+    (checked) => {},
   labelOff = 'No',
   labelOn = 'Yes',
 }) {
@@ -17,7 +21,7 @@ function Switch({
         id={id}
         type="checkbox"
         checked={checked}
-        onChange={onChange}
+        onChange={(event) => onChange(event.target.checked)}
       />
       <span
         className="switch-slider"
