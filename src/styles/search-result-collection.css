@@ -1,0 +1,83 @@
+.search-result-collection .collection-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  opacity: .4;
+  border-radius: 0;
+}
+
+.search-result-collection .collection-info {
+  display: flex;
+  padding: .5rem;
+  gap: 1rem;
+  margin: 0;
+  height: auto;
+  justify-content: inherit;
+  position: relative;
+}
+
+.search-result-collection .collection-info .collection-logo {
+  overflow: hidden;
+  height: 18px;
+  width: 18px;
+}
+
+.search-result-collection .collection-info .collection-logo .collection-link {
+  display: block;
+}
+
+.search-result-collection .collection-info .collection-title {
+  flex-grow: 1;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.search-result-collection .collection-info .collection-title:before {
+  content: ' ';
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .8;
+  background-color: white;
+}
+
+.search-result-collection .collection-info .collection-title h4 {
+  max-width: 360px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: left;
+  padding: 2px;
+  position: relative;
+  max-width: 320px;
+}
+
+.search-result-collection .collection-info .collection-title .collection-count {
+  aspect-ratio: 1 / 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  font-weight: bold;
+  font-size: 60%;
+  margin-right: .5rem;
+  position: absolute;
+  right: 0;
+  background-color: #EEE;
+  color: black;
+  border-radius: 50%;
+  padding: .2rem .5rem;
+}
+
+.search-result-collection .collection-info .collection-select {
+  text-align: center;
+}
