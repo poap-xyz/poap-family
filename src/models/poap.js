@@ -168,6 +168,9 @@ export function resizeTokenImageUrl(imageUrl, size, imgix = false) {
     ) {
       w = size.w
       h = size.h
+    } else if (typeof size === 'number') {
+      w = size
+      h = size
     }
 
     if (w && h) {
@@ -196,6 +199,18 @@ export function resizeTokenImageUrl(imageUrl, size, imgix = false) {
       } else if (size.w <= 256) {
         poapSize = 'medium'
       } else if (size.w <= 512) {
+        poapSize = 'large'
+      } else {
+        poapSize = 'xlarge'
+      }
+    } else if (typeof size === 'number') {
+      if (size <= 64) {
+        poapSize = 'xsmall'
+      } else if (size <= 128) {
+        poapSize = 'small'
+      } else if (size <= 256) {
+        poapSize = 'medium'
+      } else if (size <= 512) {
         poapSize = 'large'
       } else {
         poapSize = 'xlarge'

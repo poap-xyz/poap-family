@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
-import { resizeCollectionImageUrl } from 'models/collection'
 import useEvent from 'hooks/useEvent'
 import useEventSearch from 'hooks/useEventSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
-import TokenImage from 'components/TokenImage'
+import SearchResultEvent from 'components/SearchResultEvent'
+import SearchResultCollection from 'components/SearchResultCollection'
 import Pagination from 'components/Pagination'
 import 'styles/search.css'
 
@@ -87,7 +87,7 @@ function Search() {
     searchCollections(newQuery, newPage)
   }
 
-  function onSearch() {
+  const onSearch = () => {
     if (selectedEvents.length === 1 && selectedCollections.length === 0) {
       navigate(`/event/${selectedEvents[0].id}`)
       return
@@ -96,6 +96,9 @@ function Search() {
       navigate(`/events/${joinEventIds(selectedCollections[0].dropIds)}`)
       return
     }
+    /**
+     * @type {number[]}
+     */
     const newEventIds = []
     if (selectedEvents.length > 0) {
       for (const selectedEvent of selectedEvents) {
@@ -143,7 +146,7 @@ function Search() {
   /**
    * @param {number} keyCode
    */
-  function onQueryKeyUp(keyCode) {
+  const onQueryKeyUp = (keyCode) => {
     if (keyCode === 13) { // [Enter]
       onSearch()
     }
@@ -152,7 +155,7 @@ function Search() {
   /**
    * @param {string} newValue
    */
-  function onQueryChange(newValue) {
+  const onQueryChange = (newValue) => {
     cancelEvent()
     cancelEventSearch()
     cancelCollectionSearch()
@@ -181,178 +184,96 @@ function Search() {
     }
   }
 
-  /**
-   * @param {number} eventId
-   * @param {boolean} checked
-   */
-  function onSelectEventChange(eventId, checked) {
-    if (checked) {
-      const resultEvent = resultEvents.find((queried) => queried.id === eventId)
-      if (resultEvent) {
-        setSelectedEvents((prevSelectedEvents) => {
-          const exists = -1 !== prevSelectedEvents.findIndex(
-            (prevSelectedEvent) => prevSelectedEvent.id === resultEvent.id
-          )
-          if (exists) {
-            return prevSelectedEvents
-          }
-          return [...prevSelectedEvents, resultEvent]
-        })
-      } else if (event) {
-        setSelectedEvents((prevSelectedEvents) => {
-          const exists = -1 !== prevSelectedEvents.findIndex(
-            (prevSelectedEvent) => prevSelectedEvent.id === event.id
-          )
-          if (exists) {
-            return prevSelectedEvents
-          }
-          return [...prevSelectedEvents, event]
-        })
-      }
-    } else {
-      const selectedIndex = selectedEvents.findIndex(
-        (selected) => selected.id === eventId
-      )
-      if (selectedIndex !== -1) {
-        setSelectedEvents((prevSelectedEvents) => {
-          const newSelectedEvents = [...prevSelectedEvents]
-          newSelectedEvents.splice(selectedIndex, 1)
-          return newSelectedEvents
-        })
-      }
-    }
+  const clearErrors = () => {
     retryEvent()
     retryEventSearch()
     retryCollectionSearch()
     setError(null)
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const addSelectEvent = (eventId) => {
+    const resultEvent = resultEvents.find((queried) => queried.id === eventId)
+    if (resultEvent) {
+      setSelectedEvents((prevSelectedEvents) => {
+        const exists = -1 !== prevSelectedEvents.findIndex(
+          (prevSelectedEvent) => prevSelectedEvent.id === resultEvent.id
+        )
+        if (exists) {
+          return prevSelectedEvents
+        }
+        return [...prevSelectedEvents, resultEvent]
+      })
+    } else if (event) {
+      setSelectedEvents((prevSelectedEvents) => {
+        const exists = -1 !== prevSelectedEvents.findIndex(
+          (prevSelectedEvent) => prevSelectedEvent.id === event.id
+        )
+        if (exists) {
+          return prevSelectedEvents
+        }
+        return [...prevSelectedEvents, event]
+      })
+    }
+    clearErrors()
+  }
+
+  /**
+   * @param {number} eventId
+   */
+  const delSelectEvent = (eventId) => {
+    const selectedIndex = selectedEvents.findIndex(
+      (selected) => selected.id === eventId
+    )
+    if (selectedIndex !== -1) {
+      setSelectedEvents((prevSelectedEvents) => {
+        const newSelectedEvents = [...prevSelectedEvents]
+        newSelectedEvents.splice(selectedIndex, 1)
+        return newSelectedEvents
+      })
+    }
+    clearErrors()
   }
 
   /**
    * @param {number} collectionId
-   * @param {boolean} checked
    */
-  function onSelectCollectionChange(collectionId, checked) {
-    if (checked) {
-      const collection = resultCollections.find(
-        (queried) => queried.id === collectionId
-      )
-      if (collection) {
-        setSelectedCollections((prevSelectedCollections) => {
-          const exists = -1 !== prevSelectedCollections.findIndex(
-            (prevSelectedCollection) => prevSelectedCollection.id === collection.id
-          )
-          if (exists) {
-            return prevSelectedCollections
-          }
-          return [...prevSelectedCollections, collection]
-        })
-      }
-    } else {
-      const selectedIndex = selectedCollections.findIndex(
-        (selected) => selected.id === collectionId
-      )
-      if (selectedIndex !== -1) {
-        setSelectedCollections((prevSelectedCollections) => {
-          const newSelectedCollections = [...prevSelectedCollections]
-          newSelectedCollections.splice(selectedIndex, 1)
-          return newSelectedCollections
-        })
-      }
+  const addSelectCollection = (collectionId) => {
+    const collection = resultCollections.find(
+      (queried) => queried.id === collectionId
+    )
+    if (collection) {
+      setSelectedCollections((prevSelectedCollections) => {
+        const exists = -1 !== prevSelectedCollections.findIndex(
+          (prevSelectedCollection) => prevSelectedCollection.id === collection.id
+        )
+        if (exists) {
+          return prevSelectedCollections
+        }
+        return [...prevSelectedCollections, collection]
+      })
     }
-    retryEvent()
-    retryEventSearch()
-    retryCollectionSearch()
-    setError(null)
+    clearErrors()
   }
 
   /**
-   * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
+   * @param {number} collectionId
    */
-  const renderEvent = (event) => (
-    <div className="drop-preview" key={event.id}>
-      <div className="drop-info">
-        <div className="drop-image">
-          <Link to={`/event/${event.id}`} className="drop-link">
-            <TokenImage event={event} size={18} />
-          </Link>
-        </div>
-        <div className="drop-name">
-          <h4 title={event.name}>{event.name}</h4>
-        </div>
-        <div className="drop-select">
-          <input
-            type="checkbox"
-            checked={-1 !== selectedEvents.findIndex(
-              (selected) => selected.id === event.id
-            )}
-            onChange={(changeEvent) => {
-              onSelectEventChange(
-                event.id,
-                changeEvent.target.checked
-              )
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-
-  /**
-   * @param {{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }} collection
-   */
-  const renderCollection = (collection) => (
-    <div className="collection-preview" key={collection.id}>
-      {collection.banner_image_url && (
-        <div className="collection-banner">
-          <img
-            src={resizeCollectionImageUrl(collection.banner_image_url, {
-              w: 480,
-              h: 40,
-            })}
-            alt=""
-          />
-        </div>
-      )}
-      <div className="collection-info">
-        <div className="collection-logo">
-          {collection.logo_image_url && (
-            <Link
-              to={`/events/${joinEventIds(collection.dropIds)}`}
-              className="collection-link"
-            >
-              <img
-                src={resizeCollectionImageUrl(collection.logo_image_url, {
-                  w: 18,
-                  h: 18,
-                })}
-                alt=""
-              />
-            </Link>
-          )}
-        </div>
-        <div className="collection-title">
-          <h4 title={collection.title}>{collection.title}</h4>
-          <div className="collection-count">
-            <span>{collection.dropIds.length}</span>
-          </div>
-        </div>
-        <div className="collection-select">
-          <input
-            type="checkbox"
-            checked={-1 !== selectedCollections.findIndex(
-              (selected) => selected.id === collection.id
-            )}
-            onChange={(changeEvent) => {
-              onSelectCollectionChange(
-                collection.id,
-                changeEvent.target.checked
-              )
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
+  const delSelectCollection = (collectionId) => {
+    const selectedIndex = selectedCollections.findIndex(
+      (selected) => selected.id === collectionId
+    )
+    if (selectedIndex !== -1) {
+      setSelectedCollections((prevSelectedCollections) => {
+        const newSelectedCollections = [...prevSelectedCollections]
+        newSelectedCollections.splice(selectedIndex, 1)
+        return newSelectedCollections
+      })
+    }
+    clearErrors()
+  }
 
   const selectedNotInEvents = selectedEvents.filter(
     (selected) => -1 === resultEvents.findIndex(
@@ -486,12 +407,28 @@ function Search() {
         )}
         {selectedNotInCollections.length > 0 && (
           selectedNotInCollections.map(
-            (collection) => renderCollection(collection)
+            (selectedCollection) => (
+              <SearchResultCollection
+                key={selectedCollection.id}
+                collection={selectedCollection}
+                checked={true}
+                onCheckChange={() => delSelectCollection(selectedCollection.id)}
+                className="search-result"
+              />
+            )
           )
         )}
         {selectedNotInEvents.length > 0 && (
           selectedNotInEvents.map(
-            (event) => renderEvent(event)
+            (selectedEvent) => (
+              <SearchResultEvent
+                key={selectedEvent.id}
+                event={selectedEvent}
+                checked={true}
+                onCheckChange={() => delSelectEvent(selectedEvent.id)}
+                className="search-result"
+              />
+            )
           )
         )}
         {(
@@ -505,19 +442,49 @@ function Search() {
           <hr className="search-separator" />
         )}
         {isLoading && (
-          <div className="drop-preview">
-            <div className="drop-info">
-              <div className="drop-image loading-element">{' '}</div>
-              <div className="drop-name loading-element" />
+          <div className="search-result">
+            <div className="search-result-info">
+              <div className="search-result-image skeleton">{' '}</div>
+              <div className="search-result-name skeleton" />
             </div>
           </div>
         )}
         {!isLoading && event && page === 1 && (
-          renderEvent(event)
+          <SearchResultEvent
+            key={event.id}
+            event={event}
+            checked={-1 !== selectedEvents.findIndex(
+              (selected) => selected.id === event.id
+            )}
+            onCheckChange={(checked) => {
+              if (checked) {
+                addSelectEvent(event.id)
+              } else {
+                delSelectEvent(event.id)
+              }
+            }}
+            className="search-result"
+          />
         )}
         {resultCollections.length > 0 && (
           resultCollections.map(
-            (collection) => renderCollection(collection)
+            (resultCollection) => (
+              <SearchResultCollection
+                key={resultCollection.id}
+                collection={resultCollection}
+                checked={-1 !== selectedCollections.findIndex(
+                  (selected) => selected.id === resultCollection.id
+                )}
+                onCheckChange={(checked) => {
+                  if (checked) {
+                    addSelectCollection(resultCollection.id)
+                  } else {
+                    delSelectCollection(resultCollection.id)
+                  }
+                }}
+                className="search-result"
+              />
+            )
           )
         )}
         {resultEvents.length > 0 && (
@@ -525,7 +492,21 @@ function Search() {
             !event ||
             event.id !== resultEvent.id
           ) && (
-            renderEvent(resultEvent)
+            <SearchResultEvent
+              key={resultEvent.id}
+              event={resultEvent}
+              checked={-1 !== selectedEvents.findIndex(
+                (selected) => selected.id === resultEvent.id
+              )}
+              onCheckChange={(checked) => {
+                if (checked) {
+                  addSelectEvent(resultEvent.id)
+                } else {
+                  delSelectEvent(resultEvent.id)
+                }
+              }}
+              className="search-result"
+            />
           ))
         )}
         {resultEvents.length > 0 && pages > 1 && (
