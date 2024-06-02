@@ -13,7 +13,6 @@ import {
   putEventInCommon,
 } from 'loaders/api'
 import { fetchPOAPs, scanAddress } from 'loaders/poap'
-import { findEventsCollections } from 'loaders/collection'
 import { filterInvalidOwners } from 'models/address'
 import { filterInCommon, mergeAllInCommon } from 'models/in-common'
 import { parseEventIds, parseExpiryDates } from 'models/event'
@@ -21,6 +20,7 @@ import { Drops } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
+import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
 import EventButtonGroup from 'components/EventButtonGroup'
@@ -78,17 +78,9 @@ function Events() {
    */
   const [errors, setErrors] = useState({})
   /**
-   * @type {ReturnType<typeof useState<Error | null>>}
-   */
-  const [collectionsError, setCollectionsError] = useState(null)
-  /**
    * @type {ReturnType<typeof useState<Record<number, number>>>}
    */
   const [loading, setLoading] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<boolean>>}
-   */
-  const [loadingCollections, setLoadingCollections] = useState(false)
   /**
    * @type {ReturnType<typeof useState<Record<number, { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number | null }>>>}
    */
@@ -97,10 +89,6 @@ function Events() {
    * @type {ReturnType<typeof useState<Record<number, Record<string, Error>>>>}
    */
   const [eventOwnerErrors, setEventOwnerErrors] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Awaited<ReturnType<typeof findEventsCollections>> | null>>}
-   */
-  const [collectionData, setCollectionData] = useState(null)
   /**
    * @type {ReturnType<typeof useState<Record<number, number>>>}
    */
@@ -130,6 +118,14 @@ function Events() {
     () => Object.keys(events).map((rawEventId) => parseInt(rawEventId)),
     [events]
   )
+
+  const {
+    loadingCollections,
+    collectionsError,
+    collections,
+    relatedCollections,
+    fetchEventsCollections,
+  } = useEventsCollections(eventIds)
 
   /**
    * @param {number} eventId
@@ -716,22 +712,6 @@ function Events() {
     [processEventAddress]
   )
 
-  const loadCollections = useCallback(
-    () => {
-      setLoadingCollections(true)
-      findEventsCollections(eventIds).then((eventCollectionsData) => {
-        setCollectionData(eventCollectionsData)
-        setLoadingCollections(false)
-      }).catch((err) => {
-        setCollectionsError(new Error('Could not load collections', {
-          cause: err,
-        }))
-        setLoadingCollections(false)
-      })
-    },
-    [eventIds]
-  )
-
   useEffect(
     () => {
       setTitle(Object.values(events).map((event) => event.name).join(', '))
@@ -991,17 +971,14 @@ function Events() {
 
   useEffect(
     () => {
-      if (
-        settings.showCollections &&
-        status === STATUS_LOADING_COMPLETE
-      ) {
-        loadCollections()
+      if (status === STATUS_LOADING_COMPLETE) {
+        console.debug('fetchEventsCollections')
+        fetchEventsCollections()
       }
     },
     [
-      settings.showCollections,
       status,
-      loadCollections,
+      fetchEventsCollections,
     ]
   )
 
@@ -1140,8 +1117,6 @@ function Events() {
     setLoadedProgress({})
     setProgress({})
     setStaleEvents([])
-    setCollectionData(null)
-    setCollectionsError(null)
   }
 
   const sumCollectionsIncludes = () => {
@@ -1392,7 +1367,12 @@ function Events() {
                     <ErrorMessage error={collectionsError} />
                   </Card>
                 )}
-                {!loadingCollections && !collectionsError && collectionData && (
+                {(
+                  !loadingCollections &&
+                  !collectionsError &&
+                  collections != null &&
+                  relatedCollections != null
+                ) && (
                   <CollectionSet
                     showEmpty={sumCollectionsIncludes() > 0}
                     emptyMessage={(
@@ -1405,8 +1385,8 @@ function Events() {
                       </>
                     )}
                     collectionMap={{
-                      [`${collectionData.collections.length} collections`]: collectionData.collections,
-                      [`${collectionData.related.length} related collections`]: all ? collectionData.related : [],
+                      [`${collections.length} collections`]: collections,
+                      [`${relatedCollections.length} related collections`]: all ? relatedCollections : [],
                     }}
                   />
                 )}
