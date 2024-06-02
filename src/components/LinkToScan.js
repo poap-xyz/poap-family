@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import { clsx } from 'clsx'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { POAP_SCAN_URL } from 'models/poap'
-import POAP_Stamp from 'images/POAP_Stamp.svg'
+import POAP_Stamp from 'assets/images/POAP_Stamp.svg'
 import 'styles/link-to-scan.css'
 
 /**
