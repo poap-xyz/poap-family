@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { QuestionMark } from 'iconoir-react'
 import { useSettings } from 'stores/settings'
-import CornerBackground from 'images/Corner_Background.svg'
+import CornerBackground from 'assets/images/Corner_Background.svg'
 import Feedback from 'components/Feedback'
 import LogoMenu from 'components/LogoMenu'
 import MenuItem from 'components/MenuItem'
