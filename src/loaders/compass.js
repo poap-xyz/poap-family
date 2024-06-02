@@ -1,4 +1,4 @@
-import { HttpError } from 'models/error'
+import { AbortedError, HttpError } from 'models/error'
 import { COMPASS_KEY, COMPASS_URL } from 'models/compass'
 
 /**
@@ -8,18 +8,35 @@ import { COMPASS_KEY, COMPASS_URL } from 'models/compass'
  * @returns {Promise<object>}
  */
 export async function requestCompass(query, variables, abortSignal) {
-  const response = await fetch(COMPASS_URL, {
-    signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': COMPASS_KEY,
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  })
+  /**
+   * @type {Response}
+   */
+  let response
+  try {
+    response = await fetch(COMPASS_URL, {
+      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': COMPASS_KEY,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    })
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(
+        `Request compass aborted`,
+        { cause: err }
+      )
+    }
+    throw new Error(
+      `Cannot request compass: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200) {
     /**

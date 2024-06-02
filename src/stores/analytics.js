@@ -55,7 +55,7 @@ const AnalyticsContext = createContext({
     (params) => {},
   trackSiteSearch:
     /**
-     * @param {{ category: string; keyword: string; count: number }} params
+     * @param {{ category: string; keyword: string; count?: number }} params
      */
     (params) => {},
   trackPageView:
@@ -100,7 +100,7 @@ export function AnalyticsProvider({
 
   const trackSiteSearch = useCallback(
     /**
-     * @param {{ keyword: string; category: string; count: number }} params
+     * @param {{ keyword: string; category: string; count?: number }} params
      */
     (params) => {
       push(['trackSiteSearch', params.keyword, params.category, params.count])

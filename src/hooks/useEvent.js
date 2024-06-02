@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { fetchEvent } from 'loaders/event'
+import { fetchEvent as loadEvent } from 'loaders/event'
 import { AbortedError } from 'models/error'
 
 /**
  * @param {number | null} [initialEventId]
  * @returns {{
- *   loading: boolean
- *   error: Error | null
+ *   loadingEvent: boolean
+ *   eventError: Error | null
  *   eventId: number | null
  *   event: { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string } | null
- *   findEvent: (eventId: number | null) => void
+ *   fetchEvent: (eventId?: number | null) => void
  *   cancelEvent: () => void
  *   retryEvent: () => void
  * }}
@@ -46,7 +46,7 @@ function useEvent(initialEventId) {
   /**
    * @param {number | null} [newEventId]
    */
-  const findEvent = (newEventId) => {
+  const fetchEvent = (newEventId) => {
     if (eventId == null && newEventId == null) {
       setError(new Error('No Drop to fetch'))
     } else {
@@ -58,7 +58,7 @@ function useEvent(initialEventId) {
       setController(controller)
       setError(null)
       setEvent(null)
-      fetchEvent(
+      loadEvent(
         newEventId ?? eventId,
         /*includeDescription*/false,
         controller.signal
@@ -69,7 +69,7 @@ function useEvent(initialEventId) {
           if (result) {
             setEvent(result)
           } else {
-            setError(new Error(`Drop ${eventId} not found`))
+            setError(new Error(`Drop ${newEventId ?? eventId} not found`))
           }
         },
         (err) => {
@@ -81,7 +81,7 @@ function useEvent(initialEventId) {
               setError(err)
             } else {
               setError(new Error(
-                `Drop ${eventId} could not be fetched`,
+                `Drop ${newEventId ?? eventId} could not be fetched`,
                 { cause: err }
               ))
             }
@@ -106,11 +106,11 @@ function useEvent(initialEventId) {
   }
 
   return {
-    loading,
-    error,
+    loadingEvent: loading,
+    eventError: error,
     eventId,
     event,
-    findEvent,
+    fetchEvent,
     cancelEvent,
     retryEvent,
   }
