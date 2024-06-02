@@ -55,9 +55,7 @@ function Settings() {
             <Switch
               id="showLastEvents"
               checked={settings.showLastEvents}
-              onChange={(event) => {
-                handleShowLastEvents(event.target.checked)
-              }}
+              onChange={handleShowLastEvents}
             />
           </div>
         </div>
@@ -67,9 +65,7 @@ function Settings() {
             <Switch
               id="autoScrollCollectors"
               checked={settings.autoScrollCollectors}
-              onChange={(event) => {
-                handleAutoScrollCollectors(event.target.checked)
-              }}
+              onChange={handleAutoScrollCollectors}
             />
           </div>
         </div>
@@ -79,9 +75,7 @@ function Settings() {
             <Switch
               id="openProfiles"
               checked={settings.openProfiles}
-              onChange={(event) => {
-                handleOpenProfiles(event.target.checked)
-              }}
+              onChange={handleOpenProfiles}
             />
           </div>
         </div>
@@ -91,9 +85,7 @@ function Settings() {
             <Switch
               id="showCollections"
               checked={settings.showCollections}
-              onChange={(event) => {
-                handleShowCollections(event.target.checked)
-              }}
+              onChange={handleShowCollections}
             />
           </div>
         </div>

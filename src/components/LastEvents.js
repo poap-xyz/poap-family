@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getLastEvents } from 'loaders/api'
+import useLastEvents from 'hooks/useLastEvents'
 import CachedEventList from 'components/CachedEventList'
 import Card from 'components/Card'
 import Loading from 'components/Loading'
@@ -43,26 +43,15 @@ function LastEvents({
    * @type {ReturnType<typeof useState<number>>}
    */
   const [perPage, setPerPage] = useState(initialPerPage ?? DEFAULT_PER_PAGE)
-  /**
-   * @type {ReturnType<typeof useState<number>>}
-   */
-  const [pages, setPages] = useState(0)
-  /**
-   * @type {ReturnType<typeof useState<number>>}
-   */
-  const [total, setTotal] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<boolean>>}
-   */
-  const [loading, setLoading] = useState(false)
-  /**
-   * @type {ReturnType<typeof useState<Array<{ id: number; name: string; image_url: string; cached_ts: number; in_common_count: number }>>>}
-   */
-  const [cachedEvents, setCachedEvents] = useState([])
-  /**
-   * @type {ReturnType<typeof useState<Error | null>>}
-   */
-  const [error, setError] = useState(null)
+
+  const {
+    loading,
+    error,
+    pages,
+    total,
+    lastEvents,
+    fetchLastEvents,
+  } = useLastEvents(page, perPage)
 
   useEffect(
     () => {
@@ -84,62 +73,20 @@ function LastEvents({
 
   useEffect(
     () => {
-      setLoading(true)
-      getLastEvents(page, perPage).then(
-        (response) => {
-          if (response !== null) {
-            setPages(response.pages)
-            setTotal(response.total)
-            setCachedEvents(response.lastEvents)
-            setError(null)
-
-            if (response.total === 0 || response.pages === 0) {
-              setError(new Error('Empty'))
-            }
-          }
-          setLoading(false)
-        },
-        (err) => {
-          console.error(err)
-          setError(new Error('Unavailable', { cause: err }))
-          setCachedEvents([])
-          setLoading(false)
-        }
-      )
+      fetchLastEvents()
     },
-    [page, perPage]
+    [fetchLastEvents]
   )
 
   const onRefresh = () => {
-    setLoading(true)
-    return getLastEvents(page, perPage).then(
-      (response) => {
-        if (response !== null) {
-          setPages(response.pages)
-          setTotal(response.total)
-          setCachedEvents(response.lastEvents)
-          setError(null)
-
-          if (response.total === 0 || response.pages === 0) {
-            setError(new Error('Empty'))
-          }
-        }
-        setLoading(false)
-      },
-      (err) => {
-        console.error(err)
-        setError(new Error('Unavailable', { cause: err }))
-        setCachedEvents([])
-        setLoading(false)
-      }
-    )
+    fetchLastEvents()
   }
 
   return (
     <div className="last-events">
       <Card>
         <h3>Last Cached Drops</h3>
-        {showRefresh && cachedEvents.length > 0 && !loading && page === 1 && (
+        {showRefresh && lastEvents.length > 0 && !loading && page === 1 && (
           <ButtonRefresh onRefresh={onRefresh} />
         )}
         {loading && <Loading />}
@@ -171,9 +118,9 @@ function LastEvents({
             </ButtonLink>
           </div>
         )}
-        {cachedEvents.length > 0 && !loading && (
+        {lastEvents.length > 0 && !loading && (
           <CachedEventList
-            cachedEvents={cachedEvents}
+            cachedEvents={lastEvents}
           />
         )}
         {error && !loading &&

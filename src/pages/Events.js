@@ -1171,7 +1171,7 @@ function Events() {
                     <Switch
                       id="all"
                       checked={all}
-                      onChange={(event) => handleAllChange(event.target.checked)}
+                      onChange={handleAllChange}
                       labelOn="X"
                       labelOff="X"
                     />
