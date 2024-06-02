@@ -2,7 +2,7 @@ import { filterInvalidOwners } from 'models/address'
 import { DEFAULT_SEARCH_LIMIT, parseEventIds } from 'models/event'
 import { Drop } from 'models/drop'
 import { POAP_API_URL, POAP_API_KEY } from 'models/poap'
-import { HttpError } from 'models/error'
+import { AbortedError, HttpError } from 'models/error'
 import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
 import { fetchPOAPs } from 'loaders/poap'
 
@@ -255,6 +255,9 @@ export async function fetchEvent(eventId, includeDescription, abortSignal) {
       },
     })
   } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Fetch drop ${eventId} aborted`, { cause: err })
+    }
     throw new Error(
       `Cannot fetch drop ${eventId}: response was not success (network error)`,
       { cause: err }
