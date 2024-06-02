@@ -162,9 +162,9 @@ export async function findEventsInCollections(
  * Search collections by name.
  *
  * @param {string} search
+ * @param {AbortSignal} [abortSignal]
  * @param {number} [offset]
  * @param {number} [limit]
- * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
  *   total: number | null
  *   items: ReturnType<typeof CollectionWithDrops>[]
@@ -172,9 +172,9 @@ export async function findEventsInCollections(
  */
 export async function searchCollections(
   search,
+  abortSignal,
   offset = 0,
   limit = DEFAULT_COMPASS_LIMIT,
-  abortSignal,
 ) {
   const [totalSettled, itemsSettled] = await Promise.allSettled([
     queryAggregateCountCompass(

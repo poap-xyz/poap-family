@@ -24,19 +24,37 @@ export async function searchEvents(
   offset = 0,
   limit = DEFAULT_SEARCH_LIMIT,
 ) {
-  const response = await fetch(
-    `${POAP_API_URL}/paginated-events?name=${encodeURIComponent(query)}` +
-    `&sort_field=start_date` +
-    `&sort_dir=desc` +
-    `&offset=${offset}` +
-    `&limit=${limit}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': POAP_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+  try {
+    response = await fetch(
+      `${POAP_API_URL}/paginated-events?name=${encodeURIComponent(query)}` +
+      `&sort_field=start_date` +
+      `&sort_dir=desc` +
+      `&offset=${offset}` +
+      `&limit=${limit}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': POAP_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(
+        `Search drops for "${query}" aborted`,
+        { cause: err }
+      )
     }
-  )
+    throw new Error(
+      `Cannot search drops for "${query}": ` +
+      `response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200) {
     /**
