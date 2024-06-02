@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAnalytics } from 'stores/analytics'
 import { useSettings } from 'stores/settings'
-import { fetchEvent, searchEvents } from 'loaders/event'
+import { searchEvents } from 'loaders/event'
 import { searchCollections } from 'loaders/collection'
 import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
 import { resizeCollectionImageUrl } from 'models/collection'
+import useEvent from 'hooks/useEvent'
 import Card from 'components/Card'
 import TokenImage from 'components/TokenImage'
 import Pagination from 'components/Pagination'
@@ -19,14 +20,6 @@ function Search() {
    * @type {ReturnType<typeof useRef<HTMLInputElement>>}
    */
   const queryRef = useRef()
-  /**
-   * @type {ReturnType<typeof useState<{ eventId: number | null; state: boolean; controller: AbortController | null }>>}
-   */
-  const [loadingById, setLoadingById] = useState({
-    eventId: null,
-    state: false,
-    controller: null,
-  })
   /**
    * @type {ReturnType<typeof useState<{ query: string | null; state: boolean; controller: AbortController | null }>>}
    */
@@ -50,10 +43,6 @@ function Search() {
   /**
    * @type {ReturnType<typeof useState<Error | null>>}
    */
-  const [errorById, setErrorById] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<Error | null>>}
-   */
   const [errorSearch, setErrorSearch] = useState(null)
   /**
    * @type {ReturnType<typeof useState<Error | null>>}
@@ -63,10 +52,6 @@ function Search() {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [errorSubmit, setErrorSubmit] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string } | null>>}
-   */
-  const [eventById, setEventById] = useState(null)
   /**
    * @type {ReturnType<typeof useState<Array<{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>>>}
    */
@@ -96,6 +81,15 @@ function Search() {
    */
   const [selectedCollections, setSelectedCollections] = useState([])
 
+  const {
+    loading: loadingById,
+    error: errorById,
+    event: eventById,
+    findEvent,
+    cancelEvent,
+    retryEvent,
+  } = useEvent()
+
   useEffect(
     () => () => {
       if (loadingSearchCollections.state) {
@@ -104,56 +98,13 @@ function Search() {
       if (loadingSearch.state) {
         loadingSearch.controller.abort()
       }
-      if (loadingById.state) {
-        loadingById.controller.abort()
-      }
+      cancelEvent()
       if (timeoutId) {
         clearTimeout(timeoutId)
       }
     },
     [] // eslint-disable-line react-hooks/exhaustive-deps
   )
-
-  /**
-   * @param {number} eventId
-   */
-  const findEvent = (eventId) => {
-    const controller = new AbortController()
-    setLoadingById({
-      eventId,
-      state: true,
-      controller,
-    })
-    setErrorById(null)
-    setEventById(null)
-    fetchEvent(eventId, /*includeDescription*/false, controller.signal).then(
-      (result) => {
-        setLoadingById({
-          eventId: null,
-          state: false,
-          controller: null,
-        })
-        if (result) {
-          setEventById(result)
-        } else {
-          setErrorById(new Error(`Drop ${eventId} not found`))
-        }
-      },
-      (err) => {
-        if (err.code !== 20) {
-          console.error(err)
-          if (err instanceof Error) {
-            setErrorById(err)
-          }
-        }
-        setLoadingById({
-          eventId: null,
-          state: false,
-          controller: null,
-        })
-      }
-    )
-  }
 
   /**
    * @param {string} value
@@ -335,9 +286,7 @@ function Search() {
     if (loadingSearch.state) {
       loadingSearch.controller.abort()
     }
-    if (loadingById.state) {
-      loadingById.controller.abort()
-    }
+    cancelEvent()
     if (timeoutId) {
       clearTimeout(timeoutId)
       setTimeoutId(null)
@@ -347,28 +296,21 @@ function Search() {
         () => {
           search(value, 1)
           if (/^[0-9]+$/.test(value)) {
-            findEvent(parseInt(value))
-          } else {
-            setErrorById(null)
-            setEventById(null)
+            const eventId = parseInt(value)
+            if (!isNaN(eventId)) {
+              findEvent(eventId)
+            }
           }
         },
         750
       ))
     } else {
-      setErrorById(null)
       setErrorSearch(null)
       setErrorSubmit(null)
-      setEventById(null)
       setQueryEvents([])
       setQueryCollections([])
       setQueryTotal(null)
       setQueryPage(1)
-      setLoadingById({
-        eventId: null,
-        state: false,
-        controller: null,
-      })
       setLoadingSearch({
         query: null,
         state: false,
@@ -409,7 +351,6 @@ function Search() {
           }
           return [...prevSelectedEvents, eventById]
         })
-        setEventById(null)
       }
     } else {
       const selectedIndex = selectedEvents.findIndex(
@@ -423,9 +364,9 @@ function Search() {
         })
       }
     }
+    retryEvent()
     setErrorSearchCollections(null)
     setErrorSearch(null)
-    setErrorById(null)
     setErrorSubmit(null)
   }
 
@@ -461,9 +402,9 @@ function Search() {
         })
       }
     }
+    retryEvent()
     setErrorSearchCollections(null)
     setErrorSearch(null)
-    setErrorById(null)
     setErrorSubmit(null)
   }
 
@@ -556,6 +497,9 @@ function Search() {
     </div>
   )
 
+  const selectedEventById = eventById && -1 !== selectedEvents.findIndex(
+    (selected) => eventById.id === selected.id
+  )
   const selectedNotInEvents = selectedEvents.filter(
     (selected) => -1 === queryEvents.findIndex(
       (queried) => queried.id === selected.id
@@ -583,6 +527,12 @@ function Search() {
       search(value, newPage)
     }
   }
+
+  const isLoading = (
+    loadingById ||
+    loadingSearch.state ||
+    loadingSearchCollections.state
+  )
 
   return (
     <div className="search">
@@ -626,9 +576,7 @@ function Search() {
           selectedCollections.length === 0 &&
           queryEvents.length === 0 &&
           queryCollections.length === 0 &&
-          !loadingById.state &&
-          !loadingSearch.state &&
-          !loadingSearchCollections.state &&
+          !isLoading &&
           !eventById
         ) && (
           <div className="search-options">
@@ -694,17 +642,11 @@ function Search() {
         ) && (
           queryEvents.length > 0 ||
           queryCollections.length > 0 ||
-          loadingById.state ||
-          loadingSearch.state ||
-          loadingSearchCollections.state
+          isLoading
         ) && (
           <hr className="search-separator" />
         )}
-        {(
-          loadingById.state ||
-          loadingSearch.state ||
-          loadingSearchCollections.state
-        ) && (
+        {isLoading && (
           <div className="drop-preview">
             <div className="drop-info">
               <div className="drop-image loading-element">{' '}</div>
@@ -712,7 +654,7 @@ function Search() {
             </div>
           </div>
         )}
-        {eventById && (
+        {!isLoading && eventById && !selectedEventById && (
           renderEvent(eventById)
         )}
         {queryCollections.length > 0 && (
