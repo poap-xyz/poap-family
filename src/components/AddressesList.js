@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
-import { POAP_SCAN_URL } from 'models/poap'
+import { Link } from 'react-router-dom'
 import { ReverseEnsContext } from 'stores/ethereum'
+import LinkToScan from 'components/LinkToScan'
 import 'styles/addresses-list.css'
 
 /**
@@ -9,6 +10,7 @@ import 'styles/addresses-list.css'
  */
 function AddressesList({
   addresses,
+  addressToCompare,
 }) {
   const { ensNames } = useContext(ReverseEnsContext)
 
@@ -16,17 +18,16 @@ function AddressesList({
     <ol className="addresses-list">
       {addresses.map((address) => (
         <li key={address}>
-          <a
-            href={`${POAP_SCAN_URL}/${address}`}
-            title={`Scan ${address in ensNames ? ensNames[address] : address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {address in ensNames
-              ? <span className="ens">{ensNames[address]}</span>
-              : <code>{address}</code>
-            }
-          </a>
+          {addressToCompare
+            ? (
+              <Link to={`/addresses#${addressToCompare},${address}`}>
+                {address in ensNames
+                  ? <span className="ens">{ensNames[address]}</span>
+                  : <code>{address}</code>}
+              </Link>
+            )
+            : <LinkToScan address={address} />
+          }
         </li>
       ))}
     </ol>
@@ -35,6 +36,7 @@ function AddressesList({
 
 AddressesList.propTypes = {
   addresses: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  addressToCompare: PropTypes.string,
 }
 
 export default AddressesList
