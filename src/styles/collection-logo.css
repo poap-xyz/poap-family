@@ -1,0 +1,6 @@
+.collection-logo {
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  object-fit: cover;
+}

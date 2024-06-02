@@ -105,6 +105,15 @@ export function CollectionWithDrops(collectionWithDrops) {
   }
 }
 
+export const CollectionWithDropsProps = {
+  id: PropTypes.number.isRequired,
+  slug: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  banner_image_url: PropTypes.string,
+  logo_image_url: PropTypes.string,
+  dropIds: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+}
+
 /**
  * @param {string} imageUrl
  * @param {string | number | { w: number; h: number }} size
@@ -138,6 +147,9 @@ export function resizeCollectionImageUrl(imageUrl, size) {
     ) {
       w = size.w
       h = size.h
+    } else if (typeof size === 'number') {
+      w = size
+      h = size
     }
 
     if (w && h) {
@@ -166,6 +178,18 @@ export function resizeCollectionImageUrl(imageUrl, size) {
       } else if (size.w <= 256) {
         poapSize = 'medium'
       } else if (size.w <= 512) {
+        poapSize = 'large'
+      } else {
+        poapSize = 'xlarge'
+      }
+    } else if (typeof size === 'number') {
+      if (size <= 64) {
+        poapSize = 'xsmall'
+      } else if (size <= 128) {
+        poapSize = 'small'
+      } else if (size <= 256) {
+        poapSize = 'medium'
+      } else if (size <= 512) {
         poapSize = 'large'
       } else {
         poapSize = 'xlarge'
