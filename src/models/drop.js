@@ -188,6 +188,15 @@ export function DropMetrics(eventMetrics) {
   }
 }
 
+export const DropMetricsProps = {
+  emailReservations: PropTypes.number.isRequired,
+  emailClaimsMinted: PropTypes.number.isRequired,
+  emailClaims: PropTypes.number.isRequired,
+  momentsUploaded: PropTypes.number.isRequired,
+  collectionsIncludes: PropTypes.number.isRequired,
+  ts: PropTypes.number.isRequired,
+}
+
 /**
  * @param {unknown} data
  * @param {boolean} [includeDescription]
