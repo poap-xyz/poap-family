@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
 import useEvent from 'hooks/useEvent'
@@ -13,9 +13,13 @@ import 'styles/search.css'
 function Search() {
   const navigate = useNavigate()
   /**
-   * @type {ReturnType<typeof useState<NodeJS.Timeout | null>>}
+   * @type {ReturnType<typeof useRef<NodeJS.Timeout | null>>}
    */
-  const [timeoutId, setTimeoutId] = useState(null)
+  const timeoutId = useRef(null)
+  /**
+   * @type {ReturnType<typeof useRef<() => void | null>>}
+   */
+  const cancelSearch = useRef(null)
   /**
    * @type {ReturnType<typeof useState<Error | null>>}
    */
@@ -42,7 +46,6 @@ function Search() {
     eventError,
     event,
     fetchEvent,
-    cancelEvent,
     retryEvent,
   } = useEvent()
 
@@ -52,7 +55,6 @@ function Search() {
     totalEventResults,
     resultEvents,
     searchEvents,
-    cancelEventSearch,
     retryEventSearch,
   } = useEventSearch()
 
@@ -62,29 +64,56 @@ function Search() {
     totalCollectionResults,
     resultCollections,
     searchCollections,
-    cancelCollectionSearch,
     retryCollectionSearch,
   } = useCollectionSearch()
 
+  const cancel = () => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current)
+      timeoutId.current = null
+    }
+    if (cancelSearch.current) {
+      cancelSearch.current()
+      cancelSearch.current = null
+    }
+  }
+
   useEffect(
     () => () => {
-      cancelEvent()
-      cancelEventSearch()
-      cancelCollectionSearch()
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
+      cancel()
     },
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    []
   )
 
   /**
-   * @param {string} newQuery
-   * @param {number} newPage
+   * @param {string} searchQuery
+   * @param {number} searchPage
    */
-  const search = (newQuery, newPage = 1) => {
-    searchEvents(newQuery, newPage)
-    searchCollections(newQuery, newPage)
+  const search = (searchQuery, searchPage) => {
+    let cancelEvent
+    let cancelEventSearch
+    let cancelCollectionSearch
+    if (searchQuery.length > 0) {
+      if (/^[0-9]+$/.test(searchQuery)) {
+        const eventId = parseInt(searchQuery)
+        if (!isNaN(eventId)) {
+          cancelEvent = fetchEvent(eventId)
+        }
+      }
+      cancelEventSearch = searchEvents(searchQuery, searchPage)
+      cancelCollectionSearch = searchCollections(searchQuery, searchPage)
+    }
+    cancelSearch.current = () => {
+      if (cancelEvent) {
+        cancelEvent()
+      }
+      if (cancelEventSearch) {
+        cancelEventSearch()
+      }
+      if (cancelCollectionSearch) {
+        cancelCollectionSearch()
+      }
+    }
   }
 
   const onSearch = () => {
@@ -156,32 +185,18 @@ function Search() {
    * @param {string} newValue
    */
   const onQueryChange = (newValue) => {
-    cancelEvent()
-    cancelEventSearch()
-    cancelCollectionSearch()
-    if (timeoutId) {
-      clearTimeout(timeoutId)
-      setTimeoutId(null)
-    }
     setQuery(newValue)
     setPage(1)
-    if (newValue.length > 0) {
-      setTimeoutId(setTimeout(
-        () => {
-          search(newValue, 1)
-          if (/^[0-9]+$/.test(newValue)) {
-            const eventId = parseInt(newValue)
-            if (!isNaN(eventId)) {
-              fetchEvent(eventId)
-            }
-          }
-        },
-        750
-      ))
-    } else {
+    if (newValue.length === 0) {
       setError(null)
-      setPage(1)
     }
+    cancel()
+    timeoutId.current = setTimeout(
+      () => {
+        search(newValue, 1)
+      },
+      750
+    )
   }
 
   const clearErrors = () => {
@@ -303,9 +318,8 @@ function Search() {
    */
   const onPageChange = (newPage) => {
     setPage(newPage)
-    if (query.length > 0) {
-      search(query, newPage)
-    }
+    cancel()
+    search(query, newPage)
   }
 
   const isLoading = (
