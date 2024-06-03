@@ -7,11 +7,11 @@ import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { scanAddress } from 'loaders/poap'
 import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
-import { findEventsCollections } from 'loaders/collection'
 import { parseEventIds } from 'models/event'
 import { DropData } from 'models/drop'
 import { filterInCommon } from 'models/in-common'
 import { POAP_MOMENTS_URL } from 'models/poap'
+import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
@@ -52,10 +52,6 @@ function Event() {
    */
   const [events, setEvents] = useState({})
   /**
-   * @type {ReturnType<typeof useState<Awaited<ReturnType<typeof findEventsCollections>> | null>>}
-   */
-  const [collectionData, setCollectionData] = useState(null)
-  /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [loading, setLoading] = useState(false)
@@ -68,10 +64,6 @@ function Event() {
    */
   const [loadedProgress, setLoadedProgress] = useState(null)
   /**
-   * @type {ReturnType<typeof useState<boolean>>}
-   */
-  const [loadingCollections, setLoadingCollections] = useState(false)
-  /**
    * @type {ReturnType<typeof useState<Array<{ address: string; error: Error }>>>}
    */
   const [errors, setErrors] = useState([])
@@ -83,10 +75,6 @@ function Event() {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [cachingError, setCachingError] = useState(null)
-  /**
-   * @type {ReturnType<typeof useState<Error | null>>}
-   */
-  const [collectionsError, setCollectionsError] = useState(null)
 
   const { event, owners, ts, metrics } = useMemo(
     () => DropData(
@@ -95,6 +83,18 @@ function Event() {
       /*includeMetrics*/true,
     ),
     [loaderData]
+  )
+
+  const {
+    loadingCollections,
+    collectionsError,
+    collections,
+    fetchEventsCollections,
+  } = useEventsCollections(
+    useMemo(
+      () => [event.id],
+      [event]
+    )
   )
 
   const processAddress = useCallback(
@@ -248,7 +248,6 @@ function Event() {
               if (event.id in result.inCommon) {
                 setLoadedCount(result.inCommon[event.id].length)
               }
-              setCollectionData(null)
               setLoading(false)
             }
           },
@@ -275,40 +274,27 @@ function Event() {
     [event.name, setTitle]
   )
 
-  const loadCollections = useCallback(
-    () => {
-      if (!metrics || metrics.collectionsIncludes === 0) {
-        return
-      }
-      setLoadingCollections(true)
-      findEventsCollections([event.id]).then((eventCollectionsData) => {
-        setCollectionData(eventCollectionsData)
-        setLoadingCollections(false)
-      }).catch((err) => {
-        setCollectionsError(new Error('Could not load collections', {
-          cause: err,
-        }))
-        setLoadingCollections(false)
-      })
-    },
-    [metrics, event.id]
-  )
-
   useEffect(
     () => {
+      let cancelEventsCollections
       if (
-        settings.showCollections &&
-        !loading &&
-        Object.keys(events).length > 0
+        loadedCount === owners.length &&
+        metrics &&
+        metrics.collectionsIncludes > 0
       ) {
-        loadCollections()
+        cancelEventsCollections = fetchEventsCollections()
+      }
+      return () => {
+        if (cancelEventsCollections) {
+          cancelEventsCollections()
+        }
       }
     },
     [
-      settings.showCollections,
-      loading,
-      events,
-      loadCollections,
+      loadedCount,
+      owners.length,
+      metrics,
+      fetchEventsCollections,
     ]
   )
 
@@ -337,7 +323,6 @@ function Event() {
     setEvents({})
     setInCommon({})
     setLoadedCount(0)
-    setCollectionData(null)
   }
 
   /**
@@ -529,13 +514,13 @@ function Event() {
                   {(
                     !loadingCollections &&
                     collectionsError == null &&
-                    collectionData != null
+                    collections != null
                   ) && (
                     <CollectionSet
                       showEmpty={metrics && metrics.collectionsIncludes > 0}
                       emptyMessage={`No collections found that includes ${event.name}`}
                       collectionMap={{
-                        [`${collectionData.collections.length} collections`]: collectionData.collections,
+                        [`${collections.length} collections`]: collections,
                       }}
                     />
                   )}

@@ -7,8 +7,7 @@ import { scanAddress } from 'loaders/poap'
  *   loadingAddressTokens: boolean
  *   addressTokensError: Error | null
  *   tokens: Awaited<ReturnType<typeof scanAddress>> | null
- *   fetchTokens: () => void
- *   cancelAddressTokens: () => void
+ *   fetchTokens: () => () => void
  * }}
  */
 function useAddressTokens(address) {
@@ -16,10 +15,6 @@ function useAddressTokens(address) {
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [loading, setLoading] = useState(false)
-  /**
-   * @type {ReturnType<typeof useState<AbortController | null>>}
-   */
-  const [controller, setController] = useState(null)
   /**
    * @type {ReturnType<typeof useState<Error | null>>}
    */
@@ -33,7 +28,6 @@ function useAddressTokens(address) {
     () => {
       const controller = new AbortController()
       setLoading(true)
-      setController(controller)
       scanAddress(address, controller.signal).then(
         (foundPOAPs) => {
           setLoading(false)
@@ -45,21 +39,16 @@ function useAddressTokens(address) {
           setPOAPs(null)
         }
       )
+      return () => {
+        if (controller) {
+          controller.abort()
+        }
+        setLoading(false)
+        setError(null)
+        setPOAPs(null)
+      }
     },
     [address]
-  )
-
-  const cancelAddressTokens = useCallback(
-    () => {
-      if (controller) {
-        controller.abort()
-      }
-      setLoading(false)
-      setController(null)
-      setError(null)
-      setPOAPs(null)
-    },
-    [controller]
   )
 
   return {
@@ -67,7 +56,6 @@ function useAddressTokens(address) {
     addressTokensError: error,
     tokens: poaps,
     fetchTokens,
-    cancelAddressTokens,
   }
 }
 
