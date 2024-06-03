@@ -7,7 +7,7 @@ import {
 } from 'models/api'
 import { encodeExpiryDates } from 'models/event'
 import { Drop, DropMetrics, DropOwners } from 'models/drop'
-import { HttpError } from 'models/error'
+import { AbortedError, HttpError } from 'models/error'
 
 /**
  * @param {number} eventId
@@ -36,18 +36,34 @@ export async function getEventAndOwners(
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}?` +
-    `description=${encodeURIComponent(includeDescription)}&` +
-    `metrics=${encodeURIComponent(includeMetrics)}` +
-    `${refresh ? '&refresh=true' : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/event/${eventId}?` +
+      `description=${encodeURIComponent(includeDescription)}&` +
+      `metrics=${encodeURIComponent(includeMetrics)}` +
+      `${refresh ? '&refresh=true' : ''}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Fetch drop ${eventId} aborted`, { cause: err })
     }
-  )
+    throw new Error(
+      `Cannot fetch drop ${eventId}: ` +
+      `response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status === 404) {
     return null
@@ -118,17 +134,32 @@ export async function putEventInCommon(eventId, inCommon) {
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}/in-common`,
-    {
-      method: 'PUT',
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(inCommon),
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/event/${eventId}/in-common`,
+      {
+        method: 'PUT',
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(inCommon),
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Put drop in common aborted`, { cause: err })
     }
-  )
+    throw new Error(
+      `Cannot put drop in common: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200 && response.status !== 201) {
     throw new HttpError(
@@ -155,15 +186,34 @@ export async function getInCommonEvents(eventId, abortSignal) {
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}/in-common`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/event/${eventId}/in-common`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(
+        `Fetch drop ${eventId} in common aborted`,
+        { cause: err }
+      )
     }
-  )
+    throw new Error(
+      `Cannot fetch drop ${eventId} in common: ` +
+      `response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status === 404) {
     return null
@@ -234,9 +284,10 @@ export async function getInCommonEventsWithProgress(
   }
 
   /**
-   * @type {import('axios').AxiosResponse | undefined}
+   * @type {import('axios').AxiosResponse}
    */
   let response
+
   try {
     response = await axios.get(
       `${FAMILY_API_URL}/event/${eventId}/in-common`,
@@ -265,14 +316,17 @@ export async function getInCommonEventsWithProgress(
       return null
     }
 
-    console.error(err)
+    if (axios.isCancel(err)) {
+      throw new AbortedError(
+        `Drop ${eventId} in common aborted`,
+        { cause: err }
+      )
+    }
 
     throw new Error(
-      `Drop ${eventId} in common failed to fetch (status ${status})`
+      `Drop ${eventId} in common failed to fetch (status ${status})`,
+      { cause: err }
     )
-  }
-  if (response == null) {
-    throw new Error(`Drop ${eventId} in common failed to fetch`)
   }
 
   if (response.status === 404) {
@@ -395,16 +449,31 @@ export async function getEvents(eventIds, abortSignal) {
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/events` +
-    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/events` +
+      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Fetch drops aborted`, { cause: err })
     }
-  )
+    throw new Error(
+      `Cannot fetch drops: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200) {
     /**
@@ -471,15 +540,34 @@ export async function getEventOwners(eventId, abortSignal, refresh = false) {
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}/owners${refresh ? '?refresh=true' : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/event/${eventId}/owners${refresh ? '?refresh=true' : ''}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(
+        `Fetch drop ${eventId} owners aborted`,
+        { cause: err }
+      )
     }
-  )
+    throw new Error(
+      `Cannot fetch drop ${eventId} owners: ` +
+      `response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status === 404) {
     return null
@@ -519,17 +607,33 @@ export async function getEventsOwners(eventIds, abortSignal, expiryDates) {
   }
 
   const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
-  const response = await fetch(
-    `${FAMILY_API_URL}/events` +
-      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-      `/owners${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/events` +
+        `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+        `/owners${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Fetch drops owners aborted`, { cause: err })
     }
-  )
+    throw new Error(
+      `Cannot fetch drops owners: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200) {
     /**
@@ -596,16 +700,35 @@ export async function getEventMetrics(eventId, abortSignal, refresh = false) {
     )
   }
 
-  const response = await fetch(
-    `${FAMILY_API_URL}/event/${eventId}` +
-    `/metrics${refresh ? '?refresh=true' : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/event/${eventId}` +
+      `/metrics${refresh ? '?refresh=true' : ''}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(
+        `Fetch drop ${eventId} metrics aborted`,
+        { cause: err }
+      )
     }
-  )
+    throw new Error(
+      `Cannot fetch drop ${eventId} metrics: ` +
+      `response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status === 404) {
     return null
@@ -645,17 +768,33 @@ export async function getEventsMetrics(eventIds, abortSignal, expiryDates) {
   }
 
   const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
-  const response = await fetch(
-    `${FAMILY_API_URL}/events` +
-    `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-    `/metrics${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
-    {
-      signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
+
+  /**
+   * @type {Response}
+   */
+  let response
+
+  try {
+    response = await fetch(
+      `${FAMILY_API_URL}/events` +
+      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
+      `/metrics${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
+      {
+        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
+        headers: {
+          'x-api-key': FAMILY_API_KEY,
+        },
+      }
+    )
+  } catch (err) {
+    if (err.code === 20) {
+      throw new AbortedError(`Fetch drops metrics aborted`, { cause: err })
     }
-  )
+    throw new Error(
+      `Cannot fetch drops metrics: response was not success (network error)`,
+      { cause: err }
+    )
+  }
 
   if (response.status !== 200) {
     /**
