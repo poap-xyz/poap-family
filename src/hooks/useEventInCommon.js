@@ -117,7 +117,7 @@ function useEventInCommon(eventId, owners, force = false) {
         tokens = await scanAddress(address, abortSignal)
       } catch (err) {
         addError(address, err)
-        throw err
+        return
       }
       for (const token of tokens) {
         const event = token.event
@@ -142,7 +142,7 @@ function useEventInCommon(eventId, owners, force = false) {
         } else {
           const error = new Error(`Could not find POAP ${token.id}`)
           addError(address, error)
-          throw error
+          return
         }
       }
       setLoadedOwners((prevLoadedCount) => prevLoadedCount + 1)
