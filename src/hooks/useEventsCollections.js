@@ -10,7 +10,7 @@ import { findEventsCollections } from 'loaders/collection'
  *   collectionsError: Error | null
  *   collections: Awaited<ReturnType<typeof findEventsCollections>>['collections'] | null
  *   relatedCollections: Awaited<ReturnType<typeof findEventsCollections>>['related'] | null
- *   fetchEventsCollections: () => void
+ *   fetchEventsCollections: () => () => void
  * }}
  */
 function useEventsCollections(eventIds) {
