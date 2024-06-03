@@ -55,9 +55,9 @@ function Event() {
     ownersErrors,
     inCommon,
     events,
-    cachedTs,
     caching,
     cachingError,
+    cachedTs,
     fetchEventInCommon,
     retryAddress,
   } = useEventInCommon(event.id, owners, force)
