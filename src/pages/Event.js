@@ -283,7 +283,7 @@ function Event() {
                 )}
               </>
             )}
-            {loadedOwners === 0 && (
+            {completedEventInCommon && loadedOwners === 0 && (
               <Card>
                 <ErrorMessage message="No collectors" />
               </Card>
