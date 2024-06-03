@@ -16,14 +16,16 @@ function LinkToScan({
   stamp = false,
   showEns = true,
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
+
+  const ensName = getEnsName(address)
 
   return (
     <a
       className={clsx('link-to-scan', className)}
       href={`${POAP_SCAN_URL}/${address}`}
       title={title ??
-        `Scan ${address in ensNames ? ensNames[address] : address}`}
+        `Scan ${ensName ?? address}`}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -32,12 +34,12 @@ function LinkToScan({
             <img
               src={POAP_Stamp}
               alt={title ??
-                `Scan ${address in ensNames ? ensNames[address] : address}`}
+                `Scan ${ensName ?? address}`}
             />
           )
         : (
-            showEns && address in ensNames
-              ? <span className="ens">{ensNames[address]}</span>
+            showEns && ensName
+              ? <span className="ens">{ensName}</span>
               : <code>{address}</code>
           )
       }
