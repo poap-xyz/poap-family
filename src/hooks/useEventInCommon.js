@@ -16,9 +16,9 @@ import { scanAddress } from 'loaders/poap'
  *   ownersErrors: Array<{ address: string; error: Error }>
  *   inCommon: Record<number, string[]>
  *   events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>
- *   cachedTs: number | null
  *   caching: boolean
  *   cachingError: Error | null
+ *   cachedTs: number | null
  *   fetchEventInCommon: () => () => void
  *   retryAddress: (address: string) => void
  * }}
@@ -53,10 +53,6 @@ function useEventInCommon(eventId, owners, force = false) {
    */
   const [events, setEvents] = useState({})
   /**
-   * @type {ReturnType<typeof useState<number | null>>}
-   */
-  const [cachedTs, setCachedTs] = useState(null)
-  /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [caching, setCaching] = useState(false)
@@ -64,6 +60,10 @@ function useEventInCommon(eventId, owners, force = false) {
    * @type {ReturnType<typeof useState<Error | null>>}
    */
   const [cachingError, setCachingError] = useState(null)
+  /**
+   * @type {ReturnType<typeof useState<number | null>>}
+   */
+  const [cachedTs, setCachedTs] = useState(null)
 
   useEffect(
     () => {
@@ -276,9 +276,9 @@ function useEventInCommon(eventId, owners, force = false) {
     ownersErrors: errors,
     inCommon,
     events,
-    cachedTs,
     caching,
     cachingError,
+    cachedTs,
     fetchEventInCommon,
     retryAddress,
   }

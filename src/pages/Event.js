@@ -55,9 +55,9 @@ function Event() {
     ownersErrors,
     inCommon,
     events,
-    cachedTs,
     caching,
     cachingError,
+    cachedTs,
     fetchEventInCommon,
     retryAddress,
   } = useEventInCommon(event.id, owners, force)
@@ -283,7 +283,7 @@ function Event() {
                 )}
               </>
             )}
-            {loadedOwners === 0 && (
+            {completedEventInCommon && loadedOwners === 0 && (
               <Card>
                 <ErrorMessage message="No collectors" />
               </Card>

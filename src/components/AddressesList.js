@@ -12,7 +12,7 @@ function AddressesList({
   addresses,
   addressToCompare,
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
 
   return (
     <ol className="addresses-list">
@@ -21,8 +21,8 @@ function AddressesList({
           {addressToCompare
             ? (
               <Link to={`/addresses#${addressToCompare},${address}`}>
-                {address in ensNames
-                  ? <span className="ens">{ensNames[address]}</span>
+                {getEnsName(address)
+                  ? <span className="ens">{getEnsName(address)}</span>
                   : <code>{address}</code>}
               </Link>
             )

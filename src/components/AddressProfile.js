@@ -30,7 +30,7 @@ function AddressProfile({
   inCommonEventIds = [],
   inCommonAddresses = [],
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -95,6 +95,8 @@ function AddressProfile({
     [poaps]
   )
 
+  const ensName = getEnsName(address)
+
   return (
     <div className="address-profile">
       {loadingAddressTokens && (
@@ -105,16 +107,16 @@ function AddressProfile({
       )}
       {!loadingAddressTokens && !addressTokensError && (
         <>
-          {address in ensNames && ensNames[address] != null && (
-            <EnsAvatar ens={ensNames[address]} />
+          {ensName != null && (
+            <EnsAvatar ens={ensName} />
           )}
           <LinkToScan
             className="profile-address"
             address={address}
             showEns={false}
           />
-          {address in ensNames && (
-            <big className="profile-ens">{ensNames[address]}</big>
+          {ensName && (
+            <big className="profile-ens">{ensName}</big>
           )}
           {poaps != null && Array.isArray(poaps) && poaps.length > 0 && (
             <div className={clsx('profile-poaps', showAllPOAPs && 'show-all')}>

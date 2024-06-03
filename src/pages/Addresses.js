@@ -39,13 +39,13 @@ function Addresses() {
   const { setTitle } = useContext(HTMLContext)
   const {
     resolveAddress,
-    addresses: addressByEnsName,
+    getAddress,
+    isEnsAddressNotFound,
   } = useContext(ResolverEnsContext)
   const {
     resolveEnsNames,
     setEnsName,
-    ensNames,
-    isAddressEndNotFound,
+    getEnsName,
   } = useContext(ReverseEnsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -505,8 +505,7 @@ function Addresses() {
             (input) =>
               input.address !== null &&
               input.ens === null &&
-              !(input.address in ensNames) &&
-              !isAddressEndNotFound(input.address)
+              getEnsName(input.address) == null
           )
           .map((input) => input.address)
 
@@ -517,7 +516,7 @@ function Addresses() {
         }
       }
     },
-    [state, addresses, ensNames, isAddressEndNotFound, resolveEnsNames]
+    [state, addresses, getEnsName, resolveEnsNames]
   )
 
   useEffect(
@@ -538,8 +537,8 @@ function Addresses() {
           setState(STATE_ENS_RESOLVING)
           let promise = new Promise((r) => r(undefined))
           for (const { ens, index } of missingAddresses) {
-            if (ens in addressByEnsName) {
-              const address = addressByEnsName[ens]
+            if (!isEnsAddressNotFound(ens)) {
+              const address = getAddress(ens)
               if (address != null) {
                 setCollector(index, address)
               } else {
@@ -567,9 +566,10 @@ function Addresses() {
       state,
       addresses,
       collectors,
-      addressByEnsName,
       loadingByIndex,
       errorsByIndex,
+      getAddress,
+      isEnsAddressNotFound,
       processEnsName,
     ]
   )

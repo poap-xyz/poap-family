@@ -10,7 +10,7 @@ import 'styles/ens-avatar.css'
  * @param {PropTypes.InferProps<EnsAvatar.propTypes>} props
  */
 function EnsAvatar({ ens }) {
-  const { avatars, resolveMeta } = useContext(ResolverEnsContext)
+  const { resolveMeta, getMeta } = useContext(ResolverEnsContext)
 
   useEffect(
     () => {
@@ -19,12 +19,14 @@ function EnsAvatar({ ens }) {
     [ens, resolveMeta]
   )
 
+  const meta = getMeta(ens)
+
   const hasAvatarImage = (
-    ens in avatars &&
-    avatars[ens] != null &&
-    typeof avatars[ens] === 'string' &&
-    avatars[ens].startsWith('http') &&
-    !avatars[ens].endsWith('json')
+    meta != null &&
+    meta.avatar != null &&
+    typeof meta.avatar === 'string' &&
+    meta.avatar.startsWith('http') &&
+    !meta.avatar.endsWith('json')
   )
 
   if (!hasAvatarImage) {
@@ -34,7 +36,7 @@ function EnsAvatar({ ens }) {
   return (
     <LazyImage
       className="ens-avatar"
-      src={avatars[ens]}
+      src={meta.avatar}
       alt={`Avatar of ${ens}`}
       placeholder={({ imageProps, ref }) => (
         <img ref={ref} {...imageProps} /> // eslint-disable-line jsx-a11y/alt-text
