@@ -971,9 +971,14 @@ function Events() {
 
   useEffect(
     () => {
+      let cancelEventsCollections
       if (status === STATUS_LOADING_COMPLETE) {
-        console.debug('fetchEventsCollections')
-        fetchEventsCollections()
+        cancelEventsCollections = fetchEventsCollections()
+      }
+      return () => {
+        if (cancelEventsCollections) {
+          cancelEventsCollections()
+        }
       }
     },
     [

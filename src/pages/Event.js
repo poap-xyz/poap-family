@@ -276,13 +276,19 @@ function Event() {
 
   useEffect(
     () => {
+      let cancelEventsCollections
       if (
         loadedCount === owners.length &&
         metrics &&
         metrics.collectionsIncludes > 0 &&
         collections == null
       ) {
-        fetchEventsCollections()
+        cancelEventsCollections = fetchEventsCollections()
+      }
+      return () => {
+        if (cancelEventsCollections) {
+          cancelEventsCollections()
+        }
       }
     },
     [
