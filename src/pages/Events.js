@@ -1,25 +1,16 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { useSettings } from 'stores/settings'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
-import {
-  getEventAndOwners,
-  getEventMetrics,
-  getEventsMetrics,
-  getEventsOwners,
-  getInCommonEventsWithProgress,
-  putEventInCommon,
-} from 'loaders/api'
-import { fetchPOAPs, scanAddress } from 'loaders/poap'
-import { filterInvalidOwners } from 'models/address'
-import { filterInCommon, mergeAllInCommon } from 'models/in-common'
+import { mergeAllInCommon } from 'models/in-common'
 import { parseEventIds, parseExpiryDates } from 'models/event'
 import { Drops } from 'models/drop'
-import { AbortedError } from 'models/error'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
+import useEventsOwnersAndMetrics from 'hooks/useEventsOwnersAndMetrics'
+import useEventsInCommon from 'hooks/useEventsInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
@@ -44,15 +35,6 @@ import ButtonDelete from 'components/ButtonDelete'
 import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/events.css'
 
-const STATUS_INITIAL = 0
-const STATUS_LOADING_OWNERS = 1
-const STATUS_LOADING_SCANS = 2
-const STATUS_LOADING_COMPLETE = 3
-
-const LOADING_OWNERS = 1
-const LOADING_SCANS = 2
-const LOADING_CACHING = 3
-
 function Events() {
   const navigate = useNavigate()
   const { eventIds: rawEventIds } = useParams()
@@ -61,50 +43,6 @@ function Events() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  /**
-   * @type {ReturnType<typeof useState<Record<number, string[]>>>}
-   */
-  const [owners, setOwners] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>>>}
-   */
-  const [metrics, setMetrics] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<number>>}
-   */
-  const [status, setStatus] = useState(STATUS_INITIAL)
-  /**
-   * @type {ReturnType<typeof useState<Record<number, Error>>>}
-   */
-  const [errors, setErrors] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, number>>>}
-   */
-  const [loading, setLoading] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number | null }>>>}
-   */
-  const [eventData, setEventData] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, Record<string, Error>>>>}
-   */
-  const [eventOwnerErrors, setEventOwnerErrors] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, number>>>}
-   */
-  const [loadedCount, setLoadedCount] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, { progress: number; estimated: number | null; rate: number | null; }>>>}
-   */
-  const [loadedProgress, setLoadedProgress] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<Record<number, boolean>>>}
-   */
-  const [progress, setProgress] = useState({})
-  /**
-   * @type {ReturnType<typeof useState<number[]>>}
-   */
-  const [staleEvents, setStaleEvents] = useState([])
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
@@ -119,6 +57,36 @@ function Events() {
     [events]
   )
 
+  const expiryDates = useMemo(
+    () => parseExpiryDates(events),
+    [events]
+  )
+
+  const {
+    completedEventsOwnersAndMetrics,
+    loadingEventsOwnersAndMetrics,
+    loadingOwnersAndMetricsEvents,
+    eventsOwnersAndMetricsErrors,
+    eventsOwners,
+    eventsMetrics,
+    fetchEventsOwnersAndMetrics,
+    retryEventOwnersAndMetrics,
+  } = useEventsOwnersAndMetrics(eventIds, expiryDates, force)
+
+  const {
+    completedEventsInCommon,
+    completedInCommonEvents,
+    loadingInCommonEvents,
+    eventsInCommonErrors,
+    loadedEventsProgress,
+    loadedEventsOwners,
+    eventsInCommon,
+    cachingEvents,
+    cachingEventsErrors,
+    fetchEventsInCommon,
+    retryEventAddressInCommon,
+  } = useEventsInCommon(eventIds, eventsOwners, all, force)
+
   const {
     loadingCollections,
     collectionsError,
@@ -126,591 +94,6 @@ function Events() {
     relatedCollections,
     fetchEventsCollections,
   } = useEventsCollections(eventIds)
-
-  /**
-   * @param {number} eventId
-   * @param {string[]} owners
-   */
-  const updateEventOwners = (eventId, owners) => {
-    setOwners((prevOwners) => ({
-      ...prevOwners,
-      [eventId]: filterInvalidOwners(owners),
-    }))
-  }
-
-  /**
-   * @param {Record<number, string[]>} eventsOwners 
-   */
-  const updateEventsOwners = (eventsOwners) => {
-    setOwners((prevOwners) => ({
-      ...prevOwners,
-      ...Object.fromEntries(
-        Object.entries(eventsOwners).map(
-          ([rawEventId, owners]) => [
-            rawEventId,
-            filterInvalidOwners(owners),
-          ]
-        )
-      ),
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {{ emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }} metrics
-   */
-  const updateEventMetrics = (eventId, metrics) => {
-    if (metrics == null) {
-      return
-    }
-    setMetrics((prevMetrics) => ({
-      ...prevMetrics,
-      [eventId]: metrics,
-    }))
-  }
-
-  /**
-   * @param {Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>} eventsMetrics 
-   */
-  const updateEventsMetrics = (eventsMetrics) => {
-    if (eventsMetrics == null) {
-      return
-    }
-    setMetrics((prevMetrics) => ({
-      ...prevMetrics,
-      ...Object.fromEntries(
-        Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
-      ),
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const setLoadingOwners = (eventId) => {
-    setLoading((alsoLoading) => ({
-      ...alsoLoading,
-      [eventId]: LOADING_OWNERS,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const setLoadingScans = (eventId) => {
-    setLoading((alsoLoading) => ({
-      ...alsoLoading,
-      [eventId]: LOADING_SCANS,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const setLoadingCaching = (eventId) => {
-    setLoading((alsoLoading) => ({
-      ...alsoLoading,
-      [eventId]: LOADING_CACHING,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const removeLoading = (eventId) => {
-    setLoading((alsoLoading) => {
-      if (alsoLoading == null) {
-        return {}
-      }
-      /**
-       * @type {Record<number, number>}
-       */
-      const newLoading = {}
-      for (const [loadingEventId, loading] of Object.entries(alsoLoading)) {
-        if (String(eventId) !== String(loadingEventId)) {
-          newLoading[loadingEventId] = loading
-        }
-      }
-      return newLoading
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const enableProgress = (eventId) => {
-    setProgress((oldProgress) => ({
-      ...oldProgress,
-      [eventId]: true,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const disableProgress = (eventId) => {
-    setProgress((alsoProgress) => {
-      if (alsoProgress == null) {
-        return {}
-      }
-      /**
-       * @type {Record<number, boolean>}
-       */
-      const newProgress = {}
-      for (const [progressEventId, isProgress] of Object.entries(alsoProgress)) {
-        if (String(eventId) !== String(progressEventId)) {
-          newProgress[progressEventId] = isProgress
-        }
-      }
-      return newProgress
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const removeLoadedProgress = (eventId) => {
-    setLoadedProgress((alsoProgress) => {
-      if (alsoProgress == null) {
-        return {}
-      }
-      /**
-       * @type {Record<number, { progress: number; estimated: number; rate: number; }>}
-       */
-      const newProgress = {}
-      for (const [loadingEventId, progress] of Object.entries(alsoProgress)) {
-        if (String(eventId) !== String(loadingEventId)) {
-          newProgress[loadingEventId] = progress
-        }
-      }
-      return newProgress
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {Error} err
-   */
-  const updateError = (eventId, err) => {
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [eventId]: err,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const removeError = (eventId) => {
-    setErrors((alsoErrors) => {
-      if (alsoErrors == null) {
-        return {}
-      }
-      /**
-       * @type {Record<number, Error>}
-       */
-      const newErrors = {}
-      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
-        if (String(eventId) !== String(errorEventId)) {
-          newErrors[errorEventId] = error
-        }
-      }
-      return newErrors
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {string} address
-   * @param {Error} err
-   */
-  const updateEventOwnerError = (eventId, address, err) => {
-    setEventOwnerErrors((oldEventOwnerErrors) => ({
-      ...(oldEventOwnerErrors ?? {}),
-      [eventId]: {
-        ...((oldEventOwnerErrors ?? {})[eventId] ?? {}),
-        [address]: err,
-      },
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {string} address
-   */
-  const removeEventOwnerError = (eventId, address) => {
-    setEventOwnerErrors((oldEventOwnerErrors) => {
-      if (oldEventOwnerErrors == null) {
-        return {}
-      }
-      if (eventId in oldEventOwnerErrors && address in oldEventOwnerErrors[eventId]) {
-        if (Object.keys(oldEventOwnerErrors[eventId]).length === 1) {
-          delete oldEventOwnerErrors[eventId]
-        } else {
-          delete oldEventOwnerErrors[eventId][address]
-        }
-      }
-      return oldEventOwnerErrors
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const removeEventOwnerErrors = (eventId) => {
-    setEventOwnerErrors((alsoErrors) => {
-      if (alsoErrors == null) {
-        return {}
-      }
-      /**
-       * @type {Record<number, Record<string, Error>>}
-       */
-      const newErrors = {}
-      for (const [errorEventId, errors] of Object.entries(alsoErrors)) {
-        if (String(eventId) !== String(errorEventId)) {
-          newErrors[errorEventId] = errors
-        }
-      }
-      return newErrors
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {string} address
-   * @param {{ id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }} event
-   */
-  const updateEventOwnerData = (eventId, address, event) => {
-    setEventData((prevEventData) => {
-      if (prevEventData == null) {
-        return {
-          [eventId]: {
-            events: {
-              [event.id]: event,
-            },
-            inCommon: {
-              [event.id]: [address],
-            },
-            ts: null,
-          },
-        }
-      }
-      if (eventId in prevEventData) {
-        if (event.id in prevEventData[eventId].inCommon) {
-          if (!prevEventData[eventId].inCommon[event.id].includes(address)) {
-            return {
-              ...prevEventData,
-              [eventId]: {
-                events: {
-                  ...prevEventData[eventId].events,
-                  [event.id]: event,
-                },
-                inCommon: {
-                  ...prevEventData[eventId].inCommon,
-                  [event.id]: [
-                    ...prevEventData[eventId].inCommon[event.id],
-                    address,
-                  ],
-                },
-                ts: null,
-              },
-            }
-          }
-          return {
-            ...prevEventData,
-            [eventId]: {
-              events: {
-                ...prevEventData[eventId].events,
-                [event.id]: event,
-              },
-              inCommon: prevEventData[eventId].inCommon,
-              ts: null,
-            },
-          }
-        }
-        return {
-          ...prevEventData,
-          [eventId]: {
-            events: {
-              ...prevEventData[eventId].events,
-              [event.id]: event,
-            },
-            inCommon: {
-              ...prevEventData[eventId].inCommon,
-              [event.id]: [address],
-            },
-            ts: null,
-          },
-        }
-      }
-      return {
-        ...prevEventData,
-        [eventId]: {
-          events: {
-            [event.id]: event,
-          },
-          inCommon: {
-            [event.id]: [address],
-          },
-          ts: null,
-        },
-      }
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {{ events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>; inCommon: Record<number, string[]>; ts: number }} data
-   */
-  const updateEventData = (eventId, data) => {
-    setEventData((prevEventData) => ({
-      ...prevEventData,
-      [eventId]: {
-        events: data.events,
-        inCommon: data.inCommon,
-        ts: data.ts,
-      },
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {number} [ts]
-   */
-  const updateEventCachedTs = (eventId, ts) => {
-    if (ts == null) {
-      ts = Math.trunc(Date.now() / 1000)
-    }
-    setEventData((prevEventData) => ({
-      ...(prevEventData ?? {}),
-      [eventId]: {
-        events: (prevEventData ?? {})[eventId].events,
-        inCommon: (prevEventData ?? {})[eventId].inCommon,
-        ts,
-      },
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const incrLoadedCount = (eventId) => {
-    setLoadedCount((prevLoadedCount) => ({
-      ...prevLoadedCount,
-      [eventId]: ((prevLoadedCount ?? {})[eventId] ?? 0) + 1,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {number} count
-   */
-  const fixLoadedCount = (eventId, count) => {
-    setLoadedCount((prevLoadedCount) => ({
-      ...prevLoadedCount,
-      [eventId]: count,
-    }))
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const addStaleEvent = (eventId) => {
-    setStaleEvents((oldStaleEvents) => uniq([
-      ...(oldStaleEvents ?? []),
-      eventId,
-    ]))
-  }
-
-  const loadCahedOwnersAndMetrics = useCallback(
-    /**
-     * @param {number} eventId
-     * @param {AbortSignal} [abortSignal]
-     * @returns {Promise<void>}
-     */
-    (eventId, abortSignal) => {
-      removeError(eventId)
-      setLoadingOwners(eventId)
-      return getEventAndOwners(
-        eventId,
-        abortSignal,
-        /*includeDescription*/false,
-        /*includeMetrics*/true,
-        /*refresh*/false
-      ).then(
-        (eventAndOwners) => {
-          removeLoading(eventId)
-          if (eventAndOwners != null) {
-            updateEventOwners(eventId, eventAndOwners.owners)
-            if (eventAndOwners.metrics) {
-              updateEventMetrics(eventId, eventAndOwners.metrics)
-            }
-          } else {
-            const error = new Error('Could not fetch drop and collectors')
-            updateError(eventId, error)
-            return Promise.reject(error)
-          }
-          return Promise.resolve()
-        },
-        (err) => {
-          removeLoading(eventId)
-          if (!(err instanceof AbortedError)) {
-            updateError(eventId, new Error('Could not fetch drop and collectors', {
-              cause: err,
-            }))
-            return Promise.reject(err)
-          }
-          return Promise.resolve()
-        }
-      )
-    },
-    []
-  )
-
-  const loadOwnersAndMetrics = useCallback(
-    /**
-     * @param {number} eventId
-     * @param {AbortSignal} [abortSignal]
-     * @returns {Promise<void>}
-     */
-    (eventId, abortSignal) => {
-      removeError(eventId)
-      setLoadingOwners(eventId)
-      return Promise.allSettled([
-        fetchPOAPs(eventId, abortSignal),
-        getEventMetrics(eventId, abortSignal, force),
-      ]).then(
-        ([eventOwnerTokensResult, eventMetricsResult]) => {
-          removeLoading(eventId)
-          if (eventOwnerTokensResult.status === 'fulfilled') {
-            updateEventOwners(
-              eventId,
-              eventOwnerTokensResult.value.map((token) => token.owner)
-            )
-          } else {
-            console.error(eventOwnerTokensResult.reason)
-            if (
-              !(eventOwnerTokensResult.reason instanceof AbortedError) &&
-              !eventOwnerTokensResult.reason.aborted
-            ) {
-              updateError(
-                eventId,
-                new Error(`Tokens for drop '${eventId}' failed to fetch`, {
-                  cause: eventOwnerTokensResult.reason,
-                })
-              )
-            }
-            return Promise.reject(
-              new Error(`Tokens for drop '${eventId}' failed to fetch`, {
-                cause: eventOwnerTokensResult.reason,
-              })
-            )
-          }
-          if (eventMetricsResult.status === 'fulfilled') {
-            if (eventMetricsResult.value) {
-              updateEventMetrics(eventId, eventMetricsResult.value)
-            }
-          } else {
-            console.error(eventMetricsResult.reason)
-          }
-          return Promise.resolve()
-        },
-        (err) => {
-          removeLoading(eventId)
-          if (!(err instanceof AbortedError)) {
-            updateError(
-              eventId,
-              new Error('Could not fetch collectors or metrics', {
-                cause: err,
-              })
-            )
-            return Promise.reject(err)
-          }
-          return Promise.resolve()
-        }
-      )
-    },
-    [force]
-  )
-
-  const processEventAddress = useCallback(
-    /**
-     * @param {number} eventId
-     * @param {string} address
-     * @param {AbortSignal} [abortSignal]
-     * @returns {Promise<void>}
-     */
-    (eventId, address, abortSignal) => {
-      removeEventOwnerErrors(eventId)
-      return scanAddress(address, abortSignal).then(
-        (ownerTokens) => {
-          for (const ownerToken of ownerTokens) {
-            if (ownerToken.event) {
-              updateEventOwnerData(eventId, address, ownerToken.event)
-            } else {
-              updateEventOwnerError(
-                eventId,
-                address,
-                new Error(`Missing token drop for ${address}`)
-              )
-            }
-          }
-          incrLoadedCount(eventId)
-          return Promise.resolve()
-        },
-        (err) => {
-          if (!(err instanceof AbortedError)) {
-            updateEventOwnerError(
-              eventId,
-              address,
-              new Error(`Missing token drop for ${address}`, {
-                cause: err,
-              })
-            )
-            return Promise.reject(err)
-          }
-          return Promise.resolve()
-        }
-      )
-    },
-    []
-  )
-
-  const processEvent = useCallback(
-    /**
-     * @param {number} eventId
-     * @param {string[]} addresses
-     * @param {Record<string, AbortController>} controllers
-     */
-    (eventId, addresses, controllers) => {
-      setLoadingScans(eventId)
-      enableProgress(eventId)
-      let promise = new Promise((r) => { r(undefined) })
-      for (const owner of addresses) {
-        const process = () => processEventAddress(
-          eventId,
-          owner,
-          controllers[owner].signal
-        )
-        promise = promise.then(process, process)
-      }
-      promise.then(
-        () => {
-          disableProgress(eventId)
-          removeLoading(eventId)
-        },
-        (err) => {
-          disableProgress(eventId)
-          removeLoading(eventId)
-          if (!(err instanceof AbortedError)) {
-            console.error(err)
-          }
-        }
-      )
-      return promise
-    },
-    [processEventAddress]
-  )
 
   useEffect(
     () => {
@@ -721,258 +104,42 @@ function Events() {
 
   useEffect(
     () => {
-      /**
-       * @type {AbortController[]}
-       */
-      const controllers = []
-      if (status === STATUS_INITIAL) {
-        if (!force) {
-          const controller = new AbortController()
-          const expiryDates = parseExpiryDates(events)
-          Promise.all([
-            getEventsOwners(eventIds, controller.signal, expiryDates),
-            getEventsMetrics(eventIds, controller.signal, expiryDates),
-          ]).then(
-            ([eventsOwners, eventsMetrics]) => {
-              updateEventsMetrics(eventsMetrics)
-              if (eventsOwners) {
-                const newOwners = Object.fromEntries(
-                  Object.entries(eventsOwners)
-                    .filter(([, eventOwners]) => eventOwners != null)
-                    .map(
-                      ([rawEventId, eventOwners]) => [
-                        rawEventId,
-                        filterInvalidOwners(eventOwners.owners),
-                      ]
-                    )
-                )
-                updateEventsOwners(newOwners)
-                if (Object.keys(newOwners).length === eventIds.length) {
-                  const allOwners = uniq(union(...Object.values(newOwners)))
-                  resolveEnsNames(allOwners).catch((err) => {
-                    console.error(err)
-                  })
-                  setStatus(STATUS_LOADING_SCANS)
-                } else {
-                  setStatus(STATUS_LOADING_OWNERS)
-                }
-              } else {
-                setStatus(STATUS_LOADING_OWNERS)
-              }
-            },
-            (err) => {
-              console.error(err)
-              setStatus(STATUS_LOADING_OWNERS)
-            }
-          )
-          controllers.push(controller)
-        } else {
-          setStatus(STATUS_LOADING_OWNERS)
-        }
-      } else if (status === STATUS_LOADING_OWNERS) {
-        let promise = new Promise((r) => { r(undefined) })
-        for (const eventId of eventIds) {
-          const controller = new AbortController()
-          const process = () => force
-            ? loadOwnersAndMetrics(eventId, controller.signal)
-            : loadCahedOwnersAndMetrics(eventId, controller.signal)
-          promise = promise.then(process, process)
-          controllers.push(controller)
-        }
+      resolveEnsNames(
+        uniq(union(...Object.values(eventsOwners)))
+      )
+    },
+    [eventsOwners, resolveEnsNames]
+  )
+
+  useEffect(
+    () => {
+      const cancelEventsOwnersAndMetrics = fetchEventsOwnersAndMetrics()
+      return () => {
+        cancelEventsOwnersAndMetrics()
+      }
+    },
+    [fetchEventsOwnersAndMetrics]
+  )
+
+  useEffect(
+    () => {
+      let cancelEventsInCommon
+      if (completedEventsOwnersAndMetrics) {
+        cancelEventsInCommon = fetchEventsInCommon()
       }
       return () => {
-        if (status === STATUS_LOADING_OWNERS && controllers.length > 0) {
-          for (const controller of controllers) {
-            controller.abort()
-          }
+        if (cancelEventsInCommon) {
+          cancelEventsInCommon()
         }
       }
     },
-    [
-      events,
-      eventIds,
-      status,
-      loadCahedOwnersAndMetrics,
-      loadOwnersAndMetrics,
-      resolveEnsNames,
-      force,
-    ]
-  )
-
-  useEffect(
-    () => {
-      /**
-       * @type {AbortController[]}
-       */
-      const controllers = []
-      if (status === STATUS_LOADING_SCANS) {
-        let promise = new Promise((r) => { r(undefined) })
-        for (const eventId of eventIds) {
-          const controller = new AbortController()
-          const ownerAddresses = uniq(owners[eventId])
-          /**
-           * @type {Record<string, AbortController>}
-           */
-          const ownerControllers = ownerAddresses.reduce(
-            (controllers, owner) => ({
-              ...controllers,
-              [owner]: new AbortController(),
-            }),
-            {}
-          )
-          const process = force
-            ? () => processEvent(eventId, ownerAddresses, ownerControllers)
-            : () => {
-              setLoadingScans(eventId)
-              return getInCommonEventsWithProgress(
-                eventId,
-                controller.signal,
-                /*onProgress*/({ progress, estimated, rate }) => {
-                  if (progress != null) {
-                    setLoadedProgress((alsoProgress) => ({
-                      ...alsoProgress,
-                      [eventId]: {
-                        progress,
-                        estimated: estimated ?? null,
-                        rate: rate ?? null,
-                      },
-                    }))
-                  } else {
-                    removeLoadedProgress(eventId)
-                  }
-                }
-              ).then(
-                (result) => {
-                  removeLoading(eventId)
-                  removeLoadedProgress(eventId)
-                  if (result == null) {
-                    return processEvent(eventId, ownerAddresses, ownerControllers)
-                  } else {
-                    updateEventData(eventId, result)
-                    if (eventId in result.inCommon) {
-                      fixLoadedCount(eventId, result.inCommon[eventId].length)
-                    }
-                    return Promise.resolve()
-                  }
-                },
-                (err) => {
-                  removeLoading(eventId)
-                  removeLoadedProgress(eventId)
-                  console.error(err)
-                  return processEvent(eventId, ownerAddresses, ownerControllers)
-                }
-              )
-            }
-          if (all) {
-            controllers.push(...Object.values(ownerControllers))
-          } else {
-            controllers.push(controller, ...Object.values(ownerControllers))
-          }
-          promise = promise.then(process, process)
-        }
-      }
-      return () => {
-        if (status === STATUS_LOADING_SCANS && controllers.length > 0) {
-          for (const controller of controllers) {
-            controller.abort()
-          }
-        }
-      }
-    },
-    [events, eventIds, owners, status, processEvent, force, all]
-  )
-
-  useEffect(
-    () => {
-      if (status === STATUS_INITIAL) {
-        if (Object.keys(events).length === Object.keys(owners).length) {
-          resolveEnsNames(union(...Object.values(owners))).catch((err) => {
-            console.error(err)
-          })
-          setStatus(STATUS_LOADING_SCANS)
-        }
-      } else if (status === STATUS_LOADING_OWNERS) {
-        if (Object.keys(events).length === Object.keys(owners).length) {
-          setStatus((prevStatus) => {
-            if (prevStatus === STATUS_LOADING_OWNERS) {
-              return STATUS_LOADING_SCANS
-            }
-            return STATUS_LOADING_COMPLETE
-          })
-        }
-      }
-    },
-    [events, owners, status, resolveEnsNames]
-  )
-
-  useEffect(
-    () => {
-      if (status === STATUS_LOADING_SCANS) {
-        let eventsLoaded = 0
-        for (const eventId of eventIds) {
-          if ((loadedCount[eventId] ?? 0) === owners[eventId].length) {
-            eventsLoaded++
-            if (
-              eventId in eventData &&
-              !eventData[eventId].ts &&
-              !(eventId in errors) &&
-              !(eventId in loading)
-            ) {
-              const inCommonProcessed = filterInCommon(
-                eventData[eventId].inCommon
-              )
-              const inCommonProcessedEventIds = Object
-                .keys(inCommonProcessed)
-                .map((rawEventId) => parseInt(rawEventId))
-              if (inCommonProcessedEventIds.length > 0) {
-                removeError(eventId)
-                setLoadingCaching(eventId)
-                putEventInCommon(eventId, inCommonProcessed).then(
-                  () => {
-                    updateEventCachedTs(eventId)
-                    removeLoading(eventId)
-                  },
-                  (err) => {
-                    console.error(err)
-                    updateError(eventId, new Error('Could not cache drop', {
-                      cause: err,
-                    }))
-                    removeLoading(eventId)
-                  }
-                )
-              }
-            }
-          } else if (
-            !(eventId in loading) &&
-            eventId in eventData &&
-            eventId in eventData[eventId].inCommon &&
-            eventData[eventId].inCommon[eventId].length !== owners[eventId].length
-          ) {
-            eventsLoaded++
-            addStaleEvent(eventId)
-          }
-        }
-        if (eventsLoaded === eventIds.length) {
-          setStatus(STATUS_LOADING_COMPLETE)
-        }
-      }
-    },
-    [
-      status,
-      events,
-      eventIds,
-      loadedCount,
-      owners,
-      errors,
-      eventData,
-      loading,
-    ]
+    [completedEventsOwnersAndMetrics, fetchEventsInCommon]
   )
 
   useEffect(
     () => {
       let cancelEventsCollections
-      if (status === STATUS_LOADING_COMPLETE) {
+      if (completedEventsInCommon) {
         cancelEventsCollections = fetchEventsCollections()
       }
       return () => {
@@ -982,38 +149,10 @@ function Events() {
       }
     },
     [
-      status,
+      completedEventsInCommon,
       fetchEventsCollections,
     ]
   )
-
-  /**
-   * @param {number} eventId
-   */
-  const retryLoadOwners = (eventId) => {
-    removeError(eventId)
-    loadCahedOwnersAndMetrics(eventId).catch((err) => {
-      console.error(err)
-    })
-  }
-
-  /**
-   * @param {number} eventId
-   * @param {string} address
-   */
-  const retryEventAddress = (eventId, address) => {
-    setLoadingScans(eventId)
-    enableProgress(eventId)
-    removeEventOwnerError(eventId, address)
-    processEventAddress(eventId, address).then(() => {
-      if ((loadedCount[eventId] ?? 0) + 1 === owners[eventId].length) {
-        disableProgress(eventId)
-        removeLoading(eventId)
-      }
-    }).catch((err) => {
-      console.error(err)
-    })
-  }
 
   /**
    * @param {number} eventId
@@ -1082,53 +221,75 @@ function Events() {
    */
   const inCommon = useMemo(
     () => {
-      if (status !== STATUS_LOADING_COMPLETE) {
+      if (!completedEventsInCommon) {
         return {}
       }
       return mergeAllInCommon(
-        Object.values(eventData).map(
+        Object.values(eventsInCommon).map(
           (oneEventData) => oneEventData?.inCommon ?? {}
         ),
         all
       )
     },
-    [eventData, status, all]
+    [completedEventsInCommon, eventsInCommon, all]
   )
 
   /**
    * @type {Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string }>}
    */
   const allEvents = useMemo(
-    () => Object.values(eventData).reduce(
+    () => Object.values(eventsInCommon).reduce(
       (allEvents, data) => ({
         ...allEvents,
         ...data.events,
       }),
       {}
     ),
-    [eventData]
+    [eventsInCommon]
+  )
+
+  const staleEvents = useMemo(
+    () => {
+      if (!completedEventsInCommon) {
+        return 0
+      }
+      return eventIds.reduce(
+        (total, eventId) => {
+          if (
+            loadedEventsOwners[eventId] == null ||
+            eventsOwners[eventId] == null ||
+            eventsInCommon[eventId] == null ||
+            eventsInCommon[eventId].inCommon[eventId] == null ||
+            (
+              loadedEventsOwners[eventId] !== eventsOwners[eventId].length &&
+              eventsInCommon[eventId].inCommon[eventId].length !== eventsOwners[eventId].length
+            )
+          ) {
+            return total + 1
+          }
+          return total
+        },
+        0
+      )
+    },
+    [
+      eventIds,
+      eventsOwners,
+      completedEventsInCommon,
+      loadedEventsOwners,
+      eventsInCommon,
+    ]
   )
 
   const refreshCache = () => {
     setSearchParams({ force: 'true' })
-    setOwners({})
-    setMetrics({})
-    setStatus(STATUS_INITIAL)
-    setErrors({})
-    setLoading({})
-    setEventData({})
-    setEventOwnerErrors({})
-    setLoadedCount({})
-    setLoadedProgress({})
-    setProgress({})
-    setStaleEvents([])
   }
 
   const sumCollectionsIncludes = () => {
-    if (typeof metrics !== 'object') {
+    if (typeof eventsMetrics !== 'object') {
       return 0
     }
-    return Object.values(metrics).reduce(
+    return Object.values(eventsMetrics).reduce(
       (total, metric) => total + metric.collectionsIncludes,
       0
     )
@@ -1190,64 +351,50 @@ function Events() {
                     </td>
                     <td className="event-cell-metrics">
                       {(
-                        status === STATUS_INITIAL ||
-                        (
-                          event.id in loading &&
-                          loading[event.id] === LOADING_OWNERS
-                        )
-                      ) && !(event.id in owners) && (
+                        loadingEventsOwnersAndMetrics ||
+                        loadingOwnersAndMetricsEvents[event.id] != null
+                      ) && (
                         <Loading small={true} />
                       )}
-                      {event.id in owners && (
+                      {eventsOwners[event.id] != null && (
                         <ShadowText grow={true} medium={true}>
-                          {formatStat(owners[event.id].length)}
+                          {formatStat(eventsOwners[event.id].length)}
                           {(
-                            event.id in metrics &&
-                            metrics[event.id] &&
-                            metrics[event.id].emailReservations > 0
-                          ) && ` + ${formatStat(metrics[event.id].emailReservations)}`}
+                            eventsMetrics[event.id] != null &&
+                            eventsMetrics[event.id].emailReservations > 0
+                          ) && (
+                            ` + ${formatStat(eventsMetrics[event.id].emailReservations)}`
+                          )}
                         </ShadowText>
                       )}
                     </td>
                     <td className="event-cell-status">
                       <Status
                         loading={
-                          (
-                            status === STATUS_INITIAL ||
-                            event.id in loading
-                          ) &&
-                          loading[event.id] !== LOADING_CACHING &&
-                          !(event.id in errors)
+                          loadingInCommonEvents[event.id]
                         }
                         caching={
-                          event.id in loading &&
-                          loading[event.id] === LOADING_CACHING &&
-                          !(event.id in errors)
+                          cachingEvents[event.id]
                         }
                         error={
-                          event.id in errors ||
-                          (
-                            event.id in eventOwnerErrors &&
-                            !(
-                              status === STATUS_INITIAL ||
-                              event.id in loading
-                            )
-                          )
+                          eventsOwnersAndMetricsErrors[event.id] != null ||
+                          eventsInCommonErrors[event.id] != null ||
+                          cachingEventsErrors[event.id] != null
                         }
                       />
-                      {event.id in errors && (
+                      {eventsOwnersAndMetricsErrors[event.id] != null && (
                         <>
                           <span
                             className="status-error-message"
-                            title={errors[event.id].cause
-                              ? `${errors[event.id].cause}`
+                            title={eventsOwnersAndMetricsErrors[event.id].cause
+                              ? `${eventsOwnersAndMetricsErrors[event.id].cause}`
                               : undefined}
                           >
-                            {errors[event.id].message}
+                            {eventsOwnersAndMetricsErrors[event.id].message}
                           </span>
                           {' '}
                           <ButtonLink
-                            onClick={() => retryLoadOwners(event.id)}
+                            onClick={() => retryEventOwnersAndMetrics(event.id)}
                           >
                             retry
                           </ButtonLink>
@@ -1255,26 +402,33 @@ function Events() {
                       )}
                     </td>
                     <td className="event-cell-progress">
-                      {event.id in loadedProgress && loading[event.id] === LOADING_SCANS && (
+                      {(
+                        loadingInCommonEvents[event.id] != null &&
+                        loadedEventsProgress[event.id] == null &&
+                        loadedEventsOwners[event.id] != null &&
+                        eventsOwners[event.id] != null
+                      ) && (
                         <Progress
-                          value={loadedProgress[event.id].progress}
+                          value={loadedEventsOwners[event.id]}
+                          max={eventsOwners[event.id].length}
+                          showValue={loadedEventsOwners[event.id] > 0}
+                        />
+                      )}
+                      {loadedEventsProgress[event.id] != null && (
+                        <Progress
+                          value={loadedEventsProgress[event.id].progress}
                           max={1}
                           showPercent={true}
-                          eta={loadedProgress[event.id].estimated}
-                          rate={loadedProgress[event.id].rate}
+                          eta={loadedEventsProgress[event.id].estimated}
+                          rate={loadedEventsProgress[event.id].rate}
                         />
                       )}
-                      {event.id in progress && (
-                        <Progress
-                          value={loadedCount[event.id]}
-                          max={owners[event.id].length}
-                          showValue={loadedCount[event.id] > 0}
-                        />
-                      )}
-                      {event.id in loading && loading[event.id] === LOADING_CACHING && (
+                      {cachingEvents[event.id] != null && (
                         <Progress />
                       )}
-                      {event.id in eventOwnerErrors && Object.entries(eventOwnerErrors[event.id]).map(
+                      {eventsInCommonErrors[event.id] != null && Object.entries(
+                        eventsInCommonErrors[event.id]
+                      ).map(
                         ([address, error]) => (
                           <p key={address} className="address-error-message">
                             <code>[{address}]</code>{' '}
@@ -1285,7 +439,7 @@ function Events() {
                             </span>{' '}
                             <ButtonLink
                               onClick={() => {
-                                retryEventAddress(event.id, address)
+                                retryEventAddressInCommon(event.id, address)
                               }}
                             >
                               retry
@@ -1293,14 +447,16 @@ function Events() {
                           </p>
                         )
                       )}
-                      {event.id in eventData && eventData[event.id].ts != null && (
+                      {(
+                        eventsInCommon[event.id] != null &&
+                        eventsInCommon[event.id].ts != null
+                      ) && (
                         <p className="status-cached-ts">
-                          Cached <Timestamp ts={eventData[event.id].ts} />
+                          Cached <Timestamp ts={eventsInCommon[event.id].ts} />
                           {(
-                            !(event.id in loading) &&
-                            event.id in eventData &&
-                            event.id in eventData[event.id].inCommon &&
-                            eventData[event.id].inCommon[event.id].length !== owners[event.id].length
+                            completedInCommonEvents[event.id] &&
+                            eventsInCommon[event.id] != null &&
+                            eventsInCommon[event.id].inCommon[event.id].length !== eventsOwners[event.id].length
                           ) && (
                             <>
                               {' '}
@@ -1330,33 +486,28 @@ function Events() {
             </table>
           </Card>
         </div>
-        {staleEvents && staleEvents.length > 0 && (
+        {staleEvents > 0 && (
           <WarningMessage>
-            There have been new mints in {staleEvents.length}{' '}
-            POAP{staleEvents.length === 1 ? '' : 's'} since cached,{' '}
+            There have been new mints in {staleEvents}{' '}
+            POAP{staleEvents === 1 ? '' : 's'} since cached,{' '}
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
-        {status !== STATUS_LOADING_COMPLETE && (
+        {!completedEventsOwnersAndMetrics && !completedEventsInCommon && (
+          <Card shink={true}>
+            <Loading title="Loading collectors and metrics" />
+          </Card>
+        )}
+        {completedEventsOwnersAndMetrics && !completedEventsInCommon && (
           <Card shink={true}>
             <Loading
-              title={
-                status === STATUS_INITIAL ?
-                  'Loading cache' : (
-                  status === STATUS_LOADING_OWNERS ?
-                    'Loading collectors' : (
-                      status === STATUS_LOADING_SCANS ?
-                        'Loading drops' :
-                        undefined
-                    )
-                )
-              }
-              count={Object.values(loadedCount).length}
-              total={Object.values(events).length}
+              title="Loading drops"
+              count={Object.values(loadedEventsOwners).length}
+              total={eventIds.length}
             />
           </Card>
         )}
-        {status === STATUS_LOADING_COMPLETE && (
+        {completedEventsInCommon && (
           <>
             {settings.showCollections && (
               <>
@@ -1398,7 +549,7 @@ function Events() {
               </>
             )}
             <EventsOwners
-              eventsOwners={owners}
+              eventsOwners={eventsOwners}
               inCommon={inCommon}
               events={allEvents}
               all={all}
