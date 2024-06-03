@@ -11,6 +11,7 @@ import {
  * some of the given drops (related) when more than one is given.
  *
  * @param {number[]} eventIds
+ * @param {AbortSignal} [abortSignal]
  * @param {number} [limit]
  * @returns {Promise<{
  *   collections: ReturnType<typeof Collection>[]
@@ -19,6 +20,7 @@ import {
  */
 export async function findEventsCollections(
   eventIds,
+  abortSignal,
   limit = DEFAULT_COMPASS_LIMIT,
 ) {
   const [collections, related] = await Promise.all([
@@ -59,7 +61,9 @@ export async function findEventsCollections(
         limit,
       },
       'offset',
-      limit
+      limit,
+      undefined,
+      abortSignal
     ),
     eventIds.length < 2 ? Promise.resolve([]) : queryAllCompass(
       'collections',
@@ -94,7 +98,9 @@ export async function findEventsCollections(
         limit,
       },
       'offset',
-      limit
+      limit,
+      undefined,
+      abortSignal
     )
   ])
 
@@ -106,56 +112,6 @@ export async function findEventsCollections(
       (collection) => !collectionsIds.includes(collection.id)
     ),
   }
-}
-
-/**
- * Retrieve collections that includes given drops.
- *
- * @param {number[]} eventIds
- * @param {number} [limit]
- * @returns {Promise<ReturnType<typeof Collection>[]>}
- */
-export async function findEventsInCollections(
-  eventIds,
-  limit = DEFAULT_COMPASS_LIMIT,
-) {
-  const results = await queryAllCompass(
-    'collections',
-    Collection,
-    `
-      query EventsInCollections(
-        $eventIds: [bigint!]
-        $offset: Int!
-        $limit: Int!
-      ) {
-        collections(
-          where: {
-            collections_items: {
-              drop_id: {
-                _in: $eventIds
-              }
-            }
-          }
-          offset: $offset
-          limit: $limit
-        ) {
-          id
-          slug
-          title
-          banner_image_url
-          logo_image_url
-        }
-      }
-    `,
-    {
-      eventIds,
-      limit,
-    },
-    'offset',
-    limit
-  )
-
-  return results
 }
 
 /**
