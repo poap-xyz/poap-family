@@ -17,12 +17,12 @@ function ButtonExportAddressCsv({
   title,
 }) {
   const { trackLink } = useAnalytics()
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
 
   const handleExportCsv = () => {
     let csv = 'address,ens\n'
     for (const address of addresses) {
-      csv += `${address},${ensNames[address] ?? ''}\n`
+      csv += `${address},${getEnsName(address) ?? ''}\n`
     }
     download(csv, `${filename}.csv`, 'text/csv')
     const href = new URL(window.location.href)

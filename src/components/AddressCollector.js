@@ -14,7 +14,9 @@ function AddressCollector({
   bigEns = false,
   short = false,
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
+
+  const ensName = getEnsName(address)
 
   return (
     <div className={clsx('address-collector', bigEns ? 'big-ens' : 'big-address')}>
@@ -39,9 +41,9 @@ function AddressCollector({
           )}
         </a>
       </div>
-      {(ens || (address && ensNames[address])) && (
+      {(ens || ensName) && (
         <div className="collector-ens">
-          <span className="ens">{ens ?? ensNames[address]}</span>
+          <span className="ens">{ens ?? ensName}</span>
         </div>
       )}
     </div>

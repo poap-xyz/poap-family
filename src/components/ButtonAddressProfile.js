@@ -18,28 +18,30 @@ function ButtonAddressProfile({
   inCommonEventIds = [],
   inCommonAddresses = [],
 }) {
-  const { ensNames } = useContext(ReverseEnsContext)
+  const { getEnsName } = useContext(ReverseEnsContext)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [showModal, setShowModal] = useState(false)
 
+  const ensName = getEnsName(address)
+
   return (
     <>
       <ButtonLink
         className="button-address-profile"
-        title={`Open ${address in ensNames ? ensNames[address] : address} profile`}
+        title={`Open ${ensName ?? address} profile`}
         onClick={() => setShowModal((show) => !show)}
       >
-        {address in ensNames
-          ? <span className="ens">{ensNames[address]}</span>
+        {ensName
+          ? <span className="ens">{ensName}</span>
           : <code>{address}</code>
         }
       </ButtonLink>
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
-        title={address in ensNames ? ensNames[address] : address}
+        title={ensName ?? address}
       >
         <div className="button-address-profile-modal">
           <Card>
