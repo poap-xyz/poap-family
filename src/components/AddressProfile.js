@@ -77,7 +77,10 @@ function AddressProfile({
 
   useEffect(
     () => {
-      fetchTokens()
+      const cancelFetchTokens = fetchTokens()
+      return () => {
+        cancelFetchTokens()
+      }
     },
     [fetchTokens]
   )

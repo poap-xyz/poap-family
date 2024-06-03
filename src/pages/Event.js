@@ -105,8 +105,7 @@ function Event() {
       if (
         loadedOwners === owners.length &&
         metrics &&
-        metrics.collectionsIncludes > 0 &&
-        collections == null
+        metrics.collectionsIncludes > 0
       ) {
         cancelEventsCollections = fetchEventsCollections()
       }
@@ -120,7 +119,6 @@ function Event() {
       loadedOwners,
       owners.length,
       metrics,
-      collections,
       fetchEventsCollections,
     ]
   )
