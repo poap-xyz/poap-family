@@ -50,6 +50,7 @@ function Event() {
   )
 
   const {
+    completedEventInCommon,
     loadingEventInCommon,
     loadedInCommonProgress,
     loadedOwners,
@@ -103,9 +104,9 @@ function Event() {
     () => {
       let cancelEventsCollections
       if (
-        loadedOwners === owners.length &&
         metrics &&
-        metrics.collectionsIncludes > 0
+        metrics.collectionsIncludes > 0 &&
+        completedEventInCommon
       ) {
         cancelEventsCollections = fetchEventsCollections()
       }
@@ -116,9 +117,8 @@ function Event() {
       }
     },
     [
-      loadedOwners,
-      owners.length,
       metrics,
+      completedEventInCommon,
       fetchEventsCollections,
     ]
   )

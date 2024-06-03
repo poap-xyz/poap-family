@@ -9,6 +9,7 @@ import { scanAddress } from 'loaders/poap'
  * @param {string[]} owners
  * @param {boolean} [force]
  * @returns {{
+ *   completedEventInCommon: boolean
  *   loadingEventInCommon: boolean
  *   loadedInCommonProgress: { progress: number; estimated: number | null; rate: number | null; } | null
  *   loadedOwners: number
@@ -23,6 +24,10 @@ import { scanAddress } from 'loaders/poap'
  * }}
  */
 function useEventInCommon(eventId, owners, force = false) {
+  /**
+   * @type {ReturnType<typeof useState<boolean>>}
+   */
+  const [completed, setCompleted] = useState(false)
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -154,20 +159,18 @@ function useEventInCommon(eventId, owners, force = false) {
     /**
      * @param {Record<string, AbortController>} controllers
      */
-    (controllers) => {
+    async (controllers) => {
       setLoading(true)
       setLoadedOwners(0)
       setErrors([])
       let promise = new Promise((r) => { r(undefined) })
       for (const owner of owners) {
         promise = promise.then(
-          () => fetchAddressInCommon(owner, controllers[owner].signal),
           () => fetchAddressInCommon(owner, controllers[owner].signal)
         )
       }
-      promise.then(() => {
-        setLoading(false)
-      })
+      await promise
+      setLoading(false)
     },
     [owners, fetchAddressInCommon]
   )
@@ -181,8 +184,11 @@ function useEventInCommon(eventId, owners, force = false) {
         (ctrls, owner) => ({ ...ctrls, [owner]: new AbortController() }),
         {}
       )
+      setCompleted(false)
       if (force) {
-        fetchOwnersInCommon(controllers)
+        fetchOwnersInCommon(controllers).finally(() => {
+          setCompleted(true)
+        })
       } else {
         setLoading(true)
         setLoadedOwners(0)
@@ -205,28 +211,30 @@ function useEventInCommon(eventId, owners, force = false) {
           (result) => {
             setLoadedProgress(null)
             if (!result) {
-              fetchOwnersInCommon(controllers)
-            } else {
-              setLoading(false)
-              if (eventId in result.inCommon) {
-                setLoadedOwners(result.inCommon[eventId].length)
-              }
-              setInCommon(result.inCommon)
-              setEvents(result.events)
-              setCachedTs(result.ts)
+              return fetchOwnersInCommon(controllers)
             }
+            setLoading(false)
+            if (eventId in result.inCommon) {
+              setLoadedOwners(result.inCommon[eventId].length)
+            }
+            setInCommon(result.inCommon)
+            setEvents(result.events)
+            setCachedTs(result.ts)
           },
           (err) => {
             setLoadedProgress(null)
             console.error(err)
-            fetchOwnersInCommon(controllers)
+            return fetchOwnersInCommon(controllers)
           }
-        )
+        ).finally(() => {
+          setCompleted(true)
+        })
       }
       return () => {
         for (const controller of Object.values(controllers)) {
           controller.abort()
         }
+        setCompleted(false)
         setLoading(false)
         setLoadedProgress(null)
         setLoadedOwners(0)
@@ -261,6 +269,7 @@ function useEventInCommon(eventId, owners, force = false) {
   }
 
   return {
+    completedEventInCommon: completed,
     loadingEventInCommon: loading,
     loadedInCommonProgress: loadedProgress,
     loadedOwners,
