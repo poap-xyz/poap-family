@@ -11,7 +11,6 @@ import { findEventsCollections } from 'loaders/collection'
  *   collections: Awaited<ReturnType<typeof findEventsCollections>>['collections'] | null
  *   relatedCollections: Awaited<ReturnType<typeof findEventsCollections>>['related'] | null
  *   fetchEventsCollections: () => void
- *   cancelEventsCollections: () => void
  * }}
  */
 function useEventsCollections(eventIds) {
@@ -20,10 +19,6 @@ function useEventsCollections(eventIds) {
    * @type {ReturnType<typeof useState<boolean>>}
    */
   const [loading, setLoading] = useState(false)
-  /**
-   * @type {ReturnType<typeof useState<AbortController | null>>}
-   */
-  const [controller, setController] = useState(null)
   /**
    * @type {ReturnType<typeof useState<Error | null>>}
    */
@@ -35,20 +30,21 @@ function useEventsCollections(eventIds) {
 
   const fetchEventsCollections = useCallback(
     () => {
+      /**
+       * @type {AbortController | undefined}
+       */
+      let controller
       if (settings.showCollections) {
-        const controller = new AbortController()
+        controller = new AbortController()
         setLoading(true)
-        setController(controller)
         findEventsCollections(
           eventIds,
           controller.signal
         ).then((result) => {
           setResult(result)
           setLoading(false)
-          setController(null)
         }).catch((err) => {
           setLoading(false)
-          setController(null)
           if (!(err instanceof AbortedError)) {
             console.error(err)
             if (err instanceof Error) {
@@ -59,21 +55,16 @@ function useEventsCollections(eventIds) {
           }
         })
       }
+      return () => {
+        if (controller) {
+          controller.abort()
+        }
+        setLoading(false)
+        setError(null)
+        setResult(null)
+      }
     },
     [eventIds, settings.showCollections]
-  )
-
-  const cancelEventsCollections = useCallback(
-    () => {
-      if (controller) {
-        controller.abort()
-      }
-      setLoading(false)
-      setController(null)
-      setError(null)
-      setResult(null)
-    },
-    [controller]
   )
 
   return {
@@ -82,7 +73,6 @@ function useEventsCollections(eventIds) {
     collections: result == null ? null : result.collections,
     relatedCollections: result == null ? null : result.related,
     fetchEventsCollections,
-    cancelEventsCollections,
   }
 }
 
