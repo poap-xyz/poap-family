@@ -7,7 +7,6 @@ import { formatDate } from 'utils/date'
 import linkify from 'utils/linkify'
 import Ilustration from 'assets/images/Illustration_Cities_BuenosAires.png'
 import Card from 'components/Card'
-import Stats from 'components/Stats'
 import TokenImageZoom from 'components/TokenImageZoom'
 import ExternalLink from 'components/ExternalLink'
 import 'styles/event-info.css'
@@ -17,8 +16,6 @@ import 'styles/event-info.css'
  */
 function EventInfo({
   event,
-  stats,
-  highlightStat,
   children,
 }) {
   /**
@@ -69,7 +66,6 @@ function EventInfo({
             {event.city && event.country && (
               <div className="place">{event.city}, {event.country}</div>
             )}
-            <Stats stats={stats} highlight={highlightStat} />
             {children}
           </div>
         </div>
@@ -80,18 +76,6 @@ function EventInfo({
 
 EventInfo.propTypes = {
   event: PropTypes.shape(DropProps).isRequired,
-  stats: (
-    PropTypes.objectOf(
-      PropTypes.shape({
-        text: PropTypes.string.isRequired,
-        title: PropTypes.string,
-        href: PropTypes.string,
-        external: PropTypes.bool,
-        small: PropTypes.bool,
-      }).isRequired
-    ).isRequired
-  ),
-  highlightStat: PropTypes.string,
   children: PropTypes.node,
 }
 

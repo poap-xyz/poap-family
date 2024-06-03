@@ -1,13 +1,10 @@
 import { useContext, useEffect, useMemo } from 'react'
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
-import { formatStat } from 'utils/number'
-import { formatDateAgo } from 'utils/date'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { parseEventIds } from 'models/event'
 import { DropData } from 'models/drop'
-import { POAP_MOMENTS_URL } from 'models/poap'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
@@ -17,6 +14,7 @@ import Button from 'components/Button'
 import Loading from 'components/Loading'
 import InCommon from 'components/InCommon'
 import EventInfo from 'components/EventInfo'
+import EventStats from 'components/EventStats'
 import CollectionSet from 'components/CollectionSet'
 import AddressErrorList from 'components/AddressErrorList'
 import WarningMessage from 'components/WarningMessage'
@@ -159,66 +157,17 @@ function Event() {
     }
   }
 
-  const stats = useMemo(
-    () => {
-      const stats = {
-        'collectors': metrics && metrics.emailReservations > 0
-          ? {
-              text: formatStat(owners.length + metrics.emailReservations),
-            }
-          : {
-              text: formatStat(owners.length),
-              title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
-            },
-      }
-
-      if (metrics && metrics.emailReservations > 0) {
-        stats['mints'] = {
-          text: formatStat(owners.length),
-          title: ts != null ? `Cached ${formatDateAgo(ts)}` : undefined,
-        }
-        stats['reservations'] = {
-          text: formatStat(metrics.emailReservations),
-          title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
-        }
-      }
-
-      if (metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0) {
-        stats['email conversion'] = {
-          text: formatStat(metrics.emailClaimsMinted),
-          title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
-        }
-      }
-
-      if (metrics && metrics.collectionsIncludes > 0) {
-        stats['collections'] = {
-          text: formatStat(metrics.collectionsIncludes),
-        }
-      }
-
-      if (metrics && metrics.momentsUploaded > 0) {
-        stats['moments'] = {
-          text: formatStat(metrics.momentsUploaded),
-          title: `View uploaded moments on ${event.name}`,
-          href: `${POAP_MOMENTS_URL}/drop/${event.id}`,
-          external: true,
-        }
-      }
-
-      return stats
-    },
-    [event, owners.length, ts, metrics]
-  )
-
   return (
     <Page>
       <div className="event">
         <div className="event-header-info">
-          <EventInfo
-            event={event}
-            stats={stats}
-            highlightStat="collectors"
-          >
+          <EventInfo event={event}>
+            <EventStats
+              event={event}
+              collectors={owners.length}
+              cachedTs={ts}
+              metrics={metrics}
+            />
             <EventButtonGroup event={event} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${event.id}`}
