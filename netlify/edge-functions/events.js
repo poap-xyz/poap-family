@@ -108,8 +108,7 @@ export default async function handler(request, context) {
       ),
       env,
       eventIds,
-      ts,
-      `${env.FAMILY_URL}/events/${eventIds.join(',')}`
+      ts
     ),
     response
   )
