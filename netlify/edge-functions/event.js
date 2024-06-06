@@ -68,8 +68,7 @@ export default async function handler(request, context) {
       ),
       env,
       [eventId],
-      eventInfo.ts,
-      `${env.FAMILY_URL}/event/${eventId}`
+      eventInfo.ts
     ),
     response
   )
