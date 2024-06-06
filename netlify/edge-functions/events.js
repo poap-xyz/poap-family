@@ -78,7 +78,7 @@ export default async function handler(request, context) {
   for (const eventId of eventIds) {
     const eventInfo = eventsInfo[eventId]
 
-    if (eventInfo.event == null || eventInfo.owners == null || eventInfo.metrics == null) {
+    if (eventInfo.event == null) {
       return new Response(html, {
         status: 200,
         headers: {
