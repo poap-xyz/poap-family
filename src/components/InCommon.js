@@ -168,7 +168,7 @@ function InCommon({
           eventIds={activeEventIds}
           events={events}
           inCommon={inCommon}
-          onDissmiss={removeActiveEventId}
+          onClose={removeActiveEventId}
         />
       }
     </div>

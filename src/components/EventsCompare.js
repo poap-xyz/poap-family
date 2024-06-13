@@ -24,7 +24,7 @@ function EventsCompare({
   eventIds,
   events,
   inCommon,
-  onDissmiss =
+  onClose =
     /**
      * @param {number} eventId
      */
@@ -151,8 +151,8 @@ function EventsCompare({
                 baseEventIds={baseEventIds}
                 eventId={eventId}
               >
-                {onDissmiss && (
-                  <ButtonClose onClose={() => onDissmiss(eventId)} />
+                {onClose && (
+                  <ButtonClose onClose={() => onClose(eventId)} />
                 )}
               </EventNavigateButtons>
             </div>
@@ -236,7 +236,7 @@ EventsCompare.propTypes = {
       PropTypes.string.isRequired
     ).isRequired
   ).isRequired,
-  onDissmiss: PropTypes.func,
+  onClose: PropTypes.func,
 }
 
 export default EventsCompare
