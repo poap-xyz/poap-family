@@ -1,9 +1,8 @@
 import { useContext, useEffect, useMemo } from 'react'
-import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
-import { parseEventIds } from 'models/event'
 import { DropData } from 'models/drop'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
@@ -21,13 +20,11 @@ import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
-import ButtonAdd from 'components/ButtonAdd'
 import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
 import 'styles/event.css'
 
 function Event() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
   const { settings } = useSettings()
@@ -123,13 +120,6 @@ function Event() {
 
   const refreshCache = () => {
     setSearchParams({ force: 'true' })
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const addEvent = (eventId) => {
-    navigate(`/events/${parseEventIds(`${event.id},${eventId}`).join(',')}`)
   }
 
   return (
@@ -268,22 +258,6 @@ function Event() {
                 inCommon={inCommon}
                 events={events}
                 baseEventIds={eventIds}
-                createActiveTopButtons={
-                  /**
-                   * @param {number} eventId
-                   */
-                  (eventId) => (
-                    String(eventId) === String(event.id)
-                      ? null
-                      : (
-                          <ButtonAdd
-                            key="add"
-                            onAdd={() => addEvent(eventId)}
-                            title={`Combines drop #${eventId}`}
-                          />
-                        )
-                  )
-                }
               />
             )}
           </>

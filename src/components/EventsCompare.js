@@ -12,6 +12,8 @@ import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
 import AddressOwner from 'components/AddressOwner'
 import EventCompareButtons from 'components/EventCompareButtons'
+import EventNavigateButtons from 'components/EventNavigateButtons'
+import ButtonClose from 'components/ButtonClose'
 import 'styles/events-compare.css'
 
 /**
@@ -22,7 +24,11 @@ function EventsCompare({
   eventIds,
   events,
   inCommon,
-  createHeaderActions,
+  onDissmiss =
+    /**
+     * @param {number} eventId
+     */
+    (eventId) => {},
 }) {
   const { settings } = useSettings()
   /**
@@ -140,11 +146,16 @@ function EventsCompare({
         <div className="event-compare" key={eventId}>
           <Card>
             <EventHeader event={events[eventId]} size={48} />
-            {createHeaderActions != null && (
-              <div className="event-compare-actions">
-                {createHeaderActions(eventId)}
-              </div>
-            )}
+            <div className="event-compare-actions">
+              <EventNavigateButtons
+                baseEventIds={baseEventIds}
+                eventId={eventId}
+              >
+                {onDissmiss && (
+                  <ButtonClose onClose={() => onDissmiss(eventId)} />
+                )}
+              </EventNavigateButtons>
+            </div>
             <h4>
               {inCommon[eventId].length}{' '}
               collector{inCommon[eventId].length === 1 ? '' : 's'}
@@ -225,7 +236,7 @@ EventsCompare.propTypes = {
       PropTypes.string.isRequired
     ).isRequired
   ).isRequired,
-  createHeaderActions: PropTypes.func,
+  onDissmiss: PropTypes.func,
 }
 
 export default EventsCompare

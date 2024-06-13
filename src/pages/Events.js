@@ -29,7 +29,6 @@ import Switch from 'components/Switch'
 import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
-import ButtonAdd from 'components/ButtonAdd'
 import ButtonDelete from 'components/ButtonDelete'
 import 'styles/events.css'
 
@@ -151,13 +150,6 @@ function Events() {
       fetchEventsCollections,
     ]
   )
-
-  /**
-   * @param {number} eventId
-   */
-  const addEvent = (eventId) => {
-    navigate(`/events/${parseEventIds(`${rawEventIds},${eventId}`).join(',')}`)
-  }
 
   /**
    * @param {number} eventId
@@ -528,22 +520,6 @@ function Events() {
               inCommon={inCommon}
               events={allEvents}
               baseEventIds={eventIds}
-              createActiveTopButtons={
-                /**
-                 * @param {number} eventId
-                 */
-                (eventId) => (
-                  eventIds.includes(eventId)
-                    ? null
-                    : (
-                        <ButtonAdd
-                          key="add"
-                          onAdd={() => addEvent(eventId)}
-                          title={`Combines drop #${eventId}`}
-                        />
-                      )
-                )
-              }
             />
           </>
         )}
