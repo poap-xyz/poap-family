@@ -31,12 +31,6 @@ function InCommon({
      * @returns {import('react').ReactNode}
      */
     (eventId) => null,
-  createActiveBottomButtons =
-    /**
-     * @param {number} eventId
-     * @returns {import('react').ReactNode}
-     */
-    (eventId) => null,
 }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -177,6 +171,7 @@ function InCommon({
       </Card>
       {activeEventIds.length > 0 && showActive &&
         <EventsCompare
+          baseEventIds={baseEventIds}
           eventIds={activeEventIds}
           events={events}
           inCommon={inCommon}
@@ -195,7 +190,6 @@ function InCommon({
               </>
             )
           }
-          createBottomButtons={createActiveBottomButtons}
         />
       }
     </div>
@@ -216,7 +210,6 @@ InCommon.propTypes = {
   showActive: PropTypes.bool,
   baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
   createActiveTopButtons: PropTypes.func,
-  createActiveBottomButtons: PropTypes.func,
 }
 
 export default InCommon
