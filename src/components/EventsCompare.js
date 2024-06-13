@@ -11,18 +11,18 @@ import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
 import AddressOwner from 'components/AddressOwner'
-import EventButtonGroup from 'components/EventButtonGroup'
+import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/events-compare.css'
 
 /**
  * @param {PropTypes.InferProps<EventsCompare.propTypes>} props
  */
 function EventsCompare({
+  baseEventIds = [],
   eventIds,
   events,
   inCommon,
   createHeaderActions,
-  createBottomButtons,
 }) {
   const { settings } = useSettings()
   /**
@@ -200,13 +200,13 @@ function EventsCompare({
                 })}
               </ul>
             </div>
-            <EventButtonGroup
-              event={events[eventId]}
+            <EventCompareButtons
+              eventId={eventId}
+              eventIds={baseEventIds}
+              events={events}
+              inCommon={inCommon}
               viewInGallery={true}
-            >
-              {createBottomButtons != null &&
-                createBottomButtons(eventId)}
-            </EventButtonGroup>
+            />
           </Card>
         </div>
       )}
@@ -215,6 +215,7 @@ function EventsCompare({
 }
 
 EventsCompare.propTypes = {
+  baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
   eventIds: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
   events: PropTypes.objectOf(
     PropTypes.shape(DropProps).isRequired
@@ -225,7 +226,6 @@ EventsCompare.propTypes = {
     ).isRequired
   ).isRequired,
   createHeaderActions: PropTypes.func,
-  createBottomButtons: PropTypes.func,
 }
 
 export default EventsCompare

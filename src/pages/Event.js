@@ -24,7 +24,6 @@ import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonAdd from 'components/ButtonAdd'
 import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
-import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/event.css'
 
 function Event() {
@@ -283,19 +282,6 @@ function Event() {
                             title={`Combines drop #${eventId}`}
                           />
                         )
-                  )
-                }
-                createActiveBottomButtons={
-                  /**
-                   * @param {number} eventId
-                   */
-                  (eventId) => (
-                    <EventCompareButtons
-                      eventId={eventId}
-                      eventIds={[event.id]}
-                      events={events}
-                      inCommon={inCommon}
-                    />
                   )
                 }
               />

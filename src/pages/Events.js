@@ -31,7 +31,6 @@ import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonAdd from 'components/ButtonAdd'
 import ButtonDelete from 'components/ButtonDelete'
-import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/events.css'
 
 function Events() {
@@ -543,19 +542,6 @@ function Events() {
                           title={`Combines drop #${eventId}`}
                         />
                       )
-                )
-              }
-              createActiveBottomButtons={
-                /**
-                 * @param {number} eventId
-                 */
-                (eventId) => (
-                  <EventCompareButtons
-                    eventId={eventId}
-                    eventIds={eventIds}
-                    events={allEvents}
-                    inCommon={inCommon}
-                  />
                 )
               }
             />
