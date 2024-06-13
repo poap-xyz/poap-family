@@ -25,7 +25,6 @@ import Progress from 'components/Progress'
 import InCommon from 'components/InCommon'
 import CollectionSet from 'components/CollectionSet'
 import EventsOwners from 'components/EventsOwners'
-import Button from 'components/Button'
 import Switch from 'components/Switch'
 import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
@@ -174,34 +173,6 @@ function Events() {
       navigate(`/events/${newEventIds.join(',')}`)
     } else {
       navigate('/')
-    }
-  }
-
-  /**
-   * @param {number[]} eventIds
-   */
-  const addEvents = (eventIds) => {
-    if (eventIds.length === 0) {
-      return
-    }
-    const newEventIds = parseEventIds(`${rawEventIds},${eventIds.join(',')}`)
-    if (newEventIds.length > 0) {
-      navigate(`/events/${newEventIds.join(',')}`)
-    }
-  }
-
-  /**
-   * @param {number[]} eventIds
-   */
-  const openEvents = (eventIds) => {
-    if (eventIds.length === 0) {
-      return
-    }
-    const newEventIds = parseEventIds(eventIds.join(','))
-    if (newEventIds.length > 1) {
-      navigate(`/events/${newEventIds.join(',')}`)
-    } else if (newEventIds.length === 1) {
-      navigate(`/event/${newEventIds[0]}`)
     }
   }
 
@@ -557,43 +528,7 @@ function Events() {
             <InCommon
               inCommon={inCommon}
               events={allEvents}
-              createButtons={
-                /**
-                 * @param {number[]} selectedEventIds
-                 */
-                (selectedEventIds) => (
-                  <>
-                    <Button
-                      disabled={
-                        selectedEventIds.length === 0 ||
-                        selectedEventIds.every(
-                          (eventId) => eventIds.includes(eventId)
-                        )
-                      }
-                      onClick={() => addEvents(selectedEventIds)}
-                    >
-                      Add selected
-                    </Button>
-                    <Button
-                      secondary={true}
-                      disabled={
-                        selectedEventIds.length === 0 ||
-                        (
-                          selectedEventIds.every(
-                            (eventId) => eventIds.includes(eventId)
-                          ) &&
-                          eventIds.every(
-                            (eventId) => selectedEventIds.includes(eventId)
-                          )
-                        )
-                      }
-                      onClick={() => openEvents(selectedEventIds)}
-                    >
-                      Open
-                    </Button>
-                  </>
-                )
-              }
+              baseEventIds={eventIds}
               createActiveTopButtons={
                 /**
                  * @param {number} eventId

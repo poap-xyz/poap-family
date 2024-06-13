@@ -11,7 +11,7 @@ import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
 import EventsPowers from 'components/EventsPowers'
 import EventsCompare from 'components/EventsCompare'
-import ButtonGroup from 'components/ButtonGroup'
+import EventsNavigateButtons from 'components/EventsNavigateButtons'
 import ButtonClose from 'components/ButtonClose'
 import 'styles/in-common.css'
 
@@ -24,12 +24,7 @@ function InCommon({
   events = {},
   showCount,
   showActive = true,
-  createButtons =
-    /**
-     * @param {number[]} eventIds
-     * @returns {import('react').ReactNode}
-     */
-    (eventIds) => null,
+  baseEventIds = [],
   createActiveTopButtons =
     /**
      * @param {number} eventId
@@ -174,10 +169,10 @@ function InCommon({
           )}
         </EventsPowers>
         {inCommonTotal > 0 && (
-          <ButtonGroup right={true}>
-            {createButtons != null &&
-              createButtons(activeEventIds)}
-          </ButtonGroup>
+          <EventsNavigateButtons
+            baseEventIds={baseEventIds}
+            eventIds={activeEventIds}
+          />
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
@@ -219,7 +214,7 @@ InCommon.propTypes = {
   ).isRequired,
   showCount: PropTypes.number,
   showActive: PropTypes.bool,
-  createButtons: PropTypes.func,
+  baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
   createActiveTopButtons: PropTypes.func,
   createActiveBottomButtons: PropTypes.func,
 }
