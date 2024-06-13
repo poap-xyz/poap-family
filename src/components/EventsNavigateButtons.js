@@ -13,14 +13,11 @@ function EventsNavigateButtons({
 }) {
   const navigate = useNavigate()
 
-  /**
-   * @param {number[]} addEventIds
-   */
-  const addEvents = (addEventIds) => {
-    if (addEventIds.length === 0) {
+  const addEvents = () => {
+    if (eventIds.length === 0) {
       return
     }
-    const newEventIds = [...baseEventIds, ...addEventIds]
+    const newEventIds = [...baseEventIds, ...eventIds]
     if (newEventIds.length > 0) {
       navigate(`/events/${joinEventIds(newEventIds)}`)
     } else if (newEventIds.length === 1) {
@@ -28,17 +25,14 @@ function EventsNavigateButtons({
     }
   }
 
-  /**
-   * @param {number[]} openEventIds
-   */
-  const openEvents = (openEventIds) => {
-    if (openEventIds.length === 0) {
+  const openEvents = () => {
+    if (eventIds.length === 0) {
       return
     }
-    if (openEventIds.length > 1) {
-      navigate(`/events/${joinEventIds(openEventIds)}`)
-    } else if (openEventIds.length === 1) {
-      navigate(`/event/${openEventIds[0]}`)
+    if (eventIds.length > 1) {
+      navigate(`/events/${joinEventIds(eventIds)}`)
+    } else if (eventIds.length === 1) {
+      navigate(`/event/${eventIds[0]}`)
     }
   }
 
@@ -52,7 +46,7 @@ function EventsNavigateButtons({
               (eventId) => baseEventIds.includes(eventId)
             )
           }
-          onClick={() => addEvents(eventIds)}
+          onClick={() => addEvents()}
           title={`Combines drops #${eventIds.join(', #')} to #${baseEventIds.join(', #')}`}
         >
           Add selected
@@ -71,7 +65,7 @@ function EventsNavigateButtons({
             )
           )
         }
-        onClick={() => openEvents(eventIds)}
+        onClick={() => openEvents()}
         title={`Open drops #${eventIds.join(', #')}`}
       >
         Open {baseEventIds.length === 0 && ' selected'}
