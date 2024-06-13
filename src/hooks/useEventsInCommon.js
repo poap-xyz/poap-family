@@ -64,7 +64,8 @@ function useEventsInCommon(eventIds, eventsOwners, all = false, force = false) {
           completed[eventId] &&
           (loadedOwners[eventId] ?? 0) === eventsOwners[eventId].length &&
           inCommon[eventId] != null &&
-          inCommon[eventId].ts == null
+          inCommon[eventId].ts == null &&
+          !caching[eventId]
         ) {
           const inCommonProcessed = filterInCommon(
             inCommon[eventId].inCommon
@@ -92,7 +93,7 @@ function useEventsInCommon(eventIds, eventsOwners, all = false, force = false) {
         }
       }
     },
-    [eventIds, eventsOwners, completed, loadedOwners, inCommon]
+    [eventIds, eventsOwners, loadedOwners, completed, caching, inCommon]
   )
 
   /**
