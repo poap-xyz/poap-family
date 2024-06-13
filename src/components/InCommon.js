@@ -12,7 +12,6 @@ import ErrorMessage from 'components/ErrorMessage'
 import EventsPowers from 'components/EventsPowers'
 import EventsCompare from 'components/EventsCompare'
 import EventsNavigateButtons from 'components/EventsNavigateButtons'
-import ButtonClose from 'components/ButtonClose'
 import 'styles/in-common.css'
 
 /**
@@ -25,12 +24,6 @@ function InCommon({
   showCount,
   showActive = true,
   baseEventIds = [],
-  createActiveTopButtons =
-    /**
-     * @param {number} eventId
-     * @returns {import('react').ReactNode}
-     */
-    (eventId) => null,
 }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -175,21 +168,7 @@ function InCommon({
           eventIds={activeEventIds}
           events={events}
           inCommon={inCommon}
-          createHeaderActions={
-            /**
-             * @param {number} eventId
-             */
-            (eventId) => (
-              <>
-                {createActiveTopButtons != null &&
-                  createActiveTopButtons(eventId)}
-                <ButtonClose
-                  key="del"
-                  onClose={() => removeActiveEventId(eventId)}
-                />
-              </>
-            )
-          }
+          onDissmiss={removeActiveEventId}
         />
       }
     </div>
@@ -209,7 +188,6 @@ InCommon.propTypes = {
   showCount: PropTypes.number,
   showActive: PropTypes.bool,
   baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
-  createActiveTopButtons: PropTypes.func,
 }
 
 export default InCommon

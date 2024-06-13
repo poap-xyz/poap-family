@@ -53,6 +53,7 @@ function EventsNavigateButtons({
             )
           }
           onClick={() => addEvents(eventIds)}
+          title={`Combines drops #${eventIds.join(', #')} to #${baseEventIds.join(', #')}`}
         >
           Add selected
         </Button>
@@ -71,6 +72,7 @@ function EventsNavigateButtons({
           )
         }
         onClick={() => openEvents(eventIds)}
+        title={`Open drops #${eventIds.join(', #')}`}
       >
         Open {baseEventIds.length === 0 && ' selected'}
       </Button>
