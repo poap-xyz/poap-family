@@ -11,18 +11,24 @@ import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
 import AddressOwner from 'components/AddressOwner'
-import EventButtonGroup from 'components/EventButtonGroup'
+import EventCompareButtons from 'components/EventCompareButtons'
+import EventNavigateButtons from 'components/EventNavigateButtons'
+import ButtonClose from 'components/ButtonClose'
 import 'styles/events-compare.css'
 
 /**
  * @param {PropTypes.InferProps<EventsCompare.propTypes>} props
  */
 function EventsCompare({
+  baseEventIds = [],
   eventIds,
   events,
   inCommon,
-  createHeaderActions,
-  createBottomButtons,
+  onClose =
+    /**
+     * @param {number} eventId
+     */
+    (eventId) => {},
 }) {
   const { settings } = useSettings()
   /**
@@ -140,11 +146,16 @@ function EventsCompare({
         <div className="event-compare" key={eventId}>
           <Card>
             <EventHeader event={events[eventId]} size={48} />
-            {createHeaderActions != null && (
-              <div className="event-compare-actions">
-                {createHeaderActions(eventId)}
-              </div>
-            )}
+            <div className="event-compare-actions">
+              <EventNavigateButtons
+                baseEventIds={baseEventIds}
+                eventId={eventId}
+              >
+                {onClose && (
+                  <ButtonClose onClose={() => onClose(eventId)} />
+                )}
+              </EventNavigateButtons>
+            </div>
             <h4>
               {inCommon[eventId].length}{' '}
               collector{inCommon[eventId].length === 1 ? '' : 's'}
@@ -200,13 +211,13 @@ function EventsCompare({
                 })}
               </ul>
             </div>
-            <EventButtonGroup
-              event={events[eventId]}
+            <EventCompareButtons
+              eventId={eventId}
+              eventIds={baseEventIds}
+              events={events}
+              inCommon={inCommon}
               viewInGallery={true}
-            >
-              {createBottomButtons != null &&
-                createBottomButtons(eventId)}
-            </EventButtonGroup>
+            />
           </Card>
         </div>
       )}
@@ -215,6 +226,7 @@ function EventsCompare({
 }
 
 EventsCompare.propTypes = {
+  baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
   eventIds: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
   events: PropTypes.objectOf(
     PropTypes.shape(DropProps).isRequired
@@ -224,8 +236,7 @@ EventsCompare.propTypes = {
       PropTypes.string.isRequired
     ).isRequired
   ).isRequired,
-  createHeaderActions: PropTypes.func,
-  createBottomButtons: PropTypes.func,
+  onClose: PropTypes.func,
 }
 
 export default EventsCompare

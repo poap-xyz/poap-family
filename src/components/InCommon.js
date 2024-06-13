@@ -11,8 +11,7 @@ import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
 import EventsPowers from 'components/EventsPowers'
 import EventsCompare from 'components/EventsCompare'
-import ButtonGroup from 'components/ButtonGroup'
-import ButtonClose from 'components/ButtonClose'
+import EventsNavigateButtons from 'components/EventsNavigateButtons'
 import 'styles/in-common.css'
 
 /**
@@ -24,24 +23,7 @@ function InCommon({
   events = {},
   showCount,
   showActive = true,
-  createButtons =
-    /**
-     * @param {number[]} eventIds
-     * @returns {import('react').ReactNode}
-     */
-    (eventIds) => null,
-  createActiveTopButtons =
-    /**
-     * @param {number} eventId
-     * @returns {import('react').ReactNode}
-     */
-    (eventId) => null,
-  createActiveBottomButtons =
-    /**
-     * @param {number} eventId
-     * @returns {import('react').ReactNode}
-     */
-    (eventId) => null,
+  baseEventIds = [],
 }) {
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -174,33 +156,19 @@ function InCommon({
           )}
         </EventsPowers>
         {inCommonTotal > 0 && (
-          <ButtonGroup right={true}>
-            {createButtons != null &&
-              createButtons(activeEventIds)}
-          </ButtonGroup>
+          <EventsNavigateButtons
+            baseEventIds={baseEventIds}
+            eventIds={activeEventIds}
+          />
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
         <EventsCompare
+          baseEventIds={baseEventIds}
           eventIds={activeEventIds}
           events={events}
           inCommon={inCommon}
-          createHeaderActions={
-            /**
-             * @param {number} eventId
-             */
-            (eventId) => (
-              <>
-                {createActiveTopButtons != null &&
-                  createActiveTopButtons(eventId)}
-                <ButtonClose
-                  key="del"
-                  onClose={() => removeActiveEventId(eventId)}
-                />
-              </>
-            )
-          }
-          createBottomButtons={createActiveBottomButtons}
+          onClose={removeActiveEventId}
         />
       }
     </div>
@@ -219,9 +187,7 @@ InCommon.propTypes = {
   ).isRequired,
   showCount: PropTypes.number,
   showActive: PropTypes.bool,
-  createButtons: PropTypes.func,
-  createActiveTopButtons: PropTypes.func,
-  createActiveBottomButtons: PropTypes.func,
+  baseEventIds: PropTypes.arrayOf(PropTypes.number.isRequired),
 }
 
 export default InCommon

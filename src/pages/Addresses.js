@@ -20,7 +20,6 @@ import Status from 'components/Status'
 import ShadowText from 'components/ShadowText'
 import Loading from 'components/Loading'
 import ButtonGroup from 'components/ButtonGroup'
-import Button from 'components/Button'
 import InCommon from 'components/InCommon'
 import AddressAddForm from 'components/AddressAddForm'
 import ButtonDelete from 'components/ButtonDelete'
@@ -777,21 +776,6 @@ function Addresses() {
     }
   }
 
-  /**
-   * @param {number[]} eventIds
-   */
-  const openEvents = (eventIds) => {
-    if (eventIds.length === 0) {
-      return
-    }
-    const newEventIds = parseEventIds(eventIds.join(','))
-    if (newEventIds.length > 1) {
-      navigate(`/events/${newEventIds.join(',')}`)
-    } else if (newEventIds.length === 1) {
-      navigate(`/event/${newEventIds[0]}`)
-    }
-  }
-
   const edit = () => {
     setEditMode(true)
   }
@@ -956,15 +940,6 @@ function Addresses() {
             inCommon={inCommon}
             events={events}
             showCount={addresses.length}
-            createButtons={(eventIds) => ([
-              <Button
-                key="open-all"
-                disabled={eventIds.length === 0}
-                onClick={() => openEvents(eventIds)}
-              >
-                Open selected
-              </Button>,
-            ])}
           />
         )}
       </div>

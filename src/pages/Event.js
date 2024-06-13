@@ -1,16 +1,14 @@
 import { useContext, useEffect, useMemo } from 'react'
-import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
-import { parseEventIds } from 'models/event'
 import { DropData } from 'models/drop'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
-import Button from 'components/Button'
 import Loading from 'components/Loading'
 import InCommon from 'components/InCommon'
 import EventInfo from 'components/EventInfo'
@@ -22,14 +20,11 @@ import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
-import ButtonAdd from 'components/ButtonAdd'
 import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
-import EventCompareButtons from 'components/EventCompareButtons'
 import 'styles/event.css'
 
 function Event() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
   const { settings } = useSettings()
@@ -62,16 +57,18 @@ function Event() {
     retryAddress,
   } = useEventInCommon(event.id, owners, force)
 
+  const eventIds = useMemo(
+    () => [event.id],
+    [event]
+  )
+
   const {
     loadingCollections,
     collectionsError,
     collections,
     fetchEventsCollections,
   } = useEventsCollections(
-    useMemo(
-      () => [event.id],
-      [event]
-    )
+    eventIds
   )
 
   useEffect(
@@ -123,38 +120,6 @@ function Event() {
 
   const refreshCache = () => {
     setSearchParams({ force: 'true' })
-  }
-
-  /**
-   * @param {number} eventId
-   */
-  const addEvent = (eventId) => {
-    navigate(`/events/${parseEventIds(`${event.id},${eventId}`).join(',')}`)
-  }
-
-  /**
-   * @param {number[]} eventIds
-   */
-  const addEvents = (eventIds) => {
-    if (eventIds.length === 0) {
-      return
-    }
-    navigate(`/events/${parseEventIds(`${event.id},${eventIds.join(',')}`).join(',')}`)
-  }
-
-  /**
-   * @param {number[]} eventIds
-   */
-  const openEvents = (eventIds) => {
-    if (eventIds.length === 0) {
-      return
-    }
-    const newEventIds = parseEventIds(eventIds.join(','))
-    if (newEventIds.length > 1) {
-      navigate(`/events/${newEventIds.join(',')}`)
-    } else if (newEventIds.length === 1) {
-      navigate(`/event/${newEventIds[0]}`)
-    }
   }
 
   return (
@@ -292,52 +257,7 @@ function Event() {
               <InCommon
                 inCommon={inCommon}
                 events={events}
-                createButtons={(eventIds) => (Object.keys(events).length === 1 && String(Object.keys(events)[0]) === String(event.id) ? [] : [
-                  <Button
-                    key="add-all"
-                    disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
-                    onClick={() => addEvents(eventIds)}
-                  >
-                    Add selected
-                  </Button>,
-                  <Button
-                    key="open-all"
-                    secondary={true}
-                    disabled={eventIds.length === 0 || (eventIds.length === 1 && String(eventIds[0]) === String(event.id))}
-                    onClick={() => openEvents(eventIds)}
-                  >
-                    Open
-                  </Button>,
-                ])}
-                createActiveTopButtons={
-                  /**
-                   * @param {number} eventId
-                   */
-                  (eventId) => (
-                    String(eventId) === String(event.id)
-                      ? null
-                      : (
-                          <ButtonAdd
-                            key="add"
-                            onAdd={() => addEvent(eventId)}
-                            title={`Combines drop #${eventId}`}
-                          />
-                        )
-                  )
-                }
-                createActiveBottomButtons={
-                  /**
-                   * @param {number} eventId
-                   */
-                  (eventId) => (
-                    <EventCompareButtons
-                      eventId={eventId}
-                      eventIds={[event.id]}
-                      events={events}
-                      inCommon={inCommon}
-                    />
-                  )
-                }
+                baseEventIds={eventIds}
               />
             )}
           </>
