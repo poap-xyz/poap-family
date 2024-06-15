@@ -20,6 +20,9 @@ export default function Root() {
 
   useEffect(
     () => {
+      if (title === 'POAP Family' && window.location.pathname !== '/') {
+        return
+      }
       trackPageView({
         href: window.location.href,
         documentTitle: title,
