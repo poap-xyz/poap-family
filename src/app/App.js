@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { AnalyticsProvider } from 'stores/analytics'
 import { AdminProvider } from 'stores/admin'
 import { SettingsProvider } from 'stores/settings'
 import { EnsProvider } from 'stores/ethereum'
@@ -25,63 +24,61 @@ export default function App() {
   return (
     <main className="app">
       <HTMLProvider>
-        <AnalyticsProvider>
-          <SettingsProvider>
-            <AdminProvider>
-              <EnsProvider>
-                <RouterProvider
-                  router={createBrowserRouter([
-                    {
-                      path: '/',
-                      element: <Root />,
-                      errorElement: <PageError />,
-                      children: [
-                        {
-                          index: true,
-                          element: <Home />,
-                        },
-                        {
-                          path: '/event/:eventId',
-                          loader: eventLoader,
-                          element: <Event />,
-                          errorElement: <PageError />,
-                        },
-                        {
-                          path: '/events/:eventIds',
-                          loader: eventsLoader,
-                          element: <Events />,
-                          errorElement: <EventsPageError />,
-                        },
-                        {
-                          path: '/addresses',
-                          element: <Addresses />,
-                        },
-                        {
-                          path: '/last',
-                          element: <Last />,
-                        },
-                        {
-                          path: '/settings',
-                          element: <Settings />,
-                        },
-                        {
-                          element: <Admin />,
-                          children: [
-                            {
-                              path: '/feedback',
-                              element: <FeedbackList />,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ])}
-                  fallbackElement={<CenterPage><Loading /></CenterPage>}
-                />
-              </EnsProvider>
-            </AdminProvider>
-          </SettingsProvider>
-        </AnalyticsProvider>
+        <SettingsProvider>
+          <AdminProvider>
+            <EnsProvider>
+              <RouterProvider
+                router={createBrowserRouter([
+                  {
+                    path: '/',
+                    element: <Root />,
+                    errorElement: <PageError />,
+                    children: [
+                      {
+                        index: true,
+                        element: <Home />,
+                      },
+                      {
+                        path: '/event/:eventId',
+                        loader: eventLoader,
+                        element: <Event />,
+                        errorElement: <PageError />,
+                      },
+                      {
+                        path: '/events/:eventIds',
+                        loader: eventsLoader,
+                        element: <Events />,
+                        errorElement: <EventsPageError />,
+                      },
+                      {
+                        path: '/addresses',
+                        element: <Addresses />,
+                      },
+                      {
+                        path: '/last',
+                        element: <Last />,
+                      },
+                      {
+                        path: '/settings',
+                        element: <Settings />,
+                      },
+                      {
+                        element: <Admin />,
+                        children: [
+                          {
+                            path: '/feedback',
+                            element: <FeedbackList />,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ])}
+                fallbackElement={<CenterPage><Loading /></CenterPage>}
+              />
+            </EnsProvider>
+          </AdminProvider>
+        </SettingsProvider>
       </HTMLProvider>
     </main>
   )

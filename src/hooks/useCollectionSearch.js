@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { useAnalytics } from 'stores/analytics'
 import { useSettings } from 'stores/settings'
 import { SEARCH_LIMIT } from 'models/event'
 import { searchCollections as loadSearchCollections } from 'loaders/collection'
@@ -18,7 +17,6 @@ import { AbortedError } from 'models/error'
  * }}
  */
 function useCollectionSearch(query, page) {
-  const { trackSiteSearch } = useAnalytics()
   const { settings } = useSettings()
   /**
    * @type {ReturnType<typeof useState<boolean>>}
@@ -64,13 +62,6 @@ function useCollectionSearch(query, page) {
             SEARCH_LIMIT
           ).then(
             (results) => {
-              if ((newPage ?? page) === 1) {
-                trackSiteSearch({
-                  category: 'collections',
-                  keyword: newQuery ?? query,
-                  count: results.total == null ? undefined : results.total,
-                })
-              }
               setLoading(false)
               setResultCollections(results.items)
               if (results.total) {
@@ -106,7 +97,7 @@ function useCollectionSearch(query, page) {
         setResultCollections([])
       }
     },
-    [query, page, total, settings.showCollections, trackSiteSearch]
+    [query, page, total, settings.showCollections]
   )
 
   const retryCollectionSearch = () => {

@@ -2,7 +2,6 @@ import PropTypes from 'prop-types'
 import download from 'downloadjs'
 import { Download } from 'iconoir-react'
 import { useContext } from 'react'
-import { useAnalytics } from 'stores/analytics'
 import { ReverseEnsContext } from 'stores/ethereum'
 import Button from 'components/Button'
 
@@ -16,7 +15,6 @@ function ButtonExportAddressCsv({
   children,
   title,
 }) {
-  const { trackLink } = useAnalytics()
   const { getEnsName } = useContext(ReverseEnsContext)
 
   const handleExportCsv = () => {
@@ -31,10 +29,6 @@ function ButtonExportAddressCsv({
     if (name) {
       href.hash = name
     }
-    trackLink({
-      href: href.toString(),
-      linkType: 'download',
-    })
   }
 
   return (
