@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { useAnalytics } from 'stores/analytics'
 import { SEARCH_LIMIT } from 'models/event'
 import { AbortedError } from 'models/error'
 import { searchEvents as loadSearchEvents } from 'loaders/event'
@@ -17,7 +16,6 @@ import { searchEvents as loadSearchEvents } from 'loaders/event'
  * }}
  */
 function useEventSearch(query, page) {
-  const { trackSiteSearch } = useAnalytics()
   /**
    * @type {ReturnType<typeof useState<boolean>>}
    */
@@ -62,13 +60,6 @@ function useEventSearch(query, page) {
             SEARCH_LIMIT
           ).then(
             (results) => {
-              if ((newPage ?? page) === 1) {
-                trackSiteSearch({
-                  category: 'drops',
-                  keyword: newQuery ?? query,
-                  count: results.total,
-                })
-              }
               setLoading(false)
               setTotal(results.total)
               setResultEvents(results.items)
@@ -103,7 +94,7 @@ function useEventSearch(query, page) {
         setResultEvents([])
       }
     },
-    [page, query, total, trackSiteSearch]
+    [page, query, total]
   )
 
   const retryEventSearch = () => {
