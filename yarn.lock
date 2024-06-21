@@ -1848,12 +1848,12 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@mapbox/to-color@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/to-color/-/to-color-2.1.0.tgz#079b5144846860a780a9f44a47a191d35bf006a6"
-  integrity sha512-+ydc5BRAx0GYAFmkC9vjpccmfU+pJ6wDU2LZasf1FcRlDc/k2HVsanx8G3yv1evK/LSVgDCDw7ZZJS9ybuOA+Q==
+"@mapbox/to-color@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@mapbox/to-color/-/to-color-2.1.1.tgz#80526a63c593daed6f70df02d86f68b19387fba8"
+  integrity sha512-j91AisRl11fYfoSDEKUwZtsMKnKSuVeyEay//sVy5MiWeARYeATflwUHh0SUBGttyasooogcaMmg6dRIh8TC/Q==
   dependencies:
-    d3-color-difference "^0.1.3"
+    d3-color "^3.1.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
@@ -3743,17 +3743,10 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-d3-color-difference@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/d3-color-difference/-/d3-color-difference-0.1.3.tgz#e6db808d0dfcd50efc0219140b4e4ffc4ff1b78e"
-  integrity sha512-yAGiVdTZR/wpI66n85xvkTvjxFth0IuGrEeX/anl1Q5rzNc2/V7oOjoJdqQnahOuS+SgbAR0zu8T0SYY7hGTtw==
-  dependencies:
-    d3-color "^1.1.0"
-
-d3-color@^1.1.0:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/d3-color/-/d3-color-1.4.1.tgz#c52002bf8846ada4424d55d97982fef26eb3bc8a"
-  integrity sha512-p2sTHSLCJI2QKunbGb7ocOh7DgTAn8IrLx21QRc/BSnodXM4sv6aLQlnfpvehFMLZEfBc6g9pH9SWQccFYfJ9Q==
+d3-color@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/d3-color/-/d3-color-3.1.0.tgz#395b2833dfac71507f12ac2f7af23bf819de24e2"
+  integrity sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"

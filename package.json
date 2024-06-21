@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.15.6",
+  "version": "1.15.7",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -18,7 +18,7 @@
     "@ethersproject/address": "^5.7.0",
     "@ethersproject/contracts": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@mapbox/to-color": "^2.1.0",
+    "@mapbox/to-color": "^2.1.1",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
