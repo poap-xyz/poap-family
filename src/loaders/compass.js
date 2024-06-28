@@ -141,7 +141,8 @@ export async function queryCompass(
   if (
     results == null ||
     typeof results !== 'object' ||
-    !(name in results)
+    !(name in results) ||
+    results[name] == null
   ) {
     throw new Error(`Missing model ${name} in compass response`)
   }
