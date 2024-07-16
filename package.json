@@ -38,6 +38,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
+  "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=20.0.0"
   },
