@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.15.8",
+  "version": "1.15.9",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -38,6 +38,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
+  "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=20.0.0"
   },

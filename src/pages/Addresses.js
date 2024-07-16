@@ -39,6 +39,7 @@ function Addresses() {
   const {
     resolveAddress,
     getAddress,
+    isEnsAddressFound,
     isEnsAddressNotFound,
   } = useContext(ResolverEnsContext)
   const {
@@ -536,16 +537,21 @@ function Addresses() {
           setState(STATE_ENS_RESOLVING)
           let promise = new Promise((r) => r(undefined))
           for (const { ens, index } of missingAddresses) {
-            if (!isEnsAddressNotFound(ens)) {
+            if (isEnsAddressFound(ens)) {
               const address = getAddress(ens)
               if (address != null) {
                 setCollector(index, address)
               } else {
                 setErrorByIndex(
                   index,
-                  new Error(`Address for ${ens} not found`)
+                  new Error(`Address for ${ens} doesn't exists`)
                 )
               }
+            } else if (isEnsAddressNotFound(ens)) {
+              setErrorByIndex(
+                index,
+                new Error(`Address for ${ens} not found`)
+              )
             } else {
               promise = promise.then(
                 () => processEnsName(ens, index),
@@ -568,6 +574,7 @@ function Addresses() {
       loadingByIndex,
       errorsByIndex,
       getAddress,
+      isEnsAddressFound,
       isEnsAddressNotFound,
       processEnsName,
     ]
