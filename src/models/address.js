@@ -14,7 +14,11 @@ export const IGNORED_OWNERS = [
  * }}
  */
 export function parseAddress(address) {
-  if (address.startsWith('0x')) {
+  if (
+    address.startsWith('0x') &&
+    address.length === 42 &&
+    !address.includes('.')
+  ) {
     return { address: normalizeAddress(address), ens: null, raw: address }
   } else {
     return { address: null, ens: address, raw: address }
