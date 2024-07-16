@@ -26,6 +26,10 @@ export const ResolverEnsContext = createContext({
   /**
    * @type {(ensName: string) => boolean}
    */
+  isEnsAddressFound: (ensName) => false,
+  /**
+   * @type {(ensName: string) => boolean}
+   */
   isEnsAddressNotFound: (ensName) => false,
   /**
    * @type {(ensName: string, address?: string) => Promise<{ avatar: string | null }>}
@@ -90,6 +94,16 @@ function ResolverEnsProvider({ children }) {
     []
   )
 
+  const isEnsAddressFound = useCallback(
+    /**
+     * @param {string} ensName
+     */
+    (ensName) => {
+      return cacheDataByEnsName.current[ensName]?.address != null
+    },
+    []
+  )
+
   const isEnsAddressNotFound = useCallback(
     /**
      * @param {string} ensName
@@ -106,18 +120,18 @@ function ResolverEnsProvider({ children }) {
      * @returns {Promise<string | null>}
      */
     async (ensName) => {
-      if (isEnsAddressNotFound(ensName)) {
-        const address = await ethereumResolveAddress(ensName)
-        if (address) {
-          dispatch({ ensName, address })
-        } else {
-          dispatch({ ensName, address: null })
-        }
-        return address
+      if (isEnsAddressFound(ensName)) {
+        return getAddress(ensName)
       }
-      return getAddress(ensName)
+      const address = await ethereumResolveAddress(ensName)
+      if (address) {
+        dispatch({ ensName, address })
+      } else {
+        dispatch({ ensName, address: null })
+      }
+      return address
     },
-    [getAddress, isEnsAddressNotFound]
+    [getAddress, isEnsAddressFound]
   )
 
   const resolveAvatar = useCallback(
@@ -169,12 +183,20 @@ function ResolverEnsProvider({ children }) {
   const value = useMemo(
     () => ({
       getAddress,
+      isEnsAddressFound,
       isEnsAddressNotFound,
       resolveAddress,
       getMeta,
       resolveMeta,
     }),
-    [getAddress, isEnsAddressNotFound, resolveAddress, getMeta, resolveMeta]
+    [
+      getAddress,
+      isEnsAddressFound,
+      isEnsAddressNotFound,
+      resolveAddress,
+      getMeta,
+      resolveMeta,
+    ]
   )
 
   return (
