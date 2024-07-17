@@ -12,7 +12,7 @@ import {
  * @param {number} eventId
  * @param {AbortSignal} [abortSignal]
  * @param {number} limit
- * @returns {Promise<ReturnType<POAP>[]>}
+ * @returns {Promise<ReturnType<typeof POAP>[]>}
  */
 export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
   let tokens = []
@@ -125,7 +125,7 @@ export async function fetchPOAPs(eventId, abortSignal, limit = 100) {
  *
  * @param {string} address
  * @param {AbortSignal} [abortSignal]
- * @returns {Promise<ReturnType<POAP>[]>}
+ * @returns {Promise<ReturnType<typeof POAP>[]>}
  */
 export async function scanAddress(address, abortSignal) {
   let retries = 0

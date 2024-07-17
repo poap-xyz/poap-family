@@ -12,7 +12,7 @@ import { fetchPOAPs } from 'loaders/poap'
  * @param {number} [offset]
  * @param {number} [limit]
  * @returns {Promise<{
- *   items: ReturnType<Drop>[]
+ *   items: ReturnType<typeof Drop>[]
  *   total: number
  *   offset: number
  *   limit: number
@@ -124,13 +124,13 @@ export async function searchEvents(
  * @param {number[]} eventIds
  * @param {number} [limit]
  * @returns {Promise<[
- *   Record<number, ReturnType<Drop>>,
+ *   Record<number, ReturnType<typeof Drop>>,
  *   Record<number, Error>,
  * ]>}
  */
 export async function fetchEventsOrErrors(eventIds, limit = 100) {
   /**
-   * @type {Record<number, ReturnType<Drop>>}
+   * @type {Record<number, ReturnType<typeof Drop>>}
    */
   const eventsMap = {}
 
@@ -258,7 +258,7 @@ export async function fetchEventsOrErrors(eventIds, limit = 100) {
  * @param {number} eventId
  * @param {boolean} includeDescription
  * @param {AbortSignal} [abortSignal]
- * @returns {Promise<ReturnType<Drop> | null>}
+ * @returns {Promise<ReturnType<typeof Drop> | null>}
  */
 export async function fetchEvent(eventId, includeDescription, abortSignal) {
   /**
@@ -421,7 +421,7 @@ export async function eventsLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force') === 'true'
 
   /**
-   * @type {Record<number, ReturnType<Drop> | undefined>}
+   * @type {Record<number, ReturnType<typeof Drop> | undefined>}
    */
   let events
 

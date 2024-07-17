@@ -18,7 +18,7 @@ export const POAP_PROFILE_LIMIT = 20
  *   id: string
  *   owner: string
  *   created?: Date
- *   event?: ReturnType<Drop>
+ *   event?: ReturnType<typeof Drop>
  * }}
  */
 export function POAP(token) {
@@ -100,14 +100,14 @@ export function POAP(token) {
 /**
  * Finds the first created date on a list of POAPs.
  *
- * @param {ReturnType<POAP>[]} tokens
+ * @param {ReturnType<typeof POAP>[]} tokens
  * @returns {Date | null}
  */
 export function findInitialPOAPDate(tokens) {
   return tokens.reduce(
     /**
      * @param {Date | null} initialDate
-     * @param {ReturnType<POAP>} token
+     * @param {ReturnType<typeof POAP>} token
      * @returns {Date | null}
      */
     (initialDate, token) => {
