@@ -51,7 +51,7 @@ export function filterInvalidOwners(addresses) {
     .map((address) => parseAddress(address).address)
     .filter(
       (address, index, all) => (
-        address &&
+        address != null &&
         all.indexOf(address) === index &&
         !IGNORED_OWNERS.includes(address)
       )
