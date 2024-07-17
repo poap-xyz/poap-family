@@ -29,7 +29,7 @@ export function parseAddress(address) {
 /**
  * @param {string} rawAddresses
  * @param {string} sep
- * @returns {ReturnType<parseAddress>[]}
+ * @returns {ReturnType<typeof parseAddress>[]}
  */
 export function parseAddresses(rawAddresses, sep = ',') {
   return rawAddresses

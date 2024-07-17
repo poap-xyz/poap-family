@@ -16,7 +16,7 @@ import { AbortedError, HttpError } from 'models/error'
  * @param {boolean} includeMetrics
  * @param {boolean} refresh
  * @returns {Promise<{
- *   event: ReturnType<Drop>
+ *   event: ReturnType<typeof Drop>
  *   owners: string[]
  *   ts: number
  *   metrics: ReturnType<typeof DropMetrics> | null
@@ -173,7 +173,7 @@ export async function putEventInCommon(eventId, inCommon) {
  * @param {number} eventId
  * @param {AbortSignal} [abortSignal]
  * @returns {Promise<{
- *   inCommon: ReturnType<InCommon>
+ *   inCommon: ReturnType<typeof InCommon>
  *   events: Record<number, ReturnType<typeof Drop>>
  *   ts: number
  * } | null>}
