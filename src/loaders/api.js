@@ -360,7 +360,7 @@ export async function getInCommonEventsWithProgress(
   }
 
   return {
-    inCommon: response.data.inCommon,
+    inCommon: InCommon(response.data.inCommon),
     events: Object.fromEntries(
       Object.entries(response.data.events).map(
         ([eventId, event]) => ([
