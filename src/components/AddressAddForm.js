@@ -45,7 +45,7 @@ function AddressAddForm({
         onSubmit(
           addresses
             .map(({ raw }) => raw)
-            .filter((x) => x)
+            .filter((x) => x != null)
         )
       }
     }

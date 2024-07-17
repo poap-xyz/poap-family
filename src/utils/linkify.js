@@ -47,5 +47,5 @@ export default function linkify(text, Anchor) {
     }
   }
 
-  return results.filter((x) => x)
+  return results.filter((x) => x != null)
 }

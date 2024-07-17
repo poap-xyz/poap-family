@@ -767,7 +767,7 @@ function Addresses() {
       window.location.hash = addresses
         .filter((_, inputIndex) => index !== inputIndex)
         .map((input) => input.raw)
-        .filter((x) => x)
+        .filter((x) => x != null)
         .map((address) => encodeURIComponent(address))
         .join(',')
     }
