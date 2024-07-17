@@ -1,10 +1,12 @@
 import { equals, intersection } from 'utils/array'
+import { filterInvalidOwners } from 'models/address'
 
 export const INCOMMON_EVENTS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
 
 /**
- * Removes the ones that has one or zero in-common collectors.
+ * Filter the collectors for invalid ones and then eemoves the ones that has one
+ * or zero in-common collectors.
  *
  * @param {Record<number, string[]>} inCommon
  * @returns {Record<number, string[]>}
@@ -15,9 +17,11 @@ export function filterInCommon(inCommon) {
   }
   // With at least one in-common address.
   return Object.fromEntries(
-    Object.entries(inCommon).filter(
-      ([, addresses]) => addresses.length > 1
-    )
+    Object.entries(inCommon)
+      .map(([eventId, owners]) => [eventId, filterInvalidOwners(owners)])
+      .filter(
+        ([, addresses]) => addresses.length > 1
+      )
   )
 }
 
