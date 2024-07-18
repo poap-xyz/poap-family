@@ -42,13 +42,19 @@ function AddressOwner({
               events={events}
               inCommonEventIds={inCommonEventIds}
               inCommonAddresses={inCommonAddresses}
+              showEns={true}
             />
           )
-          : <LinkToScan address={address} />
+          : <LinkToScan address={address} showEns={true} />
         }
       </div>
       {linkToScan && settings.openProfiles && (
-        <LinkToScan address={address} className="owner-scan" stamp={true} />
+        <LinkToScan
+          address={address}
+          className="owner-scan"
+          stamp={true}
+          showEns={true}
+        />
       )}
       {hasEvents && (
         <div className="owner-events">

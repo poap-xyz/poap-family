@@ -13,11 +13,13 @@ function ButtonAddressProfile({
   events,
   inCommonEventIds = [],
   inCommonAddresses = [],
+  showEns = true,
 }: {
   address: string
   events: Record<number, Drop>
   inCommonEventIds?: number[]
   inCommonAddresses?: string[]
+  showEns?: boolean
 }) {
   const { getEnsName } = useContext(ReverseEnsContext)
 
@@ -32,7 +34,7 @@ function ButtonAddressProfile({
         title={`Open ${ensName ?? address} profile`}
         onClick={() => setShowModal((show) => !show)}
       >
-        {ensName
+        {showEns && ensName
           ? <span className="ens">{ensName}</span>
           : <code>{address}</code>
         }
