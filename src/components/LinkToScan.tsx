@@ -7,12 +7,14 @@ import 'styles/link-to-scan.css'
 
 function LinkToScan({
   className,
+  ens,
   address,
   title,
   stamp = false,
   showEns = true,
 }: {
   className?: string
+  ens?: string
   address: string
   title?: string
   stamp?: boolean
@@ -20,7 +22,7 @@ function LinkToScan({
 }) {
   const { getEnsName } = useContext(ReverseEnsContext)
 
-  const ensName = getEnsName(address)
+  const ensName = ens ?? getEnsName(address)
 
   return (
     <a

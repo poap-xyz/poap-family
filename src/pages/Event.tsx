@@ -1,9 +1,10 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { parseDropData } from 'models/drop'
+import { EnsByAddress } from 'models/ethereum'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
@@ -30,6 +31,7 @@ function Event() {
   const { settings } = useSettings()
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
+  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
 
@@ -125,7 +127,12 @@ function Event() {
   function handleEventActive(eventId: number): void {
     const addresses = inCommon[eventId]
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses)
+      resolveEnsNames(addresses).then((ensNames) => {
+        setEventsEnsNames((prevEventsEnsNames) => ({
+          ...prevEventsEnsNames,
+          [eventId]: ensNames,
+        }))
+      })
     }
   }
 
@@ -266,6 +273,7 @@ function Event() {
                 inCommon={inCommon}
                 events={events}
                 baseEventIds={eventIds}
+                eventsEnsNames={eventsEnsNames}
               />
             )}
           </>

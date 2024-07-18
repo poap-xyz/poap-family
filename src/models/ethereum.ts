@@ -5,6 +5,8 @@ export const ENS_REVERSE_RECORDS_BATCH_SIZE = 100
 export const ENS_RESOLVE_BATCH_SIZE = 6
 export const ENS_RESOLVE_MAX_ERRORS = 100
 
+export type EnsByAddress = Record<string, string | null>
+
 export interface EnsMeta {
   avatar: string | null
 }

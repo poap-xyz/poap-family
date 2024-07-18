@@ -6,6 +6,7 @@ import {
   getAddressInCommonAddresses,
   getAddressInCommonEventIds,
 } from 'models/in-common'
+import { EnsByAddress } from 'models/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
@@ -22,12 +23,14 @@ function EventsCompare({
   events,
   inCommon,
   onClose,
+  eventsEnsNames,
 }: {
   baseEventIds: number[]
   eventIds: number[]
   events: Record<number, Drop>
   inCommon: InCommon
   onClose: (eventId: number) => void
+  eventsEnsNames?: Record<number, EnsByAddress>
 }) {
   const { settings } = useSettings()
   const [highlighted, setHighlighted] = useState<string | null>(null)
@@ -171,6 +174,12 @@ function EventsCompare({
                       }}
                     >
                       <AddressOwner
+                        ens={
+                          eventsEnsNames &&
+                          eventId in eventsEnsNames &&
+                          owner in eventsEnsNames[eventId]
+                            ? eventsEnsNames[eventId][owner]
+                            : undefined}
                         address={owner}
                         events={events}
                         inCommonEventIds={inCommonEventIds}
