@@ -47,7 +47,7 @@ function useCollectionSearch(query?: string, page: number = 1): {
                 setTotal(0)
               }
             },
-            (err) => {
+            (err: unknown) => {
               setLoading(false)
               if (!(err instanceof AbortedError)) {
                 console.error(err)

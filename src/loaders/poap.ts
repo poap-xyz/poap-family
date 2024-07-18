@@ -29,8 +29,8 @@ export async function fetchPOAPs(eventId: number, abortSignal?: AbortSignal, lim
           },
         }
       )
-    } catch (err) {
-      if (err.code === 20) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
         throw new AbortedError(
           `Fetch POAPs for '${eventId}' from ${results.offset} aborted`
         )
@@ -41,7 +41,7 @@ export async function fetchPOAPs(eventId: number, abortSignal?: AbortSignal, lim
       if (retries >= POAP_FETCH_RETRIES) {
         throw new Error(
           `Fetch POAPs for '${eventId}' from ${results.offset} ` +
-          `failed: ${err.message}`
+          `failed: ${err}`
         )
       }
 
@@ -61,7 +61,7 @@ export async function fetchPOAPs(eventId: number, abortSignal?: AbortSignal, lim
           if (typeof data === 'object' && 'message' in data) {
             message = data.message
           }
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(err)
         }
         if (message) {
@@ -132,15 +132,15 @@ export async function scanAddress(address: string, abortSignal: AbortSignal): Pr
           'x-api-key': POAP_API_KEY,
         },
       })
-    } catch (err) {
-      if (err.code === 20) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
         throw new AbortedError(`Scan address aborted`)
       }
 
       console.error(err)
 
       if (retries >= POAP_FETCH_RETRIES) {
-        message = err.message
+        message = String(err)
         throw new Error(`Scan address failed: ${message}`)
       }
 
@@ -156,7 +156,7 @@ export async function scanAddress(address: string, abortSignal: AbortSignal): Pr
           if (typeof data === 'object' && 'message' in data) {
             message = data.message
           }
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(err)
         }
 

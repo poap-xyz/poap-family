@@ -201,7 +201,7 @@ function Addresses() {
           updateAddressEvent(address, event)
         }
         disableLoadingByAddress(address)
-      } catch (err) {
+      } catch (err: unknown) {
         if (!(err instanceof AbortedError)) {
           if (err instanceof Error) {
             setErrorByAddress(address, err)

@@ -32,8 +32,8 @@ export async function searchEvents(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(
         `Search drops for "${query}" aborted`,
         { cause: err }
@@ -59,7 +59,7 @@ export async function searchEvents(
       ) {
         message = data.message
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
 
@@ -130,7 +130,7 @@ export async function fetchEventsOrErrors(eventIds: number[], limit: number = 10
           },
         }
       )
-    } catch (err) {
+    } catch (err: unknown) {
       for (const id of ids) {
         errorsMap[id] = new Error(
           `Cannot fetch drop ${id}: response was not success (network error)`,
@@ -154,7 +154,7 @@ export async function fetchEventsOrErrors(eventIds: number[], limit: number = 10
         ) {
           message = data.message
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err)
       }
 
@@ -206,12 +206,12 @@ export async function fetchEventsOrErrors(eventIds: number[], limit: number = 10
           }
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
 
       for (const id of ids) {
         if (!(id in eventsMap)) {
-          errorsMap[id] = new Error(`Malformed drop '${id}': ${err.message}`)
+          errorsMap[id] = new Error(`Malformed drop '${id}': ${err}`)
         }
       }
     }
@@ -229,8 +229,8 @@ export async function fetchEvent(eventId: number, includeDescription: boolean, a
         'x-api-key': POAP_API_KEY,
       },
     })
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Fetch drop ${eventId} aborted`, { cause: err })
     }
     throw new Error(
@@ -256,7 +256,7 @@ export async function fetchEvent(eventId: number, includeDescription: boolean, a
       ) {
         message = data.message
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
 
@@ -302,7 +302,7 @@ export async function eventLoader({ params, request }) {
         metrics: eventAndOwners.metrics,
       }
     }
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
   }
 
@@ -379,7 +379,7 @@ export async function eventsLoader({ params, request }) {
   if (!force) {
     try {
       events = await getEvents(eventIds)
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
     if (events) {

@@ -77,7 +77,7 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
       let tokens: POAP[]
       try {
         tokens = await scanAddress(address, abortSignal)
-      } catch (err) {
+      } catch (err: unknown) {
         addError(address, err)
         return
       }

@@ -16,8 +16,8 @@ export async function requestCompass(query: string, variables: Record<string, un
         variables,
       }),
     })
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(
         `Request compass aborted`,
         { cause: err }
@@ -33,7 +33,7 @@ export async function requestCompass(query: string, variables: Record<string, un
     let body: unknown
     try {
       body = await response.json()
-    } catch (err) {}
+    } catch (err: unknown) {}
 
     let message = 'Cannot request compass'
     if (

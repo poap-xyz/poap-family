@@ -37,7 +37,7 @@ function useEvent(eventId?: number): {
               setError(new Error(`Drop ${newEventId ?? eventId} not found`))
             }
           },
-          (err) => {
+          (err: unknown) => {
             setLoading(false)
             if (!(err instanceof AbortedError)) {
               console.error(err)

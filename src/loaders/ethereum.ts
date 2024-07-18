@@ -56,7 +56,7 @@ export async function resolveEnsNames(
           const errorsNames = await ensReverseRecordsContract.getNames(errorsChunk)
           chunk = [...errorsChunk, ...chunk]
           names = [...errorsNames, ...names]
-        } catch (err) {
+        } catch (err: unknown) {
           console.error(err)
         }
       }
@@ -72,7 +72,7 @@ export async function resolveEnsNames(
       if (Object.keys(resolvedInChunk).length > 0) {
         onProgress(resolvedInChunk)
       }
-    } catch (err) {
+    } catch (err: unknown) {
       errorsTotal += 1
       errors += 1
 

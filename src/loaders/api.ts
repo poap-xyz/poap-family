@@ -47,8 +47,8 @@ export async function getEventAndOwners(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Fetch drop ${eventId} aborted`, { cause: err })
     }
     throw new Error(
@@ -137,8 +137,8 @@ export async function putEventInCommon(
         body: JSON.stringify(inCommon),
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Put drop in common aborted`, { cause: err })
     }
     throw new Error(
@@ -182,8 +182,8 @@ export async function getInCommonEvents(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(
         `Fetch drop ${eventId} in common aborted`,
         { cause: err }
@@ -268,7 +268,7 @@ export async function getInCommonEventsWithProgress(
         },
       }
     )
-  } catch (err) {
+  } catch (err: unknown) {
     const status =
       err != null &&
       typeof err === 'object' &&
@@ -426,8 +426,8 @@ export async function getEvents(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Fetch drops aborted`, { cause: err })
     }
     throw new Error(
@@ -449,7 +449,7 @@ export async function getEvents(
       ) {
         message = data.message
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
 
@@ -508,8 +508,8 @@ export async function getEventOwners(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(
         `Fetch drop ${eventId} owners aborted`,
         { cause: err }
@@ -570,8 +570,8 @@ export async function getEventsOwners(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Fetch drops owners aborted`, { cause: err })
     }
     throw new Error(
@@ -593,7 +593,7 @@ export async function getEventsOwners(
       ) {
         message = data.message
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
 
@@ -650,8 +650,8 @@ export async function getEventMetrics(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(
         `Fetch drop ${eventId} metrics aborted`,
         { cause: err }
@@ -712,8 +712,8 @@ export async function getEventsMetrics(
         },
       }
     )
-  } catch (err) {
-    if (err.code === 20) {
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
       throw new AbortedError(`Fetch drops metrics aborted`, { cause: err })
     }
     throw new Error(
@@ -735,7 +735,7 @@ export async function getEventsMetrics(
       ) {
         message = data.message
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
     }
 

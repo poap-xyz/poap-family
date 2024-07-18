@@ -387,7 +387,7 @@ function useEventsInCommon(
       let ownerTokens: POAP[]
       try {
         ownerTokens = await scanAddress(address, abortSignal)
-      } catch (err) {
+      } catch (err: unknown) {
         if (!(err instanceof AbortedError)) {
           addError(
             eventId,
@@ -468,7 +468,7 @@ function useEventsInCommon(
               }
             }
           )
-        } catch (err) {
+        } catch (err: unknown) {
           removeLoadedProgress(eventId)
           if (!(err instanceof AbortedError)) {
             console.error(err)

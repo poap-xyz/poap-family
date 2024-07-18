@@ -21,9 +21,15 @@ function useAddressTokens(address: string): {
           setLoading(false)
           setPOAPs(foundPOAPs)
         },
-        (err) => {
+        (err: unknown) => {
           setLoading(false)
-          setError(err)
+          if (err instanceof Error) {
+            setError(err)
+          } else {
+            setError(new Error(`Could not fetch tokens for ${address}`, {
+              cause: err,
+            }))
+          }
           setPOAPs(null)
         }
       )

@@ -8,7 +8,7 @@ export function getSettings(): Settings {
   let settings: unknown
   try {
     settings = JSON.parse(cachedSettings)
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
     localStorage.removeItem('family-settings')
     return DEFAULT_SETTINGS
@@ -20,10 +20,10 @@ export function getSettings(): Settings {
   return settings as Settings
 }
 
-export function saveSettings(settings: Settings) {
+export function saveSettings(settings: Settings): void {
   try {
     localStorage.setItem('family-settings', JSON.stringify(settings))
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
   }
 }

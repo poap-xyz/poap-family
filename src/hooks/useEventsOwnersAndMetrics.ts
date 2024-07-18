@@ -126,7 +126,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
           /*includeMetrics*/true,
           /*refresh*/false
         )
-      } catch (err) {
+      } catch (err: unknown) {
         removeLoading(eventId)
         if (!(err instanceof AbortedError)) {
           addError(eventId, new Error(
@@ -163,7 +163,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
           fetchPOAPs(eventId, abortSignal),
           getEventMetrics(eventId, abortSignal, force),
         ])
-      } catch (err) {
+      } catch (err: unknown) {
         removeLoading(eventId)
         if (!(err instanceof AbortedError)) {
           addError(
