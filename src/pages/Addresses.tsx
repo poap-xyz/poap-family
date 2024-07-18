@@ -663,6 +663,15 @@ function Addresses() {
     0
   )
 
+  function handleEventActive(eventId: number): void {
+    const addresses = inCommon[eventId]
+    if (addresses != null && addresses.length > 0) {
+      resolveEnsNames(addresses).catch((err) => {
+        setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
+      })
+    }
+  }
+
   return (
     <Page>
       <div className="addresses">
@@ -815,6 +824,7 @@ function Addresses() {
         </Card>
         {state === STATE_END_RESULTS && (
           <EventsInCommon
+            onActive={handleEventActive}
             inCommon={inCommon}
             events={events}
             showCount={addresses.length}

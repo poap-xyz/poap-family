@@ -34,19 +34,19 @@ export const ReverseEnsContext = createContext<{
   resolveEnsNames: (addresses: string[], resolve?: boolean) => Promise<Record<string, string>>
   setEnsName: (address: string, ensName: string) => void
   getEnsName: (address: string) => string | null
-  isAddressEnsNotFound: (address: string) => boolean
 }>({
   resolveEnsNames: async (addresses: string[], resolve = false): Promise<Record<string, string>> => ({}),
   setEnsName: (address: string, ensName: string): void => {},
   getEnsName: (address: string): string | null => null,
-  isAddressEnsNotFound: (address: string): boolean => false,
 })
 
+type DataByEnsName = Record<string, {
+  address: string | null
+  avatar: string | null
+}>
+
 function resolverEnsReducer(
-  dataByEnsName: Record<string, {
-    address: string | null
-    avatar: string | null
-  }>,
+  dataByEnsName: DataByEnsName,
   {
     ensName,
     address,
@@ -68,7 +68,7 @@ function resolverEnsReducer(
 
 function ResolverEnsProvider({ children }: { children: ReactNode }) {
   const [dataByEnsName, dispatch] = useReducer(resolverEnsReducer, {})
-  const cacheDataByEnsName = useRef({})
+  const cacheDataByEnsName = useRef<DataByEnsName>({})
 
   // FIXME
   cacheDataByEnsName.current = dataByEnsName
@@ -168,12 +168,14 @@ function ResolverEnsProvider({ children }: { children: ReactNode }) {
   )
 }
 
+type EnsByAddress = Record<string, string | null>
+
 const reverseEnsReducer = (
-  ensByAddress: Record<string, string | null>,
+  ensByAddress: EnsByAddress,
   {
     type = 'append',
     newEnsByAddress,
-  }: { type?: 'prepend' | 'append'; newEnsByAddress: Record<string, string | null> }
+  }: { type?: 'prepend' | 'append'; newEnsByAddress: EnsByAddress }
 ) => {
   if (type === 'prepend') {
     return {
@@ -196,7 +198,7 @@ function ReverseEnsProvider({
 }) {
   const { resolveMeta } = useContext(ResolverEnsContext)
   const [ensByAddress, dispatch] = useReducer(reverseEnsReducer, {})
-  const cacheEnsByAddress = useRef({})
+  const cacheEnsByAddress = useRef<EnsByAddress>({})
 
   // FIXME
   cacheEnsByAddress.current = ensByAddress
@@ -225,7 +227,10 @@ function ReverseEnsProvider({
   )
 
   const resolveEnsNames = useCallback(
-    async (addresses: string[], resolve: boolean = false): Promise<Record<string, string>> => {
+    async (
+      addresses: string[],
+      resolve: boolean = false,
+    ): Promise<EnsByAddress> => {
       if (addresses.length === 0) {
         return {}
       }
@@ -252,7 +257,10 @@ function ReverseEnsProvider({
             const [resolvedAddresses, resolvedEnsNames] = Object
               .entries(resolved)
               .reduce(
-                ([resolvedAddresses, resolvedEnsNames]: [string[], string[]], [address, ensName]: [string, string]): [string[], string[]] => [
+                (
+                  [resolvedAddresses, resolvedEnsNames]: [string[], string[]],
+                  [address, ensName]: [string, string],
+                ): [string[], string[]] => [
                   [...resolvedAddresses, address],
                   [...resolvedEnsNames, ensName]
                 ],
@@ -302,21 +310,13 @@ function ReverseEnsProvider({
     []
   )
 
-  const isAddressEnsNotFound = useCallback(
-    (address: string): boolean => {
-      return cacheEnsByAddress.current[address] === null
-    },
-    []
-  )
-
   const value = useMemo(
     () => ({
       resolveEnsNames,
       setEnsName,
       getEnsName,
-      isAddressEnsNotFound,
     }),
-    [resolveEnsNames, setEnsName, getEnsName, isAddressEnsNotFound]
+    [resolveEnsNames, setEnsName, getEnsName]
   )
 
   return (

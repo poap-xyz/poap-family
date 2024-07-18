@@ -21,6 +21,7 @@ function EventsInCommon({
   showCount,
   showActive = true,
   baseEventIds = [],
+  onActive,
 }: {
   children?: ReactNode
   inCommon: InCommon
@@ -28,6 +29,7 @@ function EventsInCommon({
   showCount?: number
   showActive?: boolean
   baseEventIds?: number[]
+  onActive?: (eventId: number) => void
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeEventIds, setActiveEventIds] = useState<number[]>([])
@@ -103,6 +105,9 @@ function EventsInCommon({
         ...(prevActiveEventIds ?? []),
         eventId,
       ]))
+      if (onActive) {
+        onActive(eventId)
+      }
     } else {
       removeActiveEventId(eventId)
     }

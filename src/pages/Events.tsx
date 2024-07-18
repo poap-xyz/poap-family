@@ -246,6 +246,13 @@ function Events() {
     )
   }
 
+  function handleEventActive(eventId: number): void {
+    const addresses = inCommon[eventId]
+    if (addresses != null && addresses.length > 0) {
+      resolveEnsNames(addresses)
+    }
+  }
+
   return (
     <Page>
       <div className="events">
@@ -506,6 +513,7 @@ function Events() {
               all={all}
             />
             <EventsInCommon
+              onActive={handleEventActive}
               inCommon={inCommon}
               events={allEvents}
               baseEventIds={eventIds}

@@ -122,6 +122,13 @@ function Event() {
     setSearchParams({ force: 'true' })
   }
 
+  function handleEventActive(eventId: number): void {
+    const addresses = inCommon[eventId]
+    if (addresses != null && addresses.length > 0) {
+      resolveEnsNames(addresses)
+    }
+  }
+
   return (
     <Page>
       <div className="event">
@@ -255,6 +262,7 @@ function Event() {
             )}
             {cachedTs && (
               <EventsInCommon
+                onActive={handleEventActive}
                 inCommon={inCommon}
                 events={events}
                 baseEventIds={eventIds}
