@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { useSettings } from 'stores/settings'
@@ -7,6 +7,7 @@ import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
 import { parseEventIds, parseExpiryDates } from 'models/event'
 import { Drop, parseDrops } from 'models/drop'
+import { EnsByAddress } from 'models/ethereum'
 import { InCommon } from 'models/api'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
@@ -23,7 +24,7 @@ import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
-import InCommonType from 'components/InCommon'
+import EventsInCommon from 'components/EventsInCommon'
 import CollectionSet from 'components/CollectionSet'
 import EventsOwners from 'components/EventsOwners'
 import Switch from 'components/Switch'
@@ -41,6 +42,7 @@ function Events() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
+  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
@@ -244,6 +246,18 @@ function Events() {
       (total, metric) => total + metric.collectionsIncludes,
       0
     )
+  }
+
+  function handleEventActive(eventId: number): void {
+    const addresses = inCommon[eventId]
+    if (addresses != null && addresses.length > 0) {
+      resolveEnsNames(addresses).then((ensNames) => {
+        setEventsEnsNames((prevEventsEnsNames) => ({
+          ...prevEventsEnsNames,
+          [eventId]: ensNames,
+        }))
+      })
+    }
   }
 
   return (
@@ -505,10 +519,12 @@ function Events() {
               events={allEvents}
               all={all}
             />
-            <InCommonType
+            <EventsInCommon
+              onActive={handleEventActive}
               inCommon={inCommon}
               events={allEvents}
               baseEventIds={eventIds}
+              eventsEnsNames={eventsEnsNames}
             />
           </>
         )}

@@ -6,6 +6,7 @@ import { parseEventIds } from 'models/event'
 import { Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { InCommon } from 'models/api'
+import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { fetchPOAPs, scanAddress } from 'loaders/poap'
@@ -22,7 +23,7 @@ import Status from 'components/Status'
 import ShadowText from 'components/ShadowText'
 import Loading from 'components/Loading'
 import ButtonGroup from 'components/ButtonGroup'
-import InCommonType from 'components/InCommon'
+import EventsInCommon from 'components/EventsInCommon'
 import AddressAddForm from 'components/AddressAddForm'
 import ButtonDelete from 'components/ButtonDelete'
 import ButtonEdit from 'components/ButtonEdit'
@@ -65,6 +66,7 @@ function Addresses() {
   const [inCommon, setInCommon] = useState<InCommon>({})
   const [events, setEvents] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
+  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   function enableLoadingByAddress(address: string): void {
     setLoadingByAddress((prevLoading) => ({
@@ -227,9 +229,6 @@ function Addresses() {
       setPowers({})
       setErrorsByAddress({})
       let promise = new Promise((r) => r(undefined))
-      /**
-       * @type {Record<string, AbortController>}
-       */
       const controllers: Record<string, AbortController> = {}
       for (const address of resolved) {
         if (!address) {
@@ -248,7 +247,7 @@ function Addresses() {
           )
         }
       }
-      promise.catch((err) => {
+      promise.catch((err: unknown) => {
         if (!(err instanceof AbortedError)) {
           console.error(err)
         }
@@ -408,8 +407,11 @@ function Addresses() {
           .map((input) => input.address)
 
         if (missingEnsNames.length > 0) {
-          resolveEnsNames(missingEnsNames).catch((err) => {
-            setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
+          resolveEnsNames(missingEnsNames).catch((err: unknown) => {
+            setErrors((oldErrors) => ([
+              ...(oldErrors ?? []),
+              new Error(`Could not resolve some ENS names`, { cause: err }),
+            ]))
           })
         }
       }
@@ -457,7 +459,7 @@ function Addresses() {
               )
             }
           }
-          promise.catch((err) => {
+          promise.catch((err: unknown) => {
             if (!(err instanceof AbortedError)) {
               console.error(err)
             }
@@ -483,9 +485,6 @@ function Addresses() {
       if (addresses === null) {
         return
       }
-      /**
-       * @type {AbortController[]}
-       */
       let controllers: AbortController[] = []
       const resolved = Object.values(collectors)
       if (resolved.length === addresses.length) {
@@ -629,7 +628,7 @@ function Addresses() {
       return
     }
     if (entry.ens != null) {
-      processEnsName(entry.ens, index).catch((err) => {
+      processEnsName(entry.ens, index).catch((err: unknown) => {
         if (!(err instanceof AbortedError)) {
           console.error(err)
         }
@@ -668,6 +667,23 @@ function Addresses() {
     (total, power) => total + power,
     0
   )
+
+  function handleEventActive(eventId: number): void {
+    const addresses = inCommon[eventId]
+    if (addresses != null && addresses.length > 0) {
+      resolveEnsNames(addresses).then((ensNames) => {
+        setEventsEnsNames((prevEventsEnsNames) => ({
+          ...prevEventsEnsNames,
+          [eventId]: ensNames,
+        }))
+      }).catch((err: unknown) => {
+        setErrors((oldErrors) => ([
+          ...(oldErrors ?? []),
+          new Error(`Could not resolve drop ENS names`, { cause: err }),
+        ]))
+      })
+    }
+  }
 
   return (
     <Page>
@@ -820,10 +836,12 @@ function Addresses() {
           </table>
         </Card>
         {state === STATE_END_RESULTS && (
-          <InCommonType
+          <EventsInCommon
+            onActive={handleEventActive}
             inCommon={inCommon}
             events={events}
             showCount={addresses.length}
+            eventsEnsNames={eventsEnsNames}
           />
         )}
       </div>

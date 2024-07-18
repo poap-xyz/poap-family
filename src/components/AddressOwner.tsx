@@ -6,6 +6,7 @@ import ButtonAddressProfile from 'components/ButtonAddressProfile'
 import 'styles/address-owner.css'
 
 function AddressOwner({
+  ens,
   address,
   events,
   eventIds,
@@ -14,6 +15,7 @@ function AddressOwner({
   inCommonAddresses = [],
   linkToScan = false,
 }: {
+  ens?: string
   address: string
   events: Record<number, Drop>
   eventIds?: number[]
@@ -42,13 +44,21 @@ function AddressOwner({
               events={events}
               inCommonEventIds={inCommonEventIds}
               inCommonAddresses={inCommonAddresses}
+              showEns={true}
+              ens={ens}
             />
           )
-          : <LinkToScan address={address} />
+          : <LinkToScan address={address} showEns={true} ens={ens} />
         }
       </div>
       {linkToScan && settings.openProfiles && (
-        <LinkToScan address={address} className="owner-scan" stamp={true} />
+        <LinkToScan
+          address={address}
+          className="owner-scan"
+          stamp={true}
+          showEns={true}
+          ens={ens}
+        />
       )}
       {hasEvents && (
         <div className="owner-events">

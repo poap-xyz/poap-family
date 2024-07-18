@@ -1,11 +1,12 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { Drop } from 'models/drop'
-import type { InCommon as InCommonType } from 'models/api'
+import type { InCommon } from 'models/api'
 import {
   filterInCommon,
   INCOMMON_EVENTS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
+import { EnsByAddress } from 'models/ethereum'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
@@ -14,20 +15,24 @@ import EventsCompare from 'components/EventsCompare'
 import EventsNavigateButtons from 'components/EventsNavigateButtons'
 import 'styles/in-common.css'
 
-function InCommon({
+function EventsInCommon({
   children,
   inCommon: initialInCommon,
   events,
   showCount,
   showActive = true,
   baseEventIds = [],
+  onActive,
+  eventsEnsNames,
 }: {
   children?: ReactNode
-  inCommon: InCommonType
+  inCommon: InCommon
   events: Record<number, Drop>
   showCount?: number
   showActive?: boolean
   baseEventIds?: number[]
+  onActive?: (eventId: number) => void
+  eventsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeEventIds, setActiveEventIds] = useState<number[]>([])
@@ -103,10 +108,31 @@ function InCommon({
         ...(prevActiveEventIds ?? []),
         eventId,
       ]))
+      if (onActive) {
+        onActive(eventId)
+      }
     } else {
       removeActiveEventId(eventId)
     }
   }
+
+  const activeEventsEnsNames = useMemo(
+    () => eventsEnsNames
+      ? (activeEventIds.length === 0
+          ? {}
+          : Object.fromEntries(
+              Object.entries(eventsEnsNames).filter(([rawEventId]) => {
+                const eventId = parseInt(rawEventId)
+                if (isNaN(eventId)) {
+                  return false
+                }
+                return activeEventIds.includes(eventId)
+              })
+            )
+        )
+      : undefined,
+    [eventsEnsNames, activeEventIds]
+  )
 
   const inCommonTotal = inCommonEntries.length
   const hasMore = inCommonTotal > inCommonLimit
@@ -161,10 +187,11 @@ function InCommon({
           events={events}
           inCommon={inCommon}
           onClose={removeActiveEventId}
+          eventsEnsNames={activeEventsEnsNames}
         />
       }
     </div>
   )
 }
 
-export default InCommon
+export default EventsInCommon

@@ -9,21 +9,25 @@ import AddressProfile from 'components/AddressProfile'
 import 'styles/button-address-profile.css'
 
 function ButtonAddressProfile({
+  ens,
   address,
   events,
   inCommonEventIds = [],
   inCommonAddresses = [],
+  showEns = true,
 }: {
+  ens?: string
   address: string
   events: Record<number, Drop>
   inCommonEventIds?: number[]
   inCommonAddresses?: string[]
+  showEns?: boolean
 }) {
   const { getEnsName } = useContext(ReverseEnsContext)
 
   const [showModal, setShowModal] = useState<boolean>(false)
 
-  const ensName = getEnsName(address)
+  const ensName = ens ?? getEnsName(address)
 
   return (
     <>
@@ -32,7 +36,7 @@ function ButtonAddressProfile({
         title={`Open ${ensName ?? address} profile`}
         onClick={() => setShowModal((show) => !show)}
       >
-        {ensName
+        {showEns && ensName
           ? <span className="ens">{ensName}</span>
           : <code>{address}</code>
         }
@@ -46,6 +50,7 @@ function ButtonAddressProfile({
           <Card>
             <ButtonClose onClose={() => setShowModal(false)} />
             <AddressProfile
+              ens={ens}
               address={address}
               events={events}
               inCommonEventIds={inCommonEventIds}
