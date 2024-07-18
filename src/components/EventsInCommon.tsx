@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { Drop } from 'models/drop'
-import type { InCommon as InCommonType } from 'models/api'
+import type { InCommon } from 'models/api'
 import {
   filterInCommon,
   INCOMMON_EVENTS_LIMIT,
@@ -14,7 +14,7 @@ import EventsCompare from 'components/EventsCompare'
 import EventsNavigateButtons from 'components/EventsNavigateButtons'
 import 'styles/in-common.css'
 
-function InCommon({
+function EventsInCommon({
   children,
   inCommon: initialInCommon,
   events,
@@ -23,7 +23,7 @@ function InCommon({
   baseEventIds = [],
 }: {
   children?: ReactNode
-  inCommon: InCommonType
+  inCommon: InCommon
   events: Record<number, Drop>
   showCount?: number
   showActive?: boolean
@@ -167,4 +167,4 @@ function InCommon({
   )
 }
 
-export default InCommon
+export default EventsInCommon

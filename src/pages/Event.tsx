@@ -10,7 +10,7 @@ import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
 import Loading from 'components/Loading'
-import InCommonType from 'components/InCommon'
+import EventsInCommon from 'components/EventsInCommon'
 import EventInfo from 'components/EventInfo'
 import EventStats from 'components/EventStats'
 import CollectionSet from 'components/CollectionSet'
@@ -254,7 +254,7 @@ function Event() {
               </Card>
             )}
             {cachedTs && (
-              <InCommonType
+              <EventsInCommon
                 inCommon={inCommon}
                 events={events}
                 baseEventIds={eventIds}
