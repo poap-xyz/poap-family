@@ -23,7 +23,7 @@ import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
-import InCommonType from 'components/InCommon'
+import EventsInCommon from 'components/EventsInCommon'
 import CollectionSet from 'components/CollectionSet'
 import EventsOwners from 'components/EventsOwners'
 import Switch from 'components/Switch'
@@ -505,7 +505,7 @@ function Events() {
               events={allEvents}
               all={all}
             />
-            <InCommonType
+            <EventsInCommon
               inCommon={inCommon}
               events={allEvents}
               baseEventIds={eventIds}

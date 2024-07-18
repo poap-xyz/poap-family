@@ -22,7 +22,7 @@ import Status from 'components/Status'
 import ShadowText from 'components/ShadowText'
 import Loading from 'components/Loading'
 import ButtonGroup from 'components/ButtonGroup'
-import InCommonType from 'components/InCommon'
+import EventsInCommon from 'components/EventsInCommon'
 import AddressAddForm from 'components/AddressAddForm'
 import ButtonDelete from 'components/ButtonDelete'
 import ButtonEdit from 'components/ButtonEdit'
@@ -227,9 +227,6 @@ function Addresses() {
       setPowers({})
       setErrorsByAddress({})
       let promise = new Promise((r) => r(undefined))
-      /**
-       * @type {Record<string, AbortController>}
-       */
       const controllers: Record<string, AbortController> = {}
       for (const address of resolved) {
         if (!address) {
@@ -483,9 +480,6 @@ function Addresses() {
       if (addresses === null) {
         return
       }
-      /**
-       * @type {AbortController[]}
-       */
       let controllers: AbortController[] = []
       const resolved = Object.values(collectors)
       if (resolved.length === addresses.length) {
@@ -820,7 +814,7 @@ function Addresses() {
           </table>
         </Card>
         {state === STATE_END_RESULTS && (
-          <InCommonType
+          <EventsInCommon
             inCommon={inCommon}
             events={events}
             showCount={addresses.length}
