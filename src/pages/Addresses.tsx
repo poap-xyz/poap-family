@@ -6,6 +6,7 @@ import { parseEventIds } from 'models/event'
 import { Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { InCommon } from 'models/api'
+import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { fetchPOAPs, scanAddress } from 'loaders/poap'
@@ -65,6 +66,7 @@ function Addresses() {
   const [inCommon, setInCommon] = useState<InCommon>({})
   const [events, setEvents] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
+  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   function enableLoadingByAddress(address: string): void {
     setLoadingByAddress((prevLoading) => ({
@@ -666,7 +668,12 @@ function Addresses() {
   function handleEventActive(eventId: number): void {
     const addresses = inCommon[eventId]
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).catch((err) => {
+      resolveEnsNames(addresses).then((ensNames) => {
+        setEventsEnsNames((prevEventsEnsNames) => ({
+          ...prevEventsEnsNames,
+          [eventId]: ensNames,
+        }))
+      }).catch((err) => {
         setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
       })
     }
@@ -828,6 +835,7 @@ function Addresses() {
             inCommon={inCommon}
             events={events}
             showCount={addresses.length}
+            eventsEnsNames={eventsEnsNames}
           />
         )}
       </div>

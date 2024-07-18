@@ -6,6 +6,7 @@ import {
   INCOMMON_EVENTS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
+import { EnsByAddress } from 'models/ethereum'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
@@ -22,6 +23,7 @@ function EventsInCommon({
   showActive = true,
   baseEventIds = [],
   onActive,
+  eventsEnsNames,
 }: {
   children?: ReactNode
   inCommon: InCommon
@@ -30,6 +32,7 @@ function EventsInCommon({
   showActive?: boolean
   baseEventIds?: number[]
   onActive?: (eventId: number) => void
+  eventsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeEventIds, setActiveEventIds] = useState<number[]>([])
@@ -113,6 +116,24 @@ function EventsInCommon({
     }
   }
 
+  const activeEventsEnsNames = useMemo(
+    () => eventsEnsNames
+      ? (activeEventIds.length === 0
+          ? {}
+          : Object.fromEntries(
+              Object.entries(eventsEnsNames).filter(([rawEventId]) => {
+                const eventId = parseInt(rawEventId)
+                if (isNaN(eventId)) {
+                  return false
+                }
+                return activeEventIds.includes(eventId)
+              })
+            )
+        )
+      : undefined,
+    [eventsEnsNames, activeEventIds]
+  )
+
   const inCommonTotal = inCommonEntries.length
   const hasMore = inCommonTotal > inCommonLimit
 
@@ -166,6 +187,7 @@ function EventsInCommon({
           events={events}
           inCommon={inCommon}
           onClose={removeActiveEventId}
+          eventsEnsNames={activeEventsEnsNames}
         />
       }
     </div>

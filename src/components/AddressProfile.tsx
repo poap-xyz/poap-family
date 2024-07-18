@@ -21,11 +21,13 @@ import Loading from 'components/Loading'
 import 'styles/address-profile.css'
 
 function AddressProfile({
+  ens,
   address,
   events,
   inCommonEventIds = [],
   inCommonAddresses = [],
 }: {
+  ens?: string
   address: string
   events: Record<number, Drop>
   inCommonEventIds?: number[]
@@ -88,7 +90,7 @@ function AddressProfile({
     [poaps]
   )
 
-  const ensName = getEnsName(address)
+  const ensName = ens ?? getEnsName(address)
 
   return (
     <div className="address-profile">

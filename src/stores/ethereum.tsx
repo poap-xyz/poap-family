@@ -7,11 +7,11 @@ import {
   useReducer,
   useRef,
 } from 'react'
-import { ENS_RESOLVE_BATCH_SIZE, EnsMeta } from 'models/ethereum'
+import { ENS_RESOLVE_BATCH_SIZE, EnsByAddress, EnsMeta } from 'models/ethereum'
 import {
   resolveAddress as ethereumResolveAddress,
   resolveEnsNames as ethereumResolveEnsNames,
-  resolveEnsAvatar as ethereumResolveEnsAvatar
+  resolveEnsAvatar as ethereumResolveEnsAvatar,
 } from 'loaders/ethereum'
 
 export const ResolverEnsContext = createContext<{
@@ -31,11 +31,11 @@ export const ResolverEnsContext = createContext<{
 })
 
 export const ReverseEnsContext = createContext<{
-  resolveEnsNames: (addresses: string[], resolve?: boolean) => Promise<Record<string, string>>
+  resolveEnsNames: (addresses: string[], resolve?: boolean) => Promise<EnsByAddress>
   setEnsName: (address: string, ensName: string) => void
   getEnsName: (address: string) => string | null
 }>({
-  resolveEnsNames: async (addresses: string[], resolve = false): Promise<Record<string, string>> => ({}),
+  resolveEnsNames: async (addresses: string[], resolve = false): Promise<EnsByAddress> => ({}),
   setEnsName: (address: string, ensName: string): void => {},
   getEnsName: (address: string): string | null => null,
 })
@@ -127,7 +127,7 @@ function ResolverEnsProvider({ children }: { children: ReactNode }) {
   )
 
   const getMeta = useCallback(
-    (ensName: string): { avatar: string | null } => {
+    (ensName: string): EnsMeta => {
       const avatar = dataByEnsName[ensName]?.avatar ?? null
       return { avatar }
     },
@@ -168,14 +168,15 @@ function ResolverEnsProvider({ children }: { children: ReactNode }) {
   )
 }
 
-type EnsByAddress = Record<string, string | null>
-
 const reverseEnsReducer = (
   ensByAddress: EnsByAddress,
   {
     type = 'append',
     newEnsByAddress,
-  }: { type?: 'prepend' | 'append'; newEnsByAddress: EnsByAddress }
+  }: {
+    type?: 'prepend' | 'append'
+    newEnsByAddress: EnsByAddress
+  }
 ) => {
   if (type === 'prepend') {
     return {
@@ -210,7 +211,7 @@ function ReverseEnsProvider({
   )
 
   const resolveNames = useCallback(
-    async (names: string[], addresses: string[]) => {
+    async (names: string[], addresses: string[]): Promise<void> => {
       let promise = new Promise((r) => r(undefined))
       for (let i = 0; i < names.length; i += batchSize) {
         promise = promise.then(
@@ -297,14 +298,14 @@ function ReverseEnsProvider({
   )
 
   const setEnsName = useCallback(
-    (address: string, ensName: string) => {
+    (address: string, ensName: string): void => {
       dispatch({ newEnsByAddress: { [address]: ensName } })
     },
     []
   )
 
   const getEnsName = useCallback(
-    (address: string) => {
+    (address: string): string | null => {
       return cacheEnsByAddress.current[address] ?? null
     },
     []
