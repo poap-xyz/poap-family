@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
-import { Event, SEARCH_LIMIT } from 'models/event'
+import { SEARCH_LIMIT } from 'models/event'
+import { Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { searchEvents as loadSearchEvents } from 'loaders/event'
 
@@ -7,14 +8,14 @@ function useEventSearch(query?: string, page: number = 1): {
   loadingEventSearch: boolean
   eventSearchError: Error | null
   totalEventResults: number | null
-  resultEvents: Event[]
+  resultEvents: Drop[]
   searchEvents: (newQuery?: string | null, newPage?: number) => () => void
   retryEventSearch: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [total, setTotal] = useState<number | null>(null)
-  const [resultEvents, setResultEvents] = useState<Event[]>([])
+  const [resultEvents, setResultEvents] = useState<Drop[]>([])
 
   const searchEvents = useCallback(
     (newQuery: string, newPage: number) => {

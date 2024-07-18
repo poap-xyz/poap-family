@@ -4,3 +4,7 @@ export const MAINNET_ENS_REVERSE_RECORDS = '0x1FeD6981924600aCAc3d0F5f81fe88aEcc
 export const ENS_REVERSE_RECORDS_BATCH_SIZE = 100
 export const ENS_RESOLVE_BATCH_SIZE = 6
 export const ENS_RESOLVE_MAX_ERRORS = 100
+
+export interface EnsMeta {
+  avatar: string | null
+}

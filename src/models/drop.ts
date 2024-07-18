@@ -166,7 +166,7 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
   }
 }
 
-export function DropData(
+export function parseDropData(
   data: unknown,
   includeDescription: boolean = false,
   includeMetrics: boolean = true,
@@ -225,7 +225,10 @@ export function DropData(
   }
 }
 
-export function Drops(drops: unknown, includeDescription: boolean = false): Record<number, Drop> {
+export function parseDrops(
+  drops: unknown,
+  includeDescription: boolean = false,
+): Record<number, Drop> {
   if (drops == null || typeof drops !== 'object') {
     throw new Error('Invalid drops')
   }

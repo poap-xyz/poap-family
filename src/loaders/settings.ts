@@ -1,6 +1,6 @@
-import { DEFAULT_SETTINGS } from 'models/settings'
+import { DEFAULT_SETTINGS, Settings } from 'models/settings'
 
-export function getSettings(): typeof DEFAULT_SETTINGS {
+export function getSettings(): Settings {
   const cachedSettings = localStorage.getItem('family-settings')
   if (!cachedSettings) {
     return DEFAULT_SETTINGS
@@ -17,10 +17,10 @@ export function getSettings(): typeof DEFAULT_SETTINGS {
     localStorage.removeItem('family-settings')
     return DEFAULT_SETTINGS
   }
-  return settings as typeof DEFAULT_SETTINGS
+  return settings as Settings
 }
 
-export function saveSettings(settings: typeof DEFAULT_SETTINGS) {
+export function saveSettings(settings: Settings) {
   try {
     localStorage.setItem('family-settings', JSON.stringify(settings))
   } catch (err) {

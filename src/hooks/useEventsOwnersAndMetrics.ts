@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
 import { AbortedError } from 'models/error'
+import { InCommon } from 'models/api'
 import { fetchPOAPs } from 'loaders/poap'
 import {
   getEventAndOwners,
@@ -14,7 +15,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   loadingEventsOwnersAndMetrics: boolean
   loadingOwnersAndMetricsEvents: Record<number, boolean>
   eventsOwnersAndMetricsErrors: Record<number, Error>
-  eventsOwners: Record<number, string[]>
+  eventsOwners: InCommon
   eventsMetrics: Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>
   fetchEventsOwnersAndMetrics: () => () => void
   retryEventOwnersAndMetrics: (eventId: number) => () => void
@@ -23,7 +24,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   const [loadingCache, setLoadingCache] = useState<boolean>(false)
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Error>>({})
-  const [owners, setOwners] = useState<Record<number, string[]>>({})
+  const [owners, setOwners] = useState<InCommon>({})
   const [metrics, setMetrics] = useState<Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>>({})
 
   function addLoading(eventId: number): void {
@@ -77,7 +78,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventsOwners(eventsOwners: Record<number, string[]>): void {
+  function updateEventsOwners(eventsOwners: InCommon): void {
     setOwners((prevOwners) => ({
       ...prevOwners,
       ...Object.fromEntries(

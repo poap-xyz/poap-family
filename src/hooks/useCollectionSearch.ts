@@ -3,12 +3,13 @@ import { useSettings } from 'stores/settings'
 import { SEARCH_LIMIT } from 'models/event'
 import { searchCollections as loadSearchCollections } from 'loaders/collection'
 import { AbortedError } from 'models/error'
+import { CollectionWithDrops } from 'models/collection'
 
 function useCollectionSearch(query?: string, page: number = 1): {
   loadingCollectionSearch: boolean
   collectionSearchError: Error | null
   totalCollectionResults: number | null
-  resultCollections: Array<{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }>
+  resultCollections: CollectionWithDrops[]
   searchCollections: (newQuery?: string | null, newPage?: number) => () => void
   retryCollectionSearch: () => void
 } {
@@ -16,7 +17,7 @@ function useCollectionSearch(query?: string, page: number = 1): {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [total, setTotal] = useState<number | null>(null)
-  const [resultCollections, setResultCollections] = useState<Array<{ id: number; slug: string; title: string | null; banner_image_url: string | null; logo_image_url: string | null; dropIds: number[] }>>([])
+  const [resultCollections, setResultCollections] = useState<CollectionWithDrops[]>([])
 
   const searchCollections = useCallback(
     (newQuery: string, newPage: number) => {

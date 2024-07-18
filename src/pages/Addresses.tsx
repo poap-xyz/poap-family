@@ -2,8 +2,10 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { parseAddress, parseAddresses, ParsedAddress } from 'models/address'
-import { Event, parseEventIds } from 'models/event'
+import { parseEventIds } from 'models/event'
+import { Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
+import { InCommon } from 'models/api'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { fetchPOAPs, scanAddress } from 'loaders/poap'
@@ -60,8 +62,8 @@ function Addresses() {
   const [errorsByAddress, setErrorsByAddress] = useState<Record<string, Error>>({})
   const [errorsByIndex, setErrorsByIndex] = useState<Record<number, Error>>({})
   const [powers, setPowers] = useState<Record<string, number>>({})
-  const [inCommon, setInCommon] = useState<Record<number, string[]>>({})
-  const [events, setEvents] = useState<Record<number, Event>>({})
+  const [inCommon, setInCommon] = useState<InCommon>({})
+  const [events, setEvents] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
 
   function enableLoadingByAddress(address: string): void {
@@ -104,7 +106,7 @@ function Addresses() {
     }))
   }
 
-  function updateAddressEvent(address: string, event: Event): void {
+  function updateAddressEvent(address: string, event: Drop): void {
     const eventId = event.id
     setInCommon((alsoInCommon) => {
       if (!alsoInCommon) {

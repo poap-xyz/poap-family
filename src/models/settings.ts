@@ -7,3 +7,12 @@ export const DEFAULT_SETTINGS = {
   openProfiles: true,
   showCollections: true,
 }
+
+export interface Settings {
+  welcomeShown: boolean
+  feedbackShown: boolean
+  showLastEvents: boolean
+  autoScrollCollectors: boolean
+  openProfiles: boolean
+  showCollections: boolean
+}

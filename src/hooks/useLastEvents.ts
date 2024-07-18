@@ -1,25 +1,20 @@
 import { useCallback, useState } from 'react'
 import { getLastEvents } from 'loaders/api'
+import { CachedEvent } from 'models/api'
 
 function useLastEvents(page: number, perPage: number): {
   loading: boolean
   error: Error | null
   pages: number
   total: number
-  lastEvents: Array<{
-    id: number
-    name: string
-    image_url: string
-    cached_ts: number
-    in_common_count: number
-  }>
+  lastEvents: CachedEvent[]
   fetchLastEvents: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [pages, setPages] = useState<number>(0)
   const [total, setTotal] = useState<number>(null)
-  const [lastEvents, setLastEvents] = useState<Array<{ id: number; name: string; image_url: string; cached_ts: number; in_common_count: number }>>([])
+  const [lastEvents, setLastEvents] = useState<CachedEvent[]>([])
   
   const fetchLastEvents = useCallback(
     () => {

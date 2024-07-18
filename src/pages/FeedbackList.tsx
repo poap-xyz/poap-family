@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { AdminContext } from 'stores/admin'
 import { delFeedback, getFeedback } from 'loaders/api'
+import { Feedback } from 'models/api'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
@@ -20,7 +21,7 @@ function FeedbackList({ qty = 10 }) {
   const [pages, setPages] = useState<number>(0)
   const [total, setTotal] = useState<number | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  const [feedback, setFeedback] = useState<Array<{ id: number; message: string; location: string; ts: number }>>([])
+  const [feedback, setFeedback] = useState<Feedback[]>([])
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(

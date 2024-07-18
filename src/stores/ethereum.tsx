@@ -7,7 +7,7 @@ import {
   useReducer,
   useRef,
 } from 'react'
-import { ENS_RESOLVE_BATCH_SIZE } from 'models/ethereum'
+import { ENS_RESOLVE_BATCH_SIZE, EnsMeta } from 'models/ethereum'
 import {
   resolveAddress as ethereumResolveAddress,
   resolveEnsNames as ethereumResolveEnsNames,
@@ -19,15 +19,15 @@ export const ResolverEnsContext = createContext<{
   getAddress: (ensName: string) => string | null
   isEnsAddressFound: (ensName: string) => boolean
   isEnsAddressNotFound: (ensName: string) => boolean
-  resolveMeta: (ensName: string, address?: string) => Promise<{ avatar: string | null }>
-  getMeta: (ensName: string) => { avatar: string | null }
+  resolveMeta: (ensName: string, address?: string) => Promise<EnsMeta>
+  getMeta: (ensName: string) => EnsMeta
 }>({
   resolveAddress: async (ensName: string): Promise<string | null> => null,
   getAddress: (ensName: string): string | null => null,
   isEnsAddressFound: (ensName: string): boolean => false,
   isEnsAddressNotFound: (ensName: string): boolean => false,
-  resolveMeta: async (ensName: string, address?: string): Promise<{ avatar: string | null }> => ({ avatar: null }),
-  getMeta: (ensName: string): { avatar: string | null } => null,
+  resolveMeta: async (ensName: string, address?: string): Promise<EnsMeta> => ({ avatar: null }),
+  getMeta: (ensName: string): EnsMeta => null,
 })
 
 export const ReverseEnsContext = createContext<{
@@ -135,7 +135,7 @@ function ResolverEnsProvider({ children }: { children: ReactNode }) {
   )
 
   const resolveMeta = useCallback(
-    async (ensName: string, address: string): Promise<{ avatar: string | null }> => {
+    async (ensName: string, address: string): Promise<EnsMeta> => {
       const avatar = await resolveAvatar(ensName, address)
       return { avatar }
     },

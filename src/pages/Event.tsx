@@ -3,7 +3,7 @@ import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
-import { DropData } from 'models/drop'
+import { parseDropData } from 'models/drop'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
@@ -34,7 +34,7 @@ function Event() {
   const force = searchParams.get('force') === 'true'
 
   const { event, owners, ts, metrics } = useMemo(
-    () => DropData(
+    () => parseDropData(
       loaderData,
       /*includeDescription*/true,
       /*includeMetrics*/true,

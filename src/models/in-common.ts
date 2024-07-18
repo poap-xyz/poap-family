@@ -1,5 +1,6 @@
 import { equals, intersection } from 'utils/array'
 import { filterInvalidOwners } from 'models/address'
+import { InCommon } from 'models/api'
 
 export const INCOMMON_EVENTS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
@@ -8,7 +9,7 @@ export const INCOMMON_ADDRESSES_LIMIT = 10
  * Filter the collectors for invalid ones and then eemoves the ones that has one
  * or zero in-common collectors.
  */
-export function filterInCommon(inCommon: Record<number, string[]>): Record<number, string[]> {
+export function filterInCommon(inCommon: InCommon): InCommon {
   if (typeof inCommon !== 'object') {
     return {}
   }
@@ -25,7 +26,9 @@ export function filterInCommon(inCommon: Record<number, string[]>): Record<numbe
 /**
  * Sorts it by highest number of in-common collectors.
  */
-export function sortInCommonEntries(inCommonEntries: Array<[number, string[]]>): Array<[number, string[]]> {
+export function sortInCommonEntries(
+  inCommonEntries: Array<[number, string[]]>,
+): Array<[number, string[]]> {
   const copyInCommonEntries = inCommonEntries.slice()
   // Sorted by the highest in-common collectors.
   copyInCommonEntries.sort(
@@ -39,8 +42,11 @@ export function sortInCommonEntries(inCommonEntries: Array<[number, string[]]>):
  * all is true then, collectors must be the same in all events to be included
  * or if not merges the partial collectors alltoguether.
  */
-export function mergeAllInCommon(allInCommon: Record<number, string[]>[], all: boolean = false): Record<number, string[]> {
-  const mergedInCommon: Record<number, string[]> = {}
+export function mergeAllInCommon(
+  allInCommon: InCommon[],
+  all: boolean = false,
+): InCommon {
+  const mergedInCommon: InCommon = {}
   for (const inCommon of allInCommon) {
     for (const [inCommonEventId, addresses] of Object.entries(inCommon)) {
       if (inCommonEventId in mergedInCommon) {
@@ -65,7 +71,7 @@ export function mergeAllInCommon(allInCommon: Record<number, string[]>[], all: b
 /**
  * Merges in-common collectors that belong to all events.
  */
-export function mergeAddressesInCommon(inCommon: Record<number, string[]>): string[] {
+export function mergeAddressesInCommon(inCommon: InCommon): string[] {
   let mergedAddresses = null
   for (const [, addresses] of Object.entries(inCommon)) {
     if (mergedAddresses == null) {
@@ -81,7 +87,10 @@ export function mergeAddressesInCommon(inCommon: Record<number, string[]>): stri
  * Retrieve a list of drops that the given {address} is found in the in-common
  * object.
  */
-export function getAddressInCommonEventIds(inCommon: Record<number, string[]>, address: string): number[] {
+export function getAddressInCommonEventIds(
+  inCommon: InCommon,
+  address: string,
+): number[] {
   const eventIds = []
   for (const [rawEventId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
@@ -96,7 +105,11 @@ export function getAddressInCommonEventIds(inCommon: Record<number, string[]>, a
  * addresses that share the same events. The given {eventIds} must be the
  * result of `getAddressInCommonEventIds(inCommon, address)`.
  */
-export function getAddressInCommonAddresses(inCommon: Record<number, string[]>, eventIds: number[], address: string): string[] {
+export function getAddressInCommonAddresses(
+  inCommon: InCommon,
+  eventIds: number[],
+  address: string,
+): string[] {
   if (eventIds.length < 2) {
     return []
   }

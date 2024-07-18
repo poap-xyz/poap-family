@@ -5,8 +5,9 @@ import { useSettings } from 'stores/settings'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
-import { Event, parseEventIds, parseExpiryDates } from 'models/event'
-import { Drops } from 'models/drop'
+import { parseEventIds, parseExpiryDates } from 'models/event'
+import { Drop, parseDrops } from 'models/drop'
+import { InCommon } from 'models/api'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
 import useEventsOwnersAndMetrics from 'hooks/useEventsOwnersAndMetrics'
@@ -45,7 +46,7 @@ function Events() {
   const all = searchParams.get('all') === 'true'
 
   const events = useMemo(
-    () => Drops(loaderData, /*includeDescription*/false),
+    () => parseDrops(loaderData, /*includeDescription*/false),
     [loaderData]
   )
 
@@ -172,7 +173,7 @@ function Events() {
     setSearchParams({ all: 'true' })
   }
 
-  const inCommon: Record<number, string[]> = useMemo(
+  const inCommon: InCommon = useMemo(
     () => {
       if (!completedEventsInCommon) {
         return {}
@@ -187,7 +188,7 @@ function Events() {
     [completedEventsInCommon, eventsInCommon, all]
   )
 
-  const allEvents: Record<number, Event> = useMemo(
+  const allEvents: Record<number, Drop> = useMemo(
     () => Object.values(eventsInCommon).reduce(
       (allEvents, data) => ({
         ...allEvents,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Event, joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
+import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
+import { Drop } from 'models/drop'
 import { CollectionWithDrops } from 'models/collection'
 import useEvent from 'hooks/useEvent'
 import useEventSearch from 'hooks/useEventSearch'
@@ -18,7 +19,7 @@ function Search() {
   const [error, setError] = useState<Error | null>(null)
   const [query, setQuery] = useState<string>('')
   const [page, setPage] = useState<number>(1)
-  const [selectedEvents, setSelectedEvents] = useState<Event[]>([])
+  const [selectedEvents, setSelectedEvents] = useState<Drop[]>([])
   const [selectedCollections, setSelectedCollections] = useState<CollectionWithDrops[]>([])
 
   const {
@@ -66,9 +67,9 @@ function Search() {
   )
 
   function search(searchQuery: string, searchPage: number): void {
-    let cancelEvent
-    let cancelEventSearch
-    let cancelCollectionSearch
+    let cancelEvent: () => void | undefined
+    let cancelEventSearch: () => void | undefined
+    let cancelCollectionSearch: () => void | undefined
     if (searchQuery.length > 0) {
       if (/^[0-9]+$/.test(searchQuery)) {
         const eventId = parseInt(searchQuery)

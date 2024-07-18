@@ -14,7 +14,9 @@ import ButtonGroup from 'components/ButtonGroup'
 import ButtonExpand from 'components/ButtonExpand'
 import 'styles/events-owners.css'
 
-function inverseOwnersSortedEntries(owners: Record<number, string[]>): Array<[string, number[]]> {
+function inverseOwnersSortedEntries(
+  owners: InCommon,
+): Array<[string, number[]]> {
   const addressToEvents: Record<string, number[]> = {}
   for (const [rawEventId, addresses] of Object.entries(owners)) {
     const eventId = parseInt(rawEventId)
@@ -37,7 +39,7 @@ function EventsOwners({
   events,
   all = false,
 }: {
-  eventsOwners: Record<number, string[]>
+  eventsOwners: InCommon
   inCommon: InCommon
   events: Record<number, Drop>
   all?: boolean

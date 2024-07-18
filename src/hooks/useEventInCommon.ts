@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { filterInCommon } from 'models/in-common'
-import { Event } from 'models/event'
+import { Drop } from 'models/drop'
 import { POAP } from 'models/poap'
+import { Progress } from 'models/http'
+import { InCommon } from 'models/api'
 import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
 import { scanAddress } from 'loaders/poap'
 
@@ -12,8 +14,8 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
   loadedInCommonProgress: { progress: number; estimated: number | null; rate: number | null } | null
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
-  inCommon: Record<number, string[]>
-  events: Record<number, Event>
+  inCommon: InCommon
+  events: Record<number, Drop>
   caching: boolean
   cachingError: Error | null
   cachedTs: number | null
@@ -22,11 +24,11 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [loadedProgress, setLoadedProgress] = useState<{ progress: number; estimated: number | null; rate: number | null; } | null>(null)
+  const [loadedProgress, setLoadedProgress] = useState<Progress | null>(null)
   const [loadedOwners, setLoadedOwners] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
-  const [inCommon, setInCommon] = useState<Record<number, string[]>>({})
-  const [events, setEvents] = useState<Record<number, Event>>({})
+  const [inCommon, setInCommon] = useState<InCommon>({})
+  const [events, setEvents] = useState<Record<number, Drop>>({})
   const [caching, setCaching] = useState<boolean>(false)
   const [cachingError, setCachingError] = useState<Error | null>(null)
   const [cachedTs, setCachedTs] = useState<number | null>(null)

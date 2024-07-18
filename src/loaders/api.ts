@@ -6,10 +6,12 @@ import {
   parseInCommon,
   CachedEvent,
   InCommon,
+  Feedback,
 } from 'models/api'
 import { encodeExpiryDates } from 'models/event'
 import { parseDrop, parseDropMetrics, parseDropOwners, Drop, DropMetrics, DropOwners } from 'models/drop'
 import { AbortedError, HttpError } from 'models/error'
+import { Progress } from 'models/http'
 
 export async function getEventAndOwners(
   eventId: number,
@@ -110,7 +112,10 @@ export async function getEventAndOwners(
   }
 }
 
-export async function putEventInCommon(eventId: number, inCommon: Record<number, string[]>) {
+export async function putEventInCommon(
+  eventId: number,
+  inCommon: InCommon,
+): Promise<void> {
   if (!FAMILY_API_KEY) {
     throw new Error(
       `Last in common drops (${eventId}) could not be put, ` +
@@ -150,7 +155,10 @@ export async function putEventInCommon(eventId: number, inCommon: Record<number,
   }
 }
 
-export async function getInCommonEvents(eventId: number, abortSignal: AbortSignal): Promise<{
+export async function getInCommonEvents(
+  eventId: number,
+  abortSignal: AbortSignal,
+): Promise<{
   inCommon: InCommon
   events: Record<number, Drop>
   ts: number
@@ -234,9 +242,9 @@ export async function getInCommonEvents(eventId: number, abortSignal: AbortSigna
 export async function getInCommonEventsWithProgress(
   eventId: number,
   abortSignal: AbortSignal,
-  onProgress: (progressEvent: { progress?: number; rate?: number; estimated?: number }) => void,
+  onProgress: (progressEvent: Partial<Progress>) => void,
 ): Promise<{
-  inCommon: Record<number, string[]>
+  inCommon: InCommon
   events: Record<number, Drop>
   ts: number
 } | null> {
@@ -334,7 +342,10 @@ export async function getInCommonEventsWithProgress(
   }
 }
 
-export async function getLastEvents(page: number = 1, qty: number = 3): Promise<{
+export async function getLastEvents(
+  page: number = 1,
+  qty: number = 3,
+): Promise<{
   pages: number
   total: number
   lastEvents: CachedEvent[]
@@ -385,11 +396,16 @@ export async function getLastEvents(page: number = 1, qty: number = 3): Promise<
   return {
     pages: body.pages,
     total: body.total,
-    lastEvents: body.lastEvents.map((cachedEvent) => parseCachedEvent(cachedEvent)),
+    lastEvents: body.lastEvents.map(
+      (cachedEvent: unknown) => parseCachedEvent(cachedEvent)
+    ),
   }
 }
 
-export async function getEvents(eventIds: number[], abortSignal?: AbortSignal): Promise<Record<number, Drop>> {
+export async function getEvents(
+  eventIds: number[],
+  abortSignal?: AbortSignal,
+): Promise<Record<number, Drop>> {
   if (!FAMILY_API_KEY) {
     throw new Error(
       `Drops (${eventIds.length}) could not be fetched, ` +
@@ -751,7 +767,7 @@ export async function getEventsMetrics(
   )
 }
 
-export async function auth(passphrase: string) {
+export async function auth(passphrase: string): Promise<void> {
   const response = await fetch(`${FAMILY_API_URL}/auth`, {
     method: 'POST',
     headers: {
@@ -791,12 +807,7 @@ export async function getFeedback(
 ): Promise<{
   pages: number
   total: number
-  feedback: Array<{
-    id: number
-    message: string
-    location: string
-    ts: number
-  }>
+  feedback: Feedback[]
 }> {
   const response = await fetch(
     `${FAMILY_API_URL}/feedback` +
@@ -838,7 +849,10 @@ export async function getFeedback(
   }
 }
 
-export async function delFeedback(id: number, passphrase: string): Promise<void> {
+export async function delFeedback(
+  id: number,
+  passphrase: string,
+): Promise<void> {
   const response = await fetch(`${FAMILY_API_URL}/feedback/${id}`, {
     method: 'DELETE',
     headers: {

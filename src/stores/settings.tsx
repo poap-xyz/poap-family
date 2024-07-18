@@ -8,10 +8,10 @@ import {
   useState,
 } from 'react'
 import { getSettings, saveSettings } from 'loaders/settings'
-import { DEFAULT_SETTINGS } from 'models/settings'
+import { DEFAULT_SETTINGS, Settings } from 'models/settings'
 
 export const SettingsContext = createContext<{
-  settings: typeof DEFAULT_SETTINGS
+  settings: Settings
   setSetting: (key: string, value: boolean) => void
 }>({
   settings: DEFAULT_SETTINGS,
@@ -21,7 +21,7 @@ export const SettingsContext = createContext<{
 export const useSettings = () => useContext(SettingsContext)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<typeof DEFAULT_SETTINGS>(DEFAULT_SETTINGS)
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
 
   useEffect(
     () => {
@@ -35,7 +35,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setSetting = useCallback(
     (key: string, value: boolean) => {
       setSettings((oldSettings) => {
-        let newSettings: typeof DEFAULT_SETTINGS
+        let newSettings: Settings
         if (oldSettings) {
           newSettings = { ...oldSettings, [key]: value }
         } else {

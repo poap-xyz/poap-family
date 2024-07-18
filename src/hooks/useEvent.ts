@@ -1,18 +1,18 @@
 import { useCallback, useState } from 'react'
 import { fetchEvent as loadEvent } from 'loaders/event'
 import { AbortedError } from 'models/error'
-import { Event } from 'models/event'
+import { Drop } from 'models/drop'
 
 function useEvent(eventId?: number): {
   loadingEvent: boolean
   eventError: Error | null
-  event: Event | null
+  event: Drop | null
   fetchEvent: (eventId?: number | null) => () => void
   retryEvent: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
-  const [event, setEvent] = useState<Event | null>(null)
+  const [event, setEvent] = useState<Drop | null>(null)
 
   const fetchEvent = useCallback(
     (newEventId: number | null) => {

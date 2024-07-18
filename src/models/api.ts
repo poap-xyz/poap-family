@@ -63,3 +63,10 @@ export function parseCachedEvent(cachedEvent: unknown): CachedEvent {
     in_common_count: cachedEvent.in_common_count,
   }
 }
+
+export interface Feedback {
+  id: number
+  message: string
+  location: string
+  ts: number
+}

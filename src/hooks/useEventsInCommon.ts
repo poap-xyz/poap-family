@@ -3,17 +3,30 @@ import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
 import { scanAddress } from 'loaders/poap'
 import { AbortedError } from 'models/error'
 import { filterInCommon } from 'models/in-common'
-import { Event } from 'models/event'
 import { POAP } from 'models/poap'
+import { Drop } from 'models/drop'
+import { Progress } from 'models/http'
+import { InCommon } from 'models/api'
 
-function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, string[]>, all: boolean = false, force: boolean = false): {
+interface EventsInCommon {
+  events: Record<number, Drop>
+  inCommon: InCommon
+  ts: number | null
+}
+
+function useEventsInCommon(
+  eventIds: number[],
+  eventsOwners: InCommon,
+  all: boolean = false,
+  force: boolean = false,
+): {
   completedEventsInCommon: boolean
   completedInCommonEvents: Record<number, boolean>
   loadingInCommonEvents: Record<number, boolean>
   eventsInCommonErrors: Record<number, Record<string, Error>>
-  loadedEventsProgress: Record<number, { progress: number; estimated: number | null; rate: number | null }>
+  loadedEventsProgress: Record<number, Progress>
   loadedEventsOwners: Record<number, number>
-  eventsInCommon: Record<number, { events: Record<number, Event>; inCommon: Record<number, string[]>; ts: number | null }>
+  eventsInCommon: Record<number, EventsInCommon>
   cachingEvents: Record<number, boolean>
   cachingEventsErrors: Record<number, Error>
   fetchEventsInCommon: () => () => void
@@ -22,9 +35,9 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
   const [completed, setCompleted] = useState<Record<number, boolean>>({})
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Record<string, Error>>>({})
-  const [loadedProgress, setLoadedProgress] = useState<Record<number, { progress: number; estimated: number | null; rate: number | null; }>>({})
+  const [loadedProgress, setLoadedProgress] = useState<Record<number, Progress>>({})
   const [loadedOwners, setLoadedOwners] = useState<Record<number, number>>({})
-  const [inCommon, setInCommon] = useState<Record<number, { events: Record<number, Event>; inCommon: Record<number, string[]>; ts: number | null }>>({})
+  const [inCommon, setInCommon] = useState<Record<number, EventsInCommon>>({})
   const [caching, setCaching] = useState<Record<number, boolean>>({})
   const [cachingErrors, setCachingErrors] = useState<Record<number, Error>>({})
 
@@ -126,7 +139,10 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
       if (oldEventOwnerErrors == null) {
         return {}
       }
-      if (eventId in oldEventOwnerErrors && address in oldEventOwnerErrors[eventId]) {
+      if (
+        eventId in oldEventOwnerErrors &&
+        address in oldEventOwnerErrors[eventId]
+      ) {
         if (Object.keys(oldEventOwnerErrors[eventId]).length === 1) {
           delete oldEventOwnerErrors[eventId]
         } else {
@@ -163,7 +179,10 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
     }))
   }
 
-  function updateLoadedProgress(eventId: number, { progress, estimated, rate }: { progress: number; estimated: number; rate: number }): void {
+  function updateLoadedProgress(
+    eventId: number,
+    { progress, estimated, rate }: Progress,
+  ): void {
     setLoadedProgress((alsoProgress) => {
       if (alsoProgress[eventId] != null) {
         return {
@@ -184,7 +203,7 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
       if (alsoProgress == null) {
         return {}
       }
-      const newProgress: Record<number, { progress: number; estimated: number; rate: number }> = {}
+      const newProgress: Record<number, Progress> = {}
       for (const [loadingEventId, progress] of Object.entries(alsoProgress)) {
         if (String(eventId) !== String(loadingEventId)) {
           newProgress[loadingEventId] = progress
@@ -208,7 +227,11 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
     }))
   }
 
-  function updateInCommonEvent(eventId: number, address: string, event: Event): void {
+  function updateInCommonEvent(
+    eventId: number,
+    address: string,
+    event: Drop,
+  ): void {
     setInCommon((prevEventData) => {
       if (prevEventData == null) {
         return {
@@ -286,7 +309,10 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
     })
   }
 
-  function updateInCommon(eventId: number, data: { events: Record<number, { id: number; name: string; description?: string; image_url: string; original_url: string; city: string | null; country: string | null; start_date: string; end_date: string; expiry_date: string} >; inCommon: Record<number, string[]>; ts: number }): void {
+  function updateInCommon(
+    eventId: number,
+    data: EventsInCommon,
+  ): void {
     setInCommon((prevEventData) => ({
       ...prevEventData,
       [eventId]: {
@@ -391,7 +417,11 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
   )
 
   const processEvent = useCallback(
-    async (eventId: number, addresses: string[], controllers: Record<string, AbortController>) => {
+    async (
+      eventId: number,
+      addresses: string[],
+      controllers: Record<string, AbortController>,
+    ) => {
       removeCompleted(eventId)
       addLoading(eventId)
       removeErrors(eventId)
@@ -413,7 +443,12 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
   )
 
   const process = useCallback(
-    async (eventId: number, addresses: string[], controllers: Record<string, AbortController>, controller: AbortController) => {
+    async (
+      eventId: number,
+      addresses: string[],
+      controllers: Record<string, AbortController>,
+      controller: AbortController,
+    ) => {
       if (force) {
         await processEvent(eventId, addresses, controllers)
       } else {
@@ -475,16 +510,14 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
           continue
         }
         const controller = new AbortController()
-        /**
-         * @type {Record<string, AbortController>}
-         */
-        const ownersControllers: Record<string, AbortController> = eventsOwners[eventId].reduce(
-          (ctrls, owner) => ({
-            ...ctrls,
-            [owner]: new AbortController(),
-          }),
-          {}
-        )
+        const ownersControllers: Record<string, AbortController> =
+          eventsOwners[eventId].reduce(
+            (ctrls, owner) => ({
+              ...ctrls,
+              [owner]: new AbortController(),
+            }),
+            {}
+          )
         promise = promise.then(
           () => process(
             eventId,
@@ -514,7 +547,10 @@ function useEventsInCommon(eventIds: number[], eventsOwners: Record<number, stri
     [eventIds, eventsOwners, all, process]
   )
 
-  function retryEventAddressInCommon(eventId: number, address: string): () => void {
+  function retryEventAddressInCommon(
+    eventId: number,
+    address: string,
+  ): () => void {
     addLoading(eventId)
     removeError(eventId, address)
     const controller = new AbortController()
