@@ -251,7 +251,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
           updateEventsMetrics(eventsMetrics)
           setLoadingCache(false)
           setCompleted(true)
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           setLoadingCache(false)
           if (err instanceof AbortedError) {
             setCompleted(true)

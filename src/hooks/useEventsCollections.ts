@@ -27,7 +27,7 @@ function useEventsCollections(eventIds: number[]): {
         ).then((result) => {
           setResult(result)
           setLoading(false)
-        }).catch((err) => {
+        }).catch((err: unknown) => {
           setLoading(false)
           if (!(err instanceof AbortedError)) {
             console.error(err)

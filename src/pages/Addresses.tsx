@@ -247,7 +247,7 @@ function Addresses() {
           )
         }
       }
-      promise.catch((err) => {
+      promise.catch((err: unknown) => {
         if (!(err instanceof AbortedError)) {
           console.error(err)
         }
@@ -407,8 +407,11 @@ function Addresses() {
           .map((input) => input.address)
 
         if (missingEnsNames.length > 0) {
-          resolveEnsNames(missingEnsNames).catch((err) => {
-            setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
+          resolveEnsNames(missingEnsNames).catch((err: unknown) => {
+            setErrors((oldErrors) => ([
+              ...(oldErrors ?? []),
+              new Error(`Could not resolve some ENS names`, { cause: err }),
+            ]))
           })
         }
       }
@@ -456,7 +459,7 @@ function Addresses() {
               )
             }
           }
-          promise.catch((err) => {
+          promise.catch((err: unknown) => {
             if (!(err instanceof AbortedError)) {
               console.error(err)
             }
@@ -625,7 +628,7 @@ function Addresses() {
       return
     }
     if (entry.ens != null) {
-      processEnsName(entry.ens, index).catch((err) => {
+      processEnsName(entry.ens, index).catch((err: unknown) => {
         if (!(err instanceof AbortedError)) {
           console.error(err)
         }
@@ -673,8 +676,11 @@ function Addresses() {
           ...prevEventsEnsNames,
           [eventId]: ensNames,
         }))
-      }).catch((err) => {
-        setErrors((oldErrors) => ([...(oldErrors ?? []), err]))
+      }).catch((err: unknown) => {
+        setErrors((oldErrors) => ([
+          ...(oldErrors ?? []),
+          new Error(`Could not resolve drop ENS names`, { cause: err }),
+        ]))
       })
     }
   }
