@@ -40,17 +40,16 @@ function EventsCompare({
     () => eventIds.length < 2
       ? {}
       : Object.fromEntries(
-        intersection(
-          // @ts-ignore
-          ...eventIds.map((eventId) => inCommon[eventId])
-        )
-        .map(
-          (address) => [
-            address,
-            getColorForSeed(address),
-          ]
-        )
-      ),
+          intersection(
+            ...eventIds.map((eventId) => inCommon[eventId])
+          )
+          .map(
+            (address) => [
+              address,
+              getColorForSeed(address),
+            ]
+          )
+        ),
     [eventIds, inCommon]
   )
 
@@ -75,9 +74,11 @@ function EventsCompare({
   )
 
   function onOwnerEnter(ownerEventId: number, owner: string): void {
-    if (owner in adressesColors &&
+    if (
+      owner in adressesColors &&
       settings &&
-      settings.autoScrollCollectors) {
+      settings.autoScrollCollectors
+    ) {
       for (const eventId of eventIds) {
         if (eventId !== ownerEventId &&
           eventId && liRefs &&
@@ -89,9 +90,11 @@ function EventsCompare({
           })
         }
       }
-      if (ownerEventId in liRefs &&
+      if (
+        ownerEventId in liRefs &&
         owner in liRefs[ownerEventId] &&
-        liRefs[ownerEventId][owner].current) {
+        liRefs[ownerEventId][owner].current
+      ) {
         liRefs[ownerEventId][owner].current.scrollIntoView({
           behavior: 'smooth',
           block: 'center',

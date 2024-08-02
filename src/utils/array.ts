@@ -1,35 +1,35 @@
 /**
  * Returns elements found in all array arguments.
  */
-export function intersection<T>(array: T[], ...args: T[][]): T[] {
-  if (array == null) {
+export function intersection<T>(...args: T[][]): T[] {
+  if (args.length === 0 || args[0].length === 0) {
     return []
   }
-  const result = []
-  for (var i = 0, length = array.length; i < length; i++) {
-    const item = array[i]
-    if (result.indexOf(item) !== -1) {
-      continue
-    }
-    let j: number
-    for (j = 0; j < args.length; j++) {
-      if (args[j].indexOf(item) === -1) {
-        break
-      }
-    }
-    if (j === args.length - 1) {
-      result.push(item)
+
+  const all = new Set<T>()
+  const tail = args.slice(1)
+
+  for (const item of args[0]) {
+    if (tail.every((other) => other.includes(item))) {
+      all.add(item)
     }
   }
-  return result
+
+  return [...all]
 }
 
+/**
+ * Returns elements in all array arguments.
+ */
 export function union<T>(...args: T[][]): T[] {
   const all = new Set<T>()
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
+
     if (Array.isArray(arg)) {
       const array: T[] = [].concat(...arg)
+
       for (const item of array) {
         all.add(item)
       }
@@ -37,6 +37,7 @@ export function union<T>(...args: T[][]): T[] {
       all.add(arg)
     }
   }
+
   return [...all]
 }
 
@@ -69,6 +70,7 @@ export function equals(a: unknown[], b: unknown[]): boolean {
       return false
     }
   }
+
   return true
 }
 
