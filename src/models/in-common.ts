@@ -72,7 +72,7 @@ export function mergeAllInCommon(
  * Merges in-common collectors that belong to all events.
  */
 export function mergeAddressesInCommon(inCommon: InCommon): string[] {
-  let mergedAddresses = null
+  let mergedAddresses: string[] | null = null
   for (const [, addresses] of Object.entries(inCommon)) {
     if (mergedAddresses == null) {
       mergedAddresses = addresses
@@ -91,7 +91,7 @@ export function getAddressInCommonEventIds(
   inCommon: InCommon,
   address: string,
 ): number[] {
-  const eventIds = []
+  const eventIds: number[] = []
   for (const [rawEventId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
       eventIds.push(parseInt(rawEventId))
