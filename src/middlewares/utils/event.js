@@ -1,9 +1,8 @@
-import { formatDate } from './date.js'
 
 export function encodeEvent(eventInfo) {
   const eventLocation = encodeLocation(eventInfo.event)
   return `${encodeMetrics(eventInfo)} ` +
-    `${formatDate(eventInfo.event.start_date)} ` +
+    `${eventInfo.event.start_date} ` +
     (eventLocation ? `| ${eventLocation} ` : '') +
     `| ${shortDescription(eventInfo.event.description)}`
 }
