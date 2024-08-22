@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getEnv } from './netlify/loaders/env.js';
-import { getEventInfo } from './netlify/loaders/api.js';
-import { escapeHtml, replaceMeta } from './netlify/utils/html.js';
-import { encodeEvent, parseEventId } from './netlify/utils/event.js';
-import { appendFrame } from './netlify/utils/frame.js';
+import { getEnv } from './src/middlewares/loaders/env.js';
+import { getEventInfo } from './src/middlewares/loaders/api.js';
+import { escapeHtml, replaceMeta } from './src/middlewares/utils/html.js';
+import { encodeEvent, parseEventId } from './src/middlewares/utils/event.js';
+import { appendFrame } from './src/middlewares/utils/frame.js';
 
 function parseRequestUrl(requestUrl) {
     const url = new URL(requestUrl);
