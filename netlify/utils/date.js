@@ -1,5 +1,5 @@
-import dayjs from 'https://esm.sh/dayjs'
-import localizedFormat from 'https://esm.sh/dayjs/plugin/localizedFormat'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 
 dayjs.extend(localizedFormat)
 
