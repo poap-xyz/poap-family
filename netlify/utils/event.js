@@ -11,10 +11,23 @@ export function encodeEvent(eventInfo) {
 export function encodeMetrics(eventInfo) {
   const supply = eventInfo.owners?.length ?? 0
   const reservations = eventInfo.metrics?.emailReservations ?? 0
+  const moments = eventInfo.metrics?.momentsUploaded ?? 0
 
-  return reservations > 0
-    ? `[ ${supply} + ${reservations} ]`
-    : `[ ${supply} ]`
+  const metrics = [];
+
+  metrics.push(
+    reservations > 0
+      ? `[ ${supply} + ${reservations} ]`
+      : `[ ${supply} ]`
+  )
+
+  if (moments > 0) {
+    metrics.push(
+      `[ ${moments} moment${moments === 1 ? '' : 's'} ]`
+    )
+  }
+
+  return metrics.join(' ')
 }
 
 export function encodeLocation(event) {
