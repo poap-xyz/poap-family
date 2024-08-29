@@ -72,6 +72,7 @@ export default async function handler(request, context) {
 
   let totalSupply = 0
   let totalReservations = 0
+  let totalMoments = 0
   let names = []
   let ts = Math.trunc(Date.now() / 1000)
 
@@ -89,6 +90,7 @@ export default async function handler(request, context) {
 
     totalSupply += eventInfo.owners?.owners.length ?? 0
     totalReservations += eventInfo.metrics?.emailReservations ?? 0
+    totalMoments += eventInfo.metrics?.momentsUploaded ?? 0
     names = [...names, eventInfo.event.name]
     ts = Math.min(ts, eventInfo.owners?.ts ?? eventInfo.metrics?.ts)
   }
@@ -99,9 +101,16 @@ export default async function handler(request, context) {
         html,
         escapeHtml(names.join(', ')),
         escapeHtml(
-          totalReservations > 0
-            ? `[ ${totalSupply} + ${totalReservations} ]`
-            : `[ ${totalSupply} ]`
+          [
+            totalReservations > 0
+              ? `[ ${totalSupply} + ${totalReservations} ]`
+              : `[ ${totalSupply} ]`,
+            ...(
+              totalMoments > 0
+                ? [`[ ${totalMoments} moment${totalMoments === 1 ? '' : 's'} ]`]
+                : []
+            ),
+          ].join(' ')
         ),
         `${env.FAMILY_URL}/images/${eventIds.join(',')}`,
         `${env.FAMILY_URL}/events/${eventIds.join(',')}${queryString}`
