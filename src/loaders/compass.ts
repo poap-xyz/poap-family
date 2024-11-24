@@ -52,7 +52,7 @@ export async function requestCompass(query: string, variables: Record<string, un
           error.message != null &&
           typeof error.message === 'string'
             ? `${msg} ${error.message}`
-            : ''
+            : `${msg}`
         ),
         ''
       )}`
@@ -87,7 +87,7 @@ export async function requestCompass(query: string, variables: Record<string, un
           error.message != null &&
           typeof error.message === 'string'
             ? `${msg} ${error.message}`
-            : ''
+            : `${msg}`
         ),
         ''
       )}`

@@ -78,14 +78,20 @@ function Events() {
     completedInCommonEvents,
     loadingInCommonEvents,
     eventsInCommonErrors,
+    loadedEventsInCommon,
     loadedEventsProgress,
     loadedEventsOwners,
     eventsInCommon,
-    cachingEvents,
-    cachingEventsErrors,
     fetchEventsInCommon,
     retryEventAddressInCommon,
-  } = useEventsInCommon(eventIds, eventsOwners, all, force)
+  } = useEventsInCommon(
+    eventIds,
+    eventsOwners,
+    all,
+    /*refresh*/force,
+    /*local*/false,
+    /*stream*/true
+  )
 
   const {
     loadingCollections,
@@ -123,7 +129,7 @@ function Events() {
 
   useEffect(
     () => {
-      let cancelEventsInCommon
+      let cancelEventsInCommon: () => void | undefined
       if (completedEventsOwnersAndMetrics) {
         cancelEventsInCommon = fetchEventsInCommon()
       }
@@ -138,7 +144,7 @@ function Events() {
 
   useEffect(
     () => {
-      let cancelEventsCollections
+      let cancelEventsCollections: () => void | undefined
       if (completedEventsInCommon) {
         cancelEventsCollections = fetchEventsCollections()
       }
@@ -338,13 +344,9 @@ function Events() {
                         loading={
                           loadingInCommonEvents[event.id]
                         }
-                        caching={
-                          cachingEvents[event.id]
-                        }
                         error={
                           eventsOwnersAndMetricsErrors[event.id] != null ||
-                          eventsInCommonErrors[event.id] != null ||
-                          cachingEventsErrors[event.id] != null
+                          eventsInCommonErrors[event.id] != null
                         }
                       />
                       {eventsOwnersAndMetricsErrors[event.id] != null && (
@@ -369,6 +371,7 @@ function Events() {
                     <td className="event-cell-progress">
                       {(
                         loadingInCommonEvents[event.id] != null &&
+                        loadedEventsInCommon[event.id] == null &&
                         loadedEventsProgress[event.id] == null &&
                         loadedEventsOwners[event.id] != null &&
                         eventsOwners[event.id] != null
@@ -379,7 +382,20 @@ function Events() {
                           showValue={loadedEventsOwners[event.id] > 0}
                         />
                       )}
-                      {loadedEventsProgress[event.id] != null && (
+                      {(
+                        loadedEventsInCommon[event.id] != null &&
+                        loadedEventsProgress[event.id] == null
+                       ) && (
+                        <Progress
+                          value={loadedEventsInCommon[event.id].count}
+                          max={loadedEventsInCommon[event.id].total}
+                          showValue={loadedEventsInCommon[event.id].count > 0}
+                        />
+                      )}
+                      {(
+                        loadedEventsInCommon[event.id] == null &&
+                        loadedEventsProgress[event.id] != null
+                       ) && (
                         <Progress
                           value={loadedEventsProgress[event.id].progress}
                           max={1}
@@ -387,9 +403,6 @@ function Events() {
                           eta={loadedEventsProgress[event.id].estimated}
                           rate={loadedEventsProgress[event.id].rate}
                         />
-                      )}
-                      {cachingEvents[event.id] != null && (
-                        <Progress />
                       )}
                       {eventsInCommonErrors[event.id] != null && Object.entries(
                         eventsInCommonErrors[event.id]

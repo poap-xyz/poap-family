@@ -1,45 +1,39 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
+import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
 import { scanAddress } from 'loaders/poap'
 import { AbortedError } from 'models/error'
-import { filterInCommon } from 'models/in-common'
 import { POAP } from 'models/poap'
 import { Drop } from 'models/drop'
-import { Progress } from 'models/http'
-import { InCommon } from 'models/api'
-
-interface EventsInCommon {
-  events: Record<number, Drop>
-  inCommon: InCommon
-  ts: number | null
-}
+import { CountProgress, DownloadProgress } from 'models/http'
+import { EventsInCommon, InCommon } from 'models/api'
+import { filterInCommon } from 'models/in-common'
 
 function useEventsInCommon(
   eventIds: number[],
   eventsOwners: InCommon,
   all: boolean = false,
   force: boolean = false,
+  local: boolean = false,
+  stream: boolean = false,
 ): {
   completedEventsInCommon: boolean
   completedInCommonEvents: Record<number, boolean>
   loadingInCommonEvents: Record<number, boolean>
   eventsInCommonErrors: Record<number, Record<string, Error>>
-  loadedEventsProgress: Record<number, Progress>
+  loadedEventsInCommon: Record<number, CountProgress>
+  loadedEventsProgress: Record<number, DownloadProgress>
   loadedEventsOwners: Record<number, number>
   eventsInCommon: Record<number, EventsInCommon>
-  cachingEvents: Record<number, boolean>
-  cachingEventsErrors: Record<number, Error>
   fetchEventsInCommon: () => () => void
   retryEventAddressInCommon: (eventId: number, address: string) => () => void
 } {
   const [completed, setCompleted] = useState<Record<number, boolean>>({})
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Record<string, Error>>>({})
-  const [loadedProgress, setLoadedProgress] = useState<Record<number, Progress>>({})
+  const [loadedInCommon, setLoadedInCommon] = useState<Record<number, CountProgress>>({})
+  const [loadedProgress, setLoadedProgress] = useState<Record<number, DownloadProgress>>({})
   const [loadedOwners, setLoadedOwners] = useState<Record<number, number>>({})
   const [inCommon, setInCommon] = useState<Record<number, EventsInCommon>>({})
-  const [caching, setCaching] = useState<Record<number, boolean>>({})
-  const [cachingErrors, setCachingErrors] = useState<Record<number, Error>>({})
 
   useEffect(
     () => {
@@ -48,36 +42,18 @@ function useEventsInCommon(
           completed[eventId] &&
           (loadedOwners[eventId] ?? 0) === eventsOwners[eventId].length &&
           inCommon[eventId] != null &&
-          inCommon[eventId].ts == null &&
-          !caching[eventId]
+          inCommon[eventId].ts == null
         ) {
           const inCommonProcessed = filterInCommon(
             inCommon[eventId].inCommon
           )
           if (Object.keys(inCommonProcessed).length > 0) {
-            removeCachingError(eventId)
-            addCaching(eventId)
-            putEventInCommon(eventId, inCommonProcessed).then(
-              () => {
-                updateCachedTs(eventId)
-                removeCaching(eventId)
-              },
-              (err) => {
-                removeCaching(eventId)
-                if (!(err instanceof AbortedError)) {
-                  console.error(err)
-                  updateCachingError(
-                    eventId,
-                    new Error('Could not cache drop', { cause: err })
-                  )
-                }
-              }
-            )
+            updateCachedTs(eventId)
           }
         }
       }
     },
-    [eventIds, eventsOwners, loadedOwners, completed, caching, inCommon]
+    [eventIds, eventsOwners, loadedOwners, completed, inCommon]
   )
 
   function addCompleted(eventId: number): void {
@@ -168,6 +144,31 @@ function useEventsInCommon(
     })
   }
 
+  function updateLoadedInCommon(
+    eventId: number,
+    { count, total }: CountProgress,
+  ) {
+    setLoadedInCommon((prevLoadedInCommon) => ({
+      ...(prevLoadedInCommon ?? {}),
+      [eventId]: { count, total },
+    }))
+  }
+
+  function removeLoadedInCommon(eventId: number): void {
+    setLoadedInCommon((prevLoadedInCommon) => {
+      if (prevLoadedInCommon == null) {
+        return {}
+      }
+      const newProgress: Record<number, CountProgress> = {}
+      for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommon)) {
+        if (String(eventId) !== String(loadingEventId)) {
+          newProgress[loadingEventId] = progress
+        }
+      }
+      return newProgress
+    })
+  }
+
   function addLoadedProgress(eventId: number): void {
     setLoadedProgress((alsoProgress) => ({
       ...alsoProgress,
@@ -181,7 +182,7 @@ function useEventsInCommon(
 
   function updateLoadedProgress(
     eventId: number,
-    { progress, estimated, rate }: Progress,
+    { progress, estimated, rate }: DownloadProgress,
   ): void {
     setLoadedProgress((alsoProgress) => {
       if (alsoProgress[eventId] != null) {
@@ -203,7 +204,7 @@ function useEventsInCommon(
       if (alsoProgress == null) {
         return {}
       }
-      const newProgress: Record<number, Progress> = {}
+      const newProgress: Record<number, DownloadProgress> = {}
       for (const [loadingEventId, progress] of Object.entries(alsoProgress)) {
         if (String(eventId) !== String(loadingEventId)) {
           newProgress[loadingEventId] = progress
@@ -323,50 +324,6 @@ function useEventsInCommon(
     }))
   }
 
-  function addCaching(eventId: number): void {
-    setCaching((alsoCaching) => ({
-      ...alsoCaching,
-      [eventId]: true,
-    }))
-  }
-
-  function removeCaching(eventId: number): void {
-    setCaching((alsoCaching) => {
-      if (alsoCaching == null) {
-        return {}
-      }
-      const newCaching: Record<number, boolean> = {}
-      for (const [cachingEventId, caching] of Object.entries(alsoCaching)) {
-        if (String(eventId) !== String(cachingEventId)) {
-          newCaching[cachingEventId] = caching
-        }
-      }
-      return newCaching
-    })
-  }
-
-  function updateCachingError(eventId: number, err: Error): void {
-    setCachingErrors((prevErrors) => ({
-      ...prevErrors,
-      [eventId]: err,
-    }))
-  }
-
-  function removeCachingError(eventId: number): void {
-    setCachingErrors((alsoErrors) => {
-      if (alsoErrors == null) {
-        return {}
-      }
-      const newErrors: Record<number, Error> = {}
-      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
-        if (String(eventId) !== String(errorEventId)) {
-          newErrors[errorEventId] = error
-        }
-      }
-      return newErrors
-    })
-  }
-
   function updateCachedTs(eventId: number, ts?: number): void {
     if (ts == null) {
       ts = Math.trunc(Date.now() / 1000)
@@ -449,26 +406,40 @@ function useEventsInCommon(
       controllers: Record<string, AbortController>,
       controller: AbortController,
     ) => {
-      if (force) {
+      if (local) {
         await processEvent(eventId, addresses, controllers)
       } else {
         removeCompleted(eventId)
         addLoading(eventId)
-        addLoadedProgress(eventId)
-        let result
+        let result: EventsInCommon | null = null
         try {
-          result = await getInCommonEventsWithProgress(
-            eventId,
-            controller.signal,
-            /*onProgress*/({ progress, estimated, rate }) => {
-              if (progress != null) {
-                updateLoadedProgress(eventId, { progress, estimated, rate })
-              } else {
-                removeLoadedProgress(eventId)
-              }
-            }
-          )
+          if (stream) {
+            result = await getInCommonEventsWithEvents(
+              eventId,
+              /*refresh*/force,
+              /*onProgress*/(received, total) => {
+                updateLoadedInCommon(eventId, { count: received, total })
+              },
+            )
+            removeLoadedInCommon(eventId)
+          } else {
+            addLoadedProgress(eventId)
+            result = await getInCommonEventsWithProgress(
+              eventId,
+              controller.signal,
+              /*onProgress*/({ progress, estimated, rate }) => {
+                if (progress != null) {
+                  updateLoadedProgress(eventId, { progress, estimated, rate })
+                } else {
+                  removeLoadedProgress(eventId)
+                }
+              },
+              /*refresh*/force
+            )
+            removeLoadedProgress(eventId)
+          }
         } catch (err: unknown) {
+          removeLoadedInCommon(eventId)
           removeLoadedProgress(eventId)
           if (!(err instanceof AbortedError)) {
             console.error(err)
@@ -478,6 +449,7 @@ function useEventsInCommon(
           }
           return
         }
+        removeLoadedInCommon(eventId)
         removeLoadedProgress(eventId)
         if (result == null) {
           await processEvent(eventId, addresses, controllers)
@@ -491,7 +463,7 @@ function useEventsInCommon(
         }
       }
     },
-    [force, processEvent]
+    [force, local, stream, processEvent]
   )
 
   const fetchEventsInCommon = useCallback(
@@ -500,6 +472,7 @@ function useEventsInCommon(
       setCompleted({})
       setLoading({})
       setErrors({})
+      setLoadedInCommon({})
       setLoadedProgress({})
       setLoadedOwners({})
       setInCommon({})
@@ -539,6 +512,7 @@ function useEventsInCommon(
         setCompleted({})
         setLoading({})
         setErrors({})
+        setLoadedInCommon({})
         setLoadedProgress({})
         setLoadedOwners({})
         setInCommon({})
@@ -567,11 +541,10 @@ function useEventsInCommon(
     completedInCommonEvents: completed,
     loadingInCommonEvents: loading,
     eventsInCommonErrors: errors,
+    loadedEventsInCommon: loadedInCommon,
     loadedEventsProgress: loadedProgress,
     loadedEventsOwners: loadedOwners,
     eventsInCommon: inCommon,
-    cachingEvents: caching,
-    cachingEventsErrors: cachingErrors,
     fetchEventsInCommon,
     retryEventAddressInCommon,
   }
