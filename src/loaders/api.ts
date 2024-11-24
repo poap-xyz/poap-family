@@ -7,11 +7,12 @@ import {
   CachedEvent,
   Feedback,
   EventsInCommon,
+  EventAndOwners,
 } from 'models/api'
 import { encodeExpiryDates } from 'models/event'
 import { parseDrop, parseDropMetrics, parseDropOwners, Drop, DropMetrics, DropOwners } from 'models/drop'
 import { AbortedError, HttpError } from 'models/error'
-import { Progress } from 'models/http'
+import { DownloadProgress } from 'models/http'
 
 export async function getEventAndOwners(
   eventId: number,
@@ -19,12 +20,7 @@ export async function getEventAndOwners(
   includeDescription: boolean = false,
   includeMetrics: boolean = true,
   refresh: boolean = false,
-): Promise<{
-  event: Drop
-  owners: string[]
-  ts: number
-  metrics: DropMetrics | null
-} | null> {
+): Promise<EventAndOwners | null> {
   if (!FAMILY_API_KEY) {
     throw new Error(
       `Drop ${eventId} and owners could not be fetched, ` +
@@ -197,7 +193,7 @@ export async function getInCommonEvents(
 export async function getInCommonEventsWithProgress(
   eventId: number,
   abortSignal: AbortSignal,
-  onProgress: (progressEvent: Partial<Progress>) => void,
+  onProgress: (progressEvent: Partial<DownloadProgress>) => void,
   refresh: boolean = false,
 ): Promise<EventsInCommon | null> {
   if (!FAMILY_API_KEY) {
@@ -293,6 +289,105 @@ export async function getInCommonEventsWithProgress(
     ),
     ts: response.data.ts,
   }
+}
+
+export async function getInCommonEventsWithEvents(
+  eventId: number,
+  refresh: boolean = false,
+  onProgress: (received: number, total: number) => void,
+  onTs?: (ts: number) => void,
+  onEventIds?: (eventIds: number[]) => void,
+  onInCommon?: (eventId: number, owners: string[]) => void,
+): Promise<EventsInCommon | null> {
+  let total: number
+  let received = 0
+  const inCommon: EventsInCommon = {
+    events: {},
+    inCommon: {},
+    ts: null,
+  }
+  const inCommonEvents = new EventSource(
+    `${FAMILY_API_URL}/event/${eventId}/in-common` +
+      `/stream${refresh ? '?refresh=true' : ''}`
+  )
+  return new Promise((resolve, reject) => {
+    inCommonEvents.addEventListener('error', (ev) => {
+      reject(new Error(`Something happen: ${ev}`))
+    })
+
+    inCommonEvents.addEventListener('message', (ev) => {
+      let data: unknown | undefined
+      try {
+        data = JSON.parse(ev.data)
+      } catch {
+        reject(new Error(`Cannot parse data '${ev.data}'`))
+        return
+      }
+      if (!data || typeof data !== 'object') {
+        reject(new Error('Malformed data'))
+        return
+      }
+      if ('ts' in data && data.ts && typeof data.ts === 'number') {
+        inCommon.ts = data.ts
+        onTs?.(data.ts)
+      }
+      if (
+        'eventIds' in data &&
+        data.eventIds &&
+        Array.isArray(data.eventIds) &&
+        data.eventIds.every(
+          (eventId) => eventId && typeof eventId === 'number'
+        )
+      ) {
+        total = data.eventIds.length
+        for (const eventId of data.eventIds) {
+          inCommon.inCommon[eventId] = []
+        }
+        onEventIds?.(data.eventIds)
+      }
+      if (
+        'eventId' in data &&
+        data.eventId &&
+        typeof data.eventId === 'number' &&
+        'owners' in data &&
+        data.owners &&
+        Array.isArray(data.owners) &&
+        data.owners.every(
+          (owner) => owner && typeof owner === 'string'
+        )
+      ) {
+        received++
+        inCommon.inCommon[data.eventId] = data.owners
+        onInCommon?.(data.eventId, data.owners)
+        if (total) {
+          onProgress(received, total)
+        }
+      }
+      if (
+        'events' in data &&
+        data.events &&
+        typeof data.events === 'object'
+      ) {
+        inCommon.events = Object.fromEntries(
+          Object.entries(data.events).map(
+            ([eventIdRaw, eventData]) => [
+              eventIdRaw,
+              parseDrop(eventData, /*includeDescription*/false),
+            ]
+          )
+        )
+      }
+      if (
+        inCommon.ts != null &&
+        received === total &&
+        Object.values(inCommon.inCommon).every((owners) => owners.length > 0) &&
+        Object.keys(inCommon.events).length > 0
+      ) {
+        resolve(inCommon)
+        return
+      }
+    })
+  })
 }
 
 export async function getLastEvents(

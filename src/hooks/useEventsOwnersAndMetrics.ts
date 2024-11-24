@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
 import { AbortedError } from 'models/error'
-import { InCommon } from 'models/api'
+import { EventAndOwners, InCommon } from 'models/api'
 import { fetchPOAPs } from 'loaders/poap'
 import {
   getEventAndOwners,
@@ -117,7 +117,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     async (eventId: number, abortSignal: AbortSignal) => {
       removeError(eventId)
       addLoading(eventId)
-      let eventAndOwners
+      let eventAndOwners: EventAndOwners | null = null
       try {
         eventAndOwners = await getEventAndOwners(
           eventId,

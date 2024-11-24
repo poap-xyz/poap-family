@@ -78,12 +78,20 @@ function Events() {
     completedInCommonEvents,
     loadingInCommonEvents,
     eventsInCommonErrors,
+    loadedEventsInCommon,
     loadedEventsProgress,
     loadedEventsOwners,
     eventsInCommon,
     fetchEventsInCommon,
     retryEventAddressInCommon,
-  } = useEventsInCommon(eventIds, eventsOwners, all, force, /*local*/false)
+  } = useEventsInCommon(
+    eventIds,
+    eventsOwners,
+    all,
+    /*refresh*/force,
+    /*local*/false,
+    /*stream*/true
+  )
 
   const {
     loadingCollections,
@@ -363,6 +371,7 @@ function Events() {
                     <td className="event-cell-progress">
                       {(
                         loadingInCommonEvents[event.id] != null &&
+                        loadedEventsInCommon[event.id] == null &&
                         loadedEventsProgress[event.id] == null &&
                         loadedEventsOwners[event.id] != null &&
                         eventsOwners[event.id] != null
@@ -373,7 +382,20 @@ function Events() {
                           showValue={loadedEventsOwners[event.id] > 0}
                         />
                       )}
-                      {loadedEventsProgress[event.id] != null && (
+                      {(
+                        loadedEventsInCommon[event.id] != null &&
+                        loadedEventsProgress[event.id] == null
+                       ) && (
+                        <Progress
+                          value={loadedEventsInCommon[event.id].count}
+                          max={loadedEventsInCommon[event.id].total}
+                          showValue={loadedEventsInCommon[event.id].count > 0}
+                        />
+                      )}
+                      {(
+                        loadedEventsInCommon[event.id] == null &&
+                        loadedEventsProgress[event.id] != null
+                       ) && (
                         <Progress
                           value={loadedEventsProgress[event.id].progress}
                           max={1}
