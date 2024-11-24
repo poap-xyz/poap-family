@@ -19,7 +19,6 @@ import AddressErrorList from 'components/AddressErrorList'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
-import Progress from 'components/Progress'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import EventButtonGroup from 'components/EventButtonGroup'
 import EventButtonMoments from 'components/EventButtonMoments'
@@ -52,12 +51,10 @@ function Event() {
     ownersErrors,
     inCommon,
     events,
-    caching,
-    cachingError,
     cachedTs,
     fetchEventInCommon,
     retryAddress,
-  } = useEventInCommon(event.id, owners, force)
+  } = useEventInCommon(event.id, owners, force, /*local*/false)
 
   const eventIds = useMemo(
     () => [event.id],
@@ -99,7 +96,7 @@ function Event() {
 
   useEffect(
     () => {
-      let cancelEventsCollections
+      let cancelEventsCollections: () => void | undefined
       if (
         metrics &&
         metrics.collectionsIncludes > 0 &&
@@ -158,31 +155,13 @@ function Event() {
               />
               <EventButtonMoments event={event} />
             </EventButtonGroup>
-            {caching &&
-              <div className="caching">
-                Caching{' '}<Progress />
-              </div>
-            }
-            {cachingError &&
-              <div className="caching-error">
-                <span className="caching-error-label">Error</span>
-                {cachingError.cause
-                  ? (
-                      <span title={`${cachingError.cause}`}>
-                        {cachingError.message}
-                      </span>
-                    )
-                  : cachingError.message
-                }
-              </div>
-            }
-            {cachedTs && !caching &&
+            {cachedTs &&
               <div className="cached">
                 Cached <Timestamp ts={cachedTs} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </div>
             }
-            {!cachedTs && !caching && metrics && metrics.ts &&
+            {!cachedTs && metrics && metrics.ts &&
               <div className="cached">
                 Cached <Timestamp ts={metrics.ts} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.

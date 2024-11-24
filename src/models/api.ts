@@ -1,7 +1,15 @@
+import { Drop } from './drop'
+
 export const FAMILY_API_URL = process.env.REACT_APP_FAMILY_API_URL ?? 'https://api.poap.family'
 export const FAMILY_API_KEY = process.env.REACT_APP_FAMILY_API_KEY
 
 export type InCommon = Record<number, string[]>
+
+export interface EventsInCommon {
+  events: Record<number, Drop>
+  inCommon: InCommon
+  ts: number | null
+}
 
 export function parseInCommon(inCommon: unknown): InCommon {
   if (
