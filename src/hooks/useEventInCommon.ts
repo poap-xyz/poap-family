@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
-import { filterInCommon } from 'models/in-common'
 import { Drop } from 'models/drop'
 import { POAP } from 'models/poap'
 import { Progress } from 'models/http'
 import { InCommon } from 'models/api'
-import { getInCommonEventsWithProgress, putEventInCommon } from 'loaders/api'
+import { filterInCommon } from 'models/in-common'
+import { getInCommonEventsWithProgress } from 'loaders/api'
 import { scanAddress } from 'loaders/poap'
 
-function useEventInCommon(eventId: number, owners: string[], force: boolean = false): {
+function useEventInCommon(
+  eventId: number,
+  owners: string[],
+  force: boolean = false,
+  local: boolean = false,
+): {
   completedEventInCommon: boolean
   loadingEventInCommon: boolean
   loadedInCommonProgress: { progress: number; estimated: number | null; rate: number | null } | null
@@ -16,8 +21,6 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
   ownersErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
   events: Record<number, Drop>
-  caching: boolean
-  cachingError: Error | null
   cachedTs: number | null
   fetchEventInCommon: () => () => void
   retryAddress: (address: string) => void
@@ -29,8 +32,6 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
   const [events, setEvents] = useState<Record<number, Drop>>({})
-  const [caching, setCaching] = useState<boolean>(false)
-  const [cachingError, setCachingError] = useState<Error | null>(null)
   const [cachedTs, setCachedTs] = useState<number | null>(null)
 
   useEffect(
@@ -39,22 +40,7 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
         const inCommonProcessed = filterInCommon(inCommon)
 
         if (Object.keys(inCommonProcessed).length > 0) {
-          setCaching(true)
-          setCachingError(null)
-          putEventInCommon(eventId, inCommonProcessed).then(
-            () => {
-              setCaching(false)
-              setCachedTs(Math.trunc(Date.now() / 1000))
-            },
-            (err) => {
-              console.error(err)
-              setCaching(false)
-              setCachingError(new Error(
-                'Could not cache drop',
-                { cause: err }
-              ))
-            }
-          )
+          setCachedTs(Math.trunc(Date.now() / 1000))
         }
       }
     },
@@ -70,6 +56,21 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
       { cause: err }
     )
     setErrors((prevErrors) => [...prevErrors, { address, error }])
+  }
+
+  function removeError(address: string): void {
+    setErrors((prevErrors) => {
+      if (prevErrors == null) {
+        return []
+      }
+      const newErrors = []
+      for (const { error, address: errorAddress } of prevErrors) {
+        if (errorAddress !== address) {
+          newErrors.push({ error, address: errorAddress })
+        }
+      }
+      return newErrors
+    })
   }
 
   const fetchAddressInCommon = useCallback(
@@ -136,7 +137,7 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
         {}
       )
       setCompleted(false)
-      if (force) {
+      if (local) {
         fetchOwnersInCommon(controllers).finally(() => {
           setCompleted(true)
         })
@@ -157,7 +158,8 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
             } else {
               setLoadedProgress(null)
             }
-          }
+          },
+          /*refresh*/force
         ).then(
           (result) => {
             setLoadedProgress(null)
@@ -193,24 +195,15 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
         setInCommon({})
       }
     },
-    [eventId, owners, force, fetchOwnersInCommon]
+    [eventId, owners, force, local, fetchOwnersInCommon]
   )
 
   function retryAddress(address: string): () => void {
-    setErrors((prevErrors) => {
-      if (prevErrors == null) {
-        return []
-      }
-      const newErrors = []
-      for (const { error, address: errorAddress } of prevErrors) {
-        if (errorAddress !== address) {
-          newErrors.push({ error, address: errorAddress })
-        }
-      }
-      return newErrors
-    })
+    removeError(address)
     const controller = new AbortController()
-    fetchAddressInCommon(address, controller.signal)
+    fetchAddressInCommon(address, controller.signal).catch((err) => {
+      addError(address, err)
+    })
     return () => {
       controller.abort()
     }
@@ -224,8 +217,6 @@ function useEventInCommon(eventId: number, owners: string[], force: boolean = fa
     ownersErrors: errors,
     inCommon,
     events,
-    caching,
-    cachingError,
     cachedTs,
     fetchEventInCommon,
     retryAddress,

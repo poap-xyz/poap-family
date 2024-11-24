@@ -5,8 +5,8 @@ import {
   FAMILY_API_URL,
   parseInCommon,
   CachedEvent,
-  InCommon,
   Feedback,
+  EventsInCommon,
 } from 'models/api'
 import { encodeExpiryDates } from 'models/event'
 import { parseDrop, parseDropMetrics, parseDropOwners, Drop, DropMetrics, DropOwners } from 'models/drop'
@@ -112,57 +112,11 @@ export async function getEventAndOwners(
   }
 }
 
-export async function putEventInCommon(
-  eventId: number,
-  inCommon: InCommon,
-): Promise<void> {
-  if (!FAMILY_API_KEY) {
-    throw new Error(
-      `Last in common drops (${eventId}) could not be put, ` +
-      `configure Family API key`
-    )
-  }
-
-  let response: Response
-
-  try {
-    response = await fetch(
-      `${FAMILY_API_URL}/event/${eventId}/in-common`,
-      {
-        method: 'PUT',
-        headers: {
-          'x-api-key': FAMILY_API_KEY,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(inCommon),
-      }
-    )
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw new AbortedError(`Put drop in common aborted`, { cause: err })
-    }
-    throw new Error(
-      `Cannot put drop in common: response was not success (network error)`,
-      { cause: err }
-    )
-  }
-
-  if (response.status !== 200 && response.status !== 201) {
-    throw new HttpError(
-      `Drop ${eventId} in common save failed (status ${response.status})`,
-      { status: response.status }
-    )
-  }
-}
-
 export async function getInCommonEvents(
   eventId: number,
   abortSignal: AbortSignal,
-): Promise<{
-  inCommon: InCommon
-  events: Record<number, Drop>
-  ts: number
-} | null> {
+  refresh: boolean = false,
+): Promise<EventsInCommon | null> {
   if (!FAMILY_API_KEY) {
     throw new Error(
       `Last in common drops (${eventId}) could not be fetched, ` +
@@ -174,7 +128,8 @@ export async function getInCommonEvents(
 
   try {
     response = await fetch(
-      `${FAMILY_API_URL}/event/${eventId}/in-common`,
+      `${FAMILY_API_URL}/event/${eventId}` +
+      `/in-common${refresh ? '?refresh=true' : ''}`,
       {
         signal: abortSignal instanceof AbortSignal ? abortSignal : null,
         headers: {
@@ -243,11 +198,8 @@ export async function getInCommonEventsWithProgress(
   eventId: number,
   abortSignal: AbortSignal,
   onProgress: (progressEvent: Partial<Progress>) => void,
-): Promise<{
-  inCommon: InCommon
-  events: Record<number, Drop>
-  ts: number
-} | null> {
+  refresh: boolean = false,
+): Promise<EventsInCommon | null> {
   if (!FAMILY_API_KEY) {
     throw new Error(
       `Last in common drops (${eventId}) could not be fetched, ` +
@@ -259,7 +211,8 @@ export async function getInCommonEventsWithProgress(
 
   try {
     response = await axios.get(
-      `${FAMILY_API_URL}/event/${eventId}/in-common`,
+      `${FAMILY_API_URL}/event/${eventId}` +
+      `/in-common${refresh ? '?refresh=true' : ''}`,
       {
         signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
         onDownloadProgress: onProgress,

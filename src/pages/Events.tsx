@@ -81,11 +81,9 @@ function Events() {
     loadedEventsProgress,
     loadedEventsOwners,
     eventsInCommon,
-    cachingEvents,
-    cachingEventsErrors,
     fetchEventsInCommon,
     retryEventAddressInCommon,
-  } = useEventsInCommon(eventIds, eventsOwners, all, force)
+  } = useEventsInCommon(eventIds, eventsOwners, all, force, /*local*/false)
 
   const {
     loadingCollections,
@@ -123,7 +121,7 @@ function Events() {
 
   useEffect(
     () => {
-      let cancelEventsInCommon
+      let cancelEventsInCommon: () => void | undefined
       if (completedEventsOwnersAndMetrics) {
         cancelEventsInCommon = fetchEventsInCommon()
       }
@@ -138,7 +136,7 @@ function Events() {
 
   useEffect(
     () => {
-      let cancelEventsCollections
+      let cancelEventsCollections: () => void | undefined
       if (completedEventsInCommon) {
         cancelEventsCollections = fetchEventsCollections()
       }
@@ -338,13 +336,9 @@ function Events() {
                         loading={
                           loadingInCommonEvents[event.id]
                         }
-                        caching={
-                          cachingEvents[event.id]
-                        }
                         error={
                           eventsOwnersAndMetricsErrors[event.id] != null ||
-                          eventsInCommonErrors[event.id] != null ||
-                          cachingEventsErrors[event.id] != null
+                          eventsInCommonErrors[event.id] != null
                         }
                       />
                       {eventsOwnersAndMetricsErrors[event.id] != null && (
@@ -387,9 +381,6 @@ function Events() {
                           eta={loadedEventsProgress[event.id].estimated}
                           rate={loadedEventsProgress[event.id].rate}
                         />
-                      )}
-                      {cachingEvents[event.id] != null && (
-                        <Progress />
                       )}
                       {eventsInCommonErrors[event.id] != null && Object.entries(
                         eventsInCommonErrors[event.id]
