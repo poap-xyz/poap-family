@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { POAP } from 'models/poap'
-import { Progress } from 'models/http'
+import { CountProgress, DownloadProgress } from 'models/http'
 import { InCommon } from 'models/api'
 import { filterInCommon } from 'models/in-common'
-import { getInCommonEventsWithProgress } from 'loaders/api'
+import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
 import { scanAddress } from 'loaders/poap'
 
 function useEventInCommon(
@@ -13,10 +13,12 @@ function useEventInCommon(
   owners: string[],
   force: boolean = false,
   local: boolean = false,
+  stream: boolean = false,
 ): {
   completedEventInCommon: boolean
   loadingEventInCommon: boolean
-  loadedInCommonProgress: { progress: number; estimated: number | null; rate: number | null } | null
+  loadedInCommon: CountProgress | null
+  loadedInCommonDownload: DownloadProgress | null
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
@@ -27,7 +29,8 @@ function useEventInCommon(
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [loadedProgress, setLoadedProgress] = useState<Progress | null>(null)
+  const [loadedInCommon, setLoadedInCommon] = useState<CountProgress | null>(null)
+  const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
   const [loadedOwners, setLoadedOwners] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
@@ -144,24 +147,39 @@ function useEventInCommon(
       } else {
         setLoading(true)
         setLoadedOwners(0)
+        setLoadedInCommon(null)
         setLoadedProgress(null)
-        getInCommonEventsWithProgress(
-          eventId,
-          /*abortSignal*/undefined,
-          /*onProgress*/({ progress, estimated, rate }) => {
-            if (progress != null) {
-              setLoadedProgress({
-                progress,
-                estimated: estimated ?? null,
-                rate: rate ?? null,
-              })
-            } else {
-              setLoadedProgress(null)
-            }
-          },
-          /*refresh*/force
+        ;(
+          stream
+            ? getInCommonEventsWithEvents(
+                eventId,
+                /*refresh*/force,
+                /*onProgress*/(received, total) => {
+                  setLoadedInCommon({
+                    count: received,
+                    total,
+                  })
+                },
+              )
+            : getInCommonEventsWithProgress(
+                eventId,
+                /*abortSignal*/undefined,
+                /*onProgress*/({ progress, estimated, rate }) => {
+                  if (progress != null) {
+                    setLoadedProgress({
+                      progress,
+                      estimated: estimated ?? null,
+                      rate: rate ?? null,
+                    })
+                  } else {
+                    setLoadedProgress(null)
+                  }
+                },
+                /*refresh*/force
+              )
         ).then(
           (result) => {
+            setLoadedInCommon(null)
             setLoadedProgress(null)
             if (!result) {
               return fetchOwnersInCommon(controllers)
@@ -175,6 +193,7 @@ function useEventInCommon(
             setCachedTs(result.ts)
           },
           (err) => {
+            setLoadedInCommon(null)
             setLoadedProgress(null)
             console.error(err)
             return fetchOwnersInCommon(controllers)
@@ -189,13 +208,14 @@ function useEventInCommon(
         }
         setCompleted(false)
         setLoading(false)
+        setLoadedInCommon(null)
         setLoadedProgress(null)
         setLoadedOwners(0)
         setErrors([])
         setInCommon({})
       }
     },
-    [eventId, owners, force, local, fetchOwnersInCommon]
+    [eventId, owners, force, local, stream, fetchOwnersInCommon]
   )
 
   function retryAddress(address: string): () => void {
@@ -212,7 +232,8 @@ function useEventInCommon(
   return {
     completedEventInCommon: completed,
     loadingEventInCommon: loading,
-    loadedInCommonProgress: loadedProgress,
+    loadedInCommon,
+    loadedInCommonDownload: loadedProgress,
     loadedOwners,
     ownersErrors: errors,
     inCommon,

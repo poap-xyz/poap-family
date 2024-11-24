@@ -46,7 +46,8 @@ function Event() {
   const {
     completedEventInCommon,
     loadingEventInCommon,
-    loadedInCommonProgress,
+    loadedInCommon,
+    loadedInCommonDownload,
     loadedOwners,
     ownersErrors,
     inCommon,
@@ -54,7 +55,13 @@ function Event() {
     cachedTs,
     fetchEventInCommon,
     retryAddress,
-  } = useEventInCommon(event.id, owners, force, /*local*/false)
+  } = useEventInCommon(
+    event.id,
+    owners,
+    /*refresh*/force,
+    /*local*/false,
+    /*stream*/true
+  )
 
   const eventIds = useMemo(
     () => [event.id],
@@ -174,15 +181,24 @@ function Event() {
             {loadedOwners > 0
               ? <Loading count={loadedOwners} total={owners.length} />
               : (
-                loadedInCommonProgress != null
+                loadedInCommon != null
                   ? (
-                      <Loading
-                        progress={loadedInCommonProgress.progress}
-                        eta={loadedInCommonProgress.estimated}
-                        rate={loadedInCommonProgress.rate}
-                      />
-                    )
-                  : <Loading />
+                    <Loading
+                      count={loadedInCommon.count}
+                      total={loadedInCommon.total}
+                    />
+                  )
+                  : (
+                    loadedInCommonDownload != null
+                      ? (
+                          <Loading
+                            progress={loadedInCommonDownload.progress}
+                            eta={loadedInCommonDownload.estimated}
+                            rate={loadedInCommonDownload.rate}
+                          />
+                        )
+                      : <Loading />
+                  )
               )
             }
             <AddressErrorList errors={ownersErrors} onRetry={retryAddress} />
