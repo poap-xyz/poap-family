@@ -294,42 +294,78 @@ export async function getInCommonEventsWithProgress(
 export async function getInCommonEventsWithEvents(
   eventId: number,
   refresh: boolean = false,
-  onProgress: (received: number, total: number) => void,
+  abortSignal?: AbortSignal,
+  onProgress?: (
+    receivedOwners: number | null,
+    receivedEventIds: number | null,
+    totalInCommon: number | null,
+    receivedEvents: number | null,
+    totalEvents: number | null,
+  ) => void,
   onTs?: (ts: number) => void,
   onEventIds?: (eventIds: number[]) => void,
+  onTotal?: (total: number) => void,
   onInCommon?: (eventId: number, owners: string[]) => void,
+  onEventsTotal?: (eventsTotal: number) => void,
+  onEvents?: (events: Drop[]) => void,
 ): Promise<EventsInCommon | null> {
-  let total: number
-  let received = 0
+  let totalInCommon: number | null = null
+  let totalEvents: number | null = null
+  let receivedEventIds: number | null = null
+  let receivedOwners: number | null = null
+  let receivedEvents: number | null = null
+
   const inCommon: EventsInCommon = {
     events: {},
     inCommon: {},
     ts: null,
   }
-  const inCommonEvents = new EventSource(
+  const inCommonStream = new EventSource(
     `${FAMILY_API_URL}/event/${eventId}/in-common` +
       `/stream${refresh ? '?refresh=true' : ''}`
   )
+
+  if (abortSignal) {
+    abortSignal.addEventListener('abort', () => {
+      inCommonStream.close()
+    })
+  }
+
   return new Promise((resolve, reject) => {
-    inCommonEvents.addEventListener('error', (ev) => {
-      reject(new Error(`Something happen: ${ev}`))
+    inCommonStream.addEventListener('error', (ev) => {
+      inCommonStream.close()
+      reject(new Error(
+        `Connection lost to event '${eventId}' in common streaming`
+      ))
     })
 
-    inCommonEvents.addEventListener('message', (ev) => {
+    inCommonStream.addEventListener('message', (ev) => {
       let data: unknown | undefined
       try {
         data = JSON.parse(ev.data)
       } catch {
-        reject(new Error(`Cannot parse data '${ev.data}'`))
+        reject(new Error(
+          `Cannot parse data '${ev.data}' when streaming ` +
+          `event '${eventId}' in common`
+        ))
         return
       }
       if (!data || typeof data !== 'object') {
-        reject(new Error('Malformed data'))
+        reject(new Error(
+          `Malformed data '${data}' when streaming event '${eventId}' in common`
+        ))
         return
       }
       if ('ts' in data && data.ts && typeof data.ts === 'number') {
         inCommon.ts = data.ts
         onTs?.(data.ts)
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
+        )
       }
       if (
         'eventIds' in data &&
@@ -339,11 +375,39 @@ export async function getInCommonEventsWithEvents(
           (eventId) => eventId && typeof eventId === 'number'
         )
       ) {
-        total = data.eventIds.length
+        if (receivedEventIds == null) {
+          receivedEventIds = data.eventIds.length
+        } else {
+          receivedEventIds += data.eventIds.length
+        }
         for (const eventId of data.eventIds) {
           inCommon.inCommon[eventId] = []
         }
         onEventIds?.(data.eventIds)
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
+        )
+      }
+      if ('total' in data && data.total && typeof data.total === 'number') {
+        if (totalInCommon != null) {
+          reject(new Error(
+            `Received total (with value ${data.total} was ${totalInCommon}) ` +
+            `two times when streaming event '${eventId}' in common`
+          ))
+        }
+        totalInCommon = data.total
+        onTotal?.(totalInCommon)
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
+        )
       }
       if (
         'eventId' in data &&
@@ -356,31 +420,90 @@ export async function getInCommonEventsWithEvents(
           (owner) => owner && typeof owner === 'string'
         )
       ) {
-        received++
+        if (receivedOwners == null) {
+          receivedOwners = 1
+        } else {
+          receivedOwners++
+        }
+        if (!receivedEventIds || !totalInCommon) {
+          reject(new Error(
+            `Received the first in common event before the total ` +
+            `when streaming event '${eventId}' in common`
+          ))
+        }
         inCommon.inCommon[data.eventId] = data.owners
         onInCommon?.(data.eventId, data.owners)
-        if (total) {
-          onProgress(received, total)
-        }
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
+        )
       }
       if (
         'events' in data &&
         data.events &&
-        typeof data.events === 'object'
-      ) {
-        inCommon.events = Object.fromEntries(
-          Object.entries(data.events).map(
-            ([eventIdRaw, eventData]) => [
-              eventIdRaw,
-              parseDrop(eventData, /*includeDescription*/false),
-            ]
+        Array.isArray(data.events) &&
+        data.events.every(
+          (event) => (
+            event && typeof event === 'object' &&
+            'id' in event && event.id && typeof event.id === 'number'
           )
+        )
+      ) {
+        const drops = data.events.map(
+          (event) => parseDrop(event, /*includeDescription*/false)
+        )
+        if (receivedEvents == null) {
+          receivedEvents = drops.length
+        } else {
+          receivedEvents += drops.length
+        }
+        for (const drop of drops) {
+          inCommon.events[drop.id] = drop
+        }
+        onEvents?.(drops)
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
+        )
+      }
+      if (
+        'eventsTotal' in data &&
+        data.eventsTotal &&
+        typeof data.eventsTotal === 'number'
+      ) {
+        if (totalEvents != null) {
+          reject(new Error(
+            `Received events total (with value ${data.eventsTotal} was ${totalEvents}) ` +
+            `two times when streaming event '${eventId}' in common`
+          ))
+        }
+        totalEvents = data.eventsTotal
+        onEventsTotal?.(data.eventsTotal)
+        onProgress?.(
+          receivedOwners,
+          receivedEventIds,
+          totalInCommon,
+          receivedEvents,
+          totalEvents
         )
       }
       if (
         inCommon.ts != null &&
-        received === total &&
+        totalInCommon != null &&
+        receivedEventIds != null &&
+        receivedOwners != null &&
+        receivedOwners === receivedEventIds &&
+        receivedEventIds === totalInCommon &&
         Object.values(inCommon.inCommon).every((owners) => owners.length > 0) &&
+        receivedEvents != null &&
+        totalEvents != null &&
+        receivedEvents === totalEvents &&
         Object.keys(inCommon.events).length > 0
       ) {
         resolve(inCommon)

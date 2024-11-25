@@ -40,6 +40,10 @@
   text-decoration: overline;
 }
 
+.loading .total.final {
+  font-weight: 700;
+}
+
 .loading .details {
   display: block;
   position: absolute;
