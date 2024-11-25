@@ -20,8 +20,9 @@ function useEventsInCommon(
   completedInCommonEvents: Record<number, boolean>
   loadingInCommonEvents: Record<number, boolean>
   eventsInCommonErrors: Record<number, Record<string, Error>>
-  loadedEventsInCommonState: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z'>
+  loadedEventsInCommonState: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'>
   loadedEventsInCommon: Record<number, CountProgress & { totalFinal: boolean }>
+  loadedEventsInCommonEvents: Record<number, CountProgress>
   loadedEventsProgress: Record<number, DownloadProgress>
   loadedEventsOwners: Record<number, number>
   eventsInCommon: Record<number, EventsInCommon>
@@ -31,8 +32,9 @@ function useEventsInCommon(
   const [completed, setCompleted] = useState<Record<number, boolean>>({})
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Record<string, Error>>>({})
-  const [loadedInCommonState, setLoadedInCommonState] = useState<Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z'>>({})
+  const [loadedInCommonState, setLoadedInCommonState] = useState<Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'>>({})
   const [loadedInCommon, setLoadedInCommon] = useState<Record<number, CountProgress & { totalFinal: boolean }>>({})
+  const [loadedInCommonEvents, setLoadedInCommonEvents] = useState<Record<number, CountProgress>>({})
   const [loadedProgress, setLoadedProgress] = useState<Record<number, DownloadProgress>>({})
   const [loadedOwners, setLoadedOwners] = useState<Record<number, number>>({})
   const [inCommon, setInCommon] = useState<Record<number, EventsInCommon>>({})
@@ -152,7 +154,7 @@ function useEventsInCommon(
 
   function addLoadedInCommonState(
     eventId: number,
-    state: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z',
+    state: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z',
   ): void {
     setLoadedInCommonState((prevLoadedInCommonState) => ({
       ...(prevLoadedInCommonState ?? {}),
@@ -164,8 +166,8 @@ function useEventsInCommon(
 
   function updateLoadedInCommonState(
     eventId: number,
-    whenPrevState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z',
-    state: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z',
+    whenPrevState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z',
+    state: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z',
   ): void {
     setLoadedInCommonState((prevLoadedInCommonState) => ({
       ...(prevLoadedInCommonState ?? {}),
@@ -180,7 +182,7 @@ function useEventsInCommon(
       if (prevLoadedInCommonState == null) {
         return {}
       }
-      const newProgress: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z'> = {}
+      const newProgress: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'> = {}
       for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommonState)) {
         if (String(eventId) !== String(loadingEventId)) {
           newProgress[loadingEventId] = progress
@@ -208,6 +210,31 @@ function useEventsInCommon(
       }
       const newProgress: Record<number, CountProgress & { totalFinal: boolean }> = {}
       for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommon)) {
+        if (String(eventId) !== String(loadingEventId)) {
+          newProgress[loadingEventId] = progress
+        }
+      }
+      return newProgress
+    })
+  }
+
+  function updateLoadedInCommonEvents(
+    eventId: number,
+    { count, total }: CountProgress,
+  ) {
+    setLoadedInCommonEvents((prevLoadedInCommonEvents) => ({
+      ...(prevLoadedInCommonEvents ?? {}),
+      [eventId]: { count, total },
+    }))
+  }
+
+  function removeLoadedInCommonEvents(eventId: number): void {
+    setLoadedInCommonEvents((prevLoadedInCommonEvents) => {
+      if (prevLoadedInCommonEvents == null) {
+        return {}
+      }
+      const newProgress: Record<number, CountProgress> = {}
+      for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommonEvents)) {
         if (String(eventId) !== String(loadingEventId)) {
           newProgress[loadingEventId] = progress
         }
@@ -465,7 +492,13 @@ function useEventsInCommon(
               eventId,
               /*refresh*/force,
               /*abortSignal*/controller.signal,
-              /*onProgress*/(receivedOwners, receivedEventIds, totalInCommon) => {
+              /*onProgress*/(
+                receivedOwners,
+                receivedEventIds,
+                totalInCommon,
+                receivedEvents,
+                totalEvents
+              ) => {
                 if (receivedEventIds) {
                   addLoadedInCommonState(eventId, 'eventIds-a')
                   updateLoadedInCommon(
@@ -486,10 +519,21 @@ function useEventsInCommon(
                     updateLoadedInCommonState(eventId, 'owners-a', 'owners-z')
                   }
                 }
+                if (totalEvents) {
+                  updateLoadedInCommonState(eventId, 'owners-z', 'events-a')
+                  updateLoadedInCommonEvents(eventId, {
+                    count: receivedEvents ?? 0,
+                    total: totalEvents,
+                  })
+                  if (receivedEvents === totalEvents) {
+                    updateLoadedInCommonState(eventId, 'events-a', 'events-z')
+                  }
+                }
               },
             )
             removeLoadedInCommonState(eventId)
             removeLoadedInCommon(eventId)
+            removeLoadedInCommonEvents(eventId)
           } else {
             addLoadedProgress(eventId)
             result = await getInCommonEventsWithProgress(
@@ -507,7 +551,9 @@ function useEventsInCommon(
             removeLoadedProgress(eventId)
           }
         } catch (err: unknown) {
+          removeLoadedInCommonState(eventId)
           removeLoadedInCommon(eventId)
+          removeLoadedInCommonEvents(eventId)
           removeLoadedProgress(eventId)
           if (!(err instanceof AbortedError)) {
             console.error(err)
@@ -517,7 +563,9 @@ function useEventsInCommon(
           }
           return
         }
+        removeLoadedInCommonState(eventId)
         removeLoadedInCommon(eventId)
+        removeLoadedInCommonEvents(eventId)
         removeLoadedProgress(eventId)
         if (result == null) {
           await processEvent(eventId, addresses, controllers)
@@ -611,6 +659,7 @@ function useEventsInCommon(
     eventsInCommonErrors: errors,
     loadedEventsInCommonState: loadedInCommonState,
     loadedEventsInCommon: loadedInCommon,
+    loadedEventsInCommonEvents: loadedInCommonEvents,
     loadedEventsProgress: loadedProgress,
     loadedEventsOwners: loadedOwners,
     eventsInCommon: inCommon,

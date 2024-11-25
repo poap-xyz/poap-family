@@ -17,8 +17,9 @@ function useEventInCommon(
 ): {
   completedEventInCommon: boolean
   loadingEventInCommon: boolean
-  loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | null
+  loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null
   loadedInCommon: CountProgress & { totalFinal: boolean } | null
+  loadedInCommonEvents: CountProgress | null
   loadedInCommonDownload: DownloadProgress | null
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
@@ -30,8 +31,9 @@ function useEventInCommon(
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | null>(null)
+  const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null>(null)
   const [loadedInCommon, setLoadedInCommon] = useState<CountProgress & { totalFinal: boolean } | null>(null)
+  const [loadedInCommonEvents, setLoadedInCommonEvents] = useState<CountProgress | null>(null)
   const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
   const [loadedOwners, setLoadedOwners] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
@@ -159,7 +161,13 @@ function useEventInCommon(
                 eventId,
                 /*refresh*/force,
                 /*abortSignal*/controller.signal,
-                /*onProgress*/(receivedOwners, receivedEventIds, totalInCommon) => {
+                /*onProgress*/(
+                  receivedOwners,
+                  receivedEventIds,
+                  totalInCommon,
+                  receivedEvents,
+                  totalEvents
+                ) => {
                   if (receivedEventIds) {
                     setLoadedInCommonState(
                       (prevState) => prevState == null ? 'eventIds-a' : prevState
@@ -182,6 +190,20 @@ function useEventInCommon(
                     if (receivedOwners === receivedEventIds) {
                       setLoadedInCommonState(
                         (prevState) => prevState === 'owners-a' ? 'owners-z' : prevState
+                      )
+                    }
+                  }
+                  if (totalEvents) {
+                    setLoadedInCommonState(
+                      (prevState) => prevState === 'owners-z' ? 'events-a' : prevState
+                    )
+                    setLoadedInCommonEvents({
+                      count: receivedEvents ?? 0,
+                      total: totalEvents,
+                    })
+                    if (receivedEvents === totalEvents) {
+                      setLoadedInCommonState(
+                        (prevState) => prevState === 'events-a' ? 'events-z' : prevState
                       )
                     }
                   }
@@ -263,6 +285,7 @@ function useEventInCommon(
     loadingEventInCommon: loading,
     loadedInCommonState,
     loadedInCommon,
+    loadedInCommonEvents,
     loadedInCommonDownload: loadedProgress,
     loadedOwners,
     ownersErrors: errors,
