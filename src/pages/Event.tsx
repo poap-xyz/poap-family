@@ -46,8 +46,8 @@ function Event() {
   const {
     completedEventInCommon,
     loadingEventInCommon,
-    loadedInCommonState,
     loadedInCommon,
+    loadedInCommonEvents,
     loadedInCommonDownload,
     loadedOwners,
     ownersErrors,
@@ -182,29 +182,34 @@ function Event() {
             {loadedOwners > 0
               ? <Loading count={loadedOwners} total={owners.length} />
               : (
-                loadedInCommon != null
+                loadedInCommonEvents != null
                   ? (
-                    loadedInCommonState === 'owners-z'
-                      ? <Loading />
-                      : (
+                    <Loading
+                      count={loadedInCommonEvents.count}
+                      total={loadedInCommonEvents.total}
+                    />
+                  )
+                  : (
+                      loadedInCommon != null
+                        ? (
                           <Loading
                             count={loadedInCommon.count}
                             total={loadedInCommon.total}
                             totalFinal={loadedInCommon.totalFinal}
                           />
                         )
-                  )
-                  : (
-                    loadedInCommonDownload != null
-                      ? (
-                          <Loading
-                            progress={loadedInCommonDownload.progress}
-                            eta={loadedInCommonDownload.estimated}
-                            rate={loadedInCommonDownload.rate}
-                          />
+                        : (
+                          loadedInCommonDownload != null
+                            ? (
+                                <Loading
+                                  progress={loadedInCommonDownload.progress}
+                                  eta={loadedInCommonDownload.estimated}
+                                  rate={loadedInCommonDownload.rate}
+                                />
+                              )
+                            : <Loading />
                         )
-                      : <Loading />
-                  )
+                    )
               )
             }
             <AddressErrorList errors={ownersErrors} onRetry={retryAddress} />

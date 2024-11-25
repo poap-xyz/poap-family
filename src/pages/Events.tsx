@@ -78,8 +78,8 @@ function Events() {
     completedInCommonEvents,
     loadingInCommonEvents,
     eventsInCommonErrors,
-    loadedEventsInCommonState,
     loadedEventsInCommon,
+    loadedEventsInCommonEvents,
     loadedEventsProgress,
     loadedEventsOwners,
     eventsInCommon,
@@ -373,6 +373,7 @@ function Events() {
                       {(
                         loadingInCommonEvents[event.id] != null &&
                         loadedEventsInCommon[event.id] == null &&
+                        loadedEventsInCommonEvents[event.id] == null &&
                         loadedEventsProgress[event.id] == null &&
                         loadedEventsOwners[event.id] != null &&
                         eventsOwners[event.id] != null
@@ -385,22 +386,30 @@ function Events() {
                       )}
                       {(
                         loadedEventsInCommon[event.id] != null &&
+                        loadedEventsInCommonEvents[event.id] == null &&
                         loadedEventsProgress[event.id] == null
                        ) && (
-                        loadedEventsInCommonState[event.id] != null &&
-                        loadedEventsInCommonState[event.id] === 'owners-z'
-                          ? <Progress />
-                          : (
-                              <Progress
-                                value={loadedEventsInCommon[event.id].count}
-                                max={loadedEventsInCommon[event.id].total}
-                                maxFinal={loadedEventsInCommon[event.id].totalFinal}
-                                showValue={loadedEventsInCommon[event.id].total > 0}
-                              />
-                            )
+                        <Progress
+                          value={loadedEventsInCommon[event.id].count}
+                          max={loadedEventsInCommon[event.id].total}
+                          maxFinal={loadedEventsInCommon[event.id].totalFinal}
+                          showValue={loadedEventsInCommon[event.id].total > 0}
+                        />
+                      )}
+                      {(
+                        loadedEventsInCommon[event.id] != null &&
+                        loadedEventsInCommonEvents[event.id] != null &&
+                        loadedEventsProgress[event.id] == null
+                       ) && (
+                        <Progress
+                          value={loadedEventsInCommonEvents[event.id].count}
+                          max={loadedEventsInCommonEvents[event.id].total}
+                          showValue={loadedEventsInCommonEvents[event.id].total > 0}
+                        />
                       )}
                       {(
                         loadedEventsInCommon[event.id] == null &&
+                        loadedEventsInCommonEvents[event.id] == null &&
                         loadedEventsProgress[event.id] != null
                        ) && (
                         <Progress
