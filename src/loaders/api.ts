@@ -452,25 +452,33 @@ export async function getInCommonEventsWithEvents(
           )
         )
       ) {
-        const drops = data.events.map(
-          (event) => parseDrop(event, /*includeDescription*/false)
+        const newEvents = data.events.filter((event) =>
+          !Object.keys(inCommon.events).includes(String(event.id))
         )
-        if (receivedEvents == null) {
-          receivedEvents = drops.length
+
+        if (newEvents.length > 0) {
+          const drops = newEvents.map(
+            (event) => parseDrop(event, /*includeDescription*/false)
+          )
+          if (receivedEvents == null) {
+            receivedEvents = drops.length
+          } else {
+            receivedEvents += drops.length
+          }
+          for (const drop of drops) {
+            inCommon.events[drop.id] = drop
+          }
+          onEvents?.(drops)
+          onProgress?.(
+            receivedOwners,
+            receivedEventIds,
+            totalInCommon,
+            receivedEvents,
+            totalEvents
+          )
         } else {
-          receivedEvents += drops.length
+          console.warn('No new events?')
         }
-        for (const drop of drops) {
-          inCommon.events[drop.id] = drop
-        }
-        onEvents?.(drops)
-        onProgress?.(
-          receivedOwners,
-          receivedEventIds,
-          totalInCommon,
-          receivedEvents,
-          totalEvents
-        )
       }
       if (
         'eventsTotal' in data &&
@@ -506,6 +514,7 @@ export async function getInCommonEventsWithEvents(
         receivedEvents === totalEvents &&
         Object.keys(inCommon.events).length > 0
       ) {
+        inCommonStream.close()
         resolve(inCommon)
         return
       }
