@@ -17,7 +17,8 @@ function useEventInCommon(
 ): {
   completedEventInCommon: boolean
   loadingEventInCommon: boolean
-  loadedInCommon: CountProgress | null
+  loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | null
+  loadedInCommon: CountProgress & { totalFinal: boolean } | null
   loadedInCommonDownload: DownloadProgress | null
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
@@ -29,7 +30,8 @@ function useEventInCommon(
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [loadedInCommon, setLoadedInCommon] = useState<CountProgress | null>(null)
+  const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | null>(null)
+  const [loadedInCommon, setLoadedInCommon] = useState<CountProgress & { totalFinal: boolean } | null>(null)
   const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
   const [loadedOwners, setLoadedOwners] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
@@ -135,6 +137,7 @@ function useEventInCommon(
 
   const fetchEventInCommon = useCallback(
     () => {
+      const controller = new AbortController()
       const controllers: Record<string, AbortController> = owners.reduce(
         (ctrls, owner) => ({ ...ctrls, [owner]: new AbortController() }),
         {}
@@ -149,21 +152,44 @@ function useEventInCommon(
         setLoadedOwners(0)
         setLoadedInCommon(null)
         setLoadedProgress(null)
+        setLoadedInCommonState(null)
         ;(
           stream
             ? getInCommonEventsWithEvents(
                 eventId,
                 /*refresh*/force,
-                /*onProgress*/(received, total) => {
-                  setLoadedInCommon({
-                    count: received,
-                    total,
-                  })
+                /*abortSignal*/controller.signal,
+                /*onProgress*/(receivedOwners, receivedEventIds, totalInCommon) => {
+                  if (receivedEventIds) {
+                    setLoadedInCommonState(
+                      (prevState) => prevState == null ? 'eventIds-a' : prevState
+                    )
+                    setLoadedInCommon({
+                      count: receivedOwners ?? 0,
+                      total: receivedEventIds,
+                      totalFinal: receivedEventIds === totalInCommon,
+                    })
+                    if (receivedEventIds === totalInCommon) {
+                      setLoadedInCommonState(
+                        (prevState) => prevState === 'eventIds-a' ? 'eventIds-z' : prevState
+                      )
+                    }
+                  }
+                  if (receivedOwners) {
+                    setLoadedInCommonState(
+                      (prevState) => prevState === 'eventIds-z' ? 'owners-a' : prevState
+                    )
+                    if (receivedOwners === receivedEventIds) {
+                      setLoadedInCommonState(
+                        (prevState) => prevState === 'owners-a' ? 'owners-z' : prevState
+                      )
+                    }
+                  }
                 },
               )
             : getInCommonEventsWithProgress(
                 eventId,
-                /*abortSignal*/undefined,
+                /*abortSignal*/controller.signal,
                 /*onProgress*/({ progress, estimated, rate }) => {
                   if (progress != null) {
                     setLoadedProgress({
@@ -179,6 +205,7 @@ function useEventInCommon(
               )
         ).then(
           (result) => {
+            setLoadedInCommonState(null)
             setLoadedInCommon(null)
             setLoadedProgress(null)
             if (!result) {
@@ -203,6 +230,7 @@ function useEventInCommon(
         })
       }
       return () => {
+        controller.abort()
         for (const controller of Object.values(controllers)) {
           controller.abort()
         }
@@ -210,6 +238,7 @@ function useEventInCommon(
         setLoading(false)
         setLoadedInCommon(null)
         setLoadedProgress(null)
+        setLoadedInCommonState(null)
         setLoadedOwners(0)
         setErrors([])
         setInCommon({})
@@ -232,6 +261,7 @@ function useEventInCommon(
   return {
     completedEventInCommon: completed,
     loadingEventInCommon: loading,
+    loadedInCommonState,
     loadedInCommon,
     loadedInCommonDownload: loadedProgress,
     loadedOwners,
