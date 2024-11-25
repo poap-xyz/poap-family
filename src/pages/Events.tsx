@@ -78,6 +78,7 @@ function Events() {
     completedInCommonEvents,
     loadingInCommonEvents,
     eventsInCommonErrors,
+    loadedEventsInCommonState,
     loadedEventsInCommon,
     loadedEventsProgress,
     loadedEventsOwners,
@@ -386,11 +387,17 @@ function Events() {
                         loadedEventsInCommon[event.id] != null &&
                         loadedEventsProgress[event.id] == null
                        ) && (
-                        <Progress
-                          value={loadedEventsInCommon[event.id].count}
-                          max={loadedEventsInCommon[event.id].total}
-                          showValue={loadedEventsInCommon[event.id].count > 0}
-                        />
+                        loadedEventsInCommonState[event.id] != null &&
+                        loadedEventsInCommonState[event.id] === 'owners-z'
+                          ? <Progress />
+                          : (
+                              <Progress
+                                value={loadedEventsInCommon[event.id].count}
+                                max={loadedEventsInCommon[event.id].total}
+                                maxFinal={loadedEventsInCommon[event.id].totalFinal}
+                                showValue={loadedEventsInCommon[event.id].total > 0}
+                              />
+                            )
                       )}
                       {(
                         loadedEventsInCommon[event.id] == null &&

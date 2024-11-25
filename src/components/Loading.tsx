@@ -10,6 +10,7 @@ function Loading({
   rate,
   count,
   total,
+  totalFinal = true,
   small = false,
   title,
 }: {
@@ -18,6 +19,7 @@ function Loading({
   rate?: number
   count?: number
   total?: number
+  totalFinal?: boolean
   small?: boolean
   title?: ReactNode
 }) {
@@ -47,7 +49,7 @@ function Loading({
             <>
               <div className="count">{count}</div>
               {typeof total === 'number' && (
-                <div className="total">{total}</div>
+                <div className={clsx('total', { final: totalFinal })}>{total}</div>
               )}
             </>
           )}

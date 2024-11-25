@@ -7,6 +7,7 @@ import 'styles/progress.css'
 function Progress({
   value,
   max,
+  maxFinal = true,
   showValue = false,
   showPercent = false,
   eta,
@@ -14,6 +15,7 @@ function Progress({
 }: {
   value?: number
   max?: number
+  maxFinal?: boolean
   showValue?: boolean
   showPercent?: boolean
   eta?: number
@@ -30,7 +32,11 @@ function Progress({
           value={typeof value === 'number' ? value : undefined}
           max={typeof max === 'number' ? max : undefined}
         />
-        {showValue && <span className="progress-values">{value ?? 0}/{max}</span>}
+        {showValue && (
+          <span className="progress-values">
+            {value ?? 0}/<span className={clsx('max', { final: maxFinal })}>{max}</span>
+          </span>
+        )}
         {showPercent && <span className="progress-percent">
           {hasDetails && (
             <button

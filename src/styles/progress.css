@@ -42,6 +42,10 @@
   margin-bottom: .25rem;
 }
 
+.progress .progress-values .max.final {
+  font-weight: 700;
+}
+
 .progress .show-details {
   appearance: none;
   outline: none;

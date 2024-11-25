@@ -46,6 +46,7 @@ function Event() {
   const {
     completedEventInCommon,
     loadingEventInCommon,
+    loadedInCommonState,
     loadedInCommon,
     loadedInCommonDownload,
     loadedOwners,
@@ -183,10 +184,15 @@ function Event() {
               : (
                 loadedInCommon != null
                   ? (
-                    <Loading
-                      count={loadedInCommon.count}
-                      total={loadedInCommon.total}
-                    />
+                    loadedInCommonState === 'owners-z'
+                      ? <Loading />
+                      : (
+                          <Loading
+                            count={loadedInCommon.count}
+                            total={loadedInCommon.total}
+                            totalFinal={loadedInCommon.totalFinal}
+                          />
+                        )
                   )
                   : (
                     loadedInCommonDownload != null
