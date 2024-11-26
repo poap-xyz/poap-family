@@ -353,7 +353,7 @@ export async function getInCommonEventsWithEvents(
         receivedEvents != null &&
         totalEvents != null &&
         receivedEvents === totalEvents &&
-        Object.keys(inCommon.events).length > 0
+        Object.keys(inCommon.events).length === totalEvents
       ) {
         resolve(inCommon)
       } else {
@@ -549,7 +549,7 @@ export async function getInCommonEventsWithEvents(
         receivedEvents != null &&
         totalEvents != null &&
         receivedEvents === totalEvents &&
-        Object.keys(inCommon.events).length > 0
+        Object.keys(inCommon.events).length === totalEvents
       ) {
         resolved = true
         inCommonStream.close()
