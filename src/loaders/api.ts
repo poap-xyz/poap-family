@@ -349,7 +349,6 @@ export async function getInCommonEventsWithEvents(
         receivedOwners != null &&
         receivedOwners === receivedEventIds &&
         receivedEventIds === totalInCommon &&
-        Object.values(inCommon.inCommon).every((owners) => owners.length > 0) &&
         receivedEvents != null &&
         totalEvents != null &&
         receivedEvents === totalEvents &&
@@ -551,7 +550,6 @@ export async function getInCommonEventsWithEvents(
         receivedOwners != null &&
         receivedOwners === receivedEventIds &&
         receivedEventIds === totalInCommon &&
-        Object.values(inCommon.inCommon).every((owners) => owners.length > 0) &&
         receivedEvents != null &&
         totalEvents != null &&
         receivedEvents === totalEvents &&
