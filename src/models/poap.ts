@@ -18,7 +18,7 @@ export const DEFAULT_POAP_LIMIT = 100
 export interface POAP {
   id: string
   owner: string
-  created?: Date
+  created: Date
   event?: Drop
 }
 
@@ -93,6 +93,9 @@ export function parsePOAP(token: unknown): POAP {
     typeof token.minted_on === 'number'
   ) {
     mintedOn = new Date(token.minted_on * 1000)
+  }
+  if (mintedOn == null) {
+    throw new Error('Invalid POAP minted date')
   }
 
   let drop: Drop | undefined
