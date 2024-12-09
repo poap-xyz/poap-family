@@ -185,7 +185,6 @@ export async function queryAllCompass<T>(
   variables: Record<string, unknown>,
   offsetKey: string,
   limit: number,
-  total: number,
   abortSignal?: AbortSignal
 ): Promise<T[]> {
   let results: T[] = []
@@ -216,9 +215,7 @@ export async function queryAllCompass<T>(
 
     results = [...results, ...pageResults]
     pageCount = pageResults.length
-  } while (
-    (total && pageCount >= total) || (!total && pageCount > 0)
-  )
+  } while (pageCount > 0)
 
   return results
 }

@@ -57,7 +57,6 @@ export async function findEventsCollections(
       },
       'offset',
       limit,
-      undefined,
       abortSignal
     ),
     eventIds.length < 2 ? Promise.resolve([]) : queryAllCompass(
@@ -94,7 +93,6 @@ export async function findEventsCollections(
       },
       'offset',
       limit,
-      undefined,
       abortSignal
     )
   ])
