@@ -62,6 +62,7 @@ export async function fetchCollectorDrops(
           where: {
             collector_address: { _eq: $address }
           }
+          distinct_on: drop_id
           offset: $offset
           limit: $limit
         ) {
