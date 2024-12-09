@@ -128,7 +128,7 @@ export async function queryFirstCompass<T>(
   Model: (data: unknown) => T,
   query: string,
   variables: Record<string, unknown>,
-  defaultValue: T,
+  defaultValue?: T,
   abortSignal?: AbortSignal
 ): Promise<T> {
   const FirstModel = (data: unknown): T =>{
@@ -139,7 +139,11 @@ export async function queryFirstCompass<T>(
     }
 
     if (data.length === 0) {
-      return defaultValue
+      if (defaultValue) {
+        return defaultValue
+      }
+
+      throw new HttpError(`Model ${name} empty results`, { status: 404 })
     }
 
     return Model(data[0])
