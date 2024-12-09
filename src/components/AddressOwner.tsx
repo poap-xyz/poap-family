@@ -1,4 +1,3 @@
-import { useSettings } from 'stores/settings'
 import { Drop } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import LinkToScan from 'components/LinkToScan'
@@ -24,8 +23,6 @@ function AddressOwner({
   inCommonAddresses?: string[]
   linkToScan?: boolean
 }) {
-  const { settings } = useSettings()
-
   const hasEvents = (
     events != null &&
     typeof events === 'object' &&
@@ -37,21 +34,16 @@ function AddressOwner({
   return (
     <div className="address-owner">
       <div className="owner-name">
-        {settings.openProfiles
-          ? (
-            <ButtonAddressProfile
-              address={address}
-              events={events}
-              inCommonEventIds={inCommonEventIds}
-              inCommonAddresses={inCommonAddresses}
-              showEns={true}
-              ens={ens}
-            />
-          )
-          : <LinkToScan address={address} showEns={true} ens={ens} />
-        }
+        <ButtonAddressProfile
+          address={address}
+          events={events}
+          inCommonEventIds={inCommonEventIds}
+          inCommonAddresses={inCommonAddresses}
+          showEns={true}
+          ens={ens}
+        />
       </div>
-      {linkToScan && settings.openProfiles && (
+      {linkToScan && (
         <LinkToScan
           address={address}
           className="owner-scan"
