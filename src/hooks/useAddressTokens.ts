@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { scanAddress } from 'loaders/poap'
+import { fetchCollectorPOAPs } from 'loaders/collector'
 import { POAP } from 'models/poap'
 
 function useAddressTokens(address: string): {
@@ -16,7 +16,7 @@ function useAddressTokens(address: string): {
     () => {
       const controller = new AbortController()
       setLoading(true)
-      scanAddress(address, controller.signal).then(
+      fetchCollectorPOAPs(address, controller.signal).then(
         (foundPOAPs) => {
           setLoading(false)
           setPOAPs(foundPOAPs)

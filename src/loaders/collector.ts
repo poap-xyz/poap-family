@@ -1,8 +1,9 @@
 import { IGNORED_OWNERS } from 'models/address'
 import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'models/collector'
 import { DEFAULT_DROP_LIMIT } from 'models/event'
-import { Drop } from 'models/drop'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
+import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
+import { Drop } from 'models/drop'
 import { queryAllCompass } from 'loaders/compass'
 
 export async function fetchDropCollectors(
@@ -94,5 +95,42 @@ export async function fetchCollectorDrops(
     'offset',
     limit,
     abortSignal,
+  )
+}
+
+export async function fetchCollectorPOAPs(
+  address: string,
+  abortSignal?: AbortSignal,
+  limit = Math.min(DEFAULT_POAP_LIMIT, DEFAULT_COMPASS_LIMIT),
+): Promise<POAP[]> {
+  return await queryAllCompass(
+    'poaps',
+    parsePOAP,
+    `
+      query FetchCollectorPOAPs(
+        $address: String!
+        $offset: Int!
+        $limit: Int!
+      ) {
+        poaps(
+          where: {
+            collector_address: { _eq: $address }
+          }
+          offset: $offset
+          limit: $limit
+        ) {
+          id
+          collector_address
+          minted_on
+        }
+      }
+    `,
+    {
+      address: address.toLowerCase(),
+      limit,
+    },
+    'offset',
+    limit,
+    abortSignal
   )
 }

@@ -12,6 +12,8 @@ export const POAP_COLLECTIONS_URL = 'https://collections.poap.xyz'
 export const POAP_FETCH_RETRIES = 5
 export const POAP_PROFILE_LIMIT = 20
 
+export const DEFAULT_POAP_LIMIT = 100
+
 export interface POAP {
   id: string
   owner: string
@@ -49,7 +51,7 @@ export function parsePOAP(token: unknown): POAP {
     throw new Error('Invalid POAP ID')
   }
 
-  let owner: string | undefined
+  let collectorAddress: string | undefined
   if (
     'owner' in token &&
     token.owner != null
@@ -60,32 +62,51 @@ export function parsePOAP(token: unknown): POAP {
       token.owner.id != null &&
       typeof token.owner.id === 'string'
     ) {
-      owner = token.owner.id
+      collectorAddress = token.owner.id
     } else if (typeof token.owner === 'string') {
-      owner = token.owner
+      collectorAddress = token.owner
     }
+  } else if (
+    'collector_address' in token &&
+    token.collector_address != null &&
+    typeof token.collector_address === 'string'
+  ) {
+    collectorAddress = token.collector_address
   }
-  if (owner == null) {
-    throw new Error('Invalid POAP owner')
+  if (collectorAddress == null) {
+    throw new Error('Invalid POAP collector')
+  }
+
+  let mintedOn: Date | undefined
+  if (
+    'created' in token &&
+    token.created != null && (
+      typeof token.created === 'number' ||
+      typeof token.created === 'string'
+    )
+  ) {
+    mintedOn = new Date(token.created)
+  } else if (
+    'minted_on' in token &&
+    token.minted_on != null &&
+    typeof token.minted_on === 'number'
+  ) {
+    mintedOn = new Date(token.minted_on * 1000)
+  }
+
+  let drop: Drop | undefined
+  if (
+    'event' in token &&
+    token.event != null
+  ) {
+    drop = parseDrop(token.event, /*includeDescription*/false)
   }
 
   return {
     id: tokenId,
-    owner,
-    created:
-      'created' in token &&
-      token.created != null &&
-      (
-        typeof token.created === 'number' ||
-        typeof token.created === 'string'
-      )
-        ? new Date(token.created)
-        : undefined,
-    event:
-      'event' in token &&
-      token.event != null
-        ? parseDrop(token.event, /*includeDescription*/false)
-        : undefined,
+    owner: collectorAddress,
+    created: mintedOn,
+    event: drop,
   }
 }
 
