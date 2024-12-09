@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
-import { fetchEvent as loadEvent } from 'loaders/event'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
+import { fetchDrop } from 'loaders/drop'
 
 function useEvent(eventId?: number): {
   loadingEvent: boolean
@@ -24,7 +24,7 @@ function useEvent(eventId?: number): {
         setLoading(true)
         setError(null)
         setEvent(null)
-        loadEvent(
+        fetchDrop(
           newEventId ?? eventId,
           /*includeDescription*/false,
           controller.signal
