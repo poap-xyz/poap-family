@@ -239,34 +239,30 @@ function Event() {
                 />
               </Card>
             )}
-            {settings.showCollections && (
-              <>
-                {loadingCollections && collectionsError == null && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <Loading />
-                  </Card>
-                )}
-                {!loadingCollections && collectionsError != null && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <ErrorMessage error={collectionsError} />
-                  </Card>
-                )}
-                {(
-                  !loadingCollections &&
-                  collectionsError == null &&
-                  collections != null
-                ) && (
-                  <CollectionSet
-                    showEmpty={metrics && metrics.collectionsIncludes > 0}
-                    emptyMessage={`No collections found that includes ${event.name}`}
-                    collectionMap={{
-                      [`${collections.length} collections`]: collections,
-                    }}
-                  />
-                )}
-              </>
+            {loadingCollections && collectionsError == null && (
+              <Card>
+                <h4>Collections</h4>
+                <Loading />
+              </Card>
+            )}
+            {!loadingCollections && collectionsError != null && (
+              <Card>
+                <h4>Collections</h4>
+                <ErrorMessage error={collectionsError} />
+              </Card>
+            )}
+            {(
+              !loadingCollections &&
+              collectionsError == null &&
+              collections != null
+            ) && (
+              <CollectionSet
+                showEmpty={metrics && metrics.collectionsIncludes > 0}
+                emptyMessage={`No collections found that includes ${event.name}`}
+                collectionMap={{
+                  [`${collections.length} collections`]: collections,
+                }}
+              />
             )}
             {completedEventInCommon && loadedOwners === 0 && (
               <Card>
