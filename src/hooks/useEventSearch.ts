@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { SEARCH_LIMIT } from 'models/event'
 import { Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { searchEvents as loadSearchEvents } from 'loaders/event'
+import { searchDrops } from 'loaders/drop'
 
 function useEventSearch(query?: string, page: number = 1): {
   loadingEventSearch: boolean
@@ -30,7 +30,7 @@ function useEventSearch(query?: string, page: number = 1): {
         if (total == null || offset <= total) {
           controller = new AbortController()
           setLoading(true)
-          loadSearchEvents(
+          searchDrops(
             newQuery ?? query,
             controller.signal,
             offset,
