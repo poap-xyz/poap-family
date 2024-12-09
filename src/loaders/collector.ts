@@ -1,5 +1,7 @@
 import { IGNORED_OWNERS } from 'models/address'
-import { DEFAULT_COLLECTOR_LIMIT, parseCollector } from 'models/collector'
+import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'models/collector'
+import { DEFAULT_DROP_LIMIT } from 'models/event'
+import { Drop } from 'models/drop'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { queryAllCompass } from 'loaders/compass'
 
@@ -12,7 +14,7 @@ export async function fetchDropCollectors(
     `poaps`,
     parseCollector,
     `
-      query FetchCollectors(
+      query FetchDropCollectors(
         $dropIds: [bigint!]
         $offset: Int!
         $limit: Int!
@@ -39,5 +41,57 @@ export async function fetchDropCollectors(
     'offset',
     limit,
     abortSignal
+  )
+}
+
+export async function fetchCollectorDrops(
+  address: string,
+  abortSignal?: AbortSignal,
+  limit = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
+): Promise<Drop[]> {
+  return await queryAllCompass(
+    `poaps`,
+    (data: unknown) => parseColectorDrop(data, /*includeDescription*/false),
+    `
+      query FetchCollectorDrops(
+        $address: String!
+        $offset: Int!
+        $limit: Int!
+      ) {
+        poaps(
+          where: {
+            collector_address: { _eq: $address }
+          }
+          offset: $offset
+          limit: $limit
+        ) {
+          drop {
+            id
+            name
+            description
+            image_url
+            city
+            country
+            start_date
+            end_date
+            expiry_date
+            drop_image {
+              gateways {
+                type
+                url
+              }
+            }
+          }
+        }
+      }
+
+    `,
+    {
+      address: address.toLowerCase(),
+      limit,
+    },
+    'offset',
+    limit,
+    abortSignal,
   )
 }
