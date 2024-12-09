@@ -1,4 +1,4 @@
-import { getAddress } from '@ethersproject/address'
+import { getAddress as ethereumGetAddress } from '@ethersproject/address'
 
 export function normalizeAddress(address: string): string | null {
   try {
@@ -6,4 +6,8 @@ export function normalizeAddress(address: string): string | null {
   } catch {
     return null
   }
+}
+
+export function getAddress(address: string): string {
+  return ethereumGetAddress(address)
 }
