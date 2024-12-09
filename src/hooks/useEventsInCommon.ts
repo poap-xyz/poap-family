@@ -43,7 +43,6 @@ function useEventsInCommon(
     () => {
       for (const eventId of eventIds) {
         if (eventsOwners[eventId] == null) {
-          console.error('Missing event owners', { eventId })
           continue
         }
         if (
