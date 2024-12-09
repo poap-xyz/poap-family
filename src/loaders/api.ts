@@ -510,13 +510,10 @@ export async function getInCommonEventsWithEvents(
             totalEvents
           )
         } else {
-          resolved = true
-          inCommonStream.close()
-          reject(new Error(
+          console.info(
             `Received empty list of events ` +
             `when streaming event '${eventId}' in common`
-          ))
-          return
+          )
         }
       }
       if (
