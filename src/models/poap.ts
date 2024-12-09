@@ -104,6 +104,11 @@ export function parsePOAP(token: unknown): POAP {
     token.event != null
   ) {
     drop = parseDrop(token.event, /*includeDescription*/false)
+  } else if (
+    'drop' in token &&
+    token.drop != null
+  ) {
+    drop = parseDrop(token.drop, /*includeDescription*/false)
   }
 
   return {
