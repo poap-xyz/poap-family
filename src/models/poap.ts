@@ -1,5 +1,6 @@
 import { Drop, parseDrop } from 'models/drop'
 import { getRandomInt } from 'utils/number'
+import { getAddress } from 'utils/ethereum'
 
 export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
 export const POAP_API_KEY = process.env.REACT_APP_POAP_API_KEY
@@ -17,7 +18,7 @@ export const DEFAULT_POAP_LIMIT = 100
 export interface POAP {
   id: string
   owner: string
-  created?: Date
+  created: Date
   event?: Drop
 }
 
@@ -62,16 +63,16 @@ export function parsePOAP(token: unknown): POAP {
       token.owner.id != null &&
       typeof token.owner.id === 'string'
     ) {
-      collectorAddress = token.owner.id
+      collectorAddress = getAddress(token.owner.id)
     } else if (typeof token.owner === 'string') {
-      collectorAddress = token.owner
+      collectorAddress = getAddress(token.owner)
     }
   } else if (
     'collector_address' in token &&
     token.collector_address != null &&
     typeof token.collector_address === 'string'
   ) {
-    collectorAddress = token.collector_address
+    collectorAddress = getAddress(token.collector_address)
   }
   if (collectorAddress == null) {
     throw new Error('Invalid POAP collector')
@@ -93,6 +94,9 @@ export function parsePOAP(token: unknown): POAP {
   ) {
     mintedOn = new Date(token.minted_on * 1000)
   }
+  if (mintedOn == null) {
+    throw new Error('Invalid POAP minted date')
+  }
 
   let drop: Drop | undefined
   if (
@@ -100,6 +104,11 @@ export function parsePOAP(token: unknown): POAP {
     token.event != null
   ) {
     drop = parseDrop(token.event, /*includeDescription*/false)
+  } else if (
+    'drop' in token &&
+    token.drop != null
+  ) {
+    drop = parseDrop(token.drop, /*includeDescription*/false)
   }
 
   return {

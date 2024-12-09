@@ -122,6 +122,23 @@ export async function fetchCollectorPOAPs(
           id
           collector_address
           minted_on
+          drop {
+            id
+            name
+            description
+            image_url
+            city
+            country
+            start_date
+            end_date
+            expiry_date
+            drop_image {
+              gateways {
+                type
+                url
+              }
+            }
+          }
         }
       }
     `,
