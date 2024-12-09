@@ -1,5 +1,4 @@
-import { createRef, useEffect, useMemo, useState } from 'react'
-import { useSettings } from 'stores/settings'
+import { useMemo, useState } from 'react'
 import { Drop } from 'models/drop'
 import { InCommon } from 'models/api'
 import {
@@ -32,9 +31,7 @@ function EventsCompare({
   onClose: (eventId: number) => void
   eventsEnsNames?: Record<number, EnsByAddress>
 }) {
-  const { settings } = useSettings()
   const [highlighted, setHighlighted] = useState<string | null>(null)
-  const [liRefs, setLiRefs] = useState<Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>>>({})
 
   const adressesColors = useMemo(
     () => eventIds.length < 2
@@ -53,54 +50,7 @@ function EventsCompare({
     [eventIds, inCommon]
   )
 
-  useEffect(
-    () => {
-      if (eventIds.length > 0) {
-        const refs: Record<number, Record<string, ReturnType<typeof createRef<HTMLLIElement>>>> = {}
-        for (const eventId of eventIds) {
-          if (inCommon[eventId].length > 0) {
-            refs[eventId] = {}
-            for (const owner of inCommon[eventId]) {
-              refs[eventId][owner] = createRef<HTMLLIElement>()
-            }
-          }
-        }
-        if (Object.keys(refs).length > 0) {
-          setLiRefs(refs)
-        }
-      }
-    },
-    [eventIds, inCommon]
-  )
-
   function onOwnerEnter(ownerEventId: number, owner: string): void {
-    if (
-      owner in adressesColors &&
-      settings &&
-      settings.autoScrollCollectors
-    ) {
-      for (const eventId of eventIds) {
-        if (eventId !== ownerEventId &&
-          eventId && liRefs &&
-          owner in liRefs[eventId] &&
-          liRefs[eventId][owner].current) {
-          liRefs[eventId][owner].current.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          })
-        }
-      }
-      if (
-        ownerEventId in liRefs &&
-        owner in liRefs[ownerEventId] &&
-        liRefs[ownerEventId][owner].current
-      ) {
-        liRefs[ownerEventId][owner].current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-      }
-    }
     setHighlighted((current) => (
       current !== owner &&
         owner in adressesColors
@@ -154,11 +104,6 @@ function EventsCompare({
                   return (
                     <li
                       key={owner}
-                      ref={
-                        eventId in liRefs &&
-                        owner in liRefs[eventId]
-                          ? liRefs[eventId][owner]
-                          : undefined}
                       style={{
                         backgroundColor:
                           owner in adressesColors &&

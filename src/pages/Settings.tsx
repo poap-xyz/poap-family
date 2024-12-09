@@ -23,9 +23,6 @@ function Settings() {
   function handleShowLastEvents(checked: boolean): void {
     setSetting('showLastEvents', checked)
   }
-  function handleAutoScrollCollectors(checked: boolean): void {
-    setSetting('autoScrollCollectors', checked)
-  }
   function handleOpenProfiles(checked: boolean): void {
     setSetting('openProfiles', checked)
   }
@@ -44,16 +41,6 @@ function Settings() {
               id="showLastEvents"
               checked={settings.showLastEvents}
               onChange={handleShowLastEvents}
-            />
-          </div>
-        </div>
-        <div className="setting">
-          <label className="label">Auto scroll collectors</label>
-          <div className="input">
-            <Switch
-              id="autoScrollCollectors"
-              checked={settings.autoScrollCollectors}
-              onChange={handleAutoScrollCollectors}
             />
           </div>
         </div>
