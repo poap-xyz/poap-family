@@ -162,25 +162,25 @@ export async function fetchDrop(
       `drops`,
       (data: unknown): Drop => parseDrop(data, includeDescription),
       `
-          query FetchDrop($dropId: Int!) {
-            drops(limit: 1, where: { id: { _eq: $dropId } }) {
-              id
-              name
-              description
-              image_url
-              city
-              country
-              start_date
-              end_date
-              expiry_date
-              drop_image {
-                gateways {
-                  type
-                  url
-                }
+        query FetchDrop($dropId: Int!) {
+          drops(limit: 1, where: { id: { _eq: $dropId } }) {
+            id
+            name
+            description
+            image_url
+            city
+            country
+            start_date
+            end_date
+            expiry_date
+            drop_image {
+              gateways {
+                type
+                url
               }
             }
           }
+        }
       `,
       {
         dropId,
