@@ -3,7 +3,6 @@ export const DEFAULT_SETTINGS = {
   feedbackShown: false,
 
   showLastEvents: true,
-  autoScrollCollectors: true,
   openProfiles: true,
   showCollections: true,
 }
@@ -12,7 +11,6 @@ export interface Settings {
   welcomeShown: boolean
   feedbackShown: boolean
   showLastEvents: boolean
-  autoScrollCollectors: boolean
   openProfiles: boolean
   showCollections: boolean
 }
