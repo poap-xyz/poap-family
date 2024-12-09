@@ -3,6 +3,7 @@ import { Drop } from 'models/drop'
 
 export const SEARCH_LIMIT = 10
 
+export const DEFAULT_DROP_LIMIT = 100
 export const DEFAULT_SEARCH_LIMIT = 10
 
 export function parseEventIds(rawIds: string): number[] {
