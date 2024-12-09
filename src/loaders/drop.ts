@@ -1,7 +1,7 @@
-import { DEFAULT_COMPASS_LIMIT } from '../models/compass'
-import { DEFAULT_SEARCH_LIMIT } from '../models/event'
-import { Drop, parseDrop } from '../models/drop'
-import { queryAggregateCountCompass, queryManyCompass } from './compass'
+import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
+import { DEFAULT_SEARCH_LIMIT } from 'models/event'
+import { Drop, parseDrop } from 'models/drop'
+import { queryAggregateCountCompass, queryManyCompass } from 'loaders/compass'
 
 export async function searchDrops(
   query: string,
