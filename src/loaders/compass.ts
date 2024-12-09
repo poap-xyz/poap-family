@@ -1,7 +1,11 @@
 import { AbortedError, HttpError } from 'models/error'
 import { COMPASS_KEY, COMPASS_URL } from 'models/compass'
 
-export async function requestCompass(query: string, variables: Record<string, unknown>, abortSignal: AbortSignal): Promise<object> {
+export async function requestCompass(
+  query: string,
+  variables: Record<string, unknown>,
+  abortSignal?: AbortSignal,
+): Promise<object> {
   let response: Response
   try {
     response = await fetch(COMPASS_URL, {
@@ -103,7 +107,7 @@ export async function queryCompass<T>(
   Model: (data: unknown) => T,
   query: string,
   variables: Record<string, unknown>,
-  abortSignal: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<T> {
   const results = await requestCompass(query, variables, abortSignal)
 
@@ -125,7 +129,7 @@ export async function queryFirstCompass<T>(
   query: string,
   variables: Record<string, unknown>,
   defaultValue: T,
-  abortSignal: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<T> {
   const FirstModel = (data: unknown): T =>{
     if (data == null || !Array.isArray(data)) {
@@ -155,7 +159,7 @@ export async function queryManyCompass<T>(
   Model: (data: unknown) => T,
   query: string,
   variables: Record<string, unknown>,
-  abortSignal: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<T[]> {
   const ManyModel = (data: unknown): T[] => {
     if (data == null || !Array.isArray(data)) {
@@ -178,7 +182,7 @@ export async function queryAllCompass<T>(
   offsetKey: string,
   limit: number,
   total: number,
-  abortSignal: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<T[]> {
   let results: T[] = []
   let pageCount = 0
@@ -219,7 +223,7 @@ export async function queryAggregateCountCompass(
   name: string,
   query: string,
   variables: Record<string, unknown>,
-  abortSignal: AbortSignal
+  abortSignal?: AbortSignal
 ): Promise<number> {
   const AggregateCountModel = (data: unknown): number => {
     if (
@@ -248,7 +252,10 @@ export async function queryAggregateCountCompass(
   )
 }
 
-export async function countCompass(target: string, abortSignal: AbortSignal): Promise<number> {
+export async function countCompass(
+  target: string,
+  abortSignal?: AbortSignal,
+): Promise<number> {
   return await queryAggregateCountCompass(
     `${target}_aggregate`,
     `
