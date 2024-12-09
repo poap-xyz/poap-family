@@ -4,7 +4,6 @@ export const DEFAULT_SETTINGS = {
 
   showLastEvents: true,
   openProfiles: true,
-  showCollections: true,
 }
 
 export interface Settings {
@@ -12,5 +11,4 @@ export interface Settings {
   feedbackShown: boolean
   showLastEvents: boolean
   openProfiles: boolean
-  showCollections: boolean
 }

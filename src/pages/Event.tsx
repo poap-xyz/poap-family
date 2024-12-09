@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
-import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { parseDropData } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
@@ -27,7 +26,6 @@ import 'styles/event.css'
 function Event() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { settings } = useSettings()
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
   const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
@@ -239,34 +237,30 @@ function Event() {
                 />
               </Card>
             )}
-            {settings.showCollections && (
-              <>
-                {loadingCollections && collectionsError == null && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <Loading />
-                  </Card>
-                )}
-                {!loadingCollections && collectionsError != null && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <ErrorMessage error={collectionsError} />
-                  </Card>
-                )}
-                {(
-                  !loadingCollections &&
-                  collectionsError == null &&
-                  collections != null
-                ) && (
-                  <CollectionSet
-                    showEmpty={metrics && metrics.collectionsIncludes > 0}
-                    emptyMessage={`No collections found that includes ${event.name}`}
-                    collectionMap={{
-                      [`${collections.length} collections`]: collections,
-                    }}
-                  />
-                )}
-              </>
+            {loadingCollections && collectionsError == null && (
+              <Card>
+                <h4>Collections</h4>
+                <Loading />
+              </Card>
+            )}
+            {!loadingCollections && collectionsError != null && (
+              <Card>
+                <h4>Collections</h4>
+                <ErrorMessage error={collectionsError} />
+              </Card>
+            )}
+            {(
+              !loadingCollections &&
+              collectionsError == null &&
+              collections != null
+            ) && (
+              <CollectionSet
+                showEmpty={metrics && metrics.collectionsIncludes > 0}
+                emptyMessage={`No collections found that includes ${event.name}`}
+                collectionMap={{
+                  [`${collections.length} collections`]: collections,
+                }}
+              />
             )}
             {completedEventInCommon && loadedOwners === 0 && (
               <Card>

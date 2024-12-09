@@ -26,9 +26,6 @@ function Settings() {
   function handleOpenProfiles(checked: boolean): void {
     setSetting('openProfiles', checked)
   }
-  function handleShowCollections(checked: boolean): void {
-    setSetting('showCollections', checked)
-  }
 
   return (
     <CenterPage>
@@ -51,16 +48,6 @@ function Settings() {
               id="openProfiles"
               checked={settings.openProfiles}
               onChange={handleOpenProfiles}
-            />
-          </div>
-        </div>
-        <div className="setting">
-          <label className="label">Show collections</label>
-          <div className="input">
-            <Switch
-              id="showCollections"
-              checked={settings.showCollections}
-              onChange={handleShowCollections}
             />
           </div>
         </div>
