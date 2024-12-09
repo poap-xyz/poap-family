@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
-import { useSettings } from 'stores/settings'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { parseDropData } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
@@ -27,7 +26,6 @@ import 'styles/event.css'
 function Event() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { settings } = useSettings()
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
   const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
