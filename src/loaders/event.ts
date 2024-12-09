@@ -1,10 +1,9 @@
-import { filterInvalidOwners } from 'models/address'
 import { parseEventIds } from 'models/event'
 import { Drop } from 'models/drop'
 import { HttpError } from 'models/error'
 import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
-import { fetchPOAPs } from 'loaders/poap'
 import { fetchDrop, fetchDropsOrErrors } from 'loaders/drop'
+import { fetchDropCollectors } from 'loaders/collector'
 
 export async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force') === 'true'
@@ -38,22 +37,20 @@ export async function eventLoader({ params, request }) {
     })
   }
 
-  const [tokensSettled, metricsSettled] = await Promise.allSettled([
-    fetchPOAPs(params.eventId),
+  const [collectorsSettled, metricsSettled] = await Promise.allSettled([
+    fetchDropCollectors([params.eventId]),
     getEventMetrics(params.eventId, null, /*refresh*/force),
   ])
 
-  if (tokensSettled.status === 'rejected') {
+  if (collectorsSettled.status === 'rejected') {
     throw new Response('', {
       status: 503,
-      statusText: 'Drop could not be fetch from POAP API',
+      statusText:
+        `Drop collectors could not be fetched: ${collectorsSettled.reason}`,
     })
   }
 
-  const tokens = tokensSettled.value
-  const owners = filterInvalidOwners(
-    tokens.map((token) => token.owner)
-  )
+  const owners = collectorsSettled.value
 
   return {
     event,
