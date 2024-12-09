@@ -23,9 +23,6 @@ function Settings() {
   function handleShowLastEvents(checked: boolean): void {
     setSetting('showLastEvents', checked)
   }
-  function handleOpenProfiles(checked: boolean): void {
-    setSetting('openProfiles', checked)
-  }
 
   return (
     <CenterPage>
@@ -38,16 +35,6 @@ function Settings() {
               id="showLastEvents"
               checked={settings.showLastEvents}
               onChange={handleShowLastEvents}
-            />
-          </div>
-        </div>
-        <div className="setting">
-          <label className="label">Open profiles</label>
-          <div className="input">
-            <Switch
-              id="openProfiles"
-              checked={settings.openProfiles}
-              onChange={handleOpenProfiles}
             />
           </div>
         </div>
