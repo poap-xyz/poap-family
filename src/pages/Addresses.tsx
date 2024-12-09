@@ -9,9 +9,8 @@ import { InCommon } from 'models/api'
 import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
-import { fetchPOAPs, scanAddress } from 'loaders/poap'
 import { getEventsOwners } from 'loaders/api'
-import { uniq } from 'utils/array'
+import { fetchCollectorDrops, fetchDropCollectors } from 'loaders/collector'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
 import CenterPage from 'components/CenterPage'
@@ -188,19 +187,11 @@ function Addresses() {
     async (address: string, controller: AbortController) => {
       enableLoadingByAddress(address)
       try {
-        const tokens = await scanAddress(address, controller.signal)
+        const addressDrops = await fetchCollectorDrops(address, controller.signal)
         incrLoadedCount()
-        setPower(address, tokens.length)
-        for (const token of tokens) {
-          const event = token.event
-          if (event == null) {
-            setErrorByAddress(
-              address,
-              new Error(`Could not find POAP ${token.id}`)
-            )
-            continue
-          }
-          updateAddressEvent(address, event)
+        setPower(address, addressDrops.length)
+        for (const addressDrop of addressDrops) {
+          updateAddressEvent(address, addressDrop)
         }
         disableLoadingByAddress(address)
       } catch (err: unknown) {
@@ -329,29 +320,35 @@ function Addresses() {
       } else if (searchEvents.length > 0) {
         setLoadingEventsOwners(true)
         if (force) {
-          let promise = new Promise((r) => r(undefined))
-          for (const searchEventId of searchEvents) {
-            const controller = new AbortController()
-            promise = promise.then(() => {
-              fetchPOAPs(searchEventId, controller.signal).then(
-                (tokens) => {
-                  setLoadingEventsOwners(false)
-                  const owners = uniq(tokens.map((token) => token.owner))
-                  const addresses = owners.map((owner) => parseAddress(owner))
-                  updateAddresses(addresses)
-                },
-                (err) => {
-                  setLoadingEventsOwners(false)
-                  addError(
-                    new Error(`Cannot load drop ${searchEventId}`, {
-                      cause: err,
-                    })
-                  )
-                }
+          const controller = new AbortController()
+          fetchDropCollectors(searchEvents, controller.signal).then(
+            (collectors) => {
+              let addresses: ParsedAddress[] | undefined
+              try {
+                addresses = collectors.map((owner) => parseAddress(owner))
+              } catch (err: unknown) {
+                setLoadingEventsOwners(false)
+                addError(
+                  new Error('Cannot parse collectors', {
+                    cause: err,
+                  })
+                )
+                return
+              }
+
+              setLoadingEventsOwners(false)
+              updateAddresses(addresses)
+            },
+            (err) => {
+              setLoadingEventsOwners(false)
+              addError(
+                new Error(`Cannot load drops ${searchEvents.join(', ')}`, {
+                  cause: err,
+                })
               )
-            })
-            controllers.push(controller)
-          }
+            }
+          )
+          controllers.push(controller)
         } else {
           const controller = new AbortController()
           getEventsOwners(searchEvents, controller.signal).then(

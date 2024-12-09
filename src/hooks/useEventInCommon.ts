@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
-import { POAP } from 'models/poap'
 import { CountProgress, DownloadProgress } from 'models/http'
 import { InCommon } from 'models/api'
 import { filterInCommon } from 'models/in-common'
 import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
-import { scanAddress } from 'loaders/poap'
+import { fetchCollectorDrops } from 'loaders/collector'
 
 function useEventInCommon(
   eventId: number,
@@ -82,38 +81,34 @@ function useEventInCommon(
 
   const fetchAddressInCommon = useCallback(
     async (address: string, abortSignal: AbortSignal) => {
-      let tokens: POAP[]
+      let addressDrops: Drop[]
       try {
-        tokens = await scanAddress(address, abortSignal)
+        addressDrops = await fetchCollectorDrops(address, abortSignal)
       } catch (err: unknown) {
         addError(address, err)
         return
       }
-      for (const token of tokens) {
-        const event = token.event
-        if (event != null) {
-          const eventId = event.id
-          setInCommon((prevInCommon) => {
-            if (prevInCommon == null) {
-              return {
-                [eventId]: [address],
-              }
+      for (const addressDrop of addressDrops) {
+        const addressDropId = addressDrop.id
+        setInCommon((prevInCommon) => {
+          if (prevInCommon == null) {
+            return {
+              [addressDropId]: [address],
             }
-            if (eventId in prevInCommon) {
-              if (!prevInCommon[eventId].includes(address)) {
-                prevInCommon[eventId].push(address)
-              }
-            } else {
-              prevInCommon[eventId] = [address]
+          }
+          if (addressDropId in prevInCommon) {
+            if (!prevInCommon[addressDropId].includes(address)) {
+              prevInCommon[addressDropId].push(address)
             }
-            return prevInCommon
-          })
-          setEvents((prevEvents) => ({ ...prevEvents, [eventId]: event }))
-        } else {
-          const error = new Error(`Could not find POAP ${token.id}`)
-          addError(address, error)
-          return
-        }
+          } else {
+            prevInCommon[addressDropId] = [address]
+          }
+          return prevInCommon
+        })
+        setEvents((prevEvents) => ({
+          ...prevEvents,
+          [addressDropId]: addressDrop,
+        }))
       }
       setLoadedOwners((prevLoadedCount) => prevLoadedCount + 1)
     },

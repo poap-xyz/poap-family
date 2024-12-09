@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
 import { AbortedError } from 'models/error'
 import { EventAndOwners, InCommon } from 'models/api'
-import { fetchPOAPs } from 'loaders/poap'
+import { fetchDropCollectors } from 'loaders/collector'
 import {
   getEventAndOwners,
   getEventMetrics,
@@ -156,11 +156,11 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     async (eventId: number, abortSignal: AbortSignal) => {
       removeError(eventId)
       addLoading(eventId)
-      let eventOwnerTokensResult
-      let eventMetricsResult
+      let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropCollectors>>>
+      let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof getEventMetrics>>>
       try {
-        [eventOwnerTokensResult, eventMetricsResult] = await Promise.allSettled([
-          fetchPOAPs(eventId, abortSignal),
+        [eventCollectorsResult, eventMetricsResult] = await Promise.allSettled([
+          fetchDropCollectors([eventId], abortSignal),
           getEventMetrics(eventId, abortSignal, force),
         ])
       } catch (err: unknown) {
@@ -176,18 +176,18 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
         return
       }
       removeLoading(eventId)
-      if (eventOwnerTokensResult.status === 'fulfilled') {
+      if (eventCollectorsResult.status === 'fulfilled') {
         updateEventOwners(
           eventId,
-          eventOwnerTokensResult.value.map((token) => token.owner)
+          eventCollectorsResult.value
         )
       } else {
-        if (!(eventOwnerTokensResult.reason instanceof AbortedError)) {
-          console.error(eventOwnerTokensResult.reason)
+        if (!(eventCollectorsResult.reason instanceof AbortedError)) {
+          console.error(eventCollectorsResult.reason)
           addError(
             eventId,
-            new Error(`Tokens for drop '${eventId}' failed to fetch`, {
-              cause: eventOwnerTokensResult.reason,
+            new Error(`Collectors for drop '${eventId}' failed to fetch`, {
+              cause: eventCollectorsResult.reason,
             })
           )
         }
