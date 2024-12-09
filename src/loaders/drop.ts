@@ -140,11 +140,11 @@ export async function fetchDropsOrErrors(
           eventsMap[id] = drop
         }
       }
-    } catch (error: unknown) {
+    } catch (err: unknown) {
       for (const id of ids) {
-        errorsMap[id] = error instanceof Error
-          ? error
-          : new Error(`Failed to fetch drop '${id}'`, { cause: error })
+        errorsMap[id] = err instanceof Error
+          ? err
+          : new Error(`Failed to fetch drop '${id}'`, { cause: err })
       }
     }
   }
@@ -188,11 +188,11 @@ export async function fetchDrop(
       undefined,
       abortSignal,
     )
-  } catch (error: unknown) {
-    if (error instanceof HttpError && error.status === 404) {
+  } catch (err: unknown) {
+    if (err instanceof HttpError && err.status === 404) {
       return null
     }
 
-    throw error
+    throw err
   }
 }
