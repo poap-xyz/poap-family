@@ -11,7 +11,6 @@ import Addresses from 'pages/Addresses'
 import Event from 'pages/Event'
 import Events from 'pages/Events'
 import Last from 'pages/Last'
-import Settings from 'pages/Settings'
 import FeedbackList from 'pages/FeedbackList'
 import EventsPageError from 'components/EventsPageError'
 import PageError from 'components/PageError'
@@ -57,10 +56,6 @@ export default function App() {
                       {
                         path: '/last',
                         element: <Last />,
-                      },
-                      {
-                        path: '/settings',
-                        element: <Settings />,
                       },
                       {
                         element: <Admin />,

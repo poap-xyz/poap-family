@@ -40,8 +40,6 @@ function Home() {
       <div className="footer">
         <Link className="link" to="/last">last</Link>
         <span className="dot">·</span>
-        <Link className="link" to="/settings">settings</Link>
-        <span className="dot">·</span>
         <ExternalLink
           className="link"
           href="https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc"
