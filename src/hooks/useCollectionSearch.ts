@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { useSettings } from 'stores/settings'
 import { SEARCH_LIMIT } from 'models/event'
 import { searchCollections as loadSearchCollections } from 'loaders/collection'
 import { AbortedError } from 'models/error'
@@ -13,7 +12,6 @@ function useCollectionSearch(query?: string, page: number = 1): {
   searchCollections: (newQuery?: string | null, newPage?: number) => () => void
   retryCollectionSearch: () => void
 } {
-  const { settings } = useSettings()
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [total, setTotal] = useState<number | null>(null)
@@ -29,7 +27,7 @@ function useCollectionSearch(query?: string, page: number = 1): {
         setTotal(null)
         setResultCollections([])
         const offset = ((newPage ?? page) - 1) * SEARCH_LIMIT
-        if (settings.showCollections && (total == null || offset <= total)) {
+        if (total == null || offset <= total) {
           controller = new AbortController()
           setLoading(true)
           loadSearchCollections(
@@ -74,7 +72,7 @@ function useCollectionSearch(query?: string, page: number = 1): {
         setResultCollections([])
       }
     },
-    [query, page, total, settings.showCollections]
+    [query, page, total]
   )
 
   function retryCollectionSearch(): void {

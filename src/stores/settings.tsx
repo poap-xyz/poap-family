@@ -22,14 +22,16 @@ export const useSettings = () => useContext(SettingsContext)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
+  const [loaded, setLoaded] = useState<boolean>(false)
 
   useEffect(
     () => {
-      if (settings === null) {
+      if (loaded === false) {
         setSettings({ ...DEFAULT_SETTINGS, ...getSettings() })
+        setLoaded(true)
       }
     },
-    [settings]
+    [settings, loaded]
   )
 
   const setSetting = useCallback(
