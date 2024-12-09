@@ -9,9 +9,8 @@ import { InCommon } from 'models/api'
 import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
-import { scanAddress } from 'loaders/poap'
 import { getEventsOwners } from 'loaders/api'
-import { fetchDropCollectors } from 'loaders/collector'
+import { fetchCollectorDrops, fetchDropCollectors } from 'loaders/collector'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
 import CenterPage from 'components/CenterPage'
@@ -188,19 +187,11 @@ function Addresses() {
     async (address: string, controller: AbortController) => {
       enableLoadingByAddress(address)
       try {
-        const tokens = await scanAddress(address, controller.signal)
+        const addressDrops = await fetchCollectorDrops(address, controller.signal)
         incrLoadedCount()
-        setPower(address, tokens.length)
-        for (const token of tokens) {
-          const event = token.event
-          if (event == null) {
-            setErrorByAddress(
-              address,
-              new Error(`Could not find POAP ${token.id}`)
-            )
-            continue
-          }
-          updateAddressEvent(address, event)
+        setPower(address, addressDrops.length)
+        for (const addressDrop of addressDrops) {
+          updateAddressEvent(address, addressDrop)
         }
         disableLoadingByAddress(address)
       } catch (err: unknown) {

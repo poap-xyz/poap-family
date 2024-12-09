@@ -1,3 +1,5 @@
+import { Drop, parseDrop } from 'models/drop'
+
 export const DEFAULT_COLLECTOR_LIMIT = 100
 
 export function parseCollector(data: unknown): string {
@@ -12,4 +14,21 @@ export function parseCollector(data: unknown): string {
   }
 
   return data.collector_address
+}
+
+export function parseColectorDrop(
+  data: unknown,
+  includeDescription: boolean,
+): Drop {
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !('drop' in data) ||
+    !data.drop ||
+    typeof data.drop !== 'object'
+  ) {
+    throw new Error('Invalid collector drop')
+  }
+
+  return parseDrop(data.drop, includeDescription)
 }

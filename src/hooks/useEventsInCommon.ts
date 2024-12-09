@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
-import { scanAddress } from 'loaders/poap'
+import { fetchCollectorDrops } from 'loaders/collector'
 import { AbortedError } from 'models/error'
-import { POAP } from 'models/poap'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
 import { EventsInCommon, InCommon } from 'models/api'
@@ -414,9 +413,9 @@ function useEventsInCommon(
   const processEventAddress = useCallback(
     async (eventId: number, address: string, abortSignal: AbortSignal) => {
       removeError(eventId, address)
-      let ownerTokens: POAP[]
+      let ownerDrops: Drop[]
       try {
-        ownerTokens = await scanAddress(address, abortSignal)
+        ownerDrops = await fetchCollectorDrops(address, abortSignal)
       } catch (err: unknown) {
         if (!(err instanceof AbortedError)) {
           addError(
@@ -429,19 +428,10 @@ function useEventsInCommon(
         }
         return
       }
-      for (const ownerToken of ownerTokens) {
-        if (ownerToken.event) {
-          updateInCommonEvent(eventId, address, ownerToken.event)
-        } else {
-          addError(
-            eventId,
-            address,
-            new Error(`Missing token drop for ${address}`)
-          )
-          return
-        }
-      }
       incrLoadedCount(eventId)
+      for (const ownerDrop of ownerDrops) {
+        updateInCommonEvent(eventId, address, ownerDrop)
+      }
     },
     []
   )
