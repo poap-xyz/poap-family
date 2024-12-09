@@ -29,20 +29,16 @@ function Home() {
         <Welcome showHelp={true} />
       )}
       <Search />
-      {settings.showLastEvents && (
-        <LastEvents
-          page={1}
-          perPage={3}
-          showRefresh={true}
-          showMore={true}
-          maxPages={3}
-          moreQty={10}
-        />
-      )}
+      <LastEvents
+        page={1}
+        perPage={3}
+        showRefresh={true}
+        showMore={true}
+        maxPages={3}
+        moreQty={10}
+      />
       <div className="footer">
         <Link className="link" to="/last">last</Link>
-        <span className="dot">·</span>
-        <Link className="link" to="/settings">settings</Link>
         <span className="dot">·</span>
         <ExternalLink
           className="link"

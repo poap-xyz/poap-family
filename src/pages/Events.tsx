@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
-import { useSettings } from 'stores/settings'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
@@ -38,7 +37,6 @@ function Events() {
   const navigate = useNavigate()
   const { eventIds: rawEventIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
-  const { settings } = useSettings()
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
@@ -503,44 +501,40 @@ function Events() {
         )}
         {completedEventsInCommon && (
           <>
-            {settings.showCollections && (
-              <>
-                {loadingCollections && !collectionsError && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <Loading />
-                  </Card>
+            {loadingCollections && !collectionsError && (
+              <Card>
+                <h4>Collections</h4>
+                <Loading />
+              </Card>
+            )}
+            {!loadingCollections && collectionsError && (
+              <Card>
+                <h4>Collections</h4>
+                <ErrorMessage error={collectionsError} />
+              </Card>
+            )}
+            {(
+              !loadingCollections &&
+              !collectionsError &&
+              collections != null &&
+              relatedCollections != null
+            ) && (
+              <CollectionSet
+                showEmpty={sumCollectionsIncludes() > 0}
+                emptyMessage={(
+                  <>
+                    No collections found that includes exactly all{' '}
+                    {Object.keys(events).length} POAPs,{' '}
+                    <ButtonLink onClick={handleViewAll}>
+                      view related collections
+                    </ButtonLink>.
+                  </>
                 )}
-                {!loadingCollections && collectionsError && (
-                  <Card>
-                    <h4>Collections</h4>
-                    <ErrorMessage error={collectionsError} />
-                  </Card>
-                )}
-                {(
-                  !loadingCollections &&
-                  !collectionsError &&
-                  collections != null &&
-                  relatedCollections != null
-                ) && (
-                  <CollectionSet
-                    showEmpty={sumCollectionsIncludes() > 0}
-                    emptyMessage={(
-                      <>
-                        No collections found that includes exactly all{' '}
-                        {Object.keys(events).length} POAPs,{' '}
-                        <ButtonLink onClick={handleViewAll}>
-                          view related collections
-                        </ButtonLink>.
-                      </>
-                    )}
-                    collectionMap={{
-                      [`${collections.length} collections`]: collections,
-                      [`${relatedCollections.length} related collections`]: all ? relatedCollections : [],
-                    }}
-                  />
-                )}
-              </>
+                collectionMap={{
+                  [`${collections.length} collections`]: collections,
+                  [`${relatedCollections.length} related collections`]: all ? relatedCollections : [],
+                }}
+              />
             )}
             <EventsOwners
               eventsOwners={eventsOwners}

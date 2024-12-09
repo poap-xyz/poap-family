@@ -17,19 +17,19 @@ function CollectionList({
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
 
-  let showCollections = collections.slice()
+  let collectionsToShow = collections.slice()
 
   const total = collections.length
   const limit = COLLECTIONS_LIMIT
   const hasMore = total > limit
 
   if (hasMore && !showAll) {
-    showCollections = showCollections.slice(0, limit)
+    collectionsToShow = collectionsToShow.slice(0, limit)
   }
 
   return (
     <div className="collection-list">
-      {showCollections.map((collection) => (
+      {collectionsToShow.map((collection) => (
         <a
           key={collection.id}
           title={collection.title}
