@@ -3,7 +3,7 @@ import { Drop } from 'models/drop'
 import { HttpError } from 'models/error'
 import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
 import { fetchDrop, fetchDropsOrErrors } from 'loaders/drop'
-import { fetchDropCollectors } from 'loaders/collector'
+import { fetchDropsCollectors } from 'loaders/collector'
 
 export async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force') === 'true'
@@ -38,7 +38,7 @@ export async function eventLoader({ params, request }) {
   }
 
   const [collectorsSettled, metricsSettled] = await Promise.allSettled([
-    fetchDropCollectors([params.eventId]),
+    fetchDropsCollectors([params.eventId]),
     getEventMetrics(params.eventId, null, /*refresh*/force),
   ])
 
