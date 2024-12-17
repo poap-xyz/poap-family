@@ -15,7 +15,7 @@ export async function fetchDropsCollectors(
     `poaps`,
     parseCollector,
     `
-      query FetchDropCollectors(
+      query FetchDropsCollectors(
         $dropIds: [bigint!]
         $offset: Int!
         $limit: Int!
