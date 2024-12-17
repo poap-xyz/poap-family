@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
 import { AbortedError } from 'models/error'
 import { EventAndOwners, InCommon } from 'models/api'
-import { fetchDropCollectors } from 'loaders/collector'
+import { fetchDropsCollectors } from 'loaders/collector'
 import {
   getEventAndOwners,
   getEventMetrics,
@@ -156,11 +156,11 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     async (eventId: number, abortSignal: AbortSignal) => {
       removeError(eventId)
       addLoading(eventId)
-      let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropCollectors>>>
+      let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropsCollectors>>>
       let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof getEventMetrics>>>
       try {
         [eventCollectorsResult, eventMetricsResult] = await Promise.allSettled([
-          fetchDropCollectors([eventId], abortSignal),
+          fetchDropsCollectors([eventId], abortSignal),
           getEventMetrics(eventId, abortSignal, force),
         ])
       } catch (err: unknown) {
