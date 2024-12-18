@@ -844,65 +844,6 @@ export async function getEventsOwners(
   )
 }
 
-export async function getEventMetrics(
-  eventId: number,
-  abortSignal?: AbortSignal,
-  refresh: boolean = false,
-): Promise<DropMetrics | null> {
-  if (!FAMILY_API_KEY) {
-    throw new Error(
-      `Drop ${eventId} metrics could not be fetched, ` +
-      `configure Family API key`
-    )
-  }
-
-  let response: Response
-
-  try {
-    response = await fetch(
-      `${FAMILY_API_URL}/event/${eventId}` +
-      `/metrics${refresh ? '?refresh=true' : ''}`,
-      {
-        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-        headers: {
-          'x-api-key': FAMILY_API_KEY,
-        },
-      }
-    )
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw new AbortedError(
-        `Fetch drop ${eventId} metrics aborted`,
-        { cause: err }
-      )
-    }
-    throw new Error(
-      `Cannot fetch drop ${eventId} metrics: ` +
-      `response was not success (network error)`,
-      { cause: err }
-    )
-  }
-
-  if (response.status === 404) {
-    return null
-  }
-
-  if (response.status !== 200) {
-    throw new HttpError(
-      `Drop ${eventId} failed to fetch metrics (status ${response.status})`,
-      { status: response.status }
-    )
-  }
-
-  const body: unknown = await response.json()
-
-  if (body == null || typeof body !== 'object') {
-    throw new Error(`Malformed drops metrics (type ${typeof body})`)
-  }
-
-  return parseDropMetrics(body)
-}
-
 export async function getEventsMetrics(
   eventIds: number[],
   abortSignal?: AbortSignal,

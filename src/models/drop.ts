@@ -132,7 +132,7 @@ export interface DropMetrics {
   emailClaims: number
   momentsUploaded: number
   collectionsIncludes: number
-  ts: number
+  ts: number | null
 }
 
 export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
@@ -140,30 +140,92 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
     return null
   }
   if (
-    typeof eventMetrics !== 'object' ||
-    !('emailReservations' in eventMetrics) ||
-    typeof eventMetrics.emailReservations !== 'number' ||
-    !('emailClaimsMinted' in eventMetrics) ||
-    typeof eventMetrics.emailClaimsMinted !== 'number' ||
-    !('emailClaims' in eventMetrics) ||
-    typeof eventMetrics.emailClaims !== 'number' ||
-    !('momentsUploaded' in eventMetrics) ||
-    typeof eventMetrics.momentsUploaded !== 'number' ||
-    !('collectionsIncludes' in eventMetrics) ||
-    typeof eventMetrics.collectionsIncludes !== 'number' ||
-    !('ts' in eventMetrics) ||
-    typeof eventMetrics.ts !== 'number'
+    typeof eventMetrics === 'object' &&
+    eventMetrics != null &&
+    'emailReservations' in eventMetrics &&
+    eventMetrics.emailReservations != null &&
+    typeof eventMetrics.emailReservations === 'number' &&
+    'emailClaimsMinted' in eventMetrics &&
+    eventMetrics.emailClaimsMinted != null &&
+    typeof eventMetrics.emailClaimsMinted === 'number' &&
+    'emailClaims' in eventMetrics &&
+    eventMetrics.emailClaims != null &&
+    typeof eventMetrics.emailClaims === 'number' &&
+    'momentsUploaded' in eventMetrics &&
+    eventMetrics.momentsUploaded != null &&
+    typeof eventMetrics.momentsUploaded === 'number' &&
+    'collectionsIncludes' in eventMetrics &&
+    eventMetrics.collectionsIncludes != null &&
+    typeof eventMetrics.collectionsIncludes === 'number' &&
+    'ts' in eventMetrics &&
+    eventMetrics.ts != null &&
+    typeof eventMetrics.ts === 'number'
   ) {
-    throw new Error('Malformed drop metrics')
+    return {
+      emailReservations: eventMetrics.emailReservations,
+      emailClaimsMinted: eventMetrics.emailClaimsMinted,
+      emailClaims: eventMetrics.emailClaims,
+      momentsUploaded: eventMetrics.momentsUploaded,
+      collectionsIncludes: eventMetrics.collectionsIncludes,
+      ts: eventMetrics.ts,
+    }
   }
-  return {
-    emailReservations: eventMetrics.emailReservations,
-    emailClaimsMinted: eventMetrics.emailClaimsMinted,
-    emailClaims: eventMetrics.emailClaims,
-    momentsUploaded: eventMetrics.momentsUploaded,
-    collectionsIncludes: eventMetrics.collectionsIncludes,
-    ts: eventMetrics.ts,
+  if (
+    typeof eventMetrics === 'object' &&
+    eventMetrics != null &&
+    'email_claims_stats' in eventMetrics &&
+    'moments_stats' in eventMetrics &&
+    'collections_items_aggregate' in eventMetrics &&
+    eventMetrics.collections_items_aggregate != null &&
+    typeof eventMetrics.collections_items_aggregate === 'object' &&
+    'aggregate' in eventMetrics.collections_items_aggregate &&
+    eventMetrics.collections_items_aggregate.aggregate != null &&
+    typeof eventMetrics.collections_items_aggregate.aggregate === 'object' &&
+    'count' in eventMetrics.collections_items_aggregate.aggregate &&
+    eventMetrics.collections_items_aggregate.aggregate.count != null &&
+    typeof eventMetrics.collections_items_aggregate.aggregate.count === 'number'
+  ) {
+    let emailReservations = 0;
+    let emailClaimsMinted = 0;
+    let emailClaims = 0;
+    if (
+      eventMetrics.email_claims_stats != null &&
+      typeof eventMetrics.email_claims_stats === 'object' &&
+      'minted' in eventMetrics.email_claims_stats &&
+      eventMetrics.email_claims_stats.minted != null &&
+      typeof eventMetrics.email_claims_stats.minted === 'number' &&
+      'reserved' in eventMetrics.email_claims_stats &&
+      eventMetrics.email_claims_stats.reserved != null &&
+      typeof eventMetrics.email_claims_stats.reserved === 'number' &&
+      'total' in eventMetrics.email_claims_stats &&
+      eventMetrics.email_claims_stats.total != null &&
+      typeof eventMetrics.email_claims_stats.total === 'number'
+    ) {
+      emailReservations = eventMetrics.email_claims_stats.reserved;
+      emailClaimsMinted = eventMetrics.email_claims_stats.minted;
+      emailClaims = eventMetrics.email_claims_stats.total;
+    }
+    let momentsUploaded = 0;
+    if (
+      eventMetrics.moments_stats != null &&
+      typeof eventMetrics.moments_stats === 'object' &&
+      'moments_uploaded' in eventMetrics.moments_stats &&
+      eventMetrics.moments_stats.moments_uploaded != null &&
+      typeof eventMetrics.moments_stats.moments_uploaded === 'number'
+    ) {
+      momentsUploaded = eventMetrics.moments_stats.moments_uploaded;
+    }
+    return {
+      emailReservations,
+      emailClaimsMinted,
+      emailClaims,
+      momentsUploaded,
+      collectionsIncludes:
+        eventMetrics.collections_items_aggregate.aggregate.count,
+      ts: null,
+    }
   }
+  throw new Error('Malformed drop metrics')
 }
 
 export function parseDropData(

@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
+import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { EventAndOwners, InCommon } from 'models/api'
 import { fetchDropsCollectors } from 'loaders/collector'
+import { fetchDropMetrics } from 'loaders/drop'
 import {
   getEventAndOwners,
-  getEventMetrics,
   getEventsMetrics,
   getEventsOwners,
 } from 'loaders/api'
@@ -16,7 +17,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   loadingOwnersAndMetricsEvents: Record<number, boolean>
   eventsOwnersAndMetricsErrors: Record<number, Error>
   eventsOwners: InCommon
-  eventsMetrics: Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>
+  eventsMetrics: Record<number, DropMetrics>
   fetchEventsOwnersAndMetrics: () => () => void
   retryEventOwnersAndMetrics: (eventId: number) => () => void
 } {
@@ -25,7 +26,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Error>>({})
   const [owners, setOwners] = useState<InCommon>({})
-  const [metrics, setMetrics] = useState<Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>>({})
+  const [metrics, setMetrics] = useState<Record<number, DropMetrics>>({})
 
   function addLoading(eventId: number): void {
     setLoading((alsoLoading) => ({
@@ -157,11 +158,11 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
       removeError(eventId)
       addLoading(eventId)
       let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropsCollectors>>>
-      let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof getEventMetrics>>>
+      let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropMetrics>>>
       try {
         [eventCollectorsResult, eventMetricsResult] = await Promise.allSettled([
           fetchDropsCollectors([eventId], abortSignal),
-          getEventMetrics(eventId, abortSignal, force),
+          fetchDropMetrics(eventId, abortSignal),
         ])
       } catch (err: unknown) {
         removeLoading(eventId)
@@ -202,7 +203,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
         }
       }
     },
-    [force]
+    []
   )
 
   const fetchEventsOwnersAndMetrics = useCallback(
