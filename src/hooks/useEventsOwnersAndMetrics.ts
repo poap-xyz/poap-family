@@ -4,12 +4,8 @@ import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { EventAndOwners, InCommon } from 'models/api'
 import { fetchDropsCollectors } from 'loaders/collector'
-import { fetchDropMetrics } from 'loaders/drop'
-import {
-  getEventAndOwners,
-  getEventsMetrics,
-  getEventsOwners,
-} from 'loaders/api'
+import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
+import { getEventAndOwners, getEventsOwners } from 'loaders/api'
 
 function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<number, Date>, force: boolean = false): {
   completedEventsOwnersAndMetrics: boolean
@@ -95,7 +91,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventMetrics(eventId: number, metrics: { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }): void {
+  function updateEventMetrics(eventId: number, metrics: DropMetrics): void {
     if (metrics == null) {
       return
     }
@@ -105,7 +101,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventsMetrics(eventsMetrics: Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>): void {
+  function updateEventsMetrics(eventsMetrics: Record<number, DropMetrics>): void {
     setMetrics((prevMetrics) => ({
       ...prevMetrics,
       ...Object.fromEntries(
@@ -237,7 +233,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
         controller = new AbortController()
         Promise.all([
           getEventsOwners(eventIds, controller.signal, expiryDates),
-          getEventsMetrics(eventIds, controller.signal, expiryDates),
+          fetchDropsMetrics(eventIds, controller.signal),
         ]).then(([eventsOwners, eventsMetrics]) => {
           updateEventsOwners(
             Object.fromEntries(
