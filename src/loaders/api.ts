@@ -10,7 +10,13 @@ import {
   EventAndOwners,
 } from 'models/api'
 import { encodeExpiryDates } from 'models/event'
-import { parseDrop, parseDropMetrics, parseDropOwners, Drop, DropMetrics, DropOwners } from 'models/drop'
+import {
+  parseDrop,
+  parseDropMetrics,
+  parseDropOwners,
+  Drop,
+  DropOwners,
+} from 'models/drop'
 import { AbortedError, HttpError } from 'models/error'
 import { DownloadProgress } from 'models/http'
 
@@ -840,89 +846,6 @@ export async function getEventsOwners(
   return Object.fromEntries(
     Object.entries(body).map(
       ([eventId, event]) => [eventId, parseDropOwners(event)]
-    )
-  )
-}
-
-export async function getEventsMetrics(
-  eventIds: number[],
-  abortSignal?: AbortSignal,
-  expiryDates?: Record<number, Date>,
-): Promise<Record<number, DropMetrics>> {
-  if (!FAMILY_API_KEY) {
-    throw new Error(
-      `Drops (${eventIds.length}) metrics could not be fetched, ` +
-      `configure Family API key`
-    )
-  }
-
-  const encodedExpiryDates = expiryDates ? encodeExpiryDates(expiryDates) : ''
-
-  let response: Response
-
-  try {
-    response = await fetch(
-      `${FAMILY_API_URL}/events` +
-      `/${eventIds.map((eventId) => encodeURIComponent(eventId)).join(',')}` +
-      `/metrics${encodedExpiryDates ? `?${encodedExpiryDates}` : ''}`,
-      {
-        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-        headers: {
-          'x-api-key': FAMILY_API_KEY,
-        },
-      }
-    )
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw new AbortedError(`Fetch drops metrics aborted`, { cause: err })
-    }
-    throw new Error(
-      `Cannot fetch drops metrics: response was not success (network error)`,
-      { cause: err }
-    )
-  }
-
-  if (response.status !== 200) {
-    let message: string = 'Unknown error'
-    try {
-      const data = await response.json()
-      if (
-        data != null &&
-        typeof data === 'object' &&
-        'message' in data &&
-        data.message != null &&
-        typeof data.message === 'string'
-      ) {
-        message = data.message
-      }
-    } catch (err: unknown) {
-      console.error(err)
-    }
-
-    if (message) {
-      throw new HttpError(
-        `Drops (${eventIds.length}) failed to fetch metrics ` +
-        `(status ${response.status}): ${message}`,
-        { status: response.status }
-      )
-    }
-
-    throw new HttpError(
-      `Drops (${eventIds.length}) failed to fetch metrics ` +
-      `(status ${response.status})`,
-      { status: response.status }
-    )
-  }
-
-  const body: unknown = await response.json()
-
-  if (body == null || typeof body !== 'object') {
-    throw new Error(`Malformed drops metrics (type ${typeof body})`)
-  }
-
-  return Object.fromEntries(
-    Object.entries(body).map(
-      ([eventId, event]) => [eventId, parseDropMetrics(event)]
     )
   )
 }

@@ -234,3 +234,79 @@ export async function fetchDropMetrics(
     abortSignal,
   )
 }
+
+export async function fetchDropsMetrics(
+  dropIds: number[],
+  abortSignal?: AbortSignal,
+  limit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
+): Promise<Record<number, DropMetrics>> {
+  const dropsMetrics: Record<number, DropMetrics> = {}
+
+  for (let i = 0; i < dropIds.length; i += limit) {
+    const ids = dropIds.slice(i, i + limit)
+
+    if (ids.length === 0) {
+      break
+    }
+
+    const drops = await queryManyCompass(
+      'drops',
+      (data: unknown): DropMetrics & { id: number } => {
+        if (
+          data == null ||
+          typeof data !== 'object' ||
+          !('id' in data) ||
+          data.id == null ||
+          typeof data.id !== 'number'
+        ) {
+          throw new Error('Invalid drop id')
+        }
+
+        return {
+          ...parseDropMetrics(data),
+          id: data.id,
+        }
+      },
+      `
+        query DropsMetrics($dropIds: [Int!]) {
+          drops(
+            where: {
+              id: { _in: $dropIds }
+            }
+          ) {
+            email_claims_stats {
+              minted
+              reserved
+              total
+            }
+            moments_stats {
+              moments_uploaded
+            }
+            collections_items_aggregate {
+              aggregate {
+                count(columns: collection_id, distinct: true)
+              }
+            }
+            id
+          }
+        }
+      `,
+      {
+        dropIds: ids,
+      },
+    )
+
+    for (const drop of drops) {
+      dropsMetrics[drop.id] = {
+        emailReservations: drop.emailReservations,
+        emailClaimsMinted: drop.emailClaimsMinted,
+        emailClaims: drop.emailClaims,
+        momentsUploaded: drop.momentsUploaded,
+        collectionsIncludes: drop.collectionsIncludes,
+        ts: drop.ts,
+      }
+    }
+  }
+
+  return dropsMetrics
+}
