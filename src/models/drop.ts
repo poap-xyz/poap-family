@@ -132,7 +132,7 @@ export interface DropMetrics {
   emailClaims: number
   momentsUploaded: number
   collectionsIncludes: number
-  ts: number
+  ts: number | null
 }
 
 export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
@@ -222,7 +222,7 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
       momentsUploaded,
       collectionsIncludes:
         eventMetrics.collections_items_aggregate.aggregate.count,
-      ts: Date.now(),
+      ts: null,
     }
   }
   throw new Error('Malformed drop metrics')
