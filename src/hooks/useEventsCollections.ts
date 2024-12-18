@@ -1,23 +1,23 @@
 import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
-import { findEventsCollections } from 'loaders/collection'
+import { fetchDropsCollections } from 'loaders/collection'
 
 function useEventsCollections(eventIds: number[]): {
   loadingCollections: boolean
   collectionsError: Error | null
-  collections: Awaited<ReturnType<typeof findEventsCollections>>['collections'] | null
-  relatedCollections: Awaited<ReturnType<typeof findEventsCollections>>['related'] | null
+  collections: Awaited<ReturnType<typeof fetchDropsCollections>>['collections'] | null
+  relatedCollections: Awaited<ReturnType<typeof fetchDropsCollections>>['related'] | null
   fetchEventsCollections: () => () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
-  const [result, setResult] = useState<Awaited<ReturnType<typeof findEventsCollections>> | null>(null)
+  const [result, setResult] = useState<Awaited<ReturnType<typeof fetchDropsCollections>> | null>(null)
 
   const fetchEventsCollections = useCallback(
     () => {
       const controller = new AbortController()
       setLoading(true)
-      findEventsCollections(
+      fetchDropsCollections(
         eventIds,
         controller.signal
       ).then((result) => {
