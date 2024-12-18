@@ -1,4 +1,10 @@
-import { Collection, CollectionWithDrops, parseCollection, parseCollectionWithDrops } from 'models/collection'
+import {
+  Collection,
+  COLLECTIONS_LIMIT,
+  CollectionWithDrops,
+  parseCollection,
+  parseCollectionWithDrops,
+} from 'models/collection'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import {
   queryAggregateCountCompass,
@@ -10,10 +16,10 @@ import {
  * Retrieve collections that has all given drops and collections that only have
  * some of the given drops (related) when more than one is given.
  */
-export async function findEventsCollections(
-  eventIds: number[],
+export async function fetchDropsCollections(
+  dropIds: number[],
   abortSignal: AbortSignal,
-  limit: number = DEFAULT_COMPASS_LIMIT,
+  limit: number = Math.min(COLLECTIONS_LIMIT, DEFAULT_COMPASS_LIMIT),
 ): Promise<{
   collections: Collection[]
   related: Collection[]
@@ -23,18 +29,18 @@ export async function findEventsCollections(
       'collections',
       parseCollection,
       `
-        query EventsCollections(
+        query DropsCollections(
           $offset: Int!
           $limit: Int!
         ) {
           collections(
             where: {
               _and: [
-                ${eventIds.map((eventId) => `
+                ${dropIds.map((dropId) => `
                   {
                     collections_items: {
                       drop_id: {
-                        _eq: ${eventId}
+                        _eq: ${dropId}
                       }
                     }
                   }
@@ -59,12 +65,12 @@ export async function findEventsCollections(
       limit,
       abortSignal
     ),
-    eventIds.length < 2 ? Promise.resolve([]) : queryAllCompass(
+    dropIds.length < 2 ? Promise.resolve([]) : queryAllCompass(
       'collections',
       parseCollection,
       `
-        query EventsRelatedCollections(
-          $eventIds: [bigint!]
+        query DropsRelatedCollections(
+          $dropIds: [bigint!]
           $offset: Int!
           $limit: Int!
         ) {
@@ -72,7 +78,7 @@ export async function findEventsCollections(
             where: {
               collections_items: {
                 drop_id: {
-                  _in: $eventIds
+                  _in: $dropIds
                 }
               }
             }
@@ -88,7 +94,7 @@ export async function findEventsCollections(
         }
       `,
       {
-        eventIds,
+        dropIds,
         limit,
       },
       'offset',
@@ -114,7 +120,7 @@ export async function searchCollections(
   search: string,
   abortSignal: AbortSignal,
   offset: number = 0,
-  limit: number = DEFAULT_COMPASS_LIMIT,
+  limit: number = Math.min(COLLECTIONS_LIMIT, DEFAULT_COMPASS_LIMIT),
 ): Promise<{
   total: number | null
   items: CollectionWithDrops[]
