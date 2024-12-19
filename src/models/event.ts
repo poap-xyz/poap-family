@@ -1,6 +1,3 @@
-import { parseEndOfDayDate } from 'utils/date'
-import { Drop } from 'models/drop'
-
 export const SEARCH_LIMIT = 10
 
 export const DEFAULT_DROP_LIMIT = 100
@@ -17,19 +14,4 @@ export function parseEventIds(rawIds: string): number[] {
 
 export function joinEventIds(eventIds: number[]): string {
   return parseEventIds(eventIds.join(',')).join(',')
-}
-
-export function parseExpiryDates(events: Record<number, Drop>): Record<number, Date> {
-  return Object.fromEntries(
-    Object.entries(events)
-      .map(
-        ([eventId, event]) => ([
-          eventId,
-          event?.expiry_date
-            ? parseEndOfDayDate(event.expiry_date)
-            : undefined,
-        ])
-      )
-      .filter(([, endOfDayDate]) => endOfDayDate != null)
-  )
 }

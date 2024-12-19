@@ -1,4 +1,4 @@
-import { Drop, DropMetrics } from 'models/drop'
+import { Drop } from 'models/drop'
 
 export const FAMILY_API_URL = process.env.REACT_APP_FAMILY_API_URL ?? 'https://api.poap.family'
 export const FAMILY_API_KEY = process.env.REACT_APP_FAMILY_API_KEY
@@ -31,13 +31,6 @@ export interface EventsInCommon {
   events: Record<number, Drop>
   inCommon: InCommon
   ts: number | null
-}
-
-export interface EventAndOwners {
-  event: Drop
-  owners: string[]
-  ts: number
-  metrics: DropMetrics | null
 }
 
 export interface CachedEvent {

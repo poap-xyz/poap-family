@@ -30,7 +30,3 @@ export function secondsInTheFuture(secs: number): string {
 export function formatMonthYear(date: Date | number | string): string {
   return dayjs(date).format('MMM \'YY')
 }
-
-export function parseEndOfDayDate(date: Date | number | string): Date {
-  return dayjs(date).endOf('day').toDate()
-}

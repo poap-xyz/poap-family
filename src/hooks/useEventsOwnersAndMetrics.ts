@@ -2,13 +2,11 @@ import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
 import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { EventAndOwners } from 'models/api'
 import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
 import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
-import { getEventAndOwners } from 'loaders/api'
 import { fillNull } from 'utils/object'
 
-function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<number, Date>, force: boolean = false): {
+function useEventsOwnersAndMetrics(eventIds: number[]): {
   completedEventsOwnersAndMetrics: boolean
   loadingEventsOwnersAndMetrics: boolean
   loadingOwnersAndMetricsEvents: Record<number, boolean>
@@ -111,45 +109,6 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  const loadCachedOwnersAndMetrics = useCallback(
-    async (eventId: number, abortSignal: AbortSignal) => {
-      removeError(eventId)
-      addLoading(eventId)
-      let eventAndOwners: EventAndOwners | null = null
-      try {
-        eventAndOwners = await getEventAndOwners(
-          eventId,
-          abortSignal,
-          /*includeDescription*/false,
-          /*includeMetrics*/true,
-          /*refresh*/false
-        )
-      } catch (err: unknown) {
-        removeLoading(eventId)
-        if (!(err instanceof AbortedError)) {
-          addError(eventId, new Error(
-            'Could not fetch drop and collectors',
-            { cause: err }
-          ))
-        }
-        return
-      }
-      removeLoading(eventId)
-      if (eventAndOwners != null) {
-        updateEventOwners(eventId, eventAndOwners.owners)
-        if (eventAndOwners.metrics) {
-          updateEventMetrics(eventId, eventAndOwners.metrics)
-        }
-      } else {
-        addError(
-          eventId,
-          new Error('Could not fetch drop and collectors')
-        )
-      }
-    },
-    []
-  )
-
   const loadOwnersAndMetrics = useCallback(
     async (eventId: number, abortSignal: AbortSignal) => {
       removeError(eventId)
@@ -219,51 +178,38 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
       setErrors({})
       setOwners({})
       setMetrics({})
-      if (force) {
-        let promise = new Promise((r) => { r(undefined) })
-        for (const eventId of eventIds) {
-          promise = promise.then(
-            () => loadOwnersAndMetrics(eventId, controllers[eventId].signal)
+      setLoadingCache(true)
+      controller = new AbortController()
+      Promise.all([
+        fetchCollectorsByDrops(eventIds, controller.signal),
+        fetchDropsMetrics(eventIds, controller.signal),
+      ]).then(([eventsOwners, eventsMetrics]) => {
+        updateEventsOwners(
+          fillNull(
+            eventsOwners,
+            eventIds.map((eventId) => String(eventId)),
+            []
           )
-        }
-        promise.finally(() => {
+        )
+        updateEventsMetrics(eventsMetrics)
+        setLoadingCache(false)
+        setCompleted(true)
+      }).catch((err: unknown) => {
+        setLoadingCache(false)
+        if (err instanceof AbortedError) {
           setCompleted(true)
-        })
-      } else {
-        setLoadingCache(true)
-        controller = new AbortController()
-        Promise.all([
-          fetchCollectorsByDrops(eventIds, controller.signal),
-          fetchDropsMetrics(eventIds, controller.signal),
-        ]).then(([eventsOwners, eventsMetrics]) => {
-          updateEventsOwners(
-            fillNull(
-              eventsOwners,
-              eventIds.map((eventId) => String(eventId)),
-              []
-            )
-          )
-          updateEventsMetrics(eventsMetrics)
-          setLoadingCache(false)
-          setCompleted(true)
-        }).catch((err: unknown) => {
-          setLoadingCache(false)
-          if (err instanceof AbortedError) {
-            setCompleted(true)
-          } else {
-            console.error(err)
-            let promise = new Promise((r) => { r(undefined) })
-            for (const eventId of eventIds) {
-              promise = promise.then(() => force
-                ? loadOwnersAndMetrics(eventId, controllers[eventId].signal)
-                : loadCachedOwnersAndMetrics(eventId, controllers[eventId].signal))
-            }
-            promise.finally(() => {
-              setCompleted(true)
-            })
+        } else {
+          console.error(err)
+          let promise = new Promise((r) => { r(undefined) })
+          for (const eventId of eventIds) {
+            promise = promise.then(() =>
+              loadOwnersAndMetrics(eventId, controllers[eventId].signal))
           }
-        })
-      }
+          promise.finally(() => {
+            setCompleted(true)
+          })
+        }
+      })
       return () => {
         if (controller) {
           controller.abort()
@@ -280,8 +226,6 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     },
     [
       eventIds,
-      force,
-      loadCachedOwnersAndMetrics,
       loadOwnersAndMetrics,
     ]
   )
@@ -289,7 +233,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   function retryEventOwnersAndMetrics(eventId: number): () => void {
     removeError(eventId)
     const controller = new AbortController()
-    loadCachedOwnersAndMetrics(eventId, controller.signal)
+    loadOwnersAndMetrics(eventId, controller.signal)
     return () => {
       controller.abort()
     }
