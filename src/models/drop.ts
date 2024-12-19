@@ -114,6 +114,33 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
   if (
     typeof eventMetrics === 'object' &&
     eventMetrics != null &&
+    'emailReservations' in eventMetrics &&
+    eventMetrics.emailReservations != null &&
+    typeof eventMetrics.emailReservations === 'number' &&
+    'emailClaimsMinted' in eventMetrics &&
+    eventMetrics.emailClaimsMinted != null &&
+    typeof eventMetrics.emailClaimsMinted === 'number' &&
+    'emailClaims' in eventMetrics &&
+    eventMetrics.emailClaims != null &&
+    typeof eventMetrics.emailClaims === 'number' &&
+    'momentsUploaded' in eventMetrics &&
+    eventMetrics.momentsUploaded != null &&
+    typeof eventMetrics.momentsUploaded === 'number' &&
+    'collectionsIncludes' in eventMetrics &&
+    eventMetrics.collectionsIncludes != null &&
+    typeof eventMetrics.collectionsIncludes === 'number'
+  ) {
+    return {
+      emailReservations: eventMetrics.emailReservations,
+      emailClaimsMinted: eventMetrics.emailClaimsMinted,
+      emailClaims: eventMetrics.emailClaims,
+      momentsUploaded: eventMetrics.momentsUploaded,
+      collectionsIncludes: eventMetrics.collectionsIncludes,
+    }
+  }
+  if (
+    typeof eventMetrics === 'object' &&
+    eventMetrics != null &&
     'email_claims_stats' in eventMetrics &&
     'moments_stats' in eventMetrics &&
     'collections_items_aggregate' in eventMetrics &&
