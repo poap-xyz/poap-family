@@ -7,12 +7,10 @@ import Stats from 'components/Stats'
 function EventStats({
   event,
   collectors,
-  cachedTs,
   metrics,
 }: {
   event: Drop
   collectors: number
-  cachedTs?: number
   metrics?: DropMetrics
 }) {
   const stats = {
@@ -22,14 +20,12 @@ function EventStats({
         }
       : {
           text: formatStat(collectors),
-          title: cachedTs != null ? `Cached ${formatDateAgo(cachedTs)}` : undefined,
         },
   }
 
   if (metrics && metrics.emailReservations > 0) {
     stats['mints'] = {
       text: formatStat(collectors),
-      title: cachedTs != null ? `Cached ${formatDateAgo(cachedTs)}` : undefined,
     }
     stats['reservations'] = {
       text: formatStat(metrics.emailReservations),
