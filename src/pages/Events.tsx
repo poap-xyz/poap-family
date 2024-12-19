@@ -45,14 +45,14 @@ function Events() {
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
 
-  const events = useMemo(
+  const drops = useMemo(
     () => parseDrops(loaderData, /*includeDescription*/false),
     [loaderData]
   )
 
   const eventIds = useMemo(
-    () => Object.keys(events).map((rawEventId) => parseInt(rawEventId)),
-    [events]
+    () => Object.keys(drops).map((rawEventId) => parseInt(rawEventId)),
+    [drops]
   )
 
   const {
@@ -97,9 +97,9 @@ function Events() {
 
   useEffect(
     () => {
-      setTitle(Object.values(events).map((event) => event.name).join(', '))
+      setTitle(Object.values(drops).map((event) => event.name).join(', '))
     },
-    [events, setTitle]
+    [drops, setTitle]
   )
 
   useEffect(
@@ -286,30 +286,30 @@ function Events() {
                 </tr>
               </thead>
               <tbody>
-                {Object.values(events).map((event) => (
-                  <tr key={event.id}>
+                {Object.values(drops).map((drop) => (
+                  <tr key={drop.id}>
                     <td className="event-cell-info">
                       <div className="event-image">
                         <TokenImageZoom
-                          event={event}
+                          event={drop}
                           zoomSize={512}
                           size={48}
                         />
                         <Link
-                          to={`/event/${event.id}`}
+                          to={`/event/${drop.id}`}
                           className="event-id"
                         >
-                          #{event.id}
+                          #{drop.id}
                         </Link>
                       </div>
                       <div className="event-data">
-                        <h2>{event.name}</h2>
+                        <h2>{drop.name}</h2>
                         <div className="event-date">
-                          {formatDate(event.start_date)}
+                          {formatDate(drop.start_date)}
                         </div>
-                        {event.city && event.country && (
+                        {drop.city && drop.country && (
                           <div className="place">
-                            {event.city}, {event.country}
+                            {drop.city}, {drop.country}
                           </div>
                         )}
                       </div>
@@ -317,18 +317,18 @@ function Events() {
                     <td className="event-cell-metrics">
                       {(
                         loadingEventsOwnersAndMetrics ||
-                        loadingOwnersAndMetricsEvents[event.id] != null
+                        loadingOwnersAndMetricsEvents[drop.id] != null
                       ) && (
                         <Loading small={true} />
                       )}
-                      {eventsOwners[event.id] != null && (
+                      {eventsOwners[drop.id] != null && (
                         <ShadowText grow={true} medium={true}>
-                          {formatStat(eventsOwners[event.id].length)}
+                          {formatStat(eventsOwners[drop.id].length)}
                           {(
-                            eventsMetrics[event.id] != null &&
-                            eventsMetrics[event.id].emailReservations > 0
+                            eventsMetrics[drop.id] != null &&
+                            eventsMetrics[drop.id].emailReservations > 0
                           ) && (
-                            ` + ${formatStat(eventsMetrics[event.id].emailReservations)}`
+                            ` + ${formatStat(eventsMetrics[drop.id].emailReservations)}`
                           )}
                         </ShadowText>
                       )}
@@ -336,26 +336,26 @@ function Events() {
                     <td className="event-cell-status">
                       <Status
                         loading={
-                          loadingInCommonEvents[event.id]
+                          loadingInCommonEvents[drop.id]
                         }
                         error={
-                          eventsOwnersAndMetricsErrors[event.id] != null ||
-                          eventsInCommonErrors[event.id] != null
+                          eventsOwnersAndMetricsErrors[drop.id] != null ||
+                          eventsInCommonErrors[drop.id] != null
                         }
                       />
-                      {eventsOwnersAndMetricsErrors[event.id] != null && (
+                      {eventsOwnersAndMetricsErrors[drop.id] != null && (
                         <>
                           <span
                             className="status-error-message"
-                            title={eventsOwnersAndMetricsErrors[event.id].cause
-                              ? `${eventsOwnersAndMetricsErrors[event.id].cause}`
+                            title={eventsOwnersAndMetricsErrors[drop.id].cause
+                              ? `${eventsOwnersAndMetricsErrors[drop.id].cause}`
                               : undefined}
                           >
-                            {eventsOwnersAndMetricsErrors[event.id].message}
+                            {eventsOwnersAndMetricsErrors[drop.id].message}
                           </span>
                           {' '}
                           <ButtonLink
-                            onClick={() => retryEventOwnersAndMetrics(event.id)}
+                            onClick={() => retryEventOwnersAndMetrics(drop.id)}
                           >
                             retry
                           </ButtonLink>
@@ -364,57 +364,57 @@ function Events() {
                     </td>
                     <td className="event-cell-progress">
                       {(
-                        loadingInCommonEvents[event.id] != null &&
-                        loadedEventsInCommon[event.id] == null &&
-                        loadedEventsInCommonEvents[event.id] == null &&
-                        loadedEventsProgress[event.id] == null &&
-                        loadedEventsOwners[event.id] != null &&
-                        eventsOwners[event.id] != null
+                        loadingInCommonEvents[drop.id] != null &&
+                        loadedEventsInCommon[drop.id] == null &&
+                        loadedEventsInCommonEvents[drop.id] == null &&
+                        loadedEventsProgress[drop.id] == null &&
+                        loadedEventsOwners[drop.id] != null &&
+                        eventsOwners[drop.id] != null
                       ) && (
                         <Progress
-                          value={loadedEventsOwners[event.id]}
-                          max={eventsOwners[event.id].length}
-                          showValue={loadedEventsOwners[event.id] > 0}
+                          value={loadedEventsOwners[drop.id]}
+                          max={eventsOwners[drop.id].length}
+                          showValue={loadedEventsOwners[drop.id] > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[event.id] != null &&
-                        loadedEventsInCommonEvents[event.id] == null &&
-                        loadedEventsProgress[event.id] == null
+                        loadedEventsInCommon[drop.id] != null &&
+                        loadedEventsInCommonEvents[drop.id] == null &&
+                        loadedEventsProgress[drop.id] == null
                        ) && (
                         <Progress
-                          value={loadedEventsInCommon[event.id].count}
-                          max={loadedEventsInCommon[event.id].total}
-                          maxFinal={loadedEventsInCommon[event.id].totalFinal}
-                          showValue={loadedEventsInCommon[event.id].total > 0}
+                          value={loadedEventsInCommon[drop.id].count}
+                          max={loadedEventsInCommon[drop.id].total}
+                          maxFinal={loadedEventsInCommon[drop.id].totalFinal}
+                          showValue={loadedEventsInCommon[drop.id].total > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[event.id] != null &&
-                        loadedEventsInCommonEvents[event.id] != null &&
-                        loadedEventsProgress[event.id] == null
+                        loadedEventsInCommon[drop.id] != null &&
+                        loadedEventsInCommonEvents[drop.id] != null &&
+                        loadedEventsProgress[drop.id] == null
                        ) && (
                         <Progress
-                          value={loadedEventsInCommonEvents[event.id].count}
-                          max={loadedEventsInCommonEvents[event.id].total}
-                          showValue={loadedEventsInCommonEvents[event.id].total > 0}
+                          value={loadedEventsInCommonEvents[drop.id].count}
+                          max={loadedEventsInCommonEvents[drop.id].total}
+                          showValue={loadedEventsInCommonEvents[drop.id].total > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[event.id] == null &&
-                        loadedEventsInCommonEvents[event.id] == null &&
-                        loadedEventsProgress[event.id] != null
+                        loadedEventsInCommon[drop.id] == null &&
+                        loadedEventsInCommonEvents[drop.id] == null &&
+                        loadedEventsProgress[drop.id] != null
                        ) && (
                         <Progress
-                          value={loadedEventsProgress[event.id].progress}
+                          value={loadedEventsProgress[drop.id].progress}
                           max={1}
                           showPercent={true}
-                          eta={loadedEventsProgress[event.id].estimated}
-                          rate={loadedEventsProgress[event.id].rate}
+                          eta={loadedEventsProgress[drop.id].estimated}
+                          rate={loadedEventsProgress[drop.id].rate}
                         />
                       )}
-                      {eventsInCommonErrors[event.id] != null && Object.entries(
-                        eventsInCommonErrors[event.id]
+                      {eventsInCommonErrors[drop.id] != null && Object.entries(
+                        eventsInCommonErrors[drop.id]
                       ).map(
                         ([address, error]) => (
                           <p key={address} className="address-error-message">
@@ -426,7 +426,7 @@ function Events() {
                             </span>{' '}
                             <ButtonLink
                               onClick={() => {
-                                retryEventAddressInCommon(event.id, address)
+                                retryEventAddressInCommon(drop.id, address)
                               }}
                             >
                               retry
@@ -435,17 +435,17 @@ function Events() {
                         )
                       )}
                       {(
-                        eventsInCommon[event.id] != null &&
-                        eventsInCommon[event.id].ts != null
+                        eventsInCommon[drop.id] != null &&
+                        eventsInCommon[drop.id].ts != null
                       ) && (
                         <p className="status-cached-ts">
-                          Cached <Timestamp ts={eventsInCommon[event.id].ts} />
+                          Cached <Timestamp ts={eventsInCommon[drop.id].ts} />
                           {(
-                            completedInCommonEvents[event.id] &&
-                            eventsOwners[event.id] != null &&
-                            eventsInCommon[event.id] != null &&
-                            eventsInCommon[event.id].inCommon[event.id] != null &&
-                            eventsInCommon[event.id].inCommon[event.id].length !== eventsOwners[event.id].length
+                            completedInCommonEvents[drop.id] &&
+                            eventsOwners[drop.id] != null &&
+                            eventsInCommon[drop.id] != null &&
+                            eventsInCommon[drop.id].inCommon[drop.id] != null &&
+                            eventsInCommon[drop.id].inCommon[drop.id].length !== eventsOwners[drop.id].length
                           ) && (
                             <>
                               {' '}
@@ -459,13 +459,13 @@ function Events() {
                     </td>
                     <td className="event-cell-actions">
                       <EventButtonGroup
-                        event={event}
+                        event={drop}
                         right={true}
                         viewInGallery={true}
                       >
                         <ButtonDelete
-                          onDelete={() => delEvent(event.id)}
-                          title={`Removes drop #${event.id}`}
+                          onDelete={() => delEvent(drop.id)}
+                          title={`Removes drop #${drop.id}`}
                         />
                       </EventButtonGroup>
                     </td>
@@ -521,7 +521,7 @@ function Events() {
                 emptyMessage={(
                   <>
                     No collections found that includes exactly all{' '}
-                    {Object.keys(events).length} POAPs,{' '}
+                    {Object.keys(drops).length} POAPs,{' '}
                     <ButtonLink onClick={handleViewAll}>
                       view related collections
                     </ButtonLink>.
