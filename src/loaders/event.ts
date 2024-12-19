@@ -49,37 +49,37 @@ export async function eventLoader({ params }): Promise<DropData> {
 }
 
 export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
-  const eventIds = parseEventIds(params.eventIds)
+  const dropIds = parseEventIds(params.eventIds)
 
-  if (eventIds.length === 0) {
+  if (dropIds.length === 0) {
     throw new Response('', {
       status: 404,
       statusText: 'Drops not found',
     })
   }
 
-  if (params.eventIds !== eventIds.join(',')) {
+  if (params.eventIds !== dropIds.join(',')) {
     throw new Response('', {
       status: 301,
       statusText: 'Drops given unordered',
       headers: {
-        location: `/events/${eventIds.join(',')}`,
+        location: `/events/${dropIds.join(',')}`,
       },
     })
   }
 
-  if (eventIds.length === 1) {
+  if (dropIds.length === 1) {
     throw new Response('', {
       status: 301,
       statusText: 'One drop',
       headers: {
-        location: `/event/${eventIds[0]}`,
+        location: `/event/${dropIds[0]}`,
       },
     })
   }
 
   const [drops, errors] = await fetchDropsOrErrors(
-    eventIds,
+    dropIds,
     /*includeDescription*/false
   )
 
