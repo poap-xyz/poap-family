@@ -6,6 +6,7 @@ import { EventAndOwners } from 'models/api'
 import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
 import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
 import { getEventAndOwners } from 'loaders/api'
+import { fillNull } from 'utils/object'
 
 function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<number, Date>, force: boolean = false): {
   completedEventsOwnersAndMetrics: boolean
@@ -235,7 +236,13 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
           fetchCollectorsByDrops(eventIds, controller.signal),
           fetchDropsMetrics(eventIds, controller.signal),
         ]).then(([eventsOwners, eventsMetrics]) => {
-          updateEventsOwners(eventsOwners)
+          updateEventsOwners(
+            fillNull(
+              eventsOwners,
+              eventIds.map((eventId) => String(eventId)),
+              []
+            )
+          )
           updateEventsMetrics(eventsMetrics)
           setLoadingCache(false)
           setCompleted(true)
