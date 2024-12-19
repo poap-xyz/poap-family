@@ -6,7 +6,89 @@ import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
 import { Drop } from 'models/drop'
 import { queryAllCompass } from 'loaders/compass'
 
-export async function fetchDropCollectors(
+export async function fetchCollectorsByDrops(
+  dropIds: number[],
+  abortSignal?: AbortSignal,
+  dropsLimit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
+  collectorsLimit: number = Math.min(DEFAULT_COLLECTOR_LIMIT, DEFAULT_COMPASS_LIMIT),
+): Promise<Record<number, string[]>> {
+  const collectorsByDrops: Record<number, Set<string>> = {}
+
+  for (let i = 0; i < dropIds.length; i += dropsLimit) {
+    const ids = dropIds.slice(i, i + dropsLimit)
+
+    if (ids.length === 0) {
+      break
+    }
+
+    const dropsCollectors = await queryAllCompass(
+      'poaps',
+      (data: unknown): { dropId: number; address: string } => {
+        if (
+          data == null ||
+          typeof data !== 'object' ||
+          !('drop_id' in data) ||
+          data.drop_id == null ||
+          typeof data.drop_id !== 'number' ||
+          !('collector_address' in data) ||
+          data.collector_address == null ||
+          typeof data.collector_address !== 'string' ||
+          !data.collector_address.startsWith('0x') ||
+          data.collector_address.length !== 42
+        ) {
+          throw new Error('Malformed drop collector')
+        }
+        return {
+          dropId: data.drop_id,
+          address: data.collector_address,
+        }
+      },
+      `
+        query FetchCollectorsByDrops(
+          $offset: Int!
+          $limit: Int!
+          $dropIds: [bigint!]
+        ) {
+          poaps(
+            where: {
+              drop_id: { _in: $dropIds }
+              collector_address: {
+                _nin: ["${IGNORED_OWNERS.join('", "')}"]
+              }
+            }
+            offset: $offset
+            limit: $limit
+          ) {
+            collector_address
+            drop_id
+          }
+        }
+      `,
+      {
+        dropIds: ids,
+        limit: collectorsLimit,
+      },
+      'offset',
+      collectorsLimit,
+      abortSignal
+    )
+
+    for (const dropCollector of dropsCollectors) {
+      if (!(dropCollector.dropId in collectorsByDrops)) {
+        collectorsByDrops[dropCollector.dropId] = new Set<string>()
+      }
+      collectorsByDrops[dropCollector.dropId].add(dropCollector.address)
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(collectorsByDrops).map(
+      ([rawDropId, collectorsSet]) => [rawDropId, [...collectorsSet]]
+    )
+  )
+}
+
+export async function fetchDropsCollectors(
   dropIds: number[],
   abortSignal?: AbortSignal,
   limit = Math.min(DEFAULT_COLLECTOR_LIMIT, DEFAULT_COMPASS_LIMIT),
@@ -15,7 +97,7 @@ export async function fetchDropCollectors(
     `poaps`,
     parseCollector,
     `
-      query FetchDropCollectors(
+      query FetchDropsCollectors(
         $dropIds: [bigint!]
         $offset: Int!
         $limit: Int!

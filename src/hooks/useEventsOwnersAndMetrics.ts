@@ -1,22 +1,20 @@
 import { useCallback, useState } from 'react'
 import { filterInvalidOwners } from 'models/address'
+import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { EventAndOwners, InCommon } from 'models/api'
-import { fetchDropCollectors } from 'loaders/collector'
-import {
-  getEventAndOwners,
-  getEventMetrics,
-  getEventsMetrics,
-  getEventsOwners,
-} from 'loaders/api'
+import { EventAndOwners } from 'models/api'
+import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
+import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
+import { getEventAndOwners } from 'loaders/api'
+import { fillNull } from 'utils/object'
 
 function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<number, Date>, force: boolean = false): {
   completedEventsOwnersAndMetrics: boolean
   loadingEventsOwnersAndMetrics: boolean
   loadingOwnersAndMetricsEvents: Record<number, boolean>
   eventsOwnersAndMetricsErrors: Record<number, Error>
-  eventsOwners: InCommon
-  eventsMetrics: Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>
+  eventsOwners: Record<number, string[]>
+  eventsMetrics: Record<number, DropMetrics>
   fetchEventsOwnersAndMetrics: () => () => void
   retryEventOwnersAndMetrics: (eventId: number) => () => void
 } {
@@ -24,8 +22,8 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
   const [loadingCache, setLoadingCache] = useState<boolean>(false)
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Error>>({})
-  const [owners, setOwners] = useState<InCommon>({})
-  const [metrics, setMetrics] = useState<Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>>({})
+  const [owners, setOwners] = useState<Record<number, string[]>>({})
+  const [metrics, setMetrics] = useState<Record<number, DropMetrics>>({})
 
   function addLoading(eventId: number): void {
     setLoading((alsoLoading) => ({
@@ -78,7 +76,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventsOwners(eventsOwners: InCommon): void {
+  function updateEventsOwners(eventsOwners: Record<number, string[]>): void {
     setOwners((prevOwners) => ({
       ...prevOwners,
       ...Object.fromEntries(
@@ -94,7 +92,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventMetrics(eventId: number, metrics: { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }): void {
+  function updateEventMetrics(eventId: number, metrics: DropMetrics): void {
     if (metrics == null) {
       return
     }
@@ -104,7 +102,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     }))
   }
 
-  function updateEventsMetrics(eventsMetrics: Record<number, { emailReservations: number; emailClaimsMinted: number; emailClaims: number; momentsUploaded: number; collectionsIncludes: number; ts: number }>): void {
+  function updateEventsMetrics(eventsMetrics: Record<number, DropMetrics>): void {
     setMetrics((prevMetrics) => ({
       ...prevMetrics,
       ...Object.fromEntries(
@@ -156,12 +154,12 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     async (eventId: number, abortSignal: AbortSignal) => {
       removeError(eventId)
       addLoading(eventId)
-      let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropCollectors>>>
-      let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof getEventMetrics>>>
+      let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropsCollectors>>>
+      let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropMetrics>>>
       try {
         [eventCollectorsResult, eventMetricsResult] = await Promise.allSettled([
-          fetchDropCollectors([eventId], abortSignal),
-          getEventMetrics(eventId, abortSignal, force),
+          fetchDropsCollectors([eventId], abortSignal),
+          fetchDropMetrics(eventId, abortSignal),
         ])
       } catch (err: unknown) {
         removeLoading(eventId)
@@ -202,7 +200,7 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
         }
       }
     },
-    [force]
+    []
   )
 
   const fetchEventsOwnersAndMetrics = useCallback(
@@ -235,17 +233,14 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
         setLoadingCache(true)
         controller = new AbortController()
         Promise.all([
-          getEventsOwners(eventIds, controller.signal, expiryDates),
-          getEventsMetrics(eventIds, controller.signal, expiryDates),
+          fetchCollectorsByDrops(eventIds, controller.signal),
+          fetchDropsMetrics(eventIds, controller.signal),
         ]).then(([eventsOwners, eventsMetrics]) => {
           updateEventsOwners(
-            Object.fromEntries(
-              Object.entries(eventsOwners).map(
-                ([rawEventId, eventOwners]) => [
-                  rawEventId,
-                  eventOwners.owners,
-                ]
-              )
+            fillNull(
+              eventsOwners,
+              eventIds.map((eventId) => String(eventId)),
+              []
             )
           )
           updateEventsMetrics(eventsMetrics)
@@ -285,7 +280,6 @@ function useEventsOwnersAndMetrics(eventIds: number[], expiryDates: Record<numbe
     },
     [
       eventIds,
-      expiryDates,
       force,
       loadCachedOwnersAndMetrics,
       loadOwnersAndMetrics,

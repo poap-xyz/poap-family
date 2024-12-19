@@ -1,9 +1,10 @@
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { DEFAULT_DROP_LIMIT, DEFAULT_SEARCH_LIMIT } from 'models/event'
-import { Drop, parseDrop } from 'models/drop'
+import { Drop, DropMetrics, parseDrop, parseDropMetrics } from 'models/drop'
 import { HttpError } from 'models/error'
 import {
   queryAggregateCountCompass,
+  queryCompass,
   queryFirstCompass,
   queryManyCompass,
 } from 'loaders/compass'
@@ -199,4 +200,113 @@ export async function fetchDrop(
 
     throw err
   }
+}
+
+export async function fetchDropMetrics(
+  dropId: number,
+  abortSignal?: AbortSignal,
+): Promise<DropMetrics | null> {
+  return await queryCompass(
+    'drops_by_pk',
+    parseDropMetrics,
+    `
+      query DropMetrics($dropId: Int!) {
+        drops_by_pk(id: $dropId) {
+          email_claims_stats {
+            minted
+            reserved
+            total
+          }
+          moments_stats {
+            moments_uploaded
+          }
+          collections_items_aggregate {
+            aggregate {
+              count(columns: collection_id, distinct: true)
+            }
+          }
+        }
+      }
+    `,
+    {
+      dropId,
+    },
+    abortSignal,
+  )
+}
+
+export async function fetchDropsMetrics(
+  dropIds: number[],
+  abortSignal?: AbortSignal,
+  limit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
+): Promise<Record<number, DropMetrics>> {
+  const dropsMetrics: Record<number, DropMetrics> = {}
+
+  for (let i = 0; i < dropIds.length; i += limit) {
+    const ids = dropIds.slice(i, i + limit)
+
+    if (ids.length === 0) {
+      break
+    }
+
+    const drops = await queryManyCompass(
+      'drops',
+      (data: unknown): DropMetrics & { id: number } => {
+        if (
+          data == null ||
+          typeof data !== 'object' ||
+          !('id' in data) ||
+          data.id == null ||
+          typeof data.id !== 'number'
+        ) {
+          throw new Error('Invalid drop id')
+        }
+
+        return {
+          ...parseDropMetrics(data),
+          id: data.id,
+        }
+      },
+      `
+        query DropsMetrics($dropIds: [Int!]) {
+          drops(
+            where: {
+              id: { _in: $dropIds }
+            }
+          ) {
+            email_claims_stats {
+              minted
+              reserved
+              total
+            }
+            moments_stats {
+              moments_uploaded
+            }
+            collections_items_aggregate {
+              aggregate {
+                count(columns: collection_id, distinct: true)
+              }
+            }
+            id
+          }
+        }
+      `,
+      {
+        dropIds: ids,
+      },
+    )
+
+    for (const drop of drops) {
+      dropsMetrics[drop.id] = {
+        emailReservations: drop.emailReservations,
+        emailClaimsMinted: drop.emailClaimsMinted,
+        emailClaims: drop.emailClaims,
+        momentsUploaded: drop.momentsUploaded,
+        collectionsIncludes: drop.collectionsIncludes,
+        ts: drop.ts,
+      }
+    }
+  }
+
+  return dropsMetrics
 }

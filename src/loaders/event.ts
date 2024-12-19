@@ -1,16 +1,24 @@
 import { parseEventIds } from 'models/event'
 import { Drop } from 'models/drop'
 import { HttpError } from 'models/error'
-import { getEventAndOwners, getEventMetrics, getEvents } from 'loaders/api'
-import { fetchDrop, fetchDropsOrErrors } from 'loaders/drop'
-import { fetchDropCollectors } from 'loaders/collector'
+import { getEventAndOwners, getEvents } from 'loaders/api'
+import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'loaders/drop'
+import { fetchDropsCollectors } from 'loaders/collector'
 
 export async function eventLoader({ params, request }) {
   const force = new URL(request.url).searchParams.get('force') === 'true'
+  const dropId = parseInt(String(params.eventId))
+
+  if (isNaN(dropId)) {
+    throw new Response('', {
+      status: 400,
+      statusText: 'Invalid drop id',
+    })
+  }
 
   try {
     const eventAndOwners = await getEventAndOwners(
-      params.eventId,
+      dropId,
       /*abortSignal*/undefined,
       /*includeDescription*/true,
       /*includeMetrics*/true,
@@ -28,7 +36,7 @@ export async function eventLoader({ params, request }) {
     console.error(err)
   }
 
-  const event = await fetchDrop(params.eventId, /*includeDescription*/true)
+  const event = await fetchDrop(dropId, /*includeDescription*/true)
 
   if (!event) {
     throw new Response('', {
@@ -38,8 +46,8 @@ export async function eventLoader({ params, request }) {
   }
 
   const [collectorsSettled, metricsSettled] = await Promise.allSettled([
-    fetchDropCollectors([params.eventId]),
-    getEventMetrics(params.eventId, null, /*refresh*/force),
+    fetchDropsCollectors([dropId]),
+    fetchDropMetrics(dropId, /*abortSignal*/undefined),
   ])
 
   if (collectorsSettled.status === 'rejected') {
@@ -51,14 +59,15 @@ export async function eventLoader({ params, request }) {
   }
 
   const owners = collectorsSettled.value
+  const metrics = metricsSettled.status === 'fulfilled'
+    ? metricsSettled.value
+    : null
 
   return {
     event,
     owners,
     ts: null,
-    metrics: metricsSettled.status === 'fulfilled'
-      ? metricsSettled.value
-      : null,
+    metrics,
   }
 }
 

@@ -9,8 +9,7 @@ import { InCommon } from 'models/api'
 import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
-import { getEventsOwners } from 'loaders/api'
-import { fetchCollectorDrops, fetchDropCollectors } from 'loaders/collector'
+import { fetchCollectorDrops, fetchDropsCollectors } from 'loaders/collector'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
 import CenterPage from 'components/CenterPage'
@@ -287,11 +286,6 @@ function Addresses() {
     [searchParams]
   )
 
-  const force = useMemo(
-    () => searchParams.get('force') === 'true',
-    [searchParams]
-  )
-
   const updateCollectionFromHash = useCallback(
     (initial = false) => {
       const controllers: AbortController[] = []
@@ -319,73 +313,42 @@ function Addresses() {
         }
       } else if (searchEvents.length > 0) {
         setLoadingEventsOwners(true)
-        if (force) {
-          const controller = new AbortController()
-          fetchDropCollectors(searchEvents, controller.signal).then(
-            (collectors) => {
-              let addresses: ParsedAddress[] | undefined
-              try {
-                addresses = collectors.map((owner) => parseAddress(owner))
-              } catch (err: unknown) {
-                setLoadingEventsOwners(false)
-                addError(
-                  new Error('Cannot parse collectors', {
-                    cause: err,
-                  })
-                )
-                return
-              }
-
-              setLoadingEventsOwners(false)
-              updateAddresses(addresses)
-            },
-            (err) => {
+        const controller = new AbortController()
+        fetchDropsCollectors(searchEvents, controller.signal).then(
+          (collectors) => {
+            let addresses: ParsedAddress[] | undefined
+            try {
+              addresses = collectors.map((owner) => parseAddress(owner))
+            } catch (err: unknown) {
               setLoadingEventsOwners(false)
               addError(
-                new Error(`Cannot load drops ${searchEvents.join(', ')}`, {
+                new Error('Cannot parse collectors', {
                   cause: err,
                 })
               )
+              return
             }
-          )
-          controllers.push(controller)
-        } else {
-          const controller = new AbortController()
-          getEventsOwners(searchEvents, controller.signal).then(
-            (ownersMap) => {
-              setLoadingEventsOwners(false)
-              if (ownersMap) {
-                const uniqueOwners = Object.values(ownersMap).reduce(
-                  (allOwners, eventOwners) => new Set([
-                    ...allOwners,
-                    ...(eventOwners?.owners ?? []),
-                  ]),
-                  new Set<string>()
-                )
-                const addresses = [...uniqueOwners].map(
-                  (owner) => parseAddress(owner)
-                )
-                updateAddresses(addresses)
-              } else {
-                addError(new Error(`Drop owners could not be loaded`))
-              }
-            },
-            (err) => {
-              setLoadingEventsOwners(false)
-              addError(new Error(`Drop owners could not be loaded`, {
+
+            setLoadingEventsOwners(false)
+            updateAddresses(addresses)
+          },
+          (err) => {
+            setLoadingEventsOwners(false)
+            addError(
+              new Error(`Cannot load drops ${searchEvents.join(', ')}`, {
                 cause: err,
-              }))
-            }
-          )
-          controllers.push(controller)
-        }
+              })
+            )
+          }
+        )
+        controllers.push(controller)
       } else if (!initial) {
         setAddresses(null)
         setCollectors({})
       }
       return controllers
     },
-    [searchEvents, force]
+    [searchEvents]
   )
 
   useEffect(
