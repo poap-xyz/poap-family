@@ -33,21 +33,3 @@ export function parseExpiryDates(events: Record<number, Drop>): Record<number, D
       .filter(([, endOfDayDate]) => endOfDayDate != null)
   )
 }
-
-export function encodeExpiryDates(expiryDates: Record<number, Date | undefined>): string {
-  if (typeof expiryDates !== 'object') {
-    return ''
-  }
-  return Object.entries(expiryDates)
-    .map(
-      ([eventId, expiryDate]) => {
-        if (!(expiryDate instanceof Date) || isNaN(expiryDate.getTime())) {
-          return null
-        }
-        const ts = Math.trunc(expiryDate.getTime() / 1000)
-        return `expiry[${encodeURIComponent(eventId)}]=${encodeURIComponent(ts)}`
-      }
-    )
-    .filter((param) => param != null)
-    .join('&')
-}
