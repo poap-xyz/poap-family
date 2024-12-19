@@ -291,7 +291,7 @@ function Events() {
                     <td className="event-cell-info">
                       <div className="event-image">
                         <TokenImageZoom
-                          event={drop}
+                          drop={drop}
                           zoomSize={512}
                           size={48}
                         />

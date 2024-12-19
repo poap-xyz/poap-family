@@ -54,7 +54,7 @@ function EventInfo({
       >
         <div className="event-info">
           <div className="event-image">
-            <TokenImageZoom event={drop} zoomSize={512} size={128} />
+            <TokenImageZoom drop={drop} zoomSize={512} size={128} />
           </div>
           <div className="event-data">
             <h1>{drop.name}</h1>

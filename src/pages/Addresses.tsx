@@ -761,7 +761,7 @@ function Addresses() {
                         eventId in inCommon &&
                         inCommon[eventId].includes(address) &&
                         eventId in events && (
-                          <TokenImage event={events[eventId]} size={48} />
+                          <TokenImage drop={events[eventId]} size={48} />
                         )
                       }
                     </td>

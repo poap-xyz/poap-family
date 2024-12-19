@@ -4,23 +4,23 @@ import { resizeTokenImageUrl } from 'models/poap'
 import 'styles/token-image.css'
 
 function TokenImage({
-  event,
+  drop,
   size,
   imgSize,
   resize = true,
   imgix = false,
   original = false,
 }: {
-  event: Drop | CachedEvent
+  drop: Drop | CachedEvent
   size: number
   imgSize?: number
   resize?: boolean
   imgix?: boolean
   original?: boolean
 }) {
-  let imageUrl = original && 'original_url' in event
-    ? event.original_url ?? event.image_url
-    : event.image_url
+  let imageUrl = original && 'original_url' in drop
+    ? drop.original_url ?? drop.image_url
+    : drop.image_url
 
   if (resize) {
     imageUrl = resizeTokenImageUrl(imageUrl, size, imgix)
@@ -29,8 +29,8 @@ function TokenImage({
   return (
     <img
       src={imageUrl}
-      alt={event.name}
-      title={event.name}
+      alt={drop.name}
+      title={drop.name}
       className="token-image"
       style={{
         width: `${imgSize ?? size}px`,

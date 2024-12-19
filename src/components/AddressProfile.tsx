@@ -127,7 +127,7 @@ function AddressProfile({
                 token.id && token.event && (
                   <TokenImage
                     key={token.id}
-                    event={token.event}
+                    drop={token.event}
                     size={18}
                     resize={true}
                   />
@@ -159,7 +159,7 @@ function AddressProfile({
                 eventId in events && (
                   <TokenImage
                     key={eventId}
-                    event={events[eventId]}
+                    drop={events[eventId]}
                     size={18}
                     resize={true}
                   />
