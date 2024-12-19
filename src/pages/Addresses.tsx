@@ -9,7 +9,6 @@ import { InCommon } from 'models/api'
 import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
-import { getEventsOwners } from 'loaders/api'
 import { fetchCollectorDrops, fetchDropsCollectors } from 'loaders/collector'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
@@ -351,18 +350,11 @@ function Addresses() {
           controllers.push(controller)
         } else {
           const controller = new AbortController()
-          getEventsOwners(searchEvents, controller.signal).then(
-            (ownersMap) => {
+          fetchDropsCollectors(searchEvents, controller.signal).then(
+            (owners) => {
               setLoadingEventsOwners(false)
-              if (ownersMap) {
-                const uniqueOwners = Object.values(ownersMap).reduce(
-                  (allOwners, eventOwners) => new Set([
-                    ...allOwners,
-                    ...(eventOwners?.owners ?? []),
-                  ]),
-                  new Set<string>()
-                )
-                const addresses = [...uniqueOwners].map(
+              if (owners) {
+                const addresses = [...owners].map(
                   (owner) => parseAddress(owner)
                 )
                 updateAddresses(addresses)
