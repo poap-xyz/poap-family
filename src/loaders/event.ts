@@ -1,12 +1,9 @@
 import { parseEventIds } from 'models/event'
-import { Drop } from 'models/drop'
 import { HttpError } from 'models/error'
-import { getEventAndOwners, getEvents } from 'loaders/api'
 import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'loaders/drop'
 import { fetchDropsCollectors } from 'loaders/collector'
 
-export async function eventLoader({ params, request }) {
-  const force = new URL(request.url).searchParams.get('force') === 'true'
+export async function eventLoader({ params }) {
   const dropId = parseInt(String(params.eventId))
 
   if (isNaN(dropId)) {
@@ -14,26 +11,6 @@ export async function eventLoader({ params, request }) {
       status: 400,
       statusText: 'Invalid drop id',
     })
-  }
-
-  try {
-    const eventAndOwners = await getEventAndOwners(
-      dropId,
-      /*abortSignal*/undefined,
-      /*includeDescription*/true,
-      /*includeMetrics*/true,
-      /*refresh*/force
-    )
-    if (eventAndOwners != null) {
-      return {
-        event: eventAndOwners.event,
-        owners: eventAndOwners.owners,
-        ts: eventAndOwners.ts,
-        metrics: eventAndOwners.metrics,
-      }
-    }
-  } catch (err: unknown) {
-    console.error(err)
   }
 
   const event = await fetchDrop(dropId, /*includeDescription*/true)
@@ -71,7 +48,7 @@ export async function eventLoader({ params, request }) {
   }
 }
 
-export async function eventsLoader({ params, request }) {
+export async function eventsLoader({ params }) {
   const eventIds = parseEventIds(params.eventIds)
 
   if (eventIds.length === 0) {
@@ -101,73 +78,45 @@ export async function eventsLoader({ params, request }) {
     })
   }
 
-  const force = new URL(request.url).searchParams.get('force') === 'true'
-  let events: Record<number, Drop | undefined>
-  let notFoundEventIds: number[] | undefined
-
-  if (!force) {
-    try {
-      events = await getEvents(eventIds)
-    } catch (err: unknown) {
-      console.error(err)
-    }
-    if (events) {
-      notFoundEventIds = []
-
-      for (const eventId of eventIds) {
-        if (!(eventId in events)) {
-          notFoundEventIds.push(eventId)
-        }
-      }
-
-      if (notFoundEventIds.length === 0) {
-        return events
-      }
-    }
-  }
-
-  if (!events) {
-    events = {}
-  }
-
-  const [freshEvents, errors] = await fetchDropsOrErrors(
-    notFoundEventIds ?? eventIds
+  const [drops, errors] = await fetchDropsOrErrors(
+    eventIds,
+    /*includeDescription*/false
   )
 
   if (Object.keys(errors).length > 0) {
-    const errorsByEventId = Object.assign({}, errors)
-    const eventsNotFound = await Promise.allSettled(
+    const errorsByDropId = Object.assign({}, errors)
+    const dropsNotFound = await Promise.allSettled(
       Object.entries(errors)
         .filter(
           ([, error]) => error instanceof HttpError && error.status === 404
         )
-        .map(([rawEventId]) =>
-          fetchDrop(parseInt(rawEventId), /*includeDescription*/false)
+        .map(([rawDropId]) =>
+          fetchDrop(parseInt(rawDropId), /*includeDescription*/false)
         )
     )
 
-    for (const eventResult of eventsNotFound) {
-      if (eventResult.status === 'rejected') {
+    for (const dropResult of dropsNotFound) {
+      if (dropResult.status === 'rejected') {
         continue
       }
 
-      const event = eventResult.value
+      const drop = dropResult.value
 
-      if (!event) {
+      if (!drop) {
         continue
       }
 
-      events[event.id] = event
+      drops[drop.id] = drop
 
-      if (event.id in errors) {
-        delete errorsByEventId[event.id]
+      if (drop.id in errors) {
+        delete errorsByDropId[drop.id]
       }
     }
 
-    if (Object.keys(errorsByEventId).length > 0) {
+    if (Object.keys(errorsByDropId).length > 0) {
       const response = JSON.stringify({
         errorsByEventId: Object.fromEntries(
-          Object.entries(errorsByEventId).map(
+          Object.entries(errorsByDropId).map(
             ([eventId, error]) => ([
               eventId,
               {
@@ -189,8 +138,5 @@ export async function eventsLoader({ params, request }) {
     }
   }
 
-  return {
-    ...events,
-    ...freshEvents,
-  }
+  return drops
 }

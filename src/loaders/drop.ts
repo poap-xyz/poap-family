@@ -89,6 +89,7 @@ export async function searchDrops(
 
 export async function fetchDropsOrErrors(
   dropIds: number[],
+  includeDescription: boolean,
   limit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
 ): Promise<[
   Record<number, Drop>,
@@ -107,7 +108,7 @@ export async function fetchDropsOrErrors(
     try {
       const drops = await queryManyCompass(
         'drops',
-        (data: unknown): Drop => parseDrop(data, /*includeDescription*/false),
+        (data: unknown): Drop => parseDrop(data, includeDescription),
         `
           query FetchDrops($dropIds: [Int!]) {
             drops(where: { id: { _in: $dropIds } }) {
