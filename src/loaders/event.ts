@@ -1,9 +1,10 @@
 import { parseEventIds } from 'models/event'
+import { Drop, DropData } from 'models/drop'
 import { HttpError } from 'models/error'
 import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'loaders/drop'
 import { fetchDropsCollectors } from 'loaders/collector'
 
-export async function eventLoader({ params }) {
+export async function eventLoader({ params }): Promise<DropData> {
   const dropId = parseInt(String(params.eventId))
 
   if (isNaN(dropId)) {
@@ -13,9 +14,9 @@ export async function eventLoader({ params }) {
     })
   }
 
-  const event = await fetchDrop(dropId, /*includeDescription*/true)
+  const drop = await fetchDrop(dropId, /*includeDescription*/true)
 
-  if (!event) {
+  if (!drop) {
     throw new Response('', {
       status: 404,
       statusText: 'Drop not found',
@@ -35,20 +36,19 @@ export async function eventLoader({ params }) {
     })
   }
 
-  const owners = collectorsSettled.value
+  const collectors = collectorsSettled.value
   const metrics = metricsSettled.status === 'fulfilled'
     ? metricsSettled.value
     : null
 
   return {
-    event,
-    owners,
-    ts: null,
+    drop,
+    collectors,
     metrics,
   }
 }
 
-export async function eventsLoader({ params }) {
+export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
   const eventIds = parseEventIds(params.eventIds)
 
   if (eventIds.length === 0) {

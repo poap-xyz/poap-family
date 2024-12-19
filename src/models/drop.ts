@@ -11,68 +11,68 @@ export interface Drop {
   expiry_date: string
 }
 
-export function parseDrop(event: unknown, includeDescription: boolean): Drop {
+export function parseDrop(data: unknown, includeDescription: boolean): Drop {
   if (
-    event == null ||
-    typeof event !== 'object' ||
-    !('id' in event) ||
-    event.id == null ||
-    typeof event.id !== 'number' ||
-    !('name' in event) ||
-    event.name == null ||
-    typeof event.name !== 'string' ||
+    data == null ||
+    typeof data !== 'object' ||
+    !('id' in data) ||
+    data.id == null ||
+    typeof data.id !== 'number' ||
+    !('name' in data) ||
+    data.name == null ||
+    typeof data.name !== 'string' ||
     (
       includeDescription &&
       (
-        !('description' in event) ||
-        event.description == null ||
-        typeof event.description !== 'string'
+        !('description' in data) ||
+        data.description == null ||
+        typeof data.description !== 'string'
       )
     ) ||
-    !('image_url' in event) ||
-    event.image_url == null ||
-    typeof event.image_url !== 'string' ||
-    !('city' in event) ||
-    (event.city != null && typeof event.city !== 'string') ||
-    !('country' in event) ||
-    (event.country != null && typeof event.country !== 'string') ||
-    !('start_date' in event) ||
-    event.start_date == null ||
-    typeof event.start_date !== 'string' ||
-    !('end_date' in event) ||
-    event.end_date == null ||
-    typeof event.end_date !== 'string' ||
-    !('expiry_date' in event) ||
-    event.expiry_date == null ||
-    typeof event.expiry_date !== 'string'
+    !('image_url' in data) ||
+    data.image_url == null ||
+    typeof data.image_url !== 'string' ||
+    !('city' in data) ||
+    (data.city != null && typeof data.city !== 'string') ||
+    !('country' in data) ||
+    (data.country != null && typeof data.country !== 'string') ||
+    !('start_date' in data) ||
+    data.start_date == null ||
+    typeof data.start_date !== 'string' ||
+    !('end_date' in data) ||
+    data.end_date == null ||
+    typeof data.end_date !== 'string' ||
+    !('expiry_date' in data) ||
+    data.expiry_date == null ||
+    typeof data.expiry_date !== 'string'
   ) {
-    throw new Error('Invalid drop')
+    throw new Error('Malformed drop')
   }
   return {
-    id: event.id,
-    name: event.name,
+    id: data.id,
+    name: data.name,
     description: includeDescription
       ? (
-        'description' in event &&
-        event.description != null &&
-        typeof event.description === 'string'
-          ? event.description
+        'description' in data &&
+        data.description != null &&
+        typeof data.description === 'string'
+          ? data.description
           : ''
       )
       : undefined,
-    image_url: event.image_url,
+    image_url: data.image_url,
     original_url: (
-      'original_url' in event &&
-      typeof event.original_url !== 'string'
-        ? event.original_url
+      'original_url' in data &&
+      typeof data.original_url !== 'string'
+        ? data.original_url
         : (
-          'drop_image' in event &&
-          event.drop_image != null &&
-          typeof event.drop_image === 'object' &&
-          'gateways' in event.drop_image &&
-          event.drop_image.gateways != null &&
-          Array.isArray(event.drop_image.gateways)
-            ? event.drop_image?.gateways?.reduce(
+          'drop_image' in data &&
+          data.drop_image != null &&
+          typeof data.drop_image === 'object' &&
+          'gateways' in data.drop_image &&
+          data.drop_image.gateways != null &&
+          Array.isArray(data.drop_image.gateways)
+            ? data.drop_image?.gateways?.reduce(
                 (original, gateway) => (
                   gateway != null &&
                   typeof gateway === 'object' &&
@@ -86,43 +86,16 @@ export function parseDrop(event: unknown, includeDescription: boolean): Drop {
                     ? gateway.url
                     : original
                 ),
-                event.image_url
+                data.image_url
               )
-            : event.image_url
+            : data.image_url
         )
     ),
-    city: typeof event.city === 'string' ? event.city : null,
-    country: typeof event.country === 'string' ? event.country : null,
-    start_date: event.start_date,
-    end_date: event.end_date,
-    expiry_date: event.expiry_date,
-  }
-}
-
-export interface DropOwners {
-  owners: string[]
-  ts: number
-}
-
-export function parseDropOwners(eventOwners: unknown): DropOwners {
-  if (
-    eventOwners == null ||
-    typeof eventOwners !== 'object' ||
-    !('owners' in eventOwners) ||
-    !Array.isArray(eventOwners.owners) ||
-    !eventOwners.owners.every((owner) =>
-      owner != null &&
-      typeof owner === 'string'
-    ) ||
-    !('ts' in eventOwners) ||
-    eventOwners.ts == null ||
-    typeof eventOwners.ts !== 'number'
-  ) {
-    throw new Error('Malformed drop owners')
-  }
-  return {
-    owners: eventOwners.owners,
-    ts: eventOwners.ts,
+    city: typeof data.city === 'string' ? data.city : null,
+    country: typeof data.country === 'string' ? data.country : null,
+    start_date: data.start_date,
+    end_date: data.end_date,
+    expiry_date: data.expiry_date,
   }
 }
 
@@ -228,61 +201,47 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
   throw new Error('Malformed drop metrics')
 }
 
+export interface DropData {
+  drop: Drop
+  collectors: string[]
+  metrics: DropMetrics | null
+}
+
 export function parseDropData(
   data: unknown,
   includeDescription: boolean = false,
   includeMetrics: boolean = true,
-): {
-  event: Drop
-  owners: string[]
-  ts: number | null
-  metrics: DropMetrics | null
-} {
+): DropData {
   if (
     data == null ||
     typeof data !== 'object' ||
     !('event' in data) ||
-    !('owners' in data) ||
-    !('ts' in data)
+    !('owners' in data)
   ) {
-    throw new Error('Malformed drop data')
+    throw new Error('Malformed drop data: missing drop or collectors')
   }
-  let dropOwners: DropOwners
-  if (data.ts == null) {
-    if (
-      !Array.isArray(data.owners) ||
-      !data.owners.every((owner) =>
-        owner != null &&
-        typeof owner === 'string'
-      )
-    ) {
-      throw new Error('Malformed owners')
-    }
-    dropOwners = {
-      owners: data.owners,
-      ts: null,
-    }
-  } else {
-    dropOwners = parseDropOwners({
-      owners: data.owners,
-      ts: data.ts,
-    })
+  if (
+    !Array.isArray(data.owners) ||
+    !data.owners.every((owner) =>
+      owner != null &&
+      typeof owner === 'string'
+    )
+  ) {
+    throw new Error('Malformed drop data: malformed collectors')
   }
   if (!includeMetrics) {
     return {
-      event: parseDrop(data.event, includeDescription),
-      owners: dropOwners.owners,
-      ts: dropOwners.ts,
+      drop: parseDrop(data.event, includeDescription),
+      collectors: data.owners,
       metrics: null,
     }
   }
   if (!('metrics' in data)) {
-    throw new Error('Malformed drop data')
+    throw new Error('Malformed drop data: missing metrics')
   }
   return {
-    event: parseDrop(data.event, includeDescription),
-    owners: dropOwners.owners,
-    ts: dropOwners.ts,
+    drop: parseDrop(data.event, includeDescription),
+    collectors: data.owners,
     metrics: parseDropMetrics(data.metrics),
   }
 }
@@ -297,7 +256,7 @@ export function parseDrops(
 
   return Object.fromEntries(
     Object.entries(drops).map(
-      ([eventId, event]) => [eventId, parseDrop(event, includeDescription)]
+      ([rawDropId, drop]) => [rawDropId, parseDrop(drop, includeDescription)]
     )
   )
 }
