@@ -447,7 +447,9 @@ function Events() {
                           Cached <Timestamp ts={eventsInCommon[event.id].ts} />
                           {(
                             completedInCommonEvents[event.id] &&
+                            eventsOwners[event.id] != null &&
                             eventsInCommon[event.id] != null &&
+                            eventsInCommon[event.id].inCommon[event.id] != null &&
                             eventsInCommon[event.id].inCommon[event.id].length !== eventsOwners[event.id].length
                           ) && (
                             <>
