@@ -10,7 +10,7 @@ import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
 import { getEventsOwners } from 'loaders/api'
-import { fetchCollectorDrops, fetchDropCollectors } from 'loaders/collector'
+import { fetchCollectorDrops, fetchDropsCollectors } from 'loaders/collector'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
 import CenterPage from 'components/CenterPage'
@@ -321,7 +321,7 @@ function Addresses() {
         setLoadingEventsOwners(true)
         if (force) {
           const controller = new AbortController()
-          fetchDropCollectors(searchEvents, controller.signal).then(
+          fetchDropsCollectors(searchEvents, controller.signal).then(
             (collectors) => {
               let addresses: ParsedAddress[] | undefined
               try {

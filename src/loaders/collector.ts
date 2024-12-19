@@ -6,7 +6,7 @@ import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
 import { Drop } from 'models/drop'
 import { queryAllCompass } from 'loaders/compass'
 
-export async function fetchDropCollectors(
+export async function fetchDropsCollectors(
   dropIds: number[],
   abortSignal?: AbortSignal,
   limit = Math.min(DEFAULT_COLLECTOR_LIMIT, DEFAULT_COMPASS_LIMIT),
@@ -15,7 +15,7 @@ export async function fetchDropCollectors(
     `poaps`,
     parseCollector,
     `
-      query FetchDropCollectors(
+      query FetchDropsCollectors(
         $dropIds: [bigint!]
         $offset: Int!
         $limit: Int!
