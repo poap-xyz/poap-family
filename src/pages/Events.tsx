@@ -4,7 +4,7 @@ import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
-import { parseEventIds, parseExpiryDates } from 'models/event'
+import { parseEventIds } from 'models/event'
 import { Drop, parseDrops } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { InCommon } from 'models/api'
@@ -55,11 +55,6 @@ function Events() {
     [events]
   )
 
-  const expiryDates = useMemo(
-    () => parseExpiryDates(events),
-    [events]
-  )
-
   const {
     completedEventsOwnersAndMetrics,
     loadingEventsOwnersAndMetrics,
@@ -69,7 +64,7 @@ function Events() {
     eventsMetrics,
     fetchEventsOwnersAndMetrics,
     retryEventOwnersAndMetrics,
-  } = useEventsOwnersAndMetrics(eventIds, expiryDates, force)
+  } = useEventsOwnersAndMetrics(eventIds)
 
   const {
     completedEventsInCommon,
