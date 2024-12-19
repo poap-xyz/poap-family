@@ -143,7 +143,7 @@ function Event() {
     <Page>
       <div className="event">
         <div className="event-header-info">
-          <EventInfo event={drop}>
+          <EventInfo drop={drop}>
             <EventStats
               drop={drop}
               collectors={collectors.length}
