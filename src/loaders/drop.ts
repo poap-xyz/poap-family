@@ -1,9 +1,10 @@
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { DEFAULT_DROP_LIMIT, DEFAULT_SEARCH_LIMIT } from 'models/event'
-import { Drop, parseDrop } from 'models/drop'
+import { Drop, DropMetrics, parseDrop, parseDropMetrics } from 'models/drop'
 import { HttpError } from 'models/error'
 import {
   queryAggregateCountCompass,
+  queryCompass,
   queryFirstCompass,
   queryManyCompass,
 } from 'loaders/compass'
@@ -199,4 +200,37 @@ export async function fetchDrop(
 
     throw err
   }
+}
+
+export async function fetchDropMetrics(
+  dropId: number,
+  abortSignal?: AbortSignal,
+): Promise<DropMetrics | null> {
+  return await queryCompass(
+    'drops_by_pk',
+    parseDropMetrics,
+    `
+      query DropMetrics($dropId: Int!) {
+        drops_by_pk(id: $dropId) {
+          email_claims_stats {
+            minted
+            reserved
+            total
+          }
+          moments_stats {
+            moments_uploaded
+          }
+          collections_items_aggregate {
+            aggregate {
+              count(columns: collection_id, distinct: true)
+            }
+          }
+        }
+      }
+    `,
+    {
+      dropId,
+    },
+    abortSignal,
+  )
 }
