@@ -105,43 +105,11 @@ export interface DropMetrics {
   emailClaims: number
   momentsUploaded: number
   collectionsIncludes: number
-  ts: number | null
 }
 
 export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
   if (eventMetrics == null) {
     return null
-  }
-  if (
-    typeof eventMetrics === 'object' &&
-    eventMetrics != null &&
-    'emailReservations' in eventMetrics &&
-    eventMetrics.emailReservations != null &&
-    typeof eventMetrics.emailReservations === 'number' &&
-    'emailClaimsMinted' in eventMetrics &&
-    eventMetrics.emailClaimsMinted != null &&
-    typeof eventMetrics.emailClaimsMinted === 'number' &&
-    'emailClaims' in eventMetrics &&
-    eventMetrics.emailClaims != null &&
-    typeof eventMetrics.emailClaims === 'number' &&
-    'momentsUploaded' in eventMetrics &&
-    eventMetrics.momentsUploaded != null &&
-    typeof eventMetrics.momentsUploaded === 'number' &&
-    'collectionsIncludes' in eventMetrics &&
-    eventMetrics.collectionsIncludes != null &&
-    typeof eventMetrics.collectionsIncludes === 'number' &&
-    'ts' in eventMetrics &&
-    eventMetrics.ts != null &&
-    typeof eventMetrics.ts === 'number'
-  ) {
-    return {
-      emailReservations: eventMetrics.emailReservations,
-      emailClaimsMinted: eventMetrics.emailClaimsMinted,
-      emailClaims: eventMetrics.emailClaims,
-      momentsUploaded: eventMetrics.momentsUploaded,
-      collectionsIncludes: eventMetrics.collectionsIncludes,
-      ts: eventMetrics.ts,
-    }
   }
   if (
     typeof eventMetrics === 'object' &&
@@ -195,7 +163,6 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
       momentsUploaded,
       collectionsIncludes:
         eventMetrics.collections_items_aggregate.aggregate.count,
-      ts: null,
     }
   }
   throw new Error('Malformed drop metrics')

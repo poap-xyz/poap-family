@@ -1,15 +1,14 @@
 import { Drop, DropMetrics } from 'models/drop'
 import { POAP_MOMENTS_URL } from 'models/poap'
 import { formatStat } from 'utils/number'
-import { formatDateAgo } from 'utils/date'
 import Stats from 'components/Stats'
 
 function EventStats({
-  event,
+  drop,
   collectors,
   metrics,
 }: {
-  event: Drop
+  drop: Drop
   collectors: number
   metrics?: DropMetrics
 }) {
@@ -29,7 +28,6 @@ function EventStats({
     }
     stats['reservations'] = {
       text: formatStat(metrics.emailReservations),
-      title: metrics.ts ? `Cached ${formatDateAgo(metrics.ts)}` : undefined,
     }
   }
 
@@ -49,8 +47,8 @@ function EventStats({
   if (metrics && metrics.momentsUploaded > 0) {
     stats['moments'] = {
       text: formatStat(metrics.momentsUploaded),
-      title: `View uploaded moments on ${event.name}`,
-      href: `${POAP_MOMENTS_URL}/drop/${event.id}`,
+      title: `View uploaded moments on ${drop.name}`,
+      href: `${POAP_MOMENTS_URL}/drop/${drop.id}`,
       external: true,
     }
   }

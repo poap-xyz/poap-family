@@ -145,7 +145,7 @@ function Event() {
         <div className="event-header-info">
           <EventInfo event={drop}>
             <EventStats
-              event={drop}
+              drop={drop}
               collectors={collectors.length}
               metrics={metrics}
             />
@@ -163,12 +163,6 @@ function Event() {
             {cachedTs &&
               <div className="cached">
                 Cached <Timestamp ts={cachedTs} />,{' '}
-                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-              </div>
-            }
-            {!cachedTs && metrics && metrics.ts &&
-              <div className="cached">
-                Cached <Timestamp ts={metrics.ts} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </div>
             }

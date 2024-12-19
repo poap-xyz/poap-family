@@ -304,7 +304,6 @@ export async function fetchDropsMetrics(
         emailClaims: drop.emailClaims,
         momentsUploaded: drop.momentsUploaded,
         collectionsIncludes: drop.collectionsIncludes,
-        ts: drop.ts,
       }
     }
   }
