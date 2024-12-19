@@ -182,24 +182,26 @@ export function parseDropData(
   if (
     data == null ||
     typeof data !== 'object' ||
-    !('event' in data) ||
-    !('owners' in data)
+    !('drop' in data) ||
+    !('collectors' in data)
   ) {
     throw new Error('Malformed drop data: missing drop or collectors')
   }
   if (
-    !Array.isArray(data.owners) ||
-    !data.owners.every((owner) =>
-      owner != null &&
-      typeof owner === 'string'
+    !Array.isArray(data.collectors) ||
+    !data.collectors.every((collector: unknown): collector is string =>
+      collector != null &&
+      typeof collector === 'string' &&
+      collector.startsWith('0x') &&
+      collector.length === 42
     )
   ) {
     throw new Error('Malformed drop data: malformed collectors')
   }
   if (!includeMetrics) {
     return {
-      drop: parseDrop(data.event, includeDescription),
-      collectors: data.owners,
+      drop: parseDrop(data.drop, includeDescription),
+      collectors: data.collectors,
       metrics: null,
     }
   }
@@ -207,8 +209,8 @@ export function parseDropData(
     throw new Error('Malformed drop data: missing metrics')
   }
   return {
-    drop: parseDrop(data.event, includeDescription),
-    collectors: data.owners,
+    drop: parseDrop(data.drop, includeDescription),
+    collectors: data.collectors,
     metrics: parseDropMetrics(data.metrics),
   }
 }
