@@ -23,7 +23,7 @@ function EventsInCommon({
   showActive = true,
   baseDropIds = [],
   onActive,
-  eventsEnsNames,
+  dropsEnsNames,
 }: {
   children?: ReactNode
   inCommon: InCommon
@@ -32,7 +32,7 @@ function EventsInCommon({
   showActive?: boolean
   baseDropIds?: number[]
   onActive?: (dropId: number) => void
-  eventsEnsNames?: Record<number, EnsByAddress>
+  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeEventIds, setActiveEventIds] = useState<number[]>([])
@@ -117,11 +117,11 @@ function EventsInCommon({
   }
 
   const activeEventsEnsNames = useMemo(
-    () => eventsEnsNames
+    () => dropsEnsNames
       ? (activeEventIds.length === 0
           ? {}
           : Object.fromEntries(
-              Object.entries(eventsEnsNames).filter(([rawEventId]) => {
+              Object.entries(dropsEnsNames).filter(([rawEventId]) => {
                 const dropId = parseInt(rawEventId)
                 if (isNaN(dropId)) {
                   return false
@@ -131,7 +131,7 @@ function EventsInCommon({
             )
         )
       : undefined,
-    [eventsEnsNames, activeEventIds]
+    [dropsEnsNames, activeEventIds]
   )
 
   const inCommonTotal = inCommonEntries.length
@@ -187,7 +187,7 @@ function EventsInCommon({
           drops={drops}
           inCommon={inCommon}
           onClose={removeActiveDropId}
-          eventsEnsNames={activeEventsEnsNames}
+          dropsEnsNames={activeEventsEnsNames}
         />
       }
     </div>

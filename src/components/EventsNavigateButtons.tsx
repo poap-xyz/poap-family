@@ -12,7 +12,7 @@ function EventsNavigateButtons({
 }) {
   const navigate = useNavigate()
 
-  function addEvents(): void {
+  function addDrops(): void {
     if (dropIds.length === 0) {
       return
     }
@@ -24,7 +24,7 @@ function EventsNavigateButtons({
     }
   }
 
-  function openEvents(): void {
+  function openDrops(): void {
     if (dropIds.length === 0) {
       return
     }
@@ -45,7 +45,7 @@ function EventsNavigateButtons({
               (dropId) => baseDropIds.includes(dropId)
             )
           }
-          onClick={() => addEvents()}
+          onClick={() => addDrops()}
           title={`Combines drops #${dropIds.join(', #')} to #${baseDropIds.join(', #')}`}
         >
           Add selected
@@ -64,7 +64,7 @@ function EventsNavigateButtons({
             )
           )
         }
-        onClick={() => openEvents()}
+        onClick={() => openDrops()}
         title={`Open drops #${dropIds.join(', #')}`}
       >
         Open {baseDropIds.length === 0 && ' selected'}

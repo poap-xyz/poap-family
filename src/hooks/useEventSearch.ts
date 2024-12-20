@@ -1,22 +1,22 @@
 import { useCallback, useState } from 'react'
 import { SEARCH_LIMIT, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { searchDrops } from 'loaders/drop'
+import { searchDrops as loadDrops } from 'loaders/drop'
 
 function useEventSearch(query?: string, page: number = 1): {
-  loadingEventSearch: boolean
-  eventSearchError: Error | null
+  loadingDropSearch: boolean
+  dropSearchError: Error | null
   totalEventResults: number | null
-  resultEvents: Drop[]
-  searchEvents: (newQuery?: string | null, newPage?: number) => () => void
-  retryEventSearch: () => void
+  resultDrops: Drop[]
+  searchDrops: (newQuery?: string | null, newPage?: number) => () => void
+  retryDropSearch: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [total, setTotal] = useState<number | null>(null)
-  const [resultEvents, setResultEvents] = useState<Drop[]>([])
+  const [resultDrops, setResultDrops] = useState<Drop[]>([])
 
-  const searchEvents = useCallback(
+  const searchDrops = useCallback(
     (newQuery: string, newPage: number) => {
       let controller: AbortController | undefined
       if (query == null && newQuery == null) {
@@ -24,12 +24,12 @@ function useEventSearch(query?: string, page: number = 1): {
       } else {
         setError(null)
         setTotal(null)
-        setResultEvents([])
+        setResultDrops([])
         const offset = ((newPage ?? page) - 1) * SEARCH_LIMIT
         if (total == null || offset <= total) {
           controller = new AbortController()
           setLoading(true)
-          searchDrops(
+          loadDrops(
             newQuery ?? query,
             controller.signal,
             offset,
@@ -38,7 +38,7 @@ function useEventSearch(query?: string, page: number = 1): {
             (results) => {
               setLoading(false)
               setTotal(results.total)
-              setResultEvents(results.items)
+              setResultDrops(results.items)
               if (results.total === 0 || results.items.length === 0) {
                 setError(new Error('No drops results for query'))
               }
@@ -67,23 +67,23 @@ function useEventSearch(query?: string, page: number = 1): {
         setLoading(false)
         setError(null)
         setTotal(null)
-        setResultEvents([])
+        setResultDrops([])
       }
     },
     [page, query, total]
   )
 
-  function retryEventSearch(): void {
+  function retryDropSearch(): void {
     setError(null)
   }
 
   return {
-    loadingEventSearch: loading,
-    eventSearchError: error,
+    loadingDropSearch: loading,
+    dropSearchError: error,
     totalEventResults: total,
-    resultEvents,
-    searchEvents,
-    retryEventSearch,
+    resultDrops,
+    searchDrops,
+    retryDropSearch,
   }
 }
 

@@ -30,12 +30,12 @@ function Search() {
   } = useEvent()
 
   const {
-    loadingEventSearch,
-    eventSearchError,
+    loadingDropSearch,
+    dropSearchError,
     totalEventResults,
-    resultEvents,
-    searchEvents,
-    retryEventSearch,
+    resultDrops,
+    searchDrops,
+    retryDropSearch,
   } = useEventSearch()
 
   const {
@@ -76,7 +76,7 @@ function Search() {
           cancelDrop = fetchDrop(dropId)
         }
       }
-      cancelDropSearch = searchEvents(searchQuery, searchPage)
+      cancelDropSearch = searchDrops(searchQuery, searchPage)
       cancelCollectionSearch = searchCollections(searchQuery, searchPage)
     }
     cancelSearch.current = () => {
@@ -138,7 +138,7 @@ function Search() {
         return
       }
     }
-    if (resultCollections.length > 0 || resultEvents.length > 0) {
+    if (resultCollections.length > 0 || resultDrops.length > 0) {
       setError(new Error('Select any POAP drop to continue'))
     } else if (query.length === 0) {
       setError(new Error('Search and select any POAP drop to continue'))
@@ -168,13 +168,13 @@ function Search() {
 
   function clearErrors(): void {
     retryDrop()
-    retryEventSearch()
+    retryDropSearch()
     retryCollectionSearch()
     setError(null)
   }
 
   function addSelectDrop(dropId: number): void {
-    const resultDrop = resultEvents.find((queried) => queried.id === dropId)
+    const resultDrop = resultDrops.find((queried) => queried.id === dropId)
     if (resultDrop) {
       setSelectedDrops((prevSelectedDrops) => {
         const exists = -1 !== prevSelectedDrops.findIndex(
@@ -205,9 +205,9 @@ function Search() {
     )
     if (selectedIndex !== -1) {
       setSelectedDrops((prevSelectedDrops) => {
-        const newSelectedEvents = [...prevSelectedDrops]
-        newSelectedEvents.splice(selectedIndex, 1)
-        return newSelectedEvents
+        const newSelectedDrops = [...prevSelectedDrops]
+        newSelectedDrops.splice(selectedIndex, 1)
+        return newSelectedDrops
       })
     }
     clearErrors()
@@ -246,7 +246,7 @@ function Search() {
   }
 
   const selectedNotInDrops = selectedDrops.filter(
-    (selected) => -1 === resultEvents.findIndex(
+    (selected) => -1 === resultDrops.findIndex(
       (queried) => queried.id === selected.id
     ) && (
       page !== 1 ||
@@ -276,7 +276,7 @@ function Search() {
 
   const isLoading = (
     loadingDrop ||
-    loadingEventSearch ||
+    loadingDropSearch ||
     loadingCollectionSearch
   )
 
@@ -314,12 +314,12 @@ function Search() {
         </form>
         {(
           !dropError &&
-          !eventSearchError &&
+          !dropSearchError &&
           !collectionSearchError &&
           !error &&
           selectedDrops.length === 0 &&
           selectedCollections.length === 0 &&
-          resultEvents.length === 0 &&
+          resultDrops.length === 0 &&
           resultCollections.length === 0 &&
           !isLoading &&
           !drop
@@ -330,14 +330,14 @@ function Search() {
             </Link>
           </div>
         )}
-        {dropError && resultEvents.length === 0 && resultCollections.length === 0 && (
+        {dropError && resultDrops.length === 0 && resultCollections.length === 0 && (
           <div className="search-error">
             <p>{dropError.message}</p>
           </div>
         )}
-        {eventSearchError && !drop && (
+        {dropSearchError && !drop && (
           <div className="search-error">
-            <p>{eventSearchError.message}</p>
+            <p>{dropSearchError.message}</p>
           </div>
         )}
         {collectionSearchError && !drop && (
@@ -353,7 +353,7 @@ function Search() {
         {(
           selectedDrops.length > 0 ||
           selectedCollections.length > 0 ||
-          resultEvents.length > 0 ||
+          resultDrops.length > 0 ||
           resultCollections.length > 0
         ) && (
           <div className="search-header">
@@ -401,7 +401,7 @@ function Search() {
           selectedNotInCollections.length > 0 ||
           selectedNotInDrops.length > 0
         ) && (
-          resultEvents.length > 0 ||
+          resultDrops.length > 0 ||
           resultCollections.length > 0 ||
           isLoading
         ) && (
@@ -453,8 +453,8 @@ function Search() {
             )
           )
         )}
-        {resultEvents.length > 0 && (
-          resultEvents.map((resultEvent) => (
+        {resultDrops.length > 0 && (
+          resultDrops.map((resultEvent) => (
             !drop ||
             drop.id !== resultEvent.id
           ) && (
@@ -475,7 +475,7 @@ function Search() {
             />
           ))
         )}
-        {resultEvents.length > 0 && pages > 1 && (
+        {resultDrops.length > 0 && pages > 1 && (
           <div className="search-pagination">
             <Pagination
               page={page}

@@ -63,7 +63,7 @@ function Addresses() {
   const [inCommon, setInCommon] = useState<InCommon>({})
   const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
-  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
+  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   function enableLoadingByAddress(address: string): void {
     setLoadingByAddress((prevLoading) => ({
@@ -631,7 +631,7 @@ function Addresses() {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setEventsEnsNames((prevEventsEnsNames) => ({
+        setDropsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
           [dropId]: ensNames,
         }))
@@ -800,7 +800,7 @@ function Addresses() {
             inCommon={inCommon}
             drops={drops}
             showCount={addresses.length}
-            eventsEnsNames={eventsEnsNames}
+            dropsEnsNames={dropsEnsNames}
           />
         )}
       </div>

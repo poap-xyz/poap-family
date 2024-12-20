@@ -28,7 +28,7 @@ function Event() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
+  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
 
@@ -131,7 +131,7 @@ function Event() {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setEventsEnsNames((prevEventsEnsNames) => ({
+        setDropsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
           [dropId]: ensNames,
         }))
@@ -262,7 +262,7 @@ function Event() {
                 inCommon={inCommon}
                 drops={drops}
                 baseDropIds={dropIds}
-                eventsEnsNames={eventsEnsNames}
+                dropsEnsNames={dropsEnsNames}
               />
             )}
           </>

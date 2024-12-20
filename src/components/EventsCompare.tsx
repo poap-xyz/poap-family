@@ -22,14 +22,14 @@ function EventsCompare({
   drops,
   inCommon,
   onClose,
-  eventsEnsNames,
+  dropsEnsNames,
 }: {
   baseDropIds: number[]
   dropIds: number[]
   drops: Record<number, Drop>
   inCommon: InCommon
   onClose: (dropId: number) => void
-  eventsEnsNames?: Record<number, EnsByAddress>
+  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
@@ -123,10 +123,10 @@ function EventsCompare({
                     >
                       <AddressOwner
                         ens={
-                          eventsEnsNames &&
-                          dropId in eventsEnsNames &&
-                          owner in eventsEnsNames[dropId]
-                            ? eventsEnsNames[dropId][owner]
+                          dropsEnsNames &&
+                          dropId in dropsEnsNames &&
+                          owner in dropsEnsNames[dropId]
+                            ? dropsEnsNames[dropId][owner]
                             : undefined}
                         address={owner}
                         drops={drops}
