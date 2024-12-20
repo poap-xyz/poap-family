@@ -4,7 +4,6 @@ import {
   FAMILY_API_KEY,
   FAMILY_API_URL,
   CachedEvent,
-  Feedback,
   EventsInCommon,
 } from 'models/api'
 import { parseDrop, Drop } from 'models/drop'
@@ -525,19 +524,6 @@ export async function getLastEvents(
   }
 }
 
-export async function auth(passphrase: string): Promise<void> {
-  const response = await fetch(`${FAMILY_API_URL}/auth`, {
-    method: 'POST',
-    headers: {
-      'x-api-key': passphrase,
-    },
-  })
-
-  if (response.status !== 200) {
-    throw new Error(`Incorrect passphrase`)
-  }
-}
-
 export async function addFeedback(message: string, url: string): Promise<void> {
   const response = await fetch(`${FAMILY_API_URL}/feedback`, {
     method: 'POST',
@@ -555,70 +541,5 @@ export async function addFeedback(message: string, url: string): Promise<void> {
       `Feedback save failed (status ${response.status})`,
       { status: response.status }
     )
-  }
-}
-
-export async function getFeedback(
-  passphrase: string,
-  page: number = 1,
-  qty: number = 3,
-): Promise<{
-  pages: number
-  total: number
-  feedback: Feedback[]
-}> {
-  const response = await fetch(
-    `${FAMILY_API_URL}/feedback` +
-    `?page=${encodeURIComponent(page)}` +
-    `&qty=${encodeURIComponent(qty)}`,
-    {
-      headers: {
-        'x-api-key': passphrase,
-      },
-    }
-  )
-
-  if (response.status !== 200) {
-    throw new Error(`Feedback failed to fetch`)
-  }
-
-  const body: unknown = await response.json()
-
-  if (
-    body == null ||
-    typeof body !== 'object' ||
-    !('feedback' in body) ||
-    body.feedback == null ||
-    !Array.isArray(body.feedback) ||
-    !('pages' in body) ||
-    body.pages == null ||
-    typeof body.pages !== 'number' ||
-    !('total' in body) ||
-    body.total == null ||
-    typeof body.total !== 'number'
-  ) {
-    throw new Error(`Malformed feedback`)
-  }
-
-  return {
-    pages: body.pages,
-    total: body.total,
-    feedback: body.feedback,
-  }
-}
-
-export async function delFeedback(
-  id: number,
-  passphrase: string,
-): Promise<void> {
-  const response = await fetch(`${FAMILY_API_URL}/feedback/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'x-api-key': passphrase,
-    },
-  })
-
-  if (response.status !== 200) {
-    throw new Error(`Feedback delete failed (status ${response.status})`)
   }
 }
