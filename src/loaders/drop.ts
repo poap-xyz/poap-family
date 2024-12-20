@@ -101,7 +101,7 @@ export async function fetchDropsOrErrors(
   Record<number, Drop>,
   Record<number, Error>
 ]> {
-  const eventsMap: Record<number, Drop> = {}
+  const dropsMap: Record<number, Drop> = {}
   const errorsMap: Record<number, Error> = {}
 
   for (let i = 0; i < dropIds.length; i += limit) {
@@ -149,7 +149,7 @@ export async function fetchDropsOrErrors(
             status: 404,
           })
         } else {
-          eventsMap[id] = drop
+          dropsMap[id] = drop
         }
       }
     } catch (err: unknown) {
@@ -161,7 +161,7 @@ export async function fetchDropsOrErrors(
     }
   }
 
-  return [eventsMap, errorsMap]
+  return [dropsMap, errorsMap]
 }
 
 export async function fetchDrop(

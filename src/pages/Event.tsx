@@ -45,12 +45,12 @@ function Event() {
     completedEventInCommon,
     loadingEventInCommon,
     loadedInCommon,
-    loadedInCommonEvents,
+    loadedInCommonDrops,
     loadedInCommonDownload,
     loadedOwners,
     ownersErrors,
     inCommon,
-    drops: events,
+    drops,
     cachedTs,
     fetchEventInCommon,
     retryAddress,
@@ -173,11 +173,11 @@ function Event() {
             {loadedOwners > 0
               ? <Loading count={loadedOwners} total={collectors.length} />
               : (
-                loadedInCommonEvents != null
+                loadedInCommonDrops != null
                   ? (
                     <Loading
-                      count={loadedInCommonEvents.count}
-                      total={loadedInCommonEvents.total}
+                      count={loadedInCommonDrops.count}
+                      total={loadedInCommonDrops.total}
                     />
                   )
                   : (
@@ -260,7 +260,7 @@ function Event() {
               <EventsInCommon
                 onActive={handleDropActive}
                 inCommon={inCommon}
-                drops={events}
+                drops={drops}
                 baseEventIds={eventIds}
                 eventsEnsNames={eventsEnsNames}
               />

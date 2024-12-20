@@ -9,31 +9,31 @@ import { filterInCommon } from 'models/in-common'
 
 function useEventsInCommon(
   dropIds: number[],
-  eventsOwners: InCommon,
+  dropsOwners: InCommon,
   all: boolean = false,
   force: boolean = false,
   local: boolean = false,
   stream: boolean = false,
 ): {
-  completedEventsInCommon: boolean
-  completedInCommonEvents: Record<number, boolean>
-  loadingInCommonEvents: Record<number, boolean>
-  eventsInCommonErrors: Record<number, Record<string, Error>>
-  loadedEventsInCommonState: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'>
-  loadedEventsInCommon: Record<number, CountProgress & { totalFinal: boolean }>
-  loadedEventsInCommonEvents: Record<number, CountProgress>
-  loadedEventsProgress: Record<number, DownloadProgress>
-  loadedEventsOwners: Record<number, number>
-  eventsInCommon: Record<number, EventsInCommon>
-  fetchEventsInCommon: () => () => void
-  retryEventAddressInCommon: (dropId: number, address: string) => () => void
+  completedDropsInCommon: boolean
+  completedInCommonDrops: Record<number, boolean>
+  loadingInCommonDrops: Record<number, boolean>
+  dropsInCommonErrors: Record<number, Record<string, Error>>
+  loadedDropsInCommonState: Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'>
+  loadedDropsInCommon: Record<number, CountProgress & { totalFinal: boolean }>
+  loadedDropsInCommonDrops: Record<number, CountProgress>
+  loadedDropsProgress: Record<number, DownloadProgress>
+  loadedDropsOwners: Record<number, number>
+  dropsInCommon: Record<number, EventsInCommon>
+  fetchDropsInCommon: () => () => void
+  retryDropAddressInCommon: (dropId: number, address: string) => () => void
 } {
   const [completed, setCompleted] = useState<Record<number, boolean>>({})
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Record<string, Error>>>({})
   const [loadedInCommonState, setLoadedInCommonState] = useState<Record<number, 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z'>>({})
   const [loadedInCommon, setLoadedInCommon] = useState<Record<number, CountProgress & { totalFinal: boolean }>>({})
-  const [loadedInCommonEvents, setLoadedInCommonEvents] = useState<Record<number, CountProgress>>({})
+  const [loadedInCommonDrops, setLoadedInCommonDrops] = useState<Record<number, CountProgress>>({})
   const [loadedProgress, setLoadedProgress] = useState<Record<number, DownloadProgress>>({})
   const [loadedOwners, setLoadedOwners] = useState<Record<number, number>>({})
   const [inCommon, setInCommon] = useState<Record<number, EventsInCommon>>({})
@@ -41,12 +41,12 @@ function useEventsInCommon(
   useEffect(
     () => {
       for (const dropId of dropIds) {
-        if (eventsOwners[dropId] == null) {
+        if (dropsOwners[dropId] == null) {
           continue
         }
         if (
           completed[dropId] &&
-          (loadedOwners[dropId] ?? 0) === eventsOwners[dropId].length &&
+          (loadedOwners[dropId] ?? 0) === dropsOwners[dropId].length &&
           inCommon[dropId] != null &&
           inCommon[dropId].ts == null
         ) {
@@ -59,7 +59,7 @@ function useEventsInCommon(
         }
       }
     },
-    [dropIds, eventsOwners, loadedOwners, completed, inCommon]
+    [dropIds, dropsOwners, loadedOwners, completed, inCommon]
   )
 
   function addCompleted(dropId: number): void {
@@ -216,23 +216,23 @@ function useEventsInCommon(
     })
   }
 
-  function updateLoadedInCommonEvents(
+  function updateLoadedInCommonDrops(
     dropId: number,
     { count, total }: CountProgress,
   ) {
-    setLoadedInCommonEvents((prevLoadedInCommonEvents) => ({
-      ...(prevLoadedInCommonEvents ?? {}),
+    setLoadedInCommonDrops((prevLoadedInCommonDrops) => ({
+      ...(prevLoadedInCommonDrops ?? {}),
       [dropId]: { count, total },
     }))
   }
 
-  function removeLoadedInCommonEvents(dropId: number): void {
-    setLoadedInCommonEvents((prevLoadedInCommonEvents) => {
-      if (prevLoadedInCommonEvents == null) {
+  function removeLoadedInCommonDrops(dropId: number): void {
+    setLoadedInCommonDrops((prevLoadedInCommonDrops) => {
+      if (prevLoadedInCommonDrops == null) {
         return {}
       }
       const newProgress: Record<number, CountProgress> = {}
-      for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommonEvents)) {
+      for (const [loadingEventId, progress] of Object.entries(prevLoadedInCommonDrops)) {
         if (String(dropId) !== String(loadingEventId)) {
           newProgress[loadingEventId] = progress
         }
@@ -309,7 +309,7 @@ function useEventsInCommon(
       if (prevEventData == null) {
         return {
           [dropId]: {
-            drops: {
+            events: {
               [drop.id]: drop,
             },
             inCommon: {
@@ -325,8 +325,8 @@ function useEventsInCommon(
             return {
               ...prevEventData,
               [dropId]: {
-                drops: {
-                  ...prevEventData[dropId].drops,
+                events: {
+                  ...prevEventData[dropId].events,
                   [drop.id]: drop,
                 },
                 inCommon: {
@@ -343,8 +343,8 @@ function useEventsInCommon(
           return {
             ...prevEventData,
             [dropId]: {
-              drops: {
-                ...prevEventData[dropId].drops,
+              events: {
+                ...prevEventData[dropId].events,
                 [drop.id]: drop,
               },
               inCommon: prevEventData[dropId].inCommon,
@@ -355,8 +355,8 @@ function useEventsInCommon(
         return {
           ...prevEventData,
           [dropId]: {
-            drops: {
-              ...prevEventData[dropId].drops,
+            events: {
+              ...prevEventData[dropId].events,
               [drop.id]: drop,
             },
             inCommon: {
@@ -370,7 +370,7 @@ function useEventsInCommon(
       return {
         ...prevEventData,
         [dropId]: {
-          drops: {
+          events: {
             [drop.id]: drop,
           },
           inCommon: {
@@ -389,7 +389,7 @@ function useEventsInCommon(
     setInCommon((prevEventData) => ({
       ...prevEventData,
       [dropId]: {
-        drops: data.drops,
+        events: data.events,
         inCommon: data.inCommon,
         ts: data.ts,
       },
@@ -403,7 +403,7 @@ function useEventsInCommon(
     setInCommon((prevEventData) => ({
       ...(prevEventData ?? {}),
       [dropId]: {
-        drops: (prevEventData ?? {})[dropId].drops,
+        events: (prevEventData ?? {})[dropId].events,
         inCommon: (prevEventData ?? {})[dropId].inCommon,
         ts,
       },
@@ -510,7 +510,7 @@ function useEventsInCommon(
                 }
                 if (totalEvents) {
                   updateLoadedInCommonState(dropId, 'owners-z', 'events-a')
-                  updateLoadedInCommonEvents(dropId, {
+                  updateLoadedInCommonDrops(dropId, {
                     count: receivedEvents ?? 0,
                     total: totalEvents,
                   })
@@ -522,7 +522,7 @@ function useEventsInCommon(
             )
             removeLoadedInCommonState(dropId)
             removeLoadedInCommon(dropId)
-            removeLoadedInCommonEvents(dropId)
+            removeLoadedInCommonDrops(dropId)
           } else {
             addLoadedProgress(dropId)
             result = await getInCommonEventsWithProgress(
@@ -542,7 +542,7 @@ function useEventsInCommon(
         } catch (err: unknown) {
           removeLoadedInCommonState(dropId)
           removeLoadedInCommon(dropId)
-          removeLoadedInCommonEvents(dropId)
+          removeLoadedInCommonDrops(dropId)
           removeLoadedProgress(dropId)
           if (!(err instanceof AbortedError)) {
             console.error(err)
@@ -554,7 +554,7 @@ function useEventsInCommon(
         }
         removeLoadedInCommonState(dropId)
         removeLoadedInCommon(dropId)
-        removeLoadedInCommonEvents(dropId)
+        removeLoadedInCommonDrops(dropId)
         removeLoadedProgress(dropId)
         if (result == null) {
           await processEvent(dropId, addresses, controllers)
@@ -571,7 +571,7 @@ function useEventsInCommon(
     [force, local, stream, processEvent]
   )
 
-  const fetchEventsInCommon = useCallback(
+  const fetchDropsInCommon = useCallback(
     () => {
       const controllers: AbortController[] = []
       setCompleted({})
@@ -583,13 +583,13 @@ function useEventsInCommon(
       setInCommon({})
       let promise = new Promise((r) => { r(undefined) })
       for (const eventId of dropIds) {
-        if (eventsOwners[eventId] == null) {
+        if (dropsOwners[eventId] == null) {
           console.error('Missing event owners', { eventId })
           continue
         }
         const controller = new AbortController()
         const ownersControllers: Record<string, AbortController> =
-          eventsOwners[eventId].reduce(
+          dropsOwners[eventId].reduce(
             (ctrls, owner) => ({
               ...ctrls,
               [owner]: new AbortController(),
@@ -599,7 +599,7 @@ function useEventsInCommon(
         promise = promise.then(
           () => process(
             eventId,
-            eventsOwners[eventId],
+            dropsOwners[eventId],
             ownersControllers,
             controller
           )
@@ -623,10 +623,10 @@ function useEventsInCommon(
         setInCommon({})
       }
     },
-    [dropIds, eventsOwners, all, process]
+    [dropIds, dropsOwners, all, process]
   )
 
-  function retryEventAddressInCommon(
+  function retryDropAddressInCommon(
     dropId: number,
     address: string,
   ): () => void {
@@ -642,18 +642,18 @@ function useEventsInCommon(
   }
 
   return {
-    completedEventsInCommon: Object.keys(completed).length === dropIds.length,
-    completedInCommonEvents: completed,
-    loadingInCommonEvents: loading,
-    eventsInCommonErrors: errors,
-    loadedEventsInCommonState: loadedInCommonState,
-    loadedEventsInCommon: loadedInCommon,
-    loadedEventsInCommonEvents: loadedInCommonEvents,
-    loadedEventsProgress: loadedProgress,
-    loadedEventsOwners: loadedOwners,
-    eventsInCommon: inCommon,
-    fetchEventsInCommon,
-    retryEventAddressInCommon,
+    completedDropsInCommon: Object.keys(completed).length === dropIds.length,
+    completedInCommonDrops: completed,
+    loadingInCommonDrops: loading,
+    dropsInCommonErrors: errors,
+    loadedDropsInCommonState: loadedInCommonState,
+    loadedDropsInCommon: loadedInCommon,
+    loadedDropsInCommonDrops: loadedInCommonDrops,
+    loadedDropsProgress: loadedProgress,
+    loadedDropsOwners: loadedOwners,
+    dropsInCommon: inCommon,
+    fetchDropsInCommon,
+    retryDropAddressInCommon,
   }
 }
 

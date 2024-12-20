@@ -17,68 +17,68 @@ import 'styles/events-owners.css'
 function inverseOwnersSortedEntries(
   owners: InCommon,
 ): Array<[string, number[]]> {
-  const addressToEvents: Record<string, number[]> = {}
+  const addressToDropIds: Record<string, number[]> = {}
   for (const [rawEventId, addresses] of Object.entries(owners)) {
     const dropId = parseInt(rawEventId)
     for (const address of addresses) {
-      if (address in addressToEvents) {
-        addressToEvents[address].push(dropId)
+      if (address in addressToDropIds) {
+        addressToDropIds[address].push(dropId)
       } else {
-        addressToEvents[address] = [dropId]
+        addressToDropIds[address] = [dropId]
       }
     }
   }
-  let result = Object.entries(addressToEvents)
+  let result = Object.entries(addressToDropIds)
   result.sort((a, b) => b[1].length - a[1].length)
   return result
 }
 
 function EventsOwners({
-  eventsOwners,
+  dropsOwners,
   inCommon,
   drops,
   all = false,
 }: {
-  eventsOwners: InCommon
+  dropsOwners: InCommon
   inCommon: InCommon
   drops: Record<number, Drop>
   all?: boolean
 }) {
   const [showAll, setShowAll] = useState<boolean>(all)
 
-  let ownersEvents = useMemo(
-    () => inverseOwnersSortedEntries(eventsOwners),
-    [eventsOwners]
+  let ownersDrops = useMemo(
+    () => inverseOwnersSortedEntries(dropsOwners),
+    [dropsOwners]
   )
 
-  const eventIds = useMemo(
-    () => Object.keys(eventsOwners).map(
+  const dropIds = useMemo(
+    () => Object.keys(dropsOwners).map(
       (rawEventId) => parseInt(rawEventId)
     ),
-    [eventsOwners]
+    [dropsOwners]
   )
 
-  const ownersTotal = ownersEvents.length
-  const eventsTotal = eventIds.length
+  const ownersTotal = ownersDrops.length
+  const dropsTotal = dropIds.length
 
   const inCommonOwnersTotal = useMemo(
     () => {
       const inCommonAddresses = []
-      for (const [ownerAddress, ownerEventIds] of ownersEvents) {
-        if (ownerEventIds.length === eventsTotal) {
+      for (const [ownerAddress, ownerEventIds] of ownersDrops) {
+        if (ownerEventIds.length === dropsTotal) {
           inCommonAddresses.push(ownerAddress)
         }
       }
       return inCommonAddresses.length
     },
-    [ownersEvents, eventsTotal]
+    [ownersDrops, dropsTotal]
   )
 
   if (ownersTotal > inCommonOwnersTotal && !showAll && !all) {
-    ownersEvents = ownersEvents.slice(0, inCommonOwnersTotal)
+    ownersDrops = ownersDrops.slice(0, inCommonOwnersTotal)
   }
 
-  const ownersEventsChunks = chunks(ownersEvents, 10)
+  const ownersDropsChunks = chunks(ownersDrops, 10)
 
   return (
     <div className="events-owners">
@@ -94,9 +94,9 @@ function EventsOwners({
           </h4>
         )}
         <div className="events-owners-chunks">
-          {ownersEventsChunks.map((ownersEventsChunk, chunkIndex) => (
+          {ownersDropsChunks.map((ownersDropsChunk, chunkIndex) => (
             <ul key={chunkIndex}>
-              {ownersEventsChunk.map(([owner, ownerEventIds]) => {
+              {ownersDropsChunk.map(([owner, ownerEventIds]) => {
                 const inCommonEventIds = getAddressInCommonEventIds(
                   inCommon,
                   owner
@@ -111,7 +111,7 @@ function EventsOwners({
                     <AddressOwner
                       address={owner}
                       drops={drops}
-                      dropIds={eventIds}
+                      dropIds={dropIds}
                       collectorsDropIds={ownerEventIds}
                       inCommonDropIds={inCommonEventIds}
                       inCommonAddresses={inCommonAddresses}
@@ -121,7 +121,7 @@ function EventsOwners({
                 )
               })}
               {(
-                chunkIndex + 1 === ownersEventsChunks.length &&
+                chunkIndex + 1 === ownersDropsChunks.length &&
                 ownersTotal > inCommonOwnersTotal &&
                 !all
               ) && (
@@ -170,19 +170,19 @@ function EventsOwners({
             <ButtonExportAddressCsv
               filename={
                 `collectors-` +
-                `drop${eventsTotal === 1 ? '' : 's'}-` +
-                `${eventIds.join('+')}`
+                `drop${dropsTotal === 1 ? '' : 's'}-` +
+                `${dropIds.join('+')}`
               }
               name={
-                eventsTotal === 1
-                  ? drops[eventIds[0]].name
+                dropsTotal === 1
+                  ? drops[dropIds[0]].name
                   : undefined
               }
-              addresses={ownersEvents.map(([address]) => address)}
+              addresses={ownersDrops.map(([address]) => address)}
               title={
                 `Generates CSV file with collectors in common ` +
-                `between drop${eventsTotal === 1 ? '' : 's'} ` +
-                `#${eventIds.join(', #')}`
+                `between drop${dropsTotal === 1 ? '' : 's'} ` +
+                `#${dropIds.join(', #')}`
               }
             />
             <ButtonExpand
@@ -190,11 +190,11 @@ function EventsOwners({
               title={
                 `Expands${showAll ? ' all' : ''} ` +
                 `collectors${showAll ? '' : ' in common'} between ` +
-                `drop${eventsTotal === 1 ? '' : 's'} ` +
-                `#${eventIds.join(', #')}`
+                `drop${dropsTotal === 1 ? '' : 's'} ` +
+                `#${dropIds.join(', #')}`
               }
-              addresses={ownersEvents.map(([ownerAddress]) => ownerAddress)}
-              dropIds={eventIds}
+              addresses={ownersDrops.map(([ownerAddress]) => ownerAddress)}
+              dropIds={dropIds}
             />
           </ButtonGroup>
         )}

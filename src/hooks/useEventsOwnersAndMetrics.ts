@@ -7,13 +7,13 @@ import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
 import { fillNull } from 'utils/object'
 
 function useEventsOwnersAndMetrics(eventIds: number[]): {
-  completedEventsOwnersAndMetrics: boolean
-  loadingEventsOwnersAndMetrics: boolean
-  loadingOwnersAndMetricsEvents: Record<number, boolean>
-  eventsOwnersAndMetricsErrors: Record<number, Error>
-  eventsOwners: Record<number, string[]>
-  eventsMetrics: Record<number, DropMetrics>
-  fetchEventsOwnersAndMetrics: () => () => void
+  completedDropsOwnersAndMetrics: boolean
+  loadingDropsOwnersAndMetrics: boolean
+  loadingOwnersAndMetricsDrops: Record<number, boolean>
+  dropsOwnersAndMetricsErrors: Record<number, Error>
+  dropsOwners: Record<number, string[]>
+  dropsMetrics: Record<number, DropMetrics>
+  fetchDropsOwnersAndMetrics: () => () => void
   retryEventOwnersAndMetrics: (dropId: number) => () => void
 } {
   const [completed, setCompleted] = useState<boolean>(false)
@@ -74,11 +74,11 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     }))
   }
 
-  function updateEventsOwners(eventsOwners: Record<number, string[]>): void {
+  function updateDropsOwners(dropsOwners: Record<number, string[]>): void {
     setOwners((prevOwners) => ({
       ...prevOwners,
       ...Object.fromEntries(
-        Object.entries(eventsOwners)
+        Object.entries(dropsOwners)
           .filter(([, eventOwners]) => eventOwners != null)
           .map(
             ([rawEventId, owners]) => [
@@ -100,11 +100,11 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     }))
   }
 
-  function updateEventsMetrics(eventsMetrics: Record<number, DropMetrics>): void {
+  function updateDropsMetrics(dropsMetrics: Record<number, DropMetrics>): void {
     setMetrics((prevMetrics) => ({
       ...prevMetrics,
       ...Object.fromEntries(
-        Object.entries(eventsMetrics).filter(([, metrics]) => metrics != null)
+        Object.entries(dropsMetrics).filter(([, metrics]) => metrics != null)
       ),
     }))
   }
@@ -162,7 +162,7 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     []
   )
 
-  const fetchEventsOwnersAndMetrics = useCallback(
+  const fetchDropsOwnersAndMetrics = useCallback(
     () => {
       let controller: AbortController | undefined
       const controllers: Record<number, AbortController> = eventIds.reduce(
@@ -183,15 +183,15 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
       Promise.all([
         fetchCollectorsByDrops(eventIds, controller.signal),
         fetchDropsMetrics(eventIds, controller.signal),
-      ]).then(([eventsOwners, eventsMetrics]) => {
-        updateEventsOwners(
+      ]).then(([dropsOwners, dropsMetrics]) => {
+        updateDropsOwners(
           fillNull(
-            eventsOwners,
+            dropsOwners,
             eventIds.map((dropId) => String(dropId)),
             []
           )
         )
-        updateEventsMetrics(eventsMetrics)
+        updateDropsMetrics(dropsMetrics)
         setLoadingCache(false)
         setCompleted(true)
       }).catch((err: unknown) => {
@@ -240,13 +240,13 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
   }
 
   return {
-    completedEventsOwnersAndMetrics: completed,
-    loadingEventsOwnersAndMetrics: loadingCache,
-    loadingOwnersAndMetricsEvents: loading,
-    eventsOwnersAndMetricsErrors: errors,
-    eventsOwners: owners,
-    eventsMetrics: metrics,
-    fetchEventsOwnersAndMetrics,
+    completedDropsOwnersAndMetrics: completed,
+    loadingDropsOwnersAndMetrics: loadingCache,
+    loadingOwnersAndMetricsDrops: loading,
+    dropsOwnersAndMetricsErrors: errors,
+    dropsOwners: owners,
+    dropsMetrics: metrics,
+    fetchDropsOwnersAndMetrics: fetchDropsOwnersAndMetrics,
     retryEventOwnersAndMetrics,
   }
 }

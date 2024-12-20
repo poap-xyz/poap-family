@@ -23,7 +23,7 @@ function AddressOwner({
   inCommonAddresses?: string[]
   linkToScan?: boolean
 }) {
-  const hasEvents = (
+  const hasDrops = (
     drops != null &&
     typeof drops === 'object' &&
     dropIds != null &&
@@ -52,7 +52,7 @@ function AddressOwner({
           ens={ens}
         />
       )}
-      {hasEvents && (
+      {hasDrops && (
         <div className="owner-events">
           {dropIds.map(
             (dropId) =>

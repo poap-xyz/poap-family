@@ -53,7 +53,7 @@ function Addresses() {
   const [addresses, setAddresses] = useState<ParsedAddress[] | null>(null)
   const [collectors, setCollectors] = useState<Record<number, string>>({})
   const [errors, setErrors] = useState<Error[]>([])
-  const [loadingEventsOwners, setLoadingEventsOwners] = useState<boolean>(false)
+  const [loadingDropsOwners, setLoadingDropsOwners] = useState<boolean>(false)
   const [loadingByAddress, setLoadingByAddress] = useState<Record<string, boolean>>({})
   const [loadingByIndex, setLoadingByIndex] = useState<Record<number, boolean>>({})
   const [repeatedByAddress, setRepeatedByAddress] = useState<Record<string, boolean>>({})
@@ -61,7 +61,7 @@ function Addresses() {
   const [errorsByIndex, setErrorsByIndex] = useState<Record<number, Error>>({})
   const [powers, setPowers] = useState<Record<string, number>>({})
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [events, setEvents] = useState<Record<number, Drop>>({})
+  const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
   const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
@@ -120,7 +120,7 @@ function Addresses() {
       }
       return alsoInCommon
     })
-    setEvents((prevDrops) => ({
+    setDrops((prevDrops) => ({
       ...prevDrops,
       [dropId]: drop,
     }))
@@ -214,7 +214,7 @@ function Addresses() {
     (resolved: string[]): Record<string, AbortController> => {
       setLoadedCount(0)
       setInCommon({})
-      setEvents({})
+      setDrops({})
       setPowers({})
       setErrorsByAddress({})
       let promise = new Promise((r) => r(undefined))
@@ -278,7 +278,7 @@ function Addresses() {
     [resolveAddress, setEnsName]
   )
 
-  const searchEvents = useMemo(
+  const searchDropIds = useMemo(
     () => parseDropIds(
       searchParams.get('events') ?? ''
     ),
@@ -293,7 +293,7 @@ function Addresses() {
       setErrorsByAddress({})
       setErrorsByIndex({})
       setInCommon({})
-      setEvents({})
+      setDrops({})
       setPowers({})
       let hash = window.location.hash
       if (hash.startsWith('#')) {
@@ -310,16 +310,16 @@ function Addresses() {
             setErrorByIndex(index, new Error('Address not found'))
           }
         }
-      } else if (searchEvents.length > 0) {
-        setLoadingEventsOwners(true)
+      } else if (searchDropIds.length > 0) {
+        setLoadingDropsOwners(true)
         const controller = new AbortController()
-        fetchDropsCollectors(searchEvents, controller.signal).then(
+        fetchDropsCollectors(searchDropIds, controller.signal).then(
           (collectors) => {
             let addresses: ParsedAddress[] | undefined
             try {
               addresses = collectors.map((owner) => parseAddress(owner))
             } catch (err: unknown) {
-              setLoadingEventsOwners(false)
+              setLoadingDropsOwners(false)
               addError(
                 new Error('Cannot parse collectors', {
                   cause: err,
@@ -328,13 +328,13 @@ function Addresses() {
               return
             }
 
-            setLoadingEventsOwners(false)
+            setLoadingDropsOwners(false)
             updateAddresses(addresses)
           },
           (err) => {
-            setLoadingEventsOwners(false)
+            setLoadingDropsOwners(false)
             addError(
-              new Error(`Cannot load drops ${searchEvents.join(', ')}`, {
+              new Error(`Cannot load drops ${searchDropIds.join(', ')}`, {
                 cause: err,
               })
             )
@@ -347,7 +347,7 @@ function Addresses() {
       }
       return controllers
     },
-    [searchEvents]
+    [searchDropIds]
   )
 
   useEffect(
@@ -501,7 +501,7 @@ function Addresses() {
     [addresses, setTitle]
   )
 
-  if (loadingEventsOwners) {
+  if (loadingDropsOwners) {
     return (
       <CenterPage>
         <Card>
@@ -666,7 +666,7 @@ function Addresses() {
                 </th>
                 <th></th>
                 <th>Power</th>
-                {searchEvents.map((dropId) => (
+                {searchDropIds.map((dropId) => (
                   <th key={dropId}></th>
                 ))}
                 <th className="collector-head-actions">
@@ -754,13 +754,13 @@ function Addresses() {
                       )
                     }
                   </td>
-                  {searchEvents.map((dropId) => (
+                  {searchDropIds.map((dropId) => (
                     <td key={dropId}>
                       {
                         dropId in inCommon &&
                         inCommon[dropId].includes(address) &&
-                        dropId in events && (
-                          <TokenImage drop={events[dropId]} size={48} />
+                        dropId in drops && (
+                          <TokenImage drop={drops[dropId]} size={48} />
                         )
                       }
                     </td>
@@ -798,7 +798,7 @@ function Addresses() {
           <EventsInCommon
             onActive={handleDropActive}
             inCommon={inCommon}
-            drops={events}
+            drops={drops}
             showCount={addresses.length}
             eventsEnsNames={eventsEnsNames}
           />

@@ -3,7 +3,7 @@ import { Drop, DropPower } from 'models/drop'
 import type { InCommon } from 'models/api'
 import {
   filterInCommon,
-  INCOMMON_EVENTS_LIMIT,
+  INCOMMON_DROPS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
@@ -54,7 +54,7 @@ function EventsInCommon({
   const inCommonLimit = useMemo(
     () => {
       if (showCount == null) {
-        return INCOMMON_EVENTS_LIMIT
+        return INCOMMON_DROPS_LIMIT
       }
       return inCommonEntries.reduce(
         (limit, [, addresses]) => {
