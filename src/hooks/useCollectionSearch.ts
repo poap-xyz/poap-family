@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { SEARCH_LIMIT } from 'models/event'
+import { SEARCH_LIMIT } from 'models/drop'
 import { searchCollections as loadSearchCollections } from 'loaders/collection'
 import { AbortedError } from 'models/error'
 import { CollectionWithDrops } from 'models/collection'

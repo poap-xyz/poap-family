@@ -7,28 +7,28 @@ import 'styles/address-owner.css'
 function AddressOwner({
   ens,
   address,
-  events,
-  eventIds,
-  ownerEventIds = [],
-  inCommonEventIds = [],
+  drops,
+  dropIds,
+  collectorsDropIds = [],
+  inCommonDropIds = [],
   inCommonAddresses = [],
   linkToScan = false,
 }: {
   ens?: string
   address: string
-  events: Record<number, Drop>
-  eventIds?: number[]
-  ownerEventIds?: number[]
-  inCommonEventIds?: number[]
+  drops: Record<number, Drop>
+  dropIds?: number[]
+  collectorsDropIds?: number[]
+  inCommonDropIds?: number[]
   inCommonAddresses?: string[]
   linkToScan?: boolean
 }) {
-  const hasEvents = (
-    events != null &&
-    typeof events === 'object' &&
-    eventIds != null &&
-    Array.isArray(eventIds) &&
-    eventIds.length > 0
+  const hasDrops = (
+    drops != null &&
+    typeof drops === 'object' &&
+    dropIds != null &&
+    Array.isArray(dropIds) &&
+    dropIds.length > 0
   )
 
   return (
@@ -36,8 +36,8 @@ function AddressOwner({
       <div className="owner-name">
         <ButtonAddressProfile
           address={address}
-          events={events}
-          inCommonEventIds={inCommonEventIds}
+          drops={drops}
+          inCommonEventIds={inCommonDropIds}
           inCommonAddresses={inCommonAddresses}
           showEns={true}
           ens={ens}
@@ -52,22 +52,22 @@ function AddressOwner({
           ens={ens}
         />
       )}
-      {hasEvents && (
+      {hasDrops && (
         <div className="owner-events">
-          {eventIds.map(
-            (eventId) =>
-              eventId in events &&
-              ownerEventIds != null &&
-              ownerEventIds.includes(eventId)
+          {dropIds.map(
+            (dropId) =>
+              dropId in drops &&
+              collectorsDropIds != null &&
+              collectorsDropIds.includes(dropId)
                 ? (
                     <TokenImage
-                      key={eventId}
-                      drop={events[eventId]}
+                      key={dropId}
+                      drop={drops[dropId]}
                       size={18}
                       resize={true}
                     />
                   )
-                : <div key={eventId} className="owner-event-empty">{' '}</div>
+                : <div key={dropId} className="owner-event-empty">{' '}</div>
           )}
         </div>
       )}

@@ -1,52 +1,52 @@
 import { useNavigate } from 'react-router-dom'
-import { joinEventIds } from 'models/event'
+import { joinDropIds } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import Button from 'components/Button'
 
 function EventsNavigateButtons({
-  baseEventIds,
-  eventIds,
+  baseDropIds,
+  dropIds,
 }: {
-  baseEventIds: number[]
-  eventIds: number[]
+  baseDropIds: number[]
+  dropIds: number[]
 }) {
   const navigate = useNavigate()
 
-  function addEvents(): void {
-    if (eventIds.length === 0) {
+  function addDrops(): void {
+    if (dropIds.length === 0) {
       return
     }
-    const newEventIds = [...baseEventIds, ...eventIds]
+    const newEventIds = [...baseDropIds, ...dropIds]
     if (newEventIds.length > 0) {
-      navigate(`/events/${joinEventIds(newEventIds)}`)
+      navigate(`/events/${joinDropIds(newEventIds)}`)
     } else if (newEventIds.length === 1) {
       navigate(`/event/${newEventIds[0]}`)
     }
   }
 
-  function openEvents(): void {
-    if (eventIds.length === 0) {
+  function openDrops(): void {
+    if (dropIds.length === 0) {
       return
     }
-    if (eventIds.length > 1) {
-      navigate(`/events/${joinEventIds(eventIds)}`)
-    } else if (eventIds.length === 1) {
-      navigate(`/event/${eventIds[0]}`)
+    if (dropIds.length > 1) {
+      navigate(`/events/${joinDropIds(dropIds)}`)
+    } else if (dropIds.length === 1) {
+      navigate(`/event/${dropIds[0]}`)
     }
   }
 
   return (
     <ButtonGroup right={true}>
-      {baseEventIds.length > 0 && (
+      {baseDropIds.length > 0 && (
         <Button
           disabled={
-            eventIds.length === 0 ||
-            eventIds.every(
-              (eventId) => baseEventIds.includes(eventId)
+            dropIds.length === 0 ||
+            dropIds.every(
+              (dropId) => baseDropIds.includes(dropId)
             )
           }
-          onClick={() => addEvents()}
-          title={`Combines drops #${eventIds.join(', #')} to #${baseEventIds.join(', #')}`}
+          onClick={() => addDrops()}
+          title={`Combines drops #${dropIds.join(', #')} to #${baseDropIds.join(', #')}`}
         >
           Add selected
         </Button>
@@ -54,20 +54,20 @@ function EventsNavigateButtons({
       <Button
         secondary={true}
         disabled={
-          eventIds.length === 0 ||
+          dropIds.length === 0 ||
           (
-            eventIds.every(
-              (eventId) => baseEventIds.includes(eventId)
+            dropIds.every(
+              (dropId) => baseDropIds.includes(dropId)
             ) &&
-            baseEventIds.every(
-              (eventId) => eventIds.includes(eventId)
+            baseDropIds.every(
+              (dropId) => dropIds.includes(dropId)
             )
           )
         }
-        onClick={() => openEvents()}
-        title={`Open drops #${eventIds.join(', #')}`}
+        onClick={() => openDrops()}
+        title={`Open drops #${dropIds.join(', #')}`}
       >
-        Open {baseEventIds.length === 0 && ' selected'}
+        Open {baseDropIds.length === 0 && ' selected'}
       </Button>
     </ButtonGroup>
   )

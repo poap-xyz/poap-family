@@ -1,9 +1,9 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Drop } from 'models/drop'
+import { Drop, DropPower } from 'models/drop'
 import type { InCommon } from 'models/api'
 import {
   filterInCommon,
-  INCOMMON_EVENTS_LIMIT,
+  INCOMMON_DROPS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
@@ -18,21 +18,21 @@ import 'styles/in-common.css'
 function EventsInCommon({
   children,
   inCommon: initialInCommon,
-  events,
+  drops,
   showCount,
   showActive = true,
-  baseEventIds = [],
+  baseDropIds = [],
   onActive,
-  eventsEnsNames,
+  dropsEnsNames,
 }: {
   children?: ReactNode
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   showCount?: number
   showActive?: boolean
-  baseEventIds?: number[]
-  onActive?: (eventId: number) => void
-  eventsEnsNames?: Record<number, EnsByAddress>
+  baseDropIds?: number[]
+  onActive?: (dropId: number) => void
+  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeEventIds, setActiveEventIds] = useState<number[]>([])
@@ -41,7 +41,7 @@ function EventsInCommon({
     sortInCommonEntries(
       Object
         .entries(filterInCommon(initialInCommon))
-        .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+        .map(([rawDropId, addresses]) => [parseInt(rawDropId), addresses])
     ),
     [initialInCommon]
   )
@@ -54,7 +54,7 @@ function EventsInCommon({
   const inCommonLimit = useMemo(
     () => {
       if (showCount == null) {
-        return INCOMMON_EVENTS_LIMIT
+        return INCOMMON_DROPS_LIMIT
       }
       return inCommonEntries.reduce(
         (limit, [, addresses]) => {
@@ -69,7 +69,7 @@ function EventsInCommon({
     [inCommonEntries, showCount]
   )
 
-  const inCommonEventsAddresses = useMemo(
+  const inCommonDropsAddresses = useMemo(
     () => {
       if (!showAll && inCommonEntries.length > inCommonLimit) {
         return inCommonEntries.slice(0, inCommonLimit)
@@ -80,21 +80,21 @@ function EventsInCommon({
   )
 
   const powers = useMemo(
-    () => inCommonEventsAddresses.map(([eventId, addresses]) => ({
-      eventId,
+    () => inCommonDropsAddresses.map(([dropId, addresses]): DropPower => ({
+      dropId,
       power: addresses.length,
     })),
-    [inCommonEventsAddresses]
+    [inCommonDropsAddresses]
   )
 
-  function removeActiveEventId(eventId: number): void {
+  function removeActiveDropId(dropId: number): void {
     setActiveEventIds((prevActiveEventIds) => {
       if (prevActiveEventIds == null) {
         return []
       }
       const newActiveEventIds = []
       for (const activeEventId of prevActiveEventIds) {
-        if (activeEventId !== eventId) {
+        if (activeEventId !== dropId) {
           newActiveEventIds.push(activeEventId)
         }
       }
@@ -102,36 +102,36 @@ function EventsInCommon({
     })
   }
 
-  function toggleActiveEventId(eventId: number): void {
-    if (activeEventIds.indexOf(eventId) === -1) {
+  function toggleActiveDropId(dropId: number): void {
+    if (activeEventIds.indexOf(dropId) === -1) {
       setActiveEventIds((prevActiveEventIds) => ([
         ...(prevActiveEventIds ?? []),
-        eventId,
+        dropId,
       ]))
       if (onActive) {
-        onActive(eventId)
+        onActive(dropId)
       }
     } else {
-      removeActiveEventId(eventId)
+      removeActiveDropId(dropId)
     }
   }
 
   const activeEventsEnsNames = useMemo(
-    () => eventsEnsNames
+    () => dropsEnsNames
       ? (activeEventIds.length === 0
           ? {}
           : Object.fromEntries(
-              Object.entries(eventsEnsNames).filter(([rawEventId]) => {
-                const eventId = parseInt(rawEventId)
-                if (isNaN(eventId)) {
+              Object.entries(dropsEnsNames).filter(([rawDropId]) => {
+                const dropId = parseInt(rawDropId)
+                if (isNaN(dropId)) {
                   return false
                 }
-                return activeEventIds.includes(eventId)
+                return activeEventIds.includes(dropId)
               })
             )
         )
       : undefined,
-    [eventsEnsNames, activeEventIds]
+    [dropsEnsNames, activeEventIds]
   )
 
   const inCommonTotal = inCommonEntries.length
@@ -155,9 +155,9 @@ function EventsInCommon({
         <EventsPowers
           showAll={showAll}
           perfectPower={showCount}
-          selectedEventIds={activeEventIds}
-          onSelect={toggleActiveEventId}
-          events={events}
+          selectedDropIds={activeEventIds}
+          onSelect={toggleActiveDropId}
+          drops={drops}
           powers={powers}
         >
           {hasMore && (
@@ -175,19 +175,19 @@ function EventsInCommon({
         </EventsPowers>
         {inCommonTotal > 0 && (
           <EventsNavigateButtons
-            baseEventIds={baseEventIds}
-            eventIds={activeEventIds}
+            baseDropIds={baseDropIds}
+            dropIds={activeEventIds}
           />
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
         <EventsCompare
-          baseEventIds={baseEventIds}
-          eventIds={activeEventIds}
-          events={events}
+          baseDropIds={baseDropIds}
+          dropIds={activeEventIds}
+          drops={drops}
           inCommon={inCommon}
-          onClose={removeActiveEventId}
-          eventsEnsNames={activeEventsEnsNames}
+          onClose={removeActiveDropId}
+          dropsEnsNames={activeEventsEnsNames}
         />
       }
     </div>

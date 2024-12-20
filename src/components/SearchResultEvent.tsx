@@ -6,12 +6,12 @@ import Checkbox from 'components/Checkbox'
 import 'styles/search-result-event.css'
 
 function SearchResultEvent({
-  event,
+  drop,
   checked,
   onCheckChange,
   className,
 }: {
-  event: Drop
+  drop: Drop
   checked: boolean
   onCheckChange: (checked: boolean) => void
   className?: string
@@ -20,12 +20,12 @@ function SearchResultEvent({
     <div className={clsx('search-result-event', className)}>
       <div className="drop-info">
         <div className="drop-image">
-          <Link to={`/event/${event.id}`} className="drop-link">
-            <TokenImage drop={event} size={18} />
+          <Link to={`/event/${drop.id}`} className="drop-link">
+            <TokenImage drop={drop} size={18} />
           </Link>
         </div>
         <div className="drop-name">
-          <h4 title={event.name}>{event.name}</h4>
+          <h4 title={drop.name}>{drop.name}</h4>
         </div>
         <div className="drop-select">
           <Checkbox

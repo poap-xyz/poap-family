@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { fetchDropsCollections } from 'loaders/collection'
 
-function useEventsCollections(eventIds: number[]): {
+function useEventsCollections(dropIds: number[]): {
   loadingCollections: boolean
   collectionsError: Error | null
   collections: Awaited<ReturnType<typeof fetchDropsCollections>>['collections'] | null
@@ -18,7 +18,7 @@ function useEventsCollections(eventIds: number[]): {
       const controller = new AbortController()
       setLoading(true)
       fetchDropsCollections(
-        eventIds,
+        dropIds,
         controller.signal
       ).then((result) => {
         setResult(result)
@@ -43,7 +43,7 @@ function useEventsCollections(eventIds: number[]): {
         setResult(null)
       }
     },
-    [eventIds]
+    [dropIds]
   )
 
   return {

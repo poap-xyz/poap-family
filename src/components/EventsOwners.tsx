@@ -14,71 +14,71 @@ import ButtonGroup from 'components/ButtonGroup'
 import ButtonExpand from 'components/ButtonExpand'
 import 'styles/events-owners.css'
 
-function inverseOwnersSortedEntries(
-  owners: InCommon,
+function inverseCollectorsSortedEntries(
+  inCommon: InCommon,
 ): Array<[string, number[]]> {
-  const addressToEvents: Record<string, number[]> = {}
-  for (const [rawEventId, addresses] of Object.entries(owners)) {
-    const eventId = parseInt(rawEventId)
+  const addressToDropIds: Record<string, number[]> = {}
+  for (const [rawDropId, addresses] of Object.entries(inCommon)) {
+    const dropId = parseInt(rawDropId)
     for (const address of addresses) {
-      if (address in addressToEvents) {
-        addressToEvents[address].push(eventId)
+      if (address in addressToDropIds) {
+        addressToDropIds[address].push(dropId)
       } else {
-        addressToEvents[address] = [eventId]
+        addressToDropIds[address] = [dropId]
       }
     }
   }
-  let result = Object.entries(addressToEvents)
+  let result = Object.entries(addressToDropIds)
   result.sort((a, b) => b[1].length - a[1].length)
   return result
 }
 
 function EventsOwners({
-  eventsOwners,
+  dropsOwners,
   inCommon,
-  events,
+  drops,
   all = false,
 }: {
-  eventsOwners: InCommon
+  dropsOwners: InCommon
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   all?: boolean
 }) {
   const [showAll, setShowAll] = useState<boolean>(all)
 
-  let ownersEvents = useMemo(
-    () => inverseOwnersSortedEntries(eventsOwners),
-    [eventsOwners]
+  let ownersDrops = useMemo(
+    () => inverseCollectorsSortedEntries(dropsOwners),
+    [dropsOwners]
   )
 
-  const eventIds = useMemo(
-    () => Object.keys(eventsOwners).map(
-      (rawEventId) => parseInt(rawEventId)
+  const dropIds = useMemo(
+    () => Object.keys(dropsOwners).map(
+      (rawDropId) => parseInt(rawDropId)
     ),
-    [eventsOwners]
+    [dropsOwners]
   )
 
-  const ownersTotal = ownersEvents.length
-  const eventsTotal = eventIds.length
+  const ownersTotal = ownersDrops.length
+  const dropsTotal = dropIds.length
 
   const inCommonOwnersTotal = useMemo(
     () => {
       const inCommonAddresses = []
-      for (const [ownerAddress, ownerEventIds] of ownersEvents) {
-        if (ownerEventIds.length === eventsTotal) {
+      for (const [ownerAddress, ownerEventIds] of ownersDrops) {
+        if (ownerEventIds.length === dropsTotal) {
           inCommonAddresses.push(ownerAddress)
         }
       }
       return inCommonAddresses.length
     },
-    [ownersEvents, eventsTotal]
+    [ownersDrops, dropsTotal]
   )
 
   if (ownersTotal > inCommonOwnersTotal && !showAll && !all) {
-    ownersEvents = ownersEvents.slice(0, inCommonOwnersTotal)
+    ownersDrops = ownersDrops.slice(0, inCommonOwnersTotal)
   }
 
-  const ownersEventsChunks = chunks(ownersEvents, 10)
+  const ownersDropsChunks = chunks(ownersDrops, 10)
 
   return (
     <div className="events-owners">
@@ -94,9 +94,9 @@ function EventsOwners({
           </h4>
         )}
         <div className="events-owners-chunks">
-          {ownersEventsChunks.map((ownersEventsChunk, chunkIndex) => (
+          {ownersDropsChunks.map((ownersDropsChunk, chunkIndex) => (
             <ul key={chunkIndex}>
-              {ownersEventsChunk.map(([owner, ownerEventIds]) => {
+              {ownersDropsChunk.map(([owner, ownerEventIds]) => {
                 const inCommonEventIds = getAddressInCommonEventIds(
                   inCommon,
                   owner
@@ -110,10 +110,10 @@ function EventsOwners({
                   <li key={owner} className="owner-list-item">
                     <AddressOwner
                       address={owner}
-                      events={events}
-                      eventIds={eventIds}
-                      ownerEventIds={ownerEventIds}
-                      inCommonEventIds={inCommonEventIds}
+                      drops={drops}
+                      dropIds={dropIds}
+                      collectorsDropIds={ownerEventIds}
+                      inCommonDropIds={inCommonEventIds}
                       inCommonAddresses={inCommonAddresses}
                       linkToScan={false}
                     />
@@ -121,7 +121,7 @@ function EventsOwners({
                 )
               })}
               {(
-                chunkIndex + 1 === ownersEventsChunks.length &&
+                chunkIndex + 1 === ownersDropsChunks.length &&
                 ownersTotal > inCommonOwnersTotal &&
                 !all
               ) && (
@@ -170,19 +170,19 @@ function EventsOwners({
             <ButtonExportAddressCsv
               filename={
                 `collectors-` +
-                `drop${eventsTotal === 1 ? '' : 's'}-` +
-                `${eventIds.join('+')}`
+                `drop${dropsTotal === 1 ? '' : 's'}-` +
+                `${dropIds.join('+')}`
               }
               name={
-                eventsTotal === 1
-                  ? events[eventIds[0]].name
+                dropsTotal === 1
+                  ? drops[dropIds[0]].name
                   : undefined
               }
-              addresses={ownersEvents.map(([address]) => address)}
+              addresses={ownersDrops.map(([address]) => address)}
               title={
                 `Generates CSV file with collectors in common ` +
-                `between drop${eventsTotal === 1 ? '' : 's'} ` +
-                `#${eventIds.join(', #')}`
+                `between drop${dropsTotal === 1 ? '' : 's'} ` +
+                `#${dropIds.join(', #')}`
               }
             />
             <ButtonExpand
@@ -190,11 +190,11 @@ function EventsOwners({
               title={
                 `Expands${showAll ? ' all' : ''} ` +
                 `collectors${showAll ? '' : ' in common'} between ` +
-                `drop${eventsTotal === 1 ? '' : 's'} ` +
-                `#${eventIds.join(', #')}`
+                `drop${dropsTotal === 1 ? '' : 's'} ` +
+                `#${dropIds.join(', #')}`
               }
-              addresses={ownersEvents.map(([ownerAddress]) => ownerAddress)}
-              eventIds={eventIds}
+              addresses={ownersDrops.map(([ownerAddress]) => ownerAddress)}
+              dropIds={dropIds}
             />
           </ButtonGroup>
         )}

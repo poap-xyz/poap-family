@@ -5,14 +5,14 @@ import LinkButton from 'components/LinkButton'
 import ButtonMenu from 'components/ButtonMenu'
 
 function EventButtonMomentsView({
-  event,
+  drop,
 }: {
-  event: Drop
+  drop: Drop
 }) {
   return (
     <LinkButton
-      title={`View uploaded moments on ${event.name}`}
-      href={`${POAP_MOMENTS_URL}/drop/${event.id}`}
+      title={`View uploaded moments on ${drop.name}`}
+      href={`${POAP_MOMENTS_URL}/drop/${drop.id}`}
       external={true}
       secondary={true}
       icon={(
@@ -27,14 +27,14 @@ function EventButtonMomentsView({
 }
 
 function EventButtonMomentsPublish({
-  event,
+  drop,
 }: {
-  event: Drop
+  drop: Drop
 }) {
   return (
     <LinkButton
-      title={`Upload a moment on ${event.name}`}
-      href={`${POAP_MOMENTS_URL}/upload?drop=${event.id}`}
+      title={`Upload a moment on ${drop.name}`}
+      href={`${POAP_MOMENTS_URL}/upload?drop=${drop.id}`}
       external={true}
       secondary={true}
       icon={<Upload />}
@@ -45,24 +45,24 @@ function EventButtonMomentsPublish({
 }
 
 function EventButtonMoments({
-  event,
+  drop,
   publish = true,
 }: {
-  event: Drop
+  drop: Drop
   publish?: boolean
 }) {
   if (!publish) {
     return (
-      <EventButtonMomentsView event={event} />
+      <EventButtonMomentsView drop={drop} />
     )
   }
   return (
     <ButtonMenu
       primary={
-        <EventButtonMomentsView event={event} />
+        <EventButtonMomentsView drop={drop} />
       }
       buttons={
-        <EventButtonMomentsPublish event={event} />
+        <EventButtonMomentsPublish drop={drop} />
       }
     />
   )

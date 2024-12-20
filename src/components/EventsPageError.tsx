@@ -4,7 +4,7 @@ import {
   useParams,
   useRouteError,
 } from 'react-router-dom'
-import { parseEventIds } from 'models/event'
+import { parseDropIds } from 'models/drop'
 import PageError from 'components/PageError'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
@@ -12,34 +12,34 @@ import ButtonLink from 'components/ButtonLink'
 function EventsPageError() {
   const navigate = useNavigate()
   const error = useRouteError()
-  const { eventIds: rawEventIds } = useParams()
+  const { eventIds: rawDropIds } = useParams()
 
-  function delEvent(eventId: number): void {
-    const eventIds = parseEventIds(String(rawEventIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(eventId)
+  function delDrop(dropId: number): void {
+    const dropIds = parseDropIds(String(rawDropIds)).filter(
+      (paramEventId) => String(paramEventId) !== String(dropId)
     )
-    if (eventIds.length === 1) {
-      navigate(`/event/${eventIds[0]}`)
-    } else if (eventIds.length > 0) {
-      navigate(`/events/${eventIds.join(',')}`)
+    if (dropIds.length === 1) {
+      navigate(`/event/${dropIds[0]}`)
+    } else if (dropIds.length > 0) {
+      navigate(`/events/${dropIds.join(',')}`)
     } else {
       navigate('/')
     }
   }
 
-  function delEvents(eventIds: number[]): void {
-    const oldEventIds = eventIds.map((eventId) => String(eventId))
-    const newEventIds = parseEventIds(String(rawEventIds)).filter(
-      (paramEventId) => oldEventIds.indexOf(String(paramEventId)) === -1
+  function delDrops(dropIds: number[]): void {
+    const oldDropIds = dropIds.map((dropId) => String(dropId))
+    const newDropIds = parseDropIds(String(rawDropIds)).filter(
+      (paramDropId) => oldDropIds.indexOf(String(paramDropId)) === -1
     )
-    if (newEventIds.length > 0) {
-      navigate(`/events/${newEventIds.join(',')}`)
+    if (newDropIds.length > 0) {
+      navigate(`/events/${newDropIds.join(',')}`)
     } else {
       navigate('/')
     }
   }
 
-  const errorsByEventId = (
+  const errorsByDropId = (
     isRouteErrorResponse(error) &&
     error != null &&
     typeof error === 'object' &&
@@ -53,19 +53,19 @@ function EventsPageError() {
     ? error.data.errorsByEventId
     : undefined
 
-  if (errorsByEventId) {
-    console.error(...Object.values(errorsByEventId))
+  if (errorsByDropId) {
+    console.error(...Object.values(errorsByDropId))
   }
 
   return (
     <PageError>
-      {errorsByEventId && (
+      {errorsByDropId && (
         <>
-          {Object.entries(errorsByEventId).map(
-            ([rawEventId, error]) => (
-              <ErrorMessage key={rawEventId} away={true} error={error}>
+          {Object.entries(errorsByDropId).map(
+            ([rawDropId, error]) => (
+              <ErrorMessage key={rawDropId} away={true} error={error}>
                 <ButtonLink
-                  onClick={() => delEvent(parseInt(rawEventId))}
+                  onClick={() => delDrop(parseInt(rawDropId))}
                 >
                   remove
                 </ButtonLink>
@@ -74,8 +74,8 @@ function EventsPageError() {
           )}
           <ButtonLink
             onClick={() => {
-              delEvents(Object.keys(errorsByEventId).map(
-                (rawEventId) => parseInt(rawEventId)
+              delDrops(Object.keys(errorsByDropId).map(
+                (rawDropId) => parseInt(rawDropId)
               ))
             }}
           >

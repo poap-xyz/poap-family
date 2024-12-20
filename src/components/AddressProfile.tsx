@@ -6,7 +6,7 @@ import { findInitialPOAPDate } from 'models/poap'
 import { Drop } from 'models/drop'
 import {
   INCOMMON_ADDRESSES_LIMIT,
-  INCOMMON_EVENTS_LIMIT,
+  INCOMMON_DROPS_LIMIT,
 } from 'models/in-common'
 import { POAP_PROFILE_LIMIT } from 'models/poap'
 import { ReverseEnsContext } from 'stores/ethereum'
@@ -23,20 +23,20 @@ import 'styles/address-profile.css'
 function AddressProfile({
   ens,
   address,
-  events,
-  inCommonEventIds = [],
+  drops,
+  inCommonDropIds = [],
   inCommonAddresses = [],
 }: {
   ens?: string
   address: string
-  events: Record<number, Drop>
-  inCommonEventIds?: number[]
+  drops: Record<number, Drop>
+  inCommonDropIds?: number[]
   inCommonAddresses?: string[]
 }) {
   const { getEnsName } = useContext(ReverseEnsContext)
 
   const [showAllPOAPs, setShowAllPOAPs] = useState<boolean>(false)
-  const [showAllInCommonEvents, setShowAllInCommonEvents] = useState<boolean>(false)
+  const [showAllInCommonDrops, setShowAllInCommonDrops] = useState<boolean>(false)
   const [showAllInCommonAddresses, setShowAllInCommonAddresses] = useState<boolean>(false)
 
   const {
@@ -54,12 +54,12 @@ function AddressProfile({
     poapsVisible = poapsVisible.slice(0, POAP_PROFILE_LIMIT)
   }
 
-  const inCommonEventsTotal = inCommonEventIds == null ? 0 : inCommonEventIds.length
-  const inCommonEventsHasMore = inCommonEventsTotal > INCOMMON_EVENTS_LIMIT
+  const inCommonDropsTotal = inCommonDropIds == null ? 0 : inCommonDropIds.length
+  const inCommonDropsHasMore = inCommonDropsTotal > INCOMMON_DROPS_LIMIT
 
-  let inCommonEventIdsVisible = inCommonEventIds == null ? [] : inCommonEventIds.slice()
-  if (inCommonEventsHasMore && !showAllInCommonEvents) {
-    inCommonEventIdsVisible = inCommonEventIdsVisible.slice(0, INCOMMON_EVENTS_LIMIT)
+  let inCommonEventIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
+  if (inCommonDropsHasMore && !showAllInCommonDrops) {
+    inCommonEventIdsVisible = inCommonEventIdsVisible.slice(0, INCOMMON_DROPS_LIMIT)
   }
 
   const inCommonAddressesTotal = inCommonAddresses == null ? 0 : inCommonAddresses.length
@@ -148,33 +148,33 @@ function AddressProfile({
               )}
             </div>
           )}
-          {Array.isArray(inCommonEventIds) && inCommonEventIds.length > 0 && (
+          {Array.isArray(inCommonDropIds) && inCommonDropIds.length > 0 && (
             <div
               className={clsx('profile-in-common',
-                showAllInCommonEvents && 'show-all',
+                showAllInCommonDrops && 'show-all',
               )}
             >
-              <h4>{inCommonEventsTotal} in common drops</h4>
-              {inCommonEventIdsVisible.map((eventId) => (
-                eventId in events && (
+              <h4>{inCommonDropsTotal} in common drops</h4>
+              {inCommonEventIdsVisible.map((dropId) => (
+                dropId in drops && (
                   <TokenImage
-                    key={eventId}
-                    drop={events[eventId]}
+                    key={dropId}
+                    drop={drops[dropId]}
                     size={18}
                     resize={true}
                   />
                 )
               ))}
-              {inCommonEventsHasMore && (
+              {inCommonDropsHasMore && (
                 <div className="show-more">
                   <ButtonLink
                     onClick={() => {
-                      setShowAllInCommonEvents((prevShowAll) => !prevShowAll)
+                      setShowAllInCommonDrops((prevShowAll) => !prevShowAll)
                     }}
                   >
-                    {showAllInCommonEvents
-                      ? `show ${INCOMMON_EVENTS_LIMIT}`
-                      : `show all ${inCommonEventsTotal}`}
+                    {showAllInCommonDrops
+                      ? `show ${INCOMMON_DROPS_LIMIT}`
+                      : `show all ${inCommonDropsTotal}`}
                   </ButtonLink>
                 </div>
               )}

@@ -5,55 +5,55 @@ import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonExpand from 'components/ButtonExpand'
 
 function EventCompareButtons({
-  eventId,
-  eventIds,
-  events,
+  dropId,
+  dropIds,
+  drops,
   inCommon,
   viewInGallery = true,
 }: {
-  eventId: number
-  eventIds: number[]
-  events: Record<number, Drop>
+  dropId: number
+  dropIds: number[]
+  drops: Record<number, Drop>
   inCommon: InCommon
   viewInGallery?: boolean
 }) {
   const compareItself = (
-    eventIds.length === 1 && String(eventId) === String(eventIds[0])
+    dropIds.length === 1 && String(dropId) === String(dropIds[0])
   )
 
   return (
     <EventButtonGroup
-      event={events[eventId]}
+      drop={drops[dropId]}
       viewInGallery={viewInGallery}
     >
-      {eventIds.length > 0 && (
+      {dropIds.length > 0 && (
         <>
           <ButtonExportAddressCsv
             filename={
               compareItself
-                ? `collectors-${eventId}`
-                : `collectors-${eventId}-in-common-drops-${eventIds.join('+')}`
+                ? `collectors-${dropId}`
+                : `collectors-${dropId}-in-common-drops-${dropIds.join('+')}`
             }
             name={
               compareItself
-                ? events[eventIds[0]].name
+                ? drops[dropIds[0]].name
                 : undefined
             }
-            addresses={inCommon[eventId]}
+            addresses={inCommon[dropId]}
             title={
               compareItself
-                ? `Generates CSV file with collectors of drop #${eventId}`
+                ? `Generates CSV file with collectors of drop #${dropId}`
                 : `Generates CSV file with collectors in common between ` +
-                  `drops #${eventId} and #${eventIds.join(', #')}`
+                  `drops #${dropId} and #${dropIds.join(', #')}`
             }
           />
           <ButtonExpand
-            addresses={inCommon[eventId]}
+            addresses={inCommon[dropId]}
             title={
               compareItself
-                ? `Expands collectors of drop #${eventId}`
+                ? `Expands collectors of drop #${dropId}`
                 : `Expands collectors in common between ` +
-                  `drops #${eventId} and #${eventIds.join(', #')}`
+                  `drops #${dropId} and #${dropIds.join(', #')}`
             }
           />
         </>
