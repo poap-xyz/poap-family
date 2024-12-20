@@ -1,40 +1,40 @@
 import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
-import { fetchDrop } from 'loaders/drop'
+import { fetchDrop as loadDrop } from 'loaders/drop'
 
-function useEvent(eventId?: number): {
-  loadingEvent: boolean
-  eventError: Error | null
-  event: Drop | null
-  fetchEvent: (eventId?: number | null) => () => void
-  retryEvent: () => void
+function useEvent(dropId?: number): {
+  loading: boolean
+  error: Error | null
+  drop: Drop | null
+  fetchDrop: (eventId?: number | null) => () => void
+  retryDrop: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
-  const [event, setEvent] = useState<Drop | null>(null)
+  const [drop, setDrop] = useState<Drop | null>(null)
 
-  const fetchEvent = useCallback(
-    (newEventId: number | null) => {
+  const fetchDrop = useCallback(
+    (newDropId: number | null) => {
       let controller: AbortController | undefined
-      if (eventId == null && newEventId == null) {
+      if (dropId == null && newDropId == null) {
         setError(new Error('No drop to fetch'))
       } else {
         controller = new AbortController()
         setLoading(true)
         setError(null)
-        setEvent(null)
-        fetchDrop(
-          newEventId ?? eventId,
+        setDrop(null)
+        loadDrop(
+          newDropId ?? dropId,
           /*includeDescription*/false,
           controller.signal
         ).then(
           (result) => {
             setLoading(false)
             if (result) {
-              setEvent(result)
+              setDrop(result)
             } else {
-              setError(new Error(`Drop ${newEventId ?? eventId} not found`))
+              setError(new Error(`Drop ${newDropId ?? dropId} not found`))
             }
           },
           (err: unknown) => {
@@ -45,7 +45,7 @@ function useEvent(eventId?: number): {
                 setError(err)
               } else {
                 setError(new Error(
-                  `Drop ${newEventId ?? eventId} could not be fetched`,
+                  `Drop ${newDropId ?? dropId} could not be fetched`,
                   { cause: err }
                 ))
               }
@@ -59,22 +59,22 @@ function useEvent(eventId?: number): {
         }
         setLoading(false)
         setError(null)
-        setEvent(null)
+        setDrop(null)
       }
     },
-    [eventId]
+    [dropId]
   )
 
-  function retryEvent(): void {
+  function retryDrop(): void {
     setError(null)
   }
 
   return {
-    loadingEvent: loading,
-    eventError: error,
-    event,
-    fetchEvent,
-    retryEvent,
+    loading,
+    error,
+    drop,
+    fetchDrop,
+    retryDrop,
   }
 }
 

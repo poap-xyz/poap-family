@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Drop } from 'models/drop'
+import { Drop, DropPower } from 'models/drop'
 import type { InCommon } from 'models/api'
 import {
   filterInCommon,
@@ -18,7 +18,7 @@ import 'styles/in-common.css'
 function EventsInCommon({
   children,
   inCommon: initialInCommon,
-  events,
+  drops,
   showCount,
   showActive = true,
   baseEventIds = [],
@@ -27,11 +27,11 @@ function EventsInCommon({
 }: {
   children?: ReactNode
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   showCount?: number
   showActive?: boolean
   baseEventIds?: number[]
-  onActive?: (eventId: number) => void
+  onActive?: (dropId: number) => void
   eventsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
@@ -69,7 +69,7 @@ function EventsInCommon({
     [inCommonEntries, showCount]
   )
 
-  const inCommonEventsAddresses = useMemo(
+  const inCommonDropsAddresses = useMemo(
     () => {
       if (!showAll && inCommonEntries.length > inCommonLimit) {
         return inCommonEntries.slice(0, inCommonLimit)
@@ -80,21 +80,21 @@ function EventsInCommon({
   )
 
   const powers = useMemo(
-    () => inCommonEventsAddresses.map(([eventId, addresses]) => ({
-      eventId,
+    () => inCommonDropsAddresses.map(([dropId, addresses]): DropPower => ({
+      dropId,
       power: addresses.length,
     })),
-    [inCommonEventsAddresses]
+    [inCommonDropsAddresses]
   )
 
-  function removeActiveEventId(eventId: number): void {
+  function removeActiveDropId(dropId: number): void {
     setActiveEventIds((prevActiveEventIds) => {
       if (prevActiveEventIds == null) {
         return []
       }
       const newActiveEventIds = []
       for (const activeEventId of prevActiveEventIds) {
-        if (activeEventId !== eventId) {
+        if (activeEventId !== dropId) {
           newActiveEventIds.push(activeEventId)
         }
       }
@@ -102,17 +102,17 @@ function EventsInCommon({
     })
   }
 
-  function toggleActiveEventId(eventId: number): void {
-    if (activeEventIds.indexOf(eventId) === -1) {
+  function toggleActiveDropId(dropId: number): void {
+    if (activeEventIds.indexOf(dropId) === -1) {
       setActiveEventIds((prevActiveEventIds) => ([
         ...(prevActiveEventIds ?? []),
-        eventId,
+        dropId,
       ]))
       if (onActive) {
-        onActive(eventId)
+        onActive(dropId)
       }
     } else {
-      removeActiveEventId(eventId)
+      removeActiveDropId(dropId)
     }
   }
 
@@ -122,11 +122,11 @@ function EventsInCommon({
           ? {}
           : Object.fromEntries(
               Object.entries(eventsEnsNames).filter(([rawEventId]) => {
-                const eventId = parseInt(rawEventId)
-                if (isNaN(eventId)) {
+                const dropId = parseInt(rawEventId)
+                if (isNaN(dropId)) {
                   return false
                 }
-                return activeEventIds.includes(eventId)
+                return activeEventIds.includes(dropId)
               })
             )
         )
@@ -155,9 +155,9 @@ function EventsInCommon({
         <EventsPowers
           showAll={showAll}
           perfectPower={showCount}
-          selectedEventIds={activeEventIds}
-          onSelect={toggleActiveEventId}
-          events={events}
+          selectedDropIds={activeEventIds}
+          onSelect={toggleActiveDropId}
+          drops={drops}
           powers={powers}
         >
           {hasMore && (
@@ -182,11 +182,11 @@ function EventsInCommon({
       </Card>
       {activeEventIds.length > 0 && showActive &&
         <EventsCompare
-          baseEventIds={baseEventIds}
-          eventIds={activeEventIds}
-          events={events}
+          baseDropIds={baseEventIds}
+          dropIds={activeEventIds}
+          drops={drops}
           inCommon={inCommon}
-          onClose={removeActiveEventId}
+          onClose={removeActiveDropId}
           eventsEnsNames={activeEventsEnsNames}
         />
       }

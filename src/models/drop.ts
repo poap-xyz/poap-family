@@ -256,3 +256,27 @@ export function parseDrops(
     )
   )
 }
+
+export interface DropPower {
+  dropId: number
+  power: number
+}
+
+export function parseDropIds(rawIds: string): number[] {
+  let eventIds = (rawIds ?? '').split(',')
+    .filter((value, index, all) => all.indexOf(value) === index)
+    .map((value) => parseInt(value.trim()))
+    .filter((id) => !isNaN(id))
+  eventIds.sort((a, b) => a - b)
+  return eventIds
+}
+
+export function joinDropIds(eventIds: number[]): string {
+  return parseDropIds(eventIds.join(',')).join(',')
+}
+
+export const DEFAULT_SEARCH_LIMIT = 10
+
+export const DEFAULT_DROP_LIMIT = 100
+
+export const SEARCH_LIMIT = 10

@@ -14,7 +14,7 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
   eventsOwners: Record<number, string[]>
   eventsMetrics: Record<number, DropMetrics>
   fetchEventsOwnersAndMetrics: () => () => void
-  retryEventOwnersAndMetrics: (eventId: number) => () => void
+  retryEventOwnersAndMetrics: (dropId: number) => () => void
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loadingCache, setLoadingCache] = useState<boolean>(false)
@@ -23,21 +23,21 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
   const [owners, setOwners] = useState<Record<number, string[]>>({})
   const [metrics, setMetrics] = useState<Record<number, DropMetrics>>({})
 
-  function addLoading(eventId: number): void {
+  function addLoading(dropId: number): void {
     setLoading((alsoLoading) => ({
       ...alsoLoading,
-      [eventId]: true,
+      [dropId]: true,
     }))
   }
 
-  function removeLoading(eventId: number): void {
+  function removeLoading(dropId: number): void {
     setLoading((alsoLoading) => {
       if (alsoLoading == null) {
         return {}
       }
       const newLoading: Record<number, boolean> = {}
       for (const [loadingEventId, loading] of Object.entries(alsoLoading)) {
-        if (String(eventId) !== String(loadingEventId)) {
+        if (String(dropId) !== String(loadingEventId)) {
           newLoading[loadingEventId] = loading
         }
       }
@@ -45,21 +45,21 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     })
   }
 
-  function addError(eventId: number, err: Error): void {
+  function addError(dropId: number, err: Error): void {
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [eventId]: err,
+      [dropId]: err,
     }))
   }
 
-  function removeError(eventId: number): void {
+  function removeError(dropId: number): void {
     setErrors((alsoErrors) => {
       if (alsoErrors == null) {
         return {}
       }
       const newErrors: Record<number, Error> = {}
       for (const [errorEventId, error] of Object.entries(alsoErrors)) {
-        if (String(eventId) !== String(errorEventId)) {
+        if (String(dropId) !== String(errorEventId)) {
           newErrors[errorEventId] = error
         }
       }
@@ -67,10 +67,10 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     })
   }
 
-  function updateEventOwners(eventId: number, owners: string[]): void {
+  function updateEventOwners(dropId: number, owners: string[]): void {
     setOwners((prevOwners) => ({
       ...prevOwners,
-      [eventId]: filterInvalidOwners(owners),
+      [dropId]: filterInvalidOwners(owners),
     }))
   }
 
@@ -90,13 +90,13 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     }))
   }
 
-  function updateEventMetrics(eventId: number, metrics: DropMetrics): void {
+  function updateEventMetrics(dropId: number, metrics: DropMetrics): void {
     if (metrics == null) {
       return
     }
     setMetrics((prevMetrics) => ({
       ...prevMetrics,
-      [eventId]: metrics,
+      [dropId]: metrics,
     }))
   }
 
@@ -110,21 +110,21 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
   }
 
   const loadOwnersAndMetrics = useCallback(
-    async (eventId: number, abortSignal: AbortSignal) => {
-      removeError(eventId)
-      addLoading(eventId)
+    async (dropId: number, abortSignal: AbortSignal) => {
+      removeError(dropId)
+      addLoading(dropId)
       let eventCollectorsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropsCollectors>>>
       let eventMetricsResult: PromiseSettledResult<Awaited<ReturnType<typeof fetchDropMetrics>>>
       try {
         [eventCollectorsResult, eventMetricsResult] = await Promise.allSettled([
-          fetchDropsCollectors([eventId], abortSignal),
-          fetchDropMetrics(eventId, abortSignal),
+          fetchDropsCollectors([dropId], abortSignal),
+          fetchDropMetrics(dropId, abortSignal),
         ])
       } catch (err: unknown) {
-        removeLoading(eventId)
+        removeLoading(dropId)
         if (!(err instanceof AbortedError)) {
           addError(
-            eventId,
+            dropId,
             new Error('Could not fetch collectors or metrics', {
               cause: err,
             })
@@ -132,18 +132,18 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
         }
         return
       }
-      removeLoading(eventId)
+      removeLoading(dropId)
       if (eventCollectorsResult.status === 'fulfilled') {
         updateEventOwners(
-          eventId,
+          dropId,
           eventCollectorsResult.value
         )
       } else {
         if (!(eventCollectorsResult.reason instanceof AbortedError)) {
           console.error(eventCollectorsResult.reason)
           addError(
-            eventId,
-            new Error(`Collectors for drop '${eventId}' failed to fetch`, {
+            dropId,
+            new Error(`Collectors for drop '${dropId}' failed to fetch`, {
               cause: eventCollectorsResult.reason,
             })
           )
@@ -151,7 +151,7 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
       }
       if (eventMetricsResult.status === 'fulfilled') {
         if (eventMetricsResult.value) {
-          updateEventMetrics(eventId, eventMetricsResult.value)
+          updateEventMetrics(dropId, eventMetricsResult.value)
         }
       } else {
         if (!(eventMetricsResult.reason instanceof AbortedError)) {
@@ -187,7 +187,7 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
         updateEventsOwners(
           fillNull(
             eventsOwners,
-            eventIds.map((eventId) => String(eventId)),
+            eventIds.map((dropId) => String(dropId)),
             []
           )
         )
@@ -230,10 +230,10 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
     ]
   )
 
-  function retryEventOwnersAndMetrics(eventId: number): () => void {
-    removeError(eventId)
+  function retryEventOwnersAndMetrics(dropId: number): () => void {
+    removeError(dropId)
     const controller = new AbortController()
-    loadOwnersAndMetrics(eventId, controller.signal)
+    loadOwnersAndMetrics(dropId, controller.signal)
     return () => {
       controller.abort()
     }

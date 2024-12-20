@@ -4,8 +4,7 @@ import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
-import { parseEventIds } from 'models/event'
-import { Drop, parseDrops } from 'models/drop'
+import { Drop, parseDrops, parseDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { InCommon } from 'models/api'
 import { union, uniq } from 'utils/array'
@@ -35,7 +34,7 @@ import 'styles/events.css'
 
 function Events() {
   const navigate = useNavigate()
-  const { eventIds: rawEventIds } = useParams()
+  const { eventIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
@@ -50,7 +49,7 @@ function Events() {
     [loaderData]
   )
 
-  const eventIds = useMemo(
+  const dropIds = useMemo(
     () => Object.keys(drops).map((rawEventId) => parseInt(rawEventId)),
     [drops]
   )
@@ -64,7 +63,7 @@ function Events() {
     eventsMetrics,
     fetchEventsOwnersAndMetrics,
     retryEventOwnersAndMetrics,
-  } = useEventsOwnersAndMetrics(eventIds)
+  } = useEventsOwnersAndMetrics(dropIds)
 
   const {
     completedEventsInCommon,
@@ -79,7 +78,7 @@ function Events() {
     fetchEventsInCommon,
     retryEventAddressInCommon,
   } = useEventsInCommon(
-    eventIds,
+    dropIds,
     eventsOwners,
     all,
     /*refresh*/force,
@@ -93,7 +92,7 @@ function Events() {
     collections,
     relatedCollections,
     fetchEventsCollections,
-  } = useEventsCollections(eventIds)
+  } = useEventsCollections(dropIds)
 
   useEffect(
     () => {
@@ -154,14 +153,14 @@ function Events() {
     ]
   )
 
-  function delEvent(eventId: number): void {
-    const newEventIds = parseEventIds(String(rawEventIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(eventId)
+  function delDrop(dropId: number): void {
+    const newDropIds = parseDropIds(String(rawDropIds)).filter(
+      (paramEventId) => String(paramEventId) !== String(dropId)
     )
-    if (newEventIds.length === 1) {
-      navigate(`/event/${newEventIds[0]}`)
-    } else if (newEventIds.length > 0) {
-      navigate(`/events/${newEventIds.join(',')}`)
+    if (newDropIds.length === 1) {
+      navigate(`/event/${newDropIds[0]}`)
+    } else if (newDropIds.length > 0) {
+      navigate(`/events/${newDropIds.join(',')}`)
     } else {
       navigate('/')
     }
@@ -190,7 +189,7 @@ function Events() {
     [completedEventsInCommon, eventsInCommon, all]
   )
 
-  const allEvents: Record<number, Drop> = useMemo(
+  const allDrops: Record<number, Drop> = useMemo(
     () => Object.values(eventsInCommon).reduce(
       (allEvents, data) => ({
         ...allEvents,
@@ -201,12 +200,12 @@ function Events() {
     [eventsInCommon]
   )
 
-  const staleEvents = useMemo(
+  const staleDrops = useMemo(
     () => {
       if (!completedEventsInCommon) {
         return 0
       }
-      return eventIds.reduce(
+      return dropIds.reduce(
         (total, eventId) => {
           if (
             loadedEventsOwners[eventId] == null ||
@@ -226,7 +225,7 @@ function Events() {
       )
     },
     [
-      eventIds,
+      dropIds,
       eventsOwners,
       completedEventsInCommon,
       loadedEventsOwners,
@@ -248,13 +247,13 @@ function Events() {
     )
   }
 
-  function handleEventActive(eventId: number): void {
-    const addresses = inCommon[eventId]
+  function handleDropActive(dropId: number): void {
+    const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
         setEventsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
-          [eventId]: ensNames,
+          [dropId]: ensNames,
         }))
       })
     }
@@ -459,12 +458,12 @@ function Events() {
                     </td>
                     <td className="event-cell-actions">
                       <EventButtonGroup
-                        event={drop}
+                        drop={drop}
                         right={true}
                         viewInGallery={true}
                       >
                         <ButtonDelete
-                          onDelete={() => delEvent(drop.id)}
+                          onDelete={() => delDrop(drop.id)}
                           title={`Removes drop #${drop.id}`}
                         />
                       </EventButtonGroup>
@@ -475,10 +474,10 @@ function Events() {
             </table>
           </Card>
         </div>
-        {staleEvents > 0 && (
+        {staleDrops > 0 && (
           <WarningMessage>
-            There have been new mints in {staleEvents}{' '}
-            POAP{staleEvents === 1 ? '' : 's'} since cached,{' '}
+            There have been new mints in {staleDrops}{' '}
+            POAP{staleDrops === 1 ? '' : 's'} since cached,{' '}
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
@@ -492,7 +491,7 @@ function Events() {
             <Loading
               title="Loading drops"
               count={Object.values(loadedEventsOwners).length}
-              total={eventIds.length}
+              total={dropIds.length}
             />
           </Card>
         )}
@@ -536,14 +535,14 @@ function Events() {
             <EventsOwners
               eventsOwners={eventsOwners}
               inCommon={inCommon}
-              events={allEvents}
+              events={allDrops}
               all={all}
             />
             <EventsInCommon
-              onActive={handleEventActive}
+              onActive={handleDropActive}
               inCommon={inCommon}
-              events={allEvents}
-              baseEventIds={eventIds}
+              drops={allDrops}
+              baseEventIds={dropIds}
               eventsEnsNames={eventsEnsNames}
             />
           </>

@@ -1,5 +1,4 @@
-import { parseEventIds } from 'models/event'
-import { Drop, DropData } from 'models/drop'
+import { parseDropIds, Drop, DropData } from 'models/drop'
 import { HttpError } from 'models/error'
 import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'loaders/drop'
 import { fetchDropsCollectors } from 'loaders/collector'
@@ -49,7 +48,7 @@ export async function eventLoader({ params }): Promise<DropData> {
 }
 
 export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
-  const dropIds = parseEventIds(params.eventIds)
+  const dropIds = parseDropIds(params.eventIds)
 
   if (dropIds.length === 0) {
     throw new Response('', {

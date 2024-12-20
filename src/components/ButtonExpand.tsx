@@ -5,20 +5,20 @@ import Button from 'components/Button'
 
 function ButtonExpand({
   addresses,
-  eventIds,
+  dropIds,
   link = false,
   title,
 }: {
   addresses: string[]
-  eventIds?: number[]
+  dropIds?: number[]
   link?: boolean
   title?: string
 }) {
   const navigate = useNavigate()
 
   const queryString = (
-    eventIds && Array.isArray(eventIds) && eventIds.length > 0
-      ? `?events=${eventIds.join(',')}`
+    dropIds && Array.isArray(dropIds) && dropIds.length > 0
+      ? `?events=${dropIds.join(',')}`
       : ''
   )
 

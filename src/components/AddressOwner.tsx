@@ -55,19 +55,19 @@ function AddressOwner({
       {hasEvents && (
         <div className="owner-events">
           {eventIds.map(
-            (eventId) =>
-              eventId in events &&
+            (dropId) =>
+              dropId in events &&
               ownerEventIds != null &&
-              ownerEventIds.includes(eventId)
+              ownerEventIds.includes(dropId)
                 ? (
                     <TokenImage
-                      key={eventId}
-                      drop={events[eventId]}
+                      key={dropId}
+                      drop={events[dropId]}
                       size={18}
                       resize={true}
                     />
                   )
-                : <div key={eventId} className="owner-event-empty">{' '}</div>
+                : <div key={dropId} className="owner-event-empty">{' '}</div>
           )}
         </div>
       )}

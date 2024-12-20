@@ -19,12 +19,12 @@ function inverseOwnersSortedEntries(
 ): Array<[string, number[]]> {
   const addressToEvents: Record<string, number[]> = {}
   for (const [rawEventId, addresses] of Object.entries(owners)) {
-    const eventId = parseInt(rawEventId)
+    const dropId = parseInt(rawEventId)
     for (const address of addresses) {
       if (address in addressToEvents) {
-        addressToEvents[address].push(eventId)
+        addressToEvents[address].push(dropId)
       } else {
-        addressToEvents[address] = [eventId]
+        addressToEvents[address] = [dropId]
       }
     }
   }
@@ -194,7 +194,7 @@ function EventsOwners({
                 `#${eventIds.join(', #')}`
               }
               addresses={ownersEvents.map(([ownerAddress]) => ownerAddress)}
-              eventIds={eventIds}
+              dropIds={eventIds}
             />
           </ButtonGroup>
         )}

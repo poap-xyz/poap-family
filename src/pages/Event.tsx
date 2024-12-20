@@ -127,13 +127,13 @@ function Event() {
     setSearchParams({ force: 'true' })
   }
 
-  function handleEventActive(eventId: number): void {
-    const addresses = inCommon[eventId]
+  function handleDropActive(dropId: number): void {
+    const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
         setEventsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
-          [eventId]: ensNames,
+          [dropId]: ensNames,
         }))
       })
     }
@@ -149,7 +149,7 @@ function Event() {
               collectors={collectors.length}
               metrics={metrics}
             />
-            <EventButtonGroup event={drop} viewInGallery={true}>
+            <EventButtonGroup drop={drop} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${drop.id}`}
                 name={drop.name}
@@ -158,7 +158,7 @@ function Event() {
                   `Generates CSV file with collectors of drop #${drop.id}`
                 }
               />
-              <EventButtonMoments event={drop} />
+              <EventButtonMoments drop={drop} />
             </EventButtonGroup>
             {cachedTs &&
               <div className="cached">
@@ -258,9 +258,9 @@ function Event() {
             )}
             {cachedTs && (
               <EventsInCommon
-                onActive={handleEventActive}
+                onActive={handleDropActive}
                 inCommon={inCommon}
-                events={events}
+                drops={events}
                 baseEventIds={eventIds}
                 eventsEnsNames={eventsEnsNames}
               />

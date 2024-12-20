@@ -1,6 +1,12 @@
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
-import { DEFAULT_DROP_LIMIT, DEFAULT_SEARCH_LIMIT } from 'models/event'
-import { Drop, DropMetrics, parseDrop, parseDropMetrics } from 'models/drop'
+import {
+  Drop,
+  DropMetrics,
+  parseDrop,
+  parseDropMetrics,
+  DEFAULT_SEARCH_LIMIT,
+  DEFAULT_DROP_LIMIT,
+} from 'models/drop'
 import { HttpError } from 'models/error'
 import {
   queryAggregateCountCompass,

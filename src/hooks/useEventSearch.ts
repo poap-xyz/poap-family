@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
-import { SEARCH_LIMIT } from 'models/event'
-import { Drop } from 'models/drop'
+import { SEARCH_LIMIT, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { searchDrops } from 'loaders/drop'
 

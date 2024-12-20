@@ -8,7 +8,7 @@ import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'load
 import { fetchCollectorDrops } from 'loaders/collector'
 
 function useEventInCommon(
-  eventId: number,
+  dropId: number,
   owners: string[],
   force: boolean = false,
   local: boolean = false,
@@ -50,7 +50,7 @@ function useEventInCommon(
         }
       }
     },
-    [eventId, owners, loadedOwners, cachedTs, inCommon]
+    [dropId, owners, loadedOwners, cachedTs, inCommon]
   )
 
   function addError(address: string, err: unknown): void {
@@ -153,7 +153,7 @@ function useEventInCommon(
         ;(
           stream
             ? getInCommonEventsWithEvents(
-                eventId,
+                dropId,
                 /*refresh*/force,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/(
@@ -205,7 +205,7 @@ function useEventInCommon(
                 },
               )
             : getInCommonEventsWithProgress(
-                eventId,
+                dropId,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/({ progress, estimated, rate }) => {
                   if (progress != null) {
@@ -229,8 +229,8 @@ function useEventInCommon(
               return fetchOwnersInCommon(controllers)
             }
             setLoading(false)
-            if (eventId in result.inCommon) {
-              setLoadedOwners(result.inCommon[eventId].length)
+            if (dropId in result.inCommon) {
+              setLoadedOwners(result.inCommon[dropId].length)
             }
             setInCommon(result.inCommon)
             setEvents(result.events)
@@ -261,7 +261,7 @@ function useEventInCommon(
         setInCommon({})
       }
     },
-    [eventId, owners, force, local, stream, fetchOwnersInCommon]
+    [dropId, owners, force, local, stream, fetchOwnersInCommon]
   )
 
   function retryAddress(address: string): () => void {

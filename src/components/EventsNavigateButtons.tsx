@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { joinEventIds } from 'models/event'
+import { joinDropIds } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import Button from 'components/Button'
 
@@ -18,7 +18,7 @@ function EventsNavigateButtons({
     }
     const newEventIds = [...baseEventIds, ...eventIds]
     if (newEventIds.length > 0) {
-      navigate(`/events/${joinEventIds(newEventIds)}`)
+      navigate(`/events/${joinDropIds(newEventIds)}`)
     } else if (newEventIds.length === 1) {
       navigate(`/event/${newEventIds[0]}`)
     }
@@ -29,7 +29,7 @@ function EventsNavigateButtons({
       return
     }
     if (eventIds.length > 1) {
-      navigate(`/events/${joinEventIds(eventIds)}`)
+      navigate(`/events/${joinDropIds(eventIds)}`)
     } else if (eventIds.length === 1) {
       navigate(`/event/${eventIds[0]}`)
     }
@@ -42,7 +42,7 @@ function EventsNavigateButtons({
           disabled={
             eventIds.length === 0 ||
             eventIds.every(
-              (eventId) => baseEventIds.includes(eventId)
+              (dropId) => baseEventIds.includes(dropId)
             )
           }
           onClick={() => addEvents()}
@@ -57,10 +57,10 @@ function EventsNavigateButtons({
           eventIds.length === 0 ||
           (
             eventIds.every(
-              (eventId) => baseEventIds.includes(eventId)
+              (dropId) => baseEventIds.includes(dropId)
             ) &&
             baseEventIds.every(
-              (eventId) => eventIds.includes(eventId)
+              (dropId) => eventIds.includes(dropId)
             )
           )
         }

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { Drop } from 'models/drop'
+import { Drop, DropPower } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import EventPower from 'components/EventPower'
 import 'styles/events-powers.css'
@@ -9,58 +9,55 @@ import 'styles/events-powers.css'
 function EventsPowers({
   showAll = false,
   perfectPower,
-  selectedEventIds,
+  selectedDropIds,
   onSelect,
-  events,
+  drops,
   powers,
   size = 64,
   children,
 }: {
   showAll?: boolean
   perfectPower?: number
-  selectedEventIds: number[]
-  onSelect: (eventId: number) => void
-  events: Record<number, Drop>
-  powers: Array<{
-    eventId: number
-    power: number
-  }>
+  selectedDropIds: number[]
+  onSelect: (dropId: number) => void
+  drops: Record<number, Drop>
+  powers: DropPower[]
   size?: number
   children?: ReactNode
 }) {
   return (
     <div className={clsx('events-powers', showAll && 'show-all')}>
-      {powers.map(({ eventId, power }) => (
+      {powers.map(({ dropId, power }) => (
         <div
-          key={eventId}
+          key={dropId}
           className={clsx('event-power-card', {
-            selected: selectedEventIds.includes(eventId),
+            selected: selectedDropIds.includes(dropId),
             perfect: perfectPower === power,
           })}
-          title={events[eventId].name}
+          title={drops[dropId].name}
         >
           <button
             className="event-select-button"
-            onClick={() => onSelect(eventId)}
+            onClick={() => onSelect(dropId)}
             style={{
               width: `${size}px`,
               height: `${size}px`,
             }}
           >
             {perfectPower === power
-              ? <TokenImage drop={events[eventId]} size={size} />
+              ? <TokenImage drop={drops[dropId]} size={size} />
               : <EventPower
-                event={events[eventId]}
+                drop={drops[dropId]}
                 count={power}
                 size={size}
               />
             }
           </button>
           <Link
-            to={`/event/${eventId}`}
+            to={`/event/${dropId}`}
             className="event-id"
           >
-            #{eventId}
+            #{dropId}
           </Link>
         </div>
       ))}

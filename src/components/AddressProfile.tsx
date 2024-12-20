@@ -155,11 +155,11 @@ function AddressProfile({
               )}
             >
               <h4>{inCommonEventsTotal} in common drops</h4>
-              {inCommonEventIdsVisible.map((eventId) => (
-                eventId in events && (
+              {inCommonEventIdsVisible.map((dropId) => (
+                dropId in events && (
                   <TokenImage
-                    key={eventId}
-                    drop={events[eventId]}
+                    key={dropId}
+                    drop={events[dropId]}
                     size={18}
                     resize={true}
                   />
