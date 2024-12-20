@@ -1,12 +1,12 @@
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { Drop, DropPower } from 'models/drop'
+import { Drop, DropPower as Power } from 'models/drop'
 import TokenImage from 'components/TokenImage'
-import EventPower from 'components/EventPower'
+import DropPower from 'components/DropPower'
 import 'styles/events-powers.css'
 
-function EventsPowers({
+function DropsPowers({
   showAll = false,
   perfectPower,
   selectedDropIds,
@@ -21,7 +21,7 @@ function EventsPowers({
   selectedDropIds: number[]
   onSelect: (dropId: number) => void
   drops: Record<number, Drop>
-  powers: DropPower[]
+  powers: Power[]
   size?: number
   children?: ReactNode
 }) {
@@ -46,7 +46,7 @@ function EventsPowers({
           >
             {perfectPower === power
               ? <TokenImage drop={drops[dropId]} size={size} />
-              : <EventPower
+              : <DropPower
                 drop={drops[dropId]}
                 count={power}
                 size={size}
@@ -66,4 +66,4 @@ function EventsPowers({
   )
 }
 
-export default EventsPowers
+export default DropsPowers

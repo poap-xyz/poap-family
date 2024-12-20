@@ -9,14 +9,14 @@ import { EnsByAddress } from 'models/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
-import EventHeader from 'components/EventHeader'
+import DropHeader from 'components/DropHeader'
 import AddressCollectorLine from 'components/AddressCollectorLine'
-import EventCompareButtons from 'components/EventCompareButtons'
-import EventNavigateButtons from 'components/EventNavigateButtons'
+import DropCompareButtons from 'components/DropCompareButtons'
+import DropNavigateButtons from 'components/DropNavigateButtons'
 import ButtonClose from 'components/ButtonClose'
 import 'styles/events-compare.css'
 
-function EventsCompare({
+function DropsCompare({
   baseDropIds,
   dropIds,
   drops,
@@ -73,16 +73,16 @@ function EventsCompare({
       {dropIds.map((dropId) =>
         <div className="event-compare" key={dropId}>
           <Card>
-            <EventHeader drop={drops[dropId]} size={48} />
+            <DropHeader drop={drops[dropId]} size={48} />
             <div className="event-compare-actions">
-              <EventNavigateButtons
+              <DropNavigateButtons
                 baseDropIds={baseDropIds}
                 dropId={dropId}
               >
                 {onClose && (
                   <ButtonClose onClose={() => onClose(dropId)} />
                 )}
-              </EventNavigateButtons>
+              </DropNavigateButtons>
             </div>
             <h4>
               {inCommon[dropId].length}{' '}
@@ -140,7 +140,7 @@ function EventsCompare({
                 })}
               </ul>
             </div>
-            <EventCompareButtons
+            <DropCompareButtons
               dropId={dropId}
               dropIds={baseDropIds}
               drops={drops}
@@ -154,4 +154,4 @@ function EventsCompare({
   )
 }
 
-export default EventsCompare
+export default DropsCompare

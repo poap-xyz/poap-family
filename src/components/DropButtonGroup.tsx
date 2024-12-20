@@ -1,10 +1,10 @@
+import { ReactNode } from 'react'
 import { POAP_GALLERY_URL } from 'models/poap'
 import { Drop } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import LinkButton from 'components/LinkButton'
-import { ReactNode } from 'react'
 
-function EventButtonGroup({
+function DropButtonGroup({
   drop,
   children,
   viewInGallery = true,
@@ -34,4 +34,4 @@ function EventButtonGroup({
   )
 }
 
-export default EventButtonGroup
+export default DropButtonGroup

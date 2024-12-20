@@ -10,7 +10,7 @@ import TokenImageZoom from 'components/TokenImageZoom'
 import ExternalLink from 'components/ExternalLink'
 import 'styles/event-info.css'
 
-function EventInfo({
+function DropInfo({
   drop,
   children,
 }: {
@@ -70,4 +70,4 @@ function EventInfo({
   )
 }
 
-export default EventInfo
+export default DropInfo
