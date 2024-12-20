@@ -10,12 +10,12 @@ import { EnsByAddress } from 'models/ethereum'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
-import EventsPowers from 'components/EventsPowers'
-import EventsCompare from 'components/EventsCompare'
-import EventsNavigateButtons from 'components/EventsNavigateButtons'
+import DropsPowers from 'components/DropsPowers'
+import DropsCompare from 'components/DropsCompare'
+import DropsNavigateButtons from 'components/DropsNavigateButtons'
 import 'styles/in-common.css'
 
-function EventsInCommon({
+function DropsInCommon({
   children,
   inCommon: initialInCommon,
   drops,
@@ -152,7 +152,7 @@ function EventsInCommon({
             in common
           </h4>
         )}
-        <EventsPowers
+        <DropsPowers
           showAll={showAll}
           perfectPower={showCount}
           selectedDropIds={activeEventIds}
@@ -172,16 +172,16 @@ function EventsInCommon({
               </ButtonLink>
             </div>
           )}
-        </EventsPowers>
+        </DropsPowers>
         {inCommonTotal > 0 && (
-          <EventsNavigateButtons
+          <DropsNavigateButtons
             baseDropIds={baseDropIds}
             dropIds={activeEventIds}
           />
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
-        <EventsCompare
+        <DropsCompare
           baseDropIds={baseDropIds}
           dropIds={activeEventIds}
           drops={drops}
@@ -194,4 +194,4 @@ function EventsInCommon({
   )
 }
 
-export default EventsInCommon
+export default DropsInCommon

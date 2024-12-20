@@ -4,7 +4,7 @@ import { POAP_MOMENTS_URL } from 'models/poap'
 import LinkButton from 'components/LinkButton'
 import ButtonMenu from 'components/ButtonMenu'
 
-function EventButtonMomentsView({
+function DropButtonMomentsView({
   drop,
 }: {
   drop: Drop
@@ -26,7 +26,7 @@ function EventButtonMomentsView({
   )
 }
 
-function EventButtonMomentsPublish({
+function DropButtonMomentsPublish({
   drop,
 }: {
   drop: Drop
@@ -44,7 +44,7 @@ function EventButtonMomentsPublish({
   )
 }
 
-function EventButtonMoments({
+function DropButtonMoments({
   drop,
   publish = true,
 }: {
@@ -53,19 +53,19 @@ function EventButtonMoments({
 }) {
   if (!publish) {
     return (
-      <EventButtonMomentsView drop={drop} />
+      <DropButtonMomentsView drop={drop} />
     )
   }
   return (
     <ButtonMenu
       primary={
-        <EventButtonMomentsView drop={drop} />
+        <DropButtonMomentsView drop={drop} />
       }
       buttons={
-        <EventButtonMomentsPublish drop={drop} />
+        <DropButtonMomentsPublish drop={drop} />
       }
     />
   )
 }
 
-export default EventButtonMoments
+export default DropButtonMoments

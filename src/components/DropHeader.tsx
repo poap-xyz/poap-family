@@ -3,7 +3,7 @@ import { Drop } from 'models/drop'
 import TokenImageZoom from 'components/TokenImageZoom'
 import 'styles/event-header.css'
 
-function EventHeader({
+function DropHeader({
   drop,
   size = 48,
 }: {
@@ -23,4 +23,4 @@ function EventHeader({
   )
 }
 
-export default EventHeader
+export default DropHeader

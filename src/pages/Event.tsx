@@ -10,17 +10,17 @@ import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
 import Loading from 'components/Loading'
-import EventsInCommon from 'components/EventsInCommon'
-import EventInfo from 'components/EventInfo'
-import EventStats from 'components/EventStats'
+import DropsInCommon from 'components/DropsInCommon'
+import DropInfo from 'components/DropInfo'
+import DropStats from 'components/DropStats'
 import CollectionSet from 'components/CollectionSet'
 import AddressErrorList from 'components/AddressErrorList'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
-import EventButtonGroup from 'components/EventButtonGroup'
-import EventButtonMoments from 'components/EventButtonMoments'
+import DropButtonGroup from 'components/DropButtonGroup'
+import DropButtonMoments from 'components/DropButtonMoments'
 import 'styles/event.css'
 
 function Event() {
@@ -143,13 +143,13 @@ function Event() {
     <Page>
       <div className="event">
         <div className="event-header-info">
-          <EventInfo drop={drop}>
-            <EventStats
+          <DropInfo drop={drop}>
+            <DropStats
               drop={drop}
               collectors={collectors.length}
               metrics={metrics}
             />
-            <EventButtonGroup drop={drop} viewInGallery={true}>
+            <DropButtonGroup drop={drop} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${drop.id}`}
                 name={drop.name}
@@ -158,15 +158,15 @@ function Event() {
                   `Generates CSV file with collectors of drop #${drop.id}`
                 }
               />
-              <EventButtonMoments drop={drop} />
-            </EventButtonGroup>
+              <DropButtonMoments drop={drop} />
+            </DropButtonGroup>
             {cachedTs &&
               <div className="cached">
                 Cached <Timestamp ts={cachedTs} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </div>
             }
-          </EventInfo>
+          </DropInfo>
         </div>
         {loadingEventInCommon && (
           <Card>
@@ -257,7 +257,7 @@ function Event() {
               </Card>
             )}
             {cachedTs && (
-              <EventsInCommon
+              <DropsInCommon
                 onActive={handleDropActive}
                 inCommon={inCommon}
                 drops={drops}

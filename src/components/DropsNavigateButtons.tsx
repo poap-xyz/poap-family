@@ -3,7 +3,7 @@ import { joinDropIds } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import Button from 'components/Button'
 
-function EventsNavigateButtons({
+function DropsNavigateButtons({
   baseDropIds,
   dropIds,
 }: {
@@ -73,4 +73,4 @@ function EventsNavigateButtons({
   )
 }
 
-export default EventsNavigateButtons
+export default DropsNavigateButtons

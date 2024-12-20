@@ -9,7 +9,7 @@ import Addresses from 'pages/Addresses'
 import Event from 'pages/Event'
 import Events from 'pages/Events'
 import Last from 'pages/Last'
-import EventsPageError from 'components/EventsPageError'
+import DropsPageError from 'components/DropsPageError'
 import PageError from 'components/PageError'
 import CenterPage from 'components/CenterPage'
 import Loading from 'components/Loading'
@@ -43,7 +43,7 @@ export default function App() {
                       path: '/events/:eventIds',
                       loader: eventsLoader,
                       element: <Events />,
-                      errorElement: <EventsPageError />,
+                      errorElement: <DropsPageError />,
                     },
                     {
                       path: '/addresses',

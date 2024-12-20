@@ -3,7 +3,7 @@ import { POAP_MOMENTS_URL } from 'models/poap'
 import { formatStat } from 'utils/number'
 import Stats from 'components/Stats'
 
-function EventStats({
+function DropStats({
   drop,
   collectors,
   metrics,
@@ -58,4 +58,4 @@ function EventStats({
   )
 }
 
-export default EventStats
+export default DropStats

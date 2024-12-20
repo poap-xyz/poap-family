@@ -9,7 +9,7 @@ import PageError from 'components/PageError'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 
-function EventsPageError() {
+function DropsPageError() {
   const navigate = useNavigate()
   const error = useRouteError()
   const { eventIds: rawDropIds } = useParams()
@@ -87,4 +87,4 @@ function EventsPageError() {
   )
 }
 
-export default EventsPageError
+export default DropsPageError
