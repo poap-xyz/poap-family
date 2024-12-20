@@ -3,14 +3,14 @@ import { Drop } from 'models/drop'
 import {
   InCommon,
   getAddressInCommonAddresses,
-  getAddressInCommonEventIds,
+  getAddressInCommonDropIds,
 } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
 import EventHeader from 'components/EventHeader'
-import AddressOwner from 'components/AddressOwner'
+import AddressCollectorLine from 'components/AddressCollectorLine'
 import EventCompareButtons from 'components/EventCompareButtons'
 import EventNavigateButtons from 'components/EventNavigateButtons'
 import ButtonClose from 'components/ButtonClose'
@@ -92,13 +92,13 @@ function EventsCompare({
             <div className="event-compare-owners">
               <ul className="owners">
                 {inCommon[dropId].map((collector) => {
-                  const inCommonEventIds = getAddressInCommonEventIds(
+                  const inCommonDropIds = getAddressInCommonDropIds(
                     inCommon,
                     collector
                   )
                   const inCommonAddresses = getAddressInCommonAddresses(
                     inCommon,
-                    inCommonEventIds,
+                    inCommonDropIds,
                     collector
                   )
                   return (
@@ -121,7 +121,7 @@ function EventsCompare({
                         onCollectorLeave(dropId, collector)
                       }}
                     >
-                      <AddressOwner
+                      <AddressCollectorLine
                         ens={
                           dropsEnsNames &&
                           dropId in dropsEnsNames &&
@@ -130,7 +130,7 @@ function EventsCompare({
                             : undefined}
                         address={collector}
                         drops={drops}
-                        inCommonDropIds={inCommonEventIds}
+                        inCommonDropIds={inCommonDropIds}
                         inCommonAddresses={inCommonAddresses}
                         linkToScan={
                           !highlighted || highlighted === collector}

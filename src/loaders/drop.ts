@@ -301,6 +301,7 @@ export async function fetchDropsMetrics(
       {
         dropIds: ids,
       },
+      abortSignal,
     )
 
     for (const drop of drops) {

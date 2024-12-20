@@ -23,7 +23,7 @@ import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
 import EventsInCommon from 'components/EventsInCommon'
 import CollectionSet from 'components/CollectionSet'
-import EventsOwners from 'components/EventsOwners'
+import DropsCollectors from 'components/DropsCollectors'
 import Switch from 'components/Switch'
 import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
@@ -531,7 +531,7 @@ function Events() {
                 }}
               />
             )}
-            <EventsOwners
+            <DropsCollectors
               dropsCollectors={dropsCollectors}
               inCommon={inCommon}
               drops={allDrops}

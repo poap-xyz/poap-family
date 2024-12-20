@@ -2,9 +2,9 @@ import { Drop } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import LinkToScan from 'components/LinkToScan'
 import ButtonAddressProfile from 'components/ButtonAddressProfile'
-import 'styles/address-owner.css'
+import 'styles/address-collector-line.css'
 
-function AddressOwner({
+function AddressCollectorLine({
   ens,
   address,
   drops,
@@ -32,8 +32,8 @@ function AddressOwner({
   )
 
   return (
-    <div className="address-owner">
-      <div className="owner-name">
+    <div className="address-collector-line">
+      <div className="collector-name">
         <ButtonAddressProfile
           address={address}
           drops={drops}
@@ -46,14 +46,14 @@ function AddressOwner({
       {linkToScan && (
         <LinkToScan
           address={address}
-          className="owner-scan"
+          className="collector-scan"
           stamp={true}
           showEns={true}
           ens={ens}
         />
       )}
       {hasDrops && (
-        <div className="owner-events">
+        <div className="collector-drops">
           {dropIds.map(
             (dropId) =>
               dropId in drops &&
@@ -67,7 +67,14 @@ function AddressOwner({
                       resize={true}
                     />
                   )
-                : <div key={dropId} className="owner-event-empty">{' '}</div>
+                : (
+                    <div
+                      key={dropId}
+                      className="collector-drop-empty"
+                    >
+                      {' '}
+                    </div>
+                  )
           )}
         </div>
       )}
@@ -75,4 +82,4 @@ function AddressOwner({
   )
 }
 
-export default AddressOwner
+export default AddressCollectorLine
