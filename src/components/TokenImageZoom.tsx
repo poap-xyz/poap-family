@@ -10,8 +10,8 @@ import ButtonClose from 'components/ButtonClose'
 import Loading from 'components/Loading'
 import 'styles/token-image-zoom.css'
 
-function TokenImageZoom({ event, size = 128, zoomSize = 512 }: {
-  event: Drop | CachedEvent
+function TokenImageZoom({ drop, size = 128, zoomSize = 512 }: {
+  drop: Drop | CachedEvent
   size?: number
   zoomSize?: number
 }) {
@@ -23,16 +23,16 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }: {
         onClick={() => setShowModal((show) => !show)}
         className="token-image-zoom-in-button"
       >
-        <TokenImage event={event} size={size} resize={true} />
+        <TokenImage drop={drop} size={size} resize={true} />
       </button>
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}
-        title={event.name}
+        title={drop.name}
       >
         <LazyImage
-          src={event.image_url}
-          alt={event.name}
+          src={drop.image_url}
+          alt={drop.name}
           placeholder={({ imageProps, ref }) => (
             <div className="token-image-zoom-modal token-image-zoom-placeholder" ref={ref}>
               <Card>
@@ -42,7 +42,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }: {
                   className="token-image-zoom-out-button"
                 >
                   <TokenImage
-                    event={event}
+                    drop={drop}
                     size={size}
                     imgSize={zoomSize}
                     resize={true}
@@ -61,7 +61,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }: {
                   className="token-image-zoom-out-button"
                 >
                   <TokenImage
-                    event={event}
+                    drop={drop}
                     size={zoomSize}
                     resize={false}
                     original={true}
@@ -80,7 +80,7 @@ function TokenImageZoom({ event, size = 128, zoomSize = 512 }: {
                   className="token-image-zoom-out-button"
                 >
                   <TokenImage
-                    event={event}
+                    drop={drop}
                     size={size}
                     imgSize={zoomSize}
                     resize={true}

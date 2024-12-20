@@ -62,7 +62,7 @@ function AddressOwner({
                 ? (
                     <TokenImage
                       key={eventId}
-                      event={events[eventId]}
+                      drop={events[eventId]}
                       size={18}
                       resize={true}
                     />

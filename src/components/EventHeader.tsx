@@ -13,7 +13,7 @@ function EventHeader({
   return (
     <div className="event-header">
       <div className="event-header-image">
-        <TokenImageZoom event={event} zoomSize={512} size={size} />
+        <TokenImageZoom drop={event} zoomSize={512} size={size} />
       </div>
       <div className="event-header-details">
         <Link to={`/event/${event.id}`} className="event-id">#{event.id}</Link>

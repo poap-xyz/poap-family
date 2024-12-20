@@ -42,7 +42,7 @@ function CachedEventList({
           <div className="cached-event">
             <div className="cached-event-card">
               <TokenImageZoom
-                event={cachedEvent}
+                drop={cachedEvent}
                 zoomSize={512}
                 size={tokenImageSize}
               />

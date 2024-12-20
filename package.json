@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -43,7 +43,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "type-check": "tsc --noEmit"
   },
   "packageManager": "yarn@1.22.22",
   "engines": {

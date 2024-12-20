@@ -21,7 +21,7 @@ function SearchResultEvent({
       <div className="drop-info">
         <div className="drop-image">
           <Link to={`/event/${event.id}`} className="drop-link">
-            <TokenImage event={event} size={18} />
+            <TokenImage drop={event} size={18} />
           </Link>
         </div>
         <div className="drop-name">

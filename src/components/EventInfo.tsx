@@ -11,22 +11,22 @@ import ExternalLink from 'components/ExternalLink'
 import 'styles/event-info.css'
 
 function EventInfo({
-  event,
+  drop,
   children,
 }: {
-  event: Drop
+  drop: Drop
   children?: ReactNode
 }) {
   const [extraOpen, setExtraOpen] = useState<boolean>(false)
 
   return (
     <div className="event-info-header">
-      {event.description && (
+      {drop.description && (
         <div className={clsx('event-info-extra', extraOpen ? 'open' : 'close')}>
           <div className="event-info-extra-card">
             {extraOpen && (
               <div className="event-info-extra-content">
-                {event.description.split('\n').map(
+                {drop.description.split('\n').map(
                   (p, i) => (
                     <p key={`p${i}`}>
                       {linkify(p, ExternalLink).map(
@@ -54,13 +54,13 @@ function EventInfo({
       >
         <div className="event-info">
           <div className="event-image">
-            <TokenImageZoom event={event} zoomSize={512} size={128} />
+            <TokenImageZoom drop={drop} zoomSize={512} size={128} />
           </div>
           <div className="event-data">
-            <h1>{event.name}</h1>
-            <div className="event-date">{formatDate(event.start_date)}</div>
-            {event.city && event.country && (
-              <div className="place">{event.city}, {event.country}</div>
+            <h1>{drop.name}</h1>
+            <div className="event-date">{formatDate(drop.start_date)}</div>
+            {drop.city && drop.country && (
+              <div className="place">{drop.city}, {drop.country}</div>
             )}
             {children}
           </div>

@@ -13,7 +13,7 @@ function EventPower({
 }) {
   return (
     <div className="event-power">
-      <TokenImage event={event} size={size} />
+      <TokenImage drop={event} size={size} />
       <span className="power">{count}</span>
     </div>
   )

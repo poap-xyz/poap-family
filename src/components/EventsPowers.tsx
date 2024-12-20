@@ -48,7 +48,7 @@ function EventsPowers({
             }}
           >
             {perfectPower === power
-              ? <TokenImage event={events[eventId]} size={size} />
+              ? <TokenImage drop={events[eventId]} size={size} />
               : <EventPower
                 event={events[eventId]}
                 count={power}

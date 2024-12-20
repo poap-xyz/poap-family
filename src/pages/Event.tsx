@@ -32,7 +32,7 @@ function Event() {
 
   const force = searchParams.get('force') === 'true'
 
-  const { event, owners, ts, metrics } = useMemo(
+  const { drop, collectors, metrics } = useMemo(
     () => parseDropData(
       loaderData,
       /*includeDescription*/true,
@@ -55,16 +55,16 @@ function Event() {
     fetchEventInCommon,
     retryAddress,
   } = useEventInCommon(
-    event.id,
-    owners,
+    drop.id,
+    collectors,
     /*refresh*/force,
     /*local*/false,
     /*stream*/true
   )
 
   const eventIds = useMemo(
-    () => [event.id],
-    [event]
+    () => [drop.id],
+    [drop]
   )
 
   const {
@@ -78,9 +78,9 @@ function Event() {
 
   useEffect(
     () => {
-      resolveEnsNames(owners)
+      resolveEnsNames(collectors)
     },
-    [owners, resolveEnsNames]
+    [collectors, resolveEnsNames]
   )
 
   useEffect(
@@ -95,9 +95,9 @@ function Event() {
 
   useEffect(
     () => {
-      setTitle(event.name)
+      setTitle(drop.name)
     },
-    [event.name, setTitle]
+    [drop.name, setTitle]
   )
 
   useEffect(
@@ -143,33 +143,26 @@ function Event() {
     <Page>
       <div className="event">
         <div className="event-header-info">
-          <EventInfo event={event}>
+          <EventInfo drop={drop}>
             <EventStats
-              event={event}
-              collectors={owners.length}
-              cachedTs={ts}
+              drop={drop}
+              collectors={collectors.length}
               metrics={metrics}
             />
-            <EventButtonGroup event={event} viewInGallery={true}>
+            <EventButtonGroup event={drop} viewInGallery={true}>
               <ButtonExportAddressCsv
-                filename={`collectors-${event.id}`}
-                name={event.name}
-                addresses={owners}
+                filename={`collectors-${drop.id}`}
+                name={drop.name}
+                addresses={collectors}
                 title={
-                  `Generates CSV file with collectors of drop #${event.id}`
+                  `Generates CSV file with collectors of drop #${drop.id}`
                 }
               />
-              <EventButtonMoments event={event} />
+              <EventButtonMoments event={drop} />
             </EventButtonGroup>
             {cachedTs &&
               <div className="cached">
                 Cached <Timestamp ts={cachedTs} />,{' '}
-                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-              </div>
-            }
-            {!cachedTs && metrics && metrics.ts &&
-              <div className="cached">
-                Cached <Timestamp ts={metrics.ts} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </div>
             }
@@ -178,7 +171,7 @@ function Event() {
         {loadingEventInCommon && (
           <Card>
             {loadedOwners > 0
-              ? <Loading count={loadedOwners} total={owners.length} />
+              ? <Loading count={loadedOwners} total={collectors.length} />
               : (
                 loadedInCommonEvents != null
                   ? (
@@ -217,12 +210,8 @@ function Event() {
           <>
             {(
               cachedTs &&
-              (
-                !ts ||
-                ts > cachedTs
-              ) &&
-              event.id in inCommon &&
-              inCommon[event.id].length !== owners.length
+              drop.id in inCommon &&
+              inCommon[drop.id].length !== collectors.length
             ) && (
               <WarningMessage>
                 There have been new mints since this POAP was cached,{' '}
@@ -256,7 +245,7 @@ function Event() {
             ) && (
               <CollectionSet
                 showEmpty={metrics && metrics.collectionsIncludes > 0}
-                emptyMessage={`No collections found that includes ${event.name}`}
+                emptyMessage={`No collections found that includes ${drop.name}`}
                 collectionMap={{
                   [`${collections.length} collections`]: collections,
                 }}
