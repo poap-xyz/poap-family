@@ -317,7 +317,7 @@ function Addresses() {
           (collectors) => {
             let addresses: ParsedAddress[] | undefined
             try {
-              addresses = collectors.map((owner) => parseAddress(owner))
+              addresses = collectors.map((collector) => parseAddress(collector))
             } catch (err: unknown) {
               setLoadingDropsCollectors(false)
               addError(

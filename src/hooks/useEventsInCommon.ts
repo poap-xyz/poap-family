@@ -107,31 +107,31 @@ function useEventsInCommon(
   }
 
   function addError(dropId: number, address: string, err: Error): void {
-    setErrors((oldEventOwnerErrors) => ({
-      ...(oldEventOwnerErrors ?? {}),
+    setErrors((oldDropCollectorErrors) => ({
+      ...(oldDropCollectorErrors ?? {}),
       [dropId]: {
-        ...((oldEventOwnerErrors ?? {})[dropId] ?? {}),
+        ...((oldDropCollectorErrors ?? {})[dropId] ?? {}),
         [address]: err,
       },
     }))
   }
 
   function removeError(dropId: number, address: string): void {
-    setErrors((oldEventOwnerErrors) => {
-      if (oldEventOwnerErrors == null) {
+    setErrors((oldDropCollectorErrors) => {
+      if (oldDropCollectorErrors == null) {
         return {}
       }
       if (
-        dropId in oldEventOwnerErrors &&
-        address in oldEventOwnerErrors[dropId]
+        dropId in oldDropCollectorErrors &&
+        address in oldDropCollectorErrors[dropId]
       ) {
-        if (Object.keys(oldEventOwnerErrors[dropId]).length === 1) {
-          delete oldEventOwnerErrors[dropId]
+        if (Object.keys(oldDropCollectorErrors[dropId]).length === 1) {
+          delete oldDropCollectorErrors[dropId]
         } else {
-          delete oldEventOwnerErrors[dropId][address]
+          delete oldDropCollectorErrors[dropId][address]
         }
       }
-      return oldEventOwnerErrors
+      return oldDropCollectorErrors
     })
   }
 
@@ -413,9 +413,9 @@ function useEventsInCommon(
   const processEventAddress = useCallback(
     async (dropId: number, address: string, abortSignal: AbortSignal) => {
       removeError(dropId, address)
-      let ownerDrops: Drop[]
+      let collectorDrops: Drop[]
       try {
-        ownerDrops = await fetchCollectorDrops(address, abortSignal)
+        collectorDrops = await fetchCollectorDrops(address, abortSignal)
       } catch (err: unknown) {
         if (!(err instanceof AbortedError)) {
           addError(
@@ -429,8 +429,8 @@ function useEventsInCommon(
         return
       }
       incrLoadedCount(dropId)
-      for (const ownerDrop of ownerDrops) {
-        updateInCommonEvent(dropId, address, ownerDrop)
+      for (const collectorDrop of collectorDrops) {
+        updateInCommonEvent(dropId, address, collectorDrop)
       }
     },
     []

@@ -120,9 +120,9 @@ function useEventInCommon(
       setLoadedCollectors(0)
       setErrors([])
       let promise = new Promise((r) => { r(undefined) })
-      for (const owner of collectors) {
+      for (const collector of collectors) {
         promise = promise.then(
-          () => fetchAddressInCommon(owner, controllers[owner].signal)
+          () => fetchAddressInCommon(collector, controllers[collector].signal)
         )
       }
       await promise
@@ -135,7 +135,10 @@ function useEventInCommon(
     () => {
       const controller = new AbortController()
       const controllers: Record<string, AbortController> = collectors.reduce(
-        (ctrls, owner) => ({ ...ctrls, [owner]: new AbortController() }),
+        (ctrls, collector) => ({
+          ...ctrls,
+          [collector]: new AbortController(),
+        }),
         {}
       )
       setCompleted(false)

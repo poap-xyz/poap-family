@@ -50,19 +50,19 @@ function EventsCompare({
     [dropIds, inCommon]
   )
 
-  function onOwnerEnter(ownerEventId: number, owner: string): void {
+  function onCollectorEnter(collectorDropId: number, collector: string): void {
     setHighlighted((current) => (
-      current !== owner &&
-        owner in adressesColors
-        ? owner
+      current !== collector &&
+        collector in adressesColors
+        ? collector
         : current
     ))
   }
 
-  function onOwnerLeave(ownerEventId: number, owner: string): void {
+  function onCollectorLeave(collectorDropId: number, collector: string): void {
     setHighlighted((current) => (
-      current === owner &&
-        owner in adressesColors
+      current === collector &&
+        collector in adressesColors
         ? null
         : current
     ))
@@ -91,49 +91,49 @@ function EventsCompare({
             </h4>
             <div className="event-compare-owners">
               <ul className="owners">
-                {inCommon[dropId].map((owner) => {
+                {inCommon[dropId].map((collector) => {
                   const inCommonEventIds = getAddressInCommonEventIds(
                     inCommon,
-                    owner
+                    collector
                   )
                   const inCommonAddresses = getAddressInCommonAddresses(
                     inCommon,
                     inCommonEventIds,
-                    owner
+                    collector
                   )
                   return (
                     <li
-                      key={owner}
+                      key={collector}
                       style={{
                         backgroundColor:
-                          owner in adressesColors &&
+                          collector in adressesColors &&
                           (
                             !highlighted ||
-                            highlighted === owner
+                            highlighted === collector
                           )
-                            ? adressesColors[owner]
+                            ? adressesColors[collector]
                             : undefined,
                       }}
                       onMouseEnter={() => {
-                        onOwnerEnter(dropId, owner)
+                        onCollectorEnter(dropId, collector)
                       }}
                       onMouseLeave={() => {
-                        onOwnerLeave(dropId, owner)
+                        onCollectorLeave(dropId, collector)
                       }}
                     >
                       <AddressOwner
                         ens={
                           dropsEnsNames &&
                           dropId in dropsEnsNames &&
-                          owner in dropsEnsNames[dropId]
-                            ? dropsEnsNames[dropId][owner]
+                          collector in dropsEnsNames[dropId]
+                            ? dropsEnsNames[dropId][collector]
                             : undefined}
-                        address={owner}
+                        address={collector}
                         drops={drops}
                         inCommonDropIds={inCommonEventIds}
                         inCommonAddresses={inCommonAddresses}
                         linkToScan={
-                          !highlighted || highlighted === owner}
+                          !highlighted || highlighted === collector}
                       />
                     </li>
                   )
