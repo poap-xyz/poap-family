@@ -6,7 +6,7 @@ import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
 import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
 import { fillNull } from 'utils/object'
 
-function useEventsOwnersAndMetrics(eventIds: number[]): {
+function useEventsOwnersAndMetrics(dropIds: number[]): {
   completedDropsOwnersAndMetrics: boolean
   loadingDropsOwnersAndMetrics: boolean
   loadingOwnersAndMetricsDrops: Record<number, boolean>
@@ -165,10 +165,10 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
   const fetchDropsOwnersAndMetrics = useCallback(
     () => {
       let controller: AbortController | undefined
-      const controllers: Record<number, AbortController> = eventIds.reduce(
-        (ctrls, eventId) => ({
+      const controllers: Record<number, AbortController> = dropIds.reduce(
+        (ctrls, dropId) => ({
           ...ctrls,
-          [eventId]: new AbortController(),
+          [dropId]: new AbortController(),
         }),
         {}
       )
@@ -181,13 +181,13 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
       setLoadingCache(true)
       controller = new AbortController()
       Promise.all([
-        fetchCollectorsByDrops(eventIds, controller.signal),
-        fetchDropsMetrics(eventIds, controller.signal),
+        fetchCollectorsByDrops(dropIds, controller.signal),
+        fetchDropsMetrics(dropIds, controller.signal),
       ]).then(([dropsOwners, dropsMetrics]) => {
         updateDropsOwners(
           fillNull(
             dropsOwners,
-            eventIds.map((dropId) => String(dropId)),
+            dropIds.map((dropId) => String(dropId)),
             []
           )
         )
@@ -201,9 +201,9 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
         } else {
           console.error(err)
           let promise = new Promise((r) => { r(undefined) })
-          for (const eventId of eventIds) {
+          for (const dropId of dropIds) {
             promise = promise.then(() =>
-              loadOwnersAndMetrics(eventId, controllers[eventId].signal))
+              loadOwnersAndMetrics(dropId, controllers[dropId].signal))
           }
           promise.finally(() => {
             setCompleted(true)
@@ -225,7 +225,7 @@ function useEventsOwnersAndMetrics(eventIds: number[]): {
       }
     },
     [
-      eventIds,
+      dropIds,
       loadOwnersAndMetrics,
     ]
   )

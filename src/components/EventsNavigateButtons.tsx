@@ -4,19 +4,19 @@ import ButtonGroup from 'components/ButtonGroup'
 import Button from 'components/Button'
 
 function EventsNavigateButtons({
-  baseEventIds,
-  eventIds,
+  baseDropIds,
+  dropIds,
 }: {
-  baseEventIds: number[]
-  eventIds: number[]
+  baseDropIds: number[]
+  dropIds: number[]
 }) {
   const navigate = useNavigate()
 
   function addEvents(): void {
-    if (eventIds.length === 0) {
+    if (dropIds.length === 0) {
       return
     }
-    const newEventIds = [...baseEventIds, ...eventIds]
+    const newEventIds = [...baseDropIds, ...dropIds]
     if (newEventIds.length > 0) {
       navigate(`/events/${joinDropIds(newEventIds)}`)
     } else if (newEventIds.length === 1) {
@@ -25,28 +25,28 @@ function EventsNavigateButtons({
   }
 
   function openEvents(): void {
-    if (eventIds.length === 0) {
+    if (dropIds.length === 0) {
       return
     }
-    if (eventIds.length > 1) {
-      navigate(`/events/${joinDropIds(eventIds)}`)
-    } else if (eventIds.length === 1) {
-      navigate(`/event/${eventIds[0]}`)
+    if (dropIds.length > 1) {
+      navigate(`/events/${joinDropIds(dropIds)}`)
+    } else if (dropIds.length === 1) {
+      navigate(`/event/${dropIds[0]}`)
     }
   }
 
   return (
     <ButtonGroup right={true}>
-      {baseEventIds.length > 0 && (
+      {baseDropIds.length > 0 && (
         <Button
           disabled={
-            eventIds.length === 0 ||
-            eventIds.every(
-              (dropId) => baseEventIds.includes(dropId)
+            dropIds.length === 0 ||
+            dropIds.every(
+              (dropId) => baseDropIds.includes(dropId)
             )
           }
           onClick={() => addEvents()}
-          title={`Combines drops #${eventIds.join(', #')} to #${baseEventIds.join(', #')}`}
+          title={`Combines drops #${dropIds.join(', #')} to #${baseDropIds.join(', #')}`}
         >
           Add selected
         </Button>
@@ -54,20 +54,20 @@ function EventsNavigateButtons({
       <Button
         secondary={true}
         disabled={
-          eventIds.length === 0 ||
+          dropIds.length === 0 ||
           (
-            eventIds.every(
-              (dropId) => baseEventIds.includes(dropId)
+            dropIds.every(
+              (dropId) => baseDropIds.includes(dropId)
             ) &&
-            baseEventIds.every(
-              (dropId) => eventIds.includes(dropId)
+            baseDropIds.every(
+              (dropId) => dropIds.includes(dropId)
             )
           )
         }
         onClick={() => openEvents()}
-        title={`Open drops #${eventIds.join(', #')}`}
+        title={`Open drops #${dropIds.join(', #')}`}
       >
-        Open {baseEventIds.length === 0 && ' selected'}
+        Open {baseDropIds.length === 0 && ' selected'}
       </Button>
     </ButtonGroup>
   )

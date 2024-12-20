@@ -7,7 +7,7 @@ function useEvent(dropId?: number): {
   loading: boolean
   error: Error | null
   drop: Drop | null
-  fetchDrop: (eventId?: number | null) => () => void
+  fetchDrop: (dropId?: number | null) => () => void
   retryDrop: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)

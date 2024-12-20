@@ -263,12 +263,12 @@ export interface DropPower {
 }
 
 export function parseDropIds(rawIds: string): number[] {
-  let eventIds = (rawIds ?? '').split(',')
+  let dropIds = (rawIds ?? '').split(',')
     .filter((value, index, all) => all.indexOf(value) === index)
     .map((value) => parseInt(value.trim()))
     .filter((id) => !isNaN(id))
-  eventIds.sort((a, b) => a - b)
-  return eventIds
+  dropIds.sort((a, b) => a - b)
+  return dropIds
 }
 
 export function joinDropIds(eventIds: number[]): string {

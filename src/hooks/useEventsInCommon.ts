@@ -582,14 +582,14 @@ function useEventsInCommon(
       setLoadedOwners({})
       setInCommon({})
       let promise = new Promise((r) => { r(undefined) })
-      for (const eventId of dropIds) {
-        if (dropsOwners[eventId] == null) {
-          console.error('Missing event owners', { eventId })
+      for (const dropId of dropIds) {
+        if (dropsOwners[dropId] == null) {
+          console.error('Missing event owners', { dropId })
           continue
         }
         const controller = new AbortController()
         const ownersControllers: Record<string, AbortController> =
-          dropsOwners[eventId].reduce(
+          dropsOwners[dropId].reduce(
             (ctrls, owner) => ({
               ...ctrls,
               [owner]: new AbortController(),
@@ -598,8 +598,8 @@ function useEventsInCommon(
           )
         promise = promise.then(
           () => process(
-            eventId,
-            dropsOwners[eventId],
+            dropId,
+            dropsOwners[dropId],
             ownersControllers,
             controller
           )

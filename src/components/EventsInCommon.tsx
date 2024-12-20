@@ -21,7 +21,7 @@ function EventsInCommon({
   drops,
   showCount,
   showActive = true,
-  baseEventIds = [],
+  baseDropIds = [],
   onActive,
   eventsEnsNames,
 }: {
@@ -30,7 +30,7 @@ function EventsInCommon({
   drops: Record<number, Drop>
   showCount?: number
   showActive?: boolean
-  baseEventIds?: number[]
+  baseDropIds?: number[]
   onActive?: (dropId: number) => void
   eventsEnsNames?: Record<number, EnsByAddress>
 }) {
@@ -175,14 +175,14 @@ function EventsInCommon({
         </EventsPowers>
         {inCommonTotal > 0 && (
           <EventsNavigateButtons
-            baseEventIds={baseEventIds}
-            eventIds={activeEventIds}
+            baseDropIds={baseDropIds}
+            dropIds={activeEventIds}
           />
         )}
       </Card>
       {activeEventIds.length > 0 && showActive &&
         <EventsCompare
-          baseDropIds={baseEventIds}
+          baseDropIds={baseDropIds}
           dropIds={activeEventIds}
           drops={drops}
           inCommon={inCommon}

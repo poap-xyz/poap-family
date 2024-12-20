@@ -62,7 +62,7 @@ function Event() {
     /*stream*/true
   )
 
-  const eventIds = useMemo(
+  const dropIds = useMemo(
     () => [drop.id],
     [drop]
   )
@@ -73,7 +73,7 @@ function Event() {
     collections,
     fetchEventsCollections,
   } = useEventsCollections(
-    eventIds
+    dropIds
   )
 
   useEffect(
@@ -261,7 +261,7 @@ function Event() {
                 onActive={handleDropActive}
                 inCommon={inCommon}
                 drops={drops}
-                baseEventIds={eventIds}
+                baseDropIds={dropIds}
                 eventsEnsNames={eventsEnsNames}
               />
             )}

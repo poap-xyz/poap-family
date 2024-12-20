@@ -116,8 +116,8 @@ export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
       const response = JSON.stringify({
         errorsByEventId: Object.fromEntries(
           Object.entries(errorsByDropId).map(
-            ([eventId, error]) => ([
-              eventId,
+            ([rawDropId, error]) => ([
+              rawDropId,
               {
                 message: error.message,
                 status: error instanceof HttpError ? error.status : undefined,

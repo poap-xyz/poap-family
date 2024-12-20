@@ -206,15 +206,15 @@ function Events() {
         return 0
       }
       return dropIds.reduce(
-        (total, eventId) => {
+        (total, dropId) => {
           if (
-            loadedDropsOwners[eventId] == null ||
-            dropsOwners[eventId] == null ||
-            dropsInCommon[eventId] == null ||
-            dropsInCommon[eventId].inCommon[eventId] == null ||
+            loadedDropsOwners[dropId] == null ||
+            dropsOwners[dropId] == null ||
+            dropsInCommon[dropId] == null ||
+            dropsInCommon[dropId].inCommon[dropId] == null ||
             (
-              loadedDropsOwners[eventId] !== dropsOwners[eventId].length &&
-              dropsInCommon[eventId].inCommon[eventId].length !== dropsOwners[eventId].length
+              loadedDropsOwners[dropId] !== dropsOwners[dropId].length &&
+              dropsInCommon[dropId].inCommon[dropId].length !== dropsOwners[dropId].length
             )
           ) {
             return total + 1
@@ -542,7 +542,7 @@ function Events() {
               onActive={handleDropActive}
               inCommon={inCommon}
               drops={allDrops}
-              baseEventIds={dropIds}
+              baseDropIds={dropIds}
               eventsEnsNames={eventsEnsNames}
             />
           </>

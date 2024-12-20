@@ -15,13 +15,13 @@ function EventsPageError() {
   const { eventIds: rawDropIds } = useParams()
 
   function delDrop(dropId: number): void {
-    const eventIds = parseDropIds(String(rawDropIds)).filter(
+    const dropIds = parseDropIds(String(rawDropIds)).filter(
       (paramEventId) => String(paramEventId) !== String(dropId)
     )
-    if (eventIds.length === 1) {
-      navigate(`/event/${eventIds[0]}`)
-    } else if (eventIds.length > 0) {
-      navigate(`/events/${eventIds.join(',')}`)
+    if (dropIds.length === 1) {
+      navigate(`/event/${dropIds[0]}`)
+    } else if (dropIds.length > 0) {
+      navigate(`/events/${dropIds.join(',')}`)
     } else {
       navigate('/')
     }
