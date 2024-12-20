@@ -309,7 +309,7 @@ function useEventsInCommon(
       if (prevEventData == null) {
         return {
           [dropId]: {
-            events: {
+            drops: {
               [drop.id]: drop,
             },
             inCommon: {
@@ -325,8 +325,8 @@ function useEventsInCommon(
             return {
               ...prevEventData,
               [dropId]: {
-                events: {
-                  ...prevEventData[dropId].events,
+                drops: {
+                  ...prevEventData[dropId].drops,
                   [drop.id]: drop,
                 },
                 inCommon: {
@@ -343,8 +343,8 @@ function useEventsInCommon(
           return {
             ...prevEventData,
             [dropId]: {
-              events: {
-                ...prevEventData[dropId].events,
+              drops: {
+                ...prevEventData[dropId].drops,
                 [drop.id]: drop,
               },
               inCommon: prevEventData[dropId].inCommon,
@@ -355,8 +355,8 @@ function useEventsInCommon(
         return {
           ...prevEventData,
           [dropId]: {
-            events: {
-              ...prevEventData[dropId].events,
+            drops: {
+              ...prevEventData[dropId].drops,
               [drop.id]: drop,
             },
             inCommon: {
@@ -370,7 +370,7 @@ function useEventsInCommon(
       return {
         ...prevEventData,
         [dropId]: {
-          events: {
+          drops: {
             [drop.id]: drop,
           },
           inCommon: {
@@ -389,7 +389,7 @@ function useEventsInCommon(
     setInCommon((prevEventData) => ({
       ...prevEventData,
       [dropId]: {
-        events: data.events,
+        drops: data.drops,
         inCommon: data.inCommon,
         ts: data.ts,
       },
@@ -403,7 +403,7 @@ function useEventsInCommon(
     setInCommon((prevEventData) => ({
       ...(prevEventData ?? {}),
       [dropId]: {
-        events: (prevEventData ?? {})[dropId].events,
+        drops: (prevEventData ?? {})[dropId].drops,
         inCommon: (prevEventData ?? {})[dropId].inCommon,
         ts,
       },

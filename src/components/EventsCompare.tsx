@@ -129,8 +129,8 @@ function EventsCompare({
                             ? eventsEnsNames[dropId][owner]
                             : undefined}
                         address={owner}
-                        events={drops}
-                        inCommonEventIds={inCommonEventIds}
+                        drops={drops}
+                        inCommonDropIds={inCommonEventIds}
                         inCommonAddresses={inCommonAddresses}
                         linkToScan={
                           !highlighted || highlighted === owner}

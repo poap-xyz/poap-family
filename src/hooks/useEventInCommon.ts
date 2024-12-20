@@ -23,7 +23,7 @@ function useEventInCommon(
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   cachedTs: number | null
   fetchEventInCommon: () => () => void
   retryAddress: (address: string) => void
@@ -285,7 +285,7 @@ function useEventInCommon(
     loadedOwners,
     ownersErrors: errors,
     inCommon,
-    events,
+    drops: events,
     cachedTs,
     fetchEventInCommon,
     retryAddress,

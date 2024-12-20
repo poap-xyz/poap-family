@@ -193,7 +193,7 @@ function Events() {
     () => Object.values(eventsInCommon).reduce(
       (allEvents, data) => ({
         ...allEvents,
-        ...data.events,
+        ...data.drops,
       }),
       {}
     ),
@@ -535,7 +535,7 @@ function Events() {
             <EventsOwners
               eventsOwners={eventsOwners}
               inCommon={inCommon}
-              events={allDrops}
+              drops={allDrops}
               all={all}
             />
             <EventsInCommon

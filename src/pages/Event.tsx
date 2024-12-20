@@ -50,7 +50,7 @@ function Event() {
     loadedOwners,
     ownersErrors,
     inCommon,
-    events,
+    drops: events,
     cachedTs,
     fetchEventInCommon,
     retryAddress,

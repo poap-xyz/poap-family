@@ -36,12 +36,12 @@ function inverseOwnersSortedEntries(
 function EventsOwners({
   eventsOwners,
   inCommon,
-  events,
+  drops,
   all = false,
 }: {
   eventsOwners: InCommon
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   all?: boolean
 }) {
   const [showAll, setShowAll] = useState<boolean>(all)
@@ -110,10 +110,10 @@ function EventsOwners({
                   <li key={owner} className="owner-list-item">
                     <AddressOwner
                       address={owner}
-                      events={events}
-                      eventIds={eventIds}
-                      ownerEventIds={ownerEventIds}
-                      inCommonEventIds={inCommonEventIds}
+                      drops={drops}
+                      dropIds={eventIds}
+                      collectorsDropIds={ownerEventIds}
+                      inCommonDropIds={inCommonEventIds}
                       inCommonAddresses={inCommonAddresses}
                       linkToScan={false}
                     />
@@ -175,7 +175,7 @@ function EventsOwners({
               }
               name={
                 eventsTotal === 1
-                  ? events[eventIds[0]].name
+                  ? drops[eventIds[0]].name
                   : undefined
               }
               addresses={ownersEvents.map(([address]) => address)}

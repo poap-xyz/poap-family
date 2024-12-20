@@ -23,14 +23,14 @@ import 'styles/address-profile.css'
 function AddressProfile({
   ens,
   address,
-  events,
-  inCommonEventIds = [],
+  drops,
+  inCommonDropIds = [],
   inCommonAddresses = [],
 }: {
   ens?: string
   address: string
-  events: Record<number, Drop>
-  inCommonEventIds?: number[]
+  drops: Record<number, Drop>
+  inCommonDropIds?: number[]
   inCommonAddresses?: string[]
 }) {
   const { getEnsName } = useContext(ReverseEnsContext)
@@ -54,10 +54,10 @@ function AddressProfile({
     poapsVisible = poapsVisible.slice(0, POAP_PROFILE_LIMIT)
   }
 
-  const inCommonEventsTotal = inCommonEventIds == null ? 0 : inCommonEventIds.length
+  const inCommonEventsTotal = inCommonDropIds == null ? 0 : inCommonDropIds.length
   const inCommonEventsHasMore = inCommonEventsTotal > INCOMMON_EVENTS_LIMIT
 
-  let inCommonEventIdsVisible = inCommonEventIds == null ? [] : inCommonEventIds.slice()
+  let inCommonEventIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
   if (inCommonEventsHasMore && !showAllInCommonEvents) {
     inCommonEventIdsVisible = inCommonEventIdsVisible.slice(0, INCOMMON_EVENTS_LIMIT)
   }
@@ -148,7 +148,7 @@ function AddressProfile({
               )}
             </div>
           )}
-          {Array.isArray(inCommonEventIds) && inCommonEventIds.length > 0 && (
+          {Array.isArray(inCommonDropIds) && inCommonDropIds.length > 0 && (
             <div
               className={clsx('profile-in-common',
                 showAllInCommonEvents && 'show-all',
@@ -156,10 +156,10 @@ function AddressProfile({
             >
               <h4>{inCommonEventsTotal} in common drops</h4>
               {inCommonEventIdsVisible.map((dropId) => (
-                dropId in events && (
+                dropId in drops && (
                   <TokenImage
                     key={dropId}
-                    drop={events[dropId]}
+                    drop={drops[dropId]}
                     size={18}
                     resize={true}
                   />
