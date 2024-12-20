@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Drop } from 'models/drop'
-import { InCommon } from 'models/api'
 import {
+  InCommon,
   getAddressInCommonAddresses,
   getAddressInCommonEventIds,
 } from 'models/in-common'

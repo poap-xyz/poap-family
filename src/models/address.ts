@@ -1,6 +1,6 @@
 import { normalizeAddress } from 'utils/ethereum'
 
-export const IGNORED_OWNERS = [
+export const IGNORED_ADDRESSES = [
   '0x000000000000000000000000000000000000dEaD',
   '0x000000000000000000000000000000000000dead',
   '0x0000000000000000000000000000000000000000',
@@ -42,14 +42,14 @@ export function parseAddresses(rawAddresses: string, sep: string = ','): ParsedA
  * Keep the addresses that appear only once in the array and are not included
  * in the list of ignored.
  */
-export function filterInvalidOwners(addresses: string[]): string[] {
+export function filterInvalidAddresses(addresses: string[]): string[] {
   return addresses
     .map((address) => parseAddress(address).address)
     .filter(
       (address, index, all) => (
         address != null &&
         all.indexOf(address) === index &&
-        !IGNORED_OWNERS.includes(address)
+        !IGNORED_ADDRESSES.includes(address)
       )
     )
 }

@@ -1,5 +1,5 @@
 import { Drop } from 'models/drop'
-import { InCommon } from 'models/api'
+import { InCommon } from 'models/in-common'
 import EventButtonGroup from 'components/EventButtonGroup'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonExpand from 'components/ButtonExpand'

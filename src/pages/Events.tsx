@@ -3,10 +3,9 @@ import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 're
 import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
-import { mergeAllInCommon } from 'models/in-common'
+import { InCommon, mergeAllInCommon } from 'models/in-common'
 import { Drop, parseDrops, parseDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
-import { InCommon } from 'models/api'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
 import useEventsOwnersAndMetrics from 'hooks/useEventsOwnersAndMetrics'
@@ -55,14 +54,14 @@ function Events() {
   )
 
   const {
-    completedDropsOwnersAndMetrics,
-    loadingDropsOwnersAndMetrics,
-    loadingOwnersAndMetricsDrops,
-    dropsOwnersAndMetricsErrors,
-    dropsOwners,
+    completedDropsCollectorsAndMetrics,
+    loadingDropsCollectorsAndMetrics,
+    loadingCollectorsAndMetricsDrops,
+    dropsCollectorsAndMetricsErrors,
+    dropsCollectors,
     dropsMetrics,
-    fetchDropsOwnersAndMetrics,
-    retryEventOwnersAndMetrics,
+    fetchDropsCollectorsAndMetrics,
+    retryDropCollectorsAndMetrics,
   } = useEventsOwnersAndMetrics(dropIds)
 
   const {
@@ -73,13 +72,13 @@ function Events() {
     loadedDropsInCommon,
     loadedDropsInCommonDrops,
     loadedDropsProgress,
-    loadedDropsOwners,
+    loadedDropsCollectors,
     dropsInCommon,
     fetchDropsInCommon,
     retryDropAddressInCommon,
   } = useEventsInCommon(
     dropIds,
-    dropsOwners,
+    dropsCollectors,
     all,
     /*refresh*/force,
     /*local*/false,
@@ -104,46 +103,46 @@ function Events() {
   useEffect(
     () => {
       resolveEnsNames(
-        uniq(union(...Object.values(dropsOwners)))
+        uniq(union(...Object.values(dropsCollectors)))
       )
     },
-    [dropsOwners, resolveEnsNames]
+    [dropsCollectors, resolveEnsNames]
   )
 
   useEffect(
     () => {
-      const cancelEventsOwnersAndMetrics = fetchDropsOwnersAndMetrics()
+      const cancelDropsCollectorsAndMetrics = fetchDropsCollectorsAndMetrics()
       return () => {
-        cancelEventsOwnersAndMetrics()
+        cancelDropsCollectorsAndMetrics()
       }
     },
-    [fetchDropsOwnersAndMetrics]
+    [fetchDropsCollectorsAndMetrics]
   )
 
   useEffect(
     () => {
-      let cancelEventsInCommon: () => void | undefined
-      if (completedDropsOwnersAndMetrics) {
-        cancelEventsInCommon = fetchDropsInCommon()
+      let cancelDropsInCommon: () => void | undefined
+      if (completedDropsCollectorsAndMetrics) {
+        cancelDropsInCommon = fetchDropsInCommon()
       }
       return () => {
-        if (cancelEventsInCommon) {
-          cancelEventsInCommon()
+        if (cancelDropsInCommon) {
+          cancelDropsInCommon()
         }
       }
     },
-    [completedDropsOwnersAndMetrics, fetchDropsInCommon]
+    [completedDropsCollectorsAndMetrics, fetchDropsInCommon]
   )
 
   useEffect(
     () => {
-      let cancelEventsCollections: () => void | undefined
+      let cancelDropsCollections: () => void | undefined
       if (completedDropsInCommon) {
-        cancelEventsCollections = fetchEventsCollections()
+        cancelDropsCollections = fetchEventsCollections()
       }
       return () => {
-        if (cancelEventsCollections) {
-          cancelEventsCollections()
+        if (cancelDropsCollections) {
+          cancelDropsCollections()
         }
       }
     },
@@ -208,13 +207,13 @@ function Events() {
       return dropIds.reduce(
         (total, dropId) => {
           if (
-            loadedDropsOwners[dropId] == null ||
-            dropsOwners[dropId] == null ||
+            loadedDropsCollectors[dropId] == null ||
+            dropsCollectors[dropId] == null ||
             dropsInCommon[dropId] == null ||
             dropsInCommon[dropId].inCommon[dropId] == null ||
             (
-              loadedDropsOwners[dropId] !== dropsOwners[dropId].length &&
-              dropsInCommon[dropId].inCommon[dropId].length !== dropsOwners[dropId].length
+              loadedDropsCollectors[dropId] !== dropsCollectors[dropId].length &&
+              dropsInCommon[dropId].inCommon[dropId].length !== dropsCollectors[dropId].length
             )
           ) {
             return total + 1
@@ -226,9 +225,9 @@ function Events() {
     },
     [
       dropIds,
-      dropsOwners,
+      dropsCollectors,
       completedDropsInCommon,
-      loadedDropsOwners,
+      loadedDropsCollectors,
       dropsInCommon,
     ]
   )
@@ -315,14 +314,14 @@ function Events() {
                     </td>
                     <td className="event-cell-metrics">
                       {(
-                        loadingDropsOwnersAndMetrics ||
-                        loadingOwnersAndMetricsDrops[drop.id] != null
+                        loadingDropsCollectorsAndMetrics ||
+                        loadingCollectorsAndMetricsDrops[drop.id] != null
                       ) && (
                         <Loading small={true} />
                       )}
-                      {dropsOwners[drop.id] != null && (
+                      {dropsCollectors[drop.id] != null && (
                         <ShadowText grow={true} medium={true}>
-                          {formatStat(dropsOwners[drop.id].length)}
+                          {formatStat(dropsCollectors[drop.id].length)}
                           {(
                             dropsMetrics[drop.id] != null &&
                             dropsMetrics[drop.id].emailReservations > 0
@@ -338,23 +337,23 @@ function Events() {
                           loadingInCommonDrops[drop.id]
                         }
                         error={
-                          dropsOwnersAndMetricsErrors[drop.id] != null ||
+                          dropsCollectorsAndMetricsErrors[drop.id] != null ||
                           dropsInCommonErrors[drop.id] != null
                         }
                       />
-                      {dropsOwnersAndMetricsErrors[drop.id] != null && (
+                      {dropsCollectorsAndMetricsErrors[drop.id] != null && (
                         <>
                           <span
                             className="status-error-message"
-                            title={dropsOwnersAndMetricsErrors[drop.id].cause
-                              ? `${dropsOwnersAndMetricsErrors[drop.id].cause}`
+                            title={dropsCollectorsAndMetricsErrors[drop.id].cause
+                              ? `${dropsCollectorsAndMetricsErrors[drop.id].cause}`
                               : undefined}
                           >
-                            {dropsOwnersAndMetricsErrors[drop.id].message}
+                            {dropsCollectorsAndMetricsErrors[drop.id].message}
                           </span>
                           {' '}
                           <ButtonLink
-                            onClick={() => retryEventOwnersAndMetrics(drop.id)}
+                            onClick={() => retryDropCollectorsAndMetrics(drop.id)}
                           >
                             retry
                           </ButtonLink>
@@ -367,13 +366,13 @@ function Events() {
                         loadedDropsInCommon[drop.id] == null &&
                         loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] == null &&
-                        loadedDropsOwners[drop.id] != null &&
-                        dropsOwners[drop.id] != null
+                        loadedDropsCollectors[drop.id] != null &&
+                        dropsCollectors[drop.id] != null
                       ) && (
                         <Progress
-                          value={loadedDropsOwners[drop.id]}
-                          max={dropsOwners[drop.id].length}
-                          showValue={loadedDropsOwners[drop.id] > 0}
+                          value={loadedDropsCollectors[drop.id]}
+                          max={dropsCollectors[drop.id].length}
+                          showValue={loadedDropsCollectors[drop.id] > 0}
                         />
                       )}
                       {(
@@ -441,10 +440,10 @@ function Events() {
                           Cached <Timestamp ts={dropsInCommon[drop.id].ts} />
                           {(
                             completedInCommonDrops[drop.id] &&
-                            dropsOwners[drop.id] != null &&
+                            dropsCollectors[drop.id] != null &&
                             dropsInCommon[drop.id] != null &&
                             dropsInCommon[drop.id].inCommon[drop.id] != null &&
-                            dropsInCommon[drop.id].inCommon[drop.id].length !== dropsOwners[drop.id].length
+                            dropsInCommon[drop.id].inCommon[drop.id].length !== dropsCollectors[drop.id].length
                           ) && (
                             <>
                               {' '}
@@ -481,16 +480,16 @@ function Events() {
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
-        {!completedDropsOwnersAndMetrics && !completedDropsInCommon && (
+        {!completedDropsCollectorsAndMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading title="Loading collectors and metrics" />
           </Card>
         )}
-        {completedDropsOwnersAndMetrics && !completedDropsInCommon && (
+        {completedDropsCollectorsAndMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading
               title="Loading drops"
-              count={Object.values(loadedDropsOwners).length}
+              count={Object.values(loadedDropsCollectors).length}
               total={dropIds.length}
             />
           </Card>
@@ -533,7 +532,7 @@ function Events() {
               />
             )}
             <EventsOwners
-              dropsOwners={dropsOwners}
+              dropsCollectors={dropsCollectors}
               inCommon={inCommon}
               drops={allDrops}
               all={all}

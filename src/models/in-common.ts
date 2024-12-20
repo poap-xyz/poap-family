@@ -1,9 +1,35 @@
 import { equals, intersection } from 'utils/array'
-import { filterInvalidOwners } from 'models/address'
-import { InCommon } from 'models/api'
+import { filterInvalidAddresses } from 'models/address'
 
 export const INCOMMON_DROPS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
+
+export type InCommon = Record<number, string[]>
+
+export function parseInCommon(inCommon: unknown): InCommon {
+  if (
+    inCommon == null ||
+    typeof inCommon !== 'object' ||
+    !Object.keys(inCommon)
+      .map((rawDropId) => parseInt(rawDropId))
+      .every((eventId) => eventId != null && !isNaN(eventId)) ||
+    !Object.values(inCommon).every(
+      (addresses: unknown): addresses is string[] =>
+        addresses != null &&
+        Array.isArray(addresses) &&
+        addresses.every((address: unknown): address is string =>
+          address != null &&
+          typeof address === 'string' &&
+          address.startsWith('0x') &&
+          address.length === 42
+      )
+    )
+  ) {
+    throw new Error('Invalid in common collectors by drop')
+  }
+  // @ts-ignore
+  return inCommon
+}
 
 /**
  * Filter the collectors for invalid ones and then eemoves the ones that has one
@@ -16,7 +42,10 @@ export function filterInCommon(inCommon: InCommon): InCommon {
   // With at least one in-common address.
   return Object.fromEntries(
     Object.entries(inCommon)
-      .map(([rawDropId, owners]) => [rawDropId, filterInvalidOwners(owners)])
+      .map(([rawDropId, collectors]) => [
+        rawDropId,
+        filterInvalidAddresses(collectors),
+      ])
       .filter(
         ([, addresses]) => addresses.length > 1
       )
