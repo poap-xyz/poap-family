@@ -14,12 +14,12 @@ import ButtonGroup from 'components/ButtonGroup'
 import ButtonExpand from 'components/ButtonExpand'
 import 'styles/events-owners.css'
 
-function inverseOwnersSortedEntries(
-  owners: InCommon,
+function inverseCollectorsSortedEntries(
+  inCommon: InCommon,
 ): Array<[string, number[]]> {
   const addressToDropIds: Record<string, number[]> = {}
-  for (const [rawEventId, addresses] of Object.entries(owners)) {
-    const dropId = parseInt(rawEventId)
+  for (const [rawDropId, addresses] of Object.entries(inCommon)) {
+    const dropId = parseInt(rawDropId)
     for (const address of addresses) {
       if (address in addressToDropIds) {
         addressToDropIds[address].push(dropId)
@@ -47,13 +47,13 @@ function EventsOwners({
   const [showAll, setShowAll] = useState<boolean>(all)
 
   let ownersDrops = useMemo(
-    () => inverseOwnersSortedEntries(dropsOwners),
+    () => inverseCollectorsSortedEntries(dropsOwners),
     [dropsOwners]
   )
 
   const dropIds = useMemo(
     () => Object.keys(dropsOwners).map(
-      (rawEventId) => parseInt(rawEventId)
+      (rawDropId) => parseInt(rawDropId)
     ),
     [dropsOwners]
   )

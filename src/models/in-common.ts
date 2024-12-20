@@ -92,9 +92,9 @@ export function getAddressInCommonEventIds(
   address: string,
 ): number[] {
   const dropIds: number[] = []
-  for (const [rawEventId, addresses] of Object.entries(inCommon)) {
+  for (const [rawDropId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
-      dropIds.push(parseInt(rawEventId))
+      dropIds.push(parseInt(rawDropId))
     }
   }
   return dropIds

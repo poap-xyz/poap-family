@@ -132,9 +132,9 @@ function Search() {
       }
     }
     if (/^[0-9]+(, *[0-9]+)*$/.test(query)) {
-      const rawEventIds = parseDropIds(query)
-      if (rawEventIds.length > 0) {
-        navigate(`/events/${joinDropIds(rawEventIds)}`)
+      const rawDropIds = parseDropIds(query)
+      if (rawDropIds.length > 0) {
+        navigate(`/events/${joinDropIds(rawDropIds)}`)
         return
       }
     }

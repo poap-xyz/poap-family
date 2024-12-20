@@ -81,8 +81,8 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
         Object.entries(dropsOwners)
           .filter(([, eventOwners]) => eventOwners != null)
           .map(
-            ([rawEventId, owners]) => [
-              rawEventId,
+            ([rawDropId, owners]) => [
+              rawDropId,
               filterInvalidOwners(owners),
             ]
           )

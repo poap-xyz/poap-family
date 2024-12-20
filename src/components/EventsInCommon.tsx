@@ -41,7 +41,7 @@ function EventsInCommon({
     sortInCommonEntries(
       Object
         .entries(filterInCommon(initialInCommon))
-        .map(([rawEventId, addresses]) => [parseInt(rawEventId), addresses])
+        .map(([rawDropId, addresses]) => [parseInt(rawDropId), addresses])
     ),
     [initialInCommon]
   )
@@ -121,8 +121,8 @@ function EventsInCommon({
       ? (activeEventIds.length === 0
           ? {}
           : Object.fromEntries(
-              Object.entries(dropsEnsNames).filter(([rawEventId]) => {
-                const dropId = parseInt(rawEventId)
+              Object.entries(dropsEnsNames).filter(([rawDropId]) => {
+                const dropId = parseInt(rawDropId)
                 if (isNaN(dropId)) {
                   return false
                 }

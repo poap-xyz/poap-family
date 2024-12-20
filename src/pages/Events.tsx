@@ -50,7 +50,7 @@ function Events() {
   )
 
   const dropIds = useMemo(
-    () => Object.keys(drops).map((rawEventId) => parseInt(rawEventId)),
+    () => Object.keys(drops).map((rawDropId) => parseInt(rawDropId)),
     [drops]
   )
 
