@@ -271,8 +271,8 @@ export function parseDropIds(rawIds: string): number[] {
   return dropIds
 }
 
-export function joinDropIds(eventIds: number[]): string {
-  return parseDropIds(eventIds.join(',')).join(',')
+export function joinDropIds(dropIds: number[]): string {
+  return parseDropIds(dropIds.join(',')).join(',')
 }
 
 export const DEFAULT_SEARCH_LIMIT = 10
