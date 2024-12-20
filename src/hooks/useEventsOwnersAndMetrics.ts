@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
-import { filterInvalidOwners } from 'models/address'
+import { filterInvalidAddresses } from 'models/address'
+import { InCommon } from 'models/in-common'
 import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
@@ -7,20 +8,20 @@ import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
 import { fillNull } from 'utils/object'
 
 function useEventsOwnersAndMetrics(dropIds: number[]): {
-  completedDropsOwnersAndMetrics: boolean
-  loadingDropsOwnersAndMetrics: boolean
-  loadingOwnersAndMetricsDrops: Record<number, boolean>
-  dropsOwnersAndMetricsErrors: Record<number, Error>
-  dropsOwners: Record<number, string[]>
+  completedDropsCollectorsAndMetrics: boolean
+  loadingDropsCollectorsAndMetrics: boolean
+  loadingCollectorsAndMetricsDrops: Record<number, boolean>
+  dropsCollectorsAndMetricsErrors: Record<number, Error>
+  dropsCollectors: InCommon
   dropsMetrics: Record<number, DropMetrics>
-  fetchDropsOwnersAndMetrics: () => () => void
-  retryEventOwnersAndMetrics: (dropId: number) => () => void
+  fetchDropsCollectorsAndMetrics: () => () => void
+  retryDropCollectorsAndMetrics: (dropId: number) => () => void
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loadingCache, setLoadingCache] = useState<boolean>(false)
   const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Error>>({})
-  const [owners, setOwners] = useState<Record<number, string[]>>({})
+  const [collectors, setCollectors] = useState<InCommon>({})
   const [metrics, setMetrics] = useState<Record<number, DropMetrics>>({})
 
   function addLoading(dropId: number): void {
@@ -67,23 +68,23 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
     })
   }
 
-  function updateEventOwners(dropId: number, owners: string[]): void {
-    setOwners((prevOwners) => ({
-      ...prevOwners,
-      [dropId]: filterInvalidOwners(owners),
+  function updateEventCollectors(dropId: number, collectors: string[]): void {
+    setCollectors((prevCollectors) => ({
+      ...prevCollectors,
+      [dropId]: filterInvalidAddresses(collectors),
     }))
   }
 
-  function updateDropsOwners(dropsOwners: Record<number, string[]>): void {
-    setOwners((prevOwners) => ({
-      ...prevOwners,
+  function updateDropsCollectors(dropsCollectors: InCommon): void {
+    setCollectors((prevCollectors) => ({
+      ...prevCollectors,
       ...Object.fromEntries(
-        Object.entries(dropsOwners)
-          .filter(([, eventOwners]) => eventOwners != null)
+        Object.entries(dropsCollectors)
+          .filter(([, dropCollectors]) => dropCollectors != null)
           .map(
-            ([rawDropId, owners]) => [
+            ([rawDropId, collectors]) => [
               rawDropId,
-              filterInvalidOwners(owners),
+              filterInvalidAddresses(collectors),
             ]
           )
       ),
@@ -109,7 +110,7 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
     }))
   }
 
-  const loadOwnersAndMetrics = useCallback(
+  const loadCollectorsAndMetrics = useCallback(
     async (dropId: number, abortSignal: AbortSignal) => {
       removeError(dropId)
       addLoading(dropId)
@@ -134,7 +135,7 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
       }
       removeLoading(dropId)
       if (eventCollectorsResult.status === 'fulfilled') {
-        updateEventOwners(
+        updateEventCollectors(
           dropId,
           eventCollectorsResult.value
         )
@@ -162,7 +163,7 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
     []
   )
 
-  const fetchDropsOwnersAndMetrics = useCallback(
+  const fetchDropsCollectorsAndMetrics = useCallback(
     () => {
       let controller: AbortController | undefined
       const controllers: Record<number, AbortController> = dropIds.reduce(
@@ -176,17 +177,17 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
       setLoadingCache(false)
       setLoading({})
       setErrors({})
-      setOwners({})
+      setCollectors({})
       setMetrics({})
       setLoadingCache(true)
       controller = new AbortController()
       Promise.all([
         fetchCollectorsByDrops(dropIds, controller.signal),
         fetchDropsMetrics(dropIds, controller.signal),
-      ]).then(([dropsOwners, dropsMetrics]) => {
-        updateDropsOwners(
+      ]).then(([dropsCollectors, dropsMetrics]) => {
+        updateDropsCollectors(
           fillNull(
-            dropsOwners,
+            dropsCollectors,
             dropIds.map((dropId) => String(dropId)),
             []
           )
@@ -203,7 +204,7 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
           let promise = new Promise((r) => { r(undefined) })
           for (const dropId of dropIds) {
             promise = promise.then(() =>
-              loadOwnersAndMetrics(dropId, controllers[dropId].signal))
+              loadCollectorsAndMetrics(dropId, controllers[dropId].signal))
           }
           promise.finally(() => {
             setCompleted(true)
@@ -220,34 +221,34 @@ function useEventsOwnersAndMetrics(dropIds: number[]): {
         setCompleted(false)
         setLoading({})
         setErrors({})
-        setOwners({})
+        setCollectors({})
         setMetrics({})
       }
     },
     [
       dropIds,
-      loadOwnersAndMetrics,
+      loadCollectorsAndMetrics,
     ]
   )
 
-  function retryEventOwnersAndMetrics(dropId: number): () => void {
+  function retryDropCollectorsAndMetrics(dropId: number): () => void {
     removeError(dropId)
     const controller = new AbortController()
-    loadOwnersAndMetrics(dropId, controller.signal)
+    loadCollectorsAndMetrics(dropId, controller.signal)
     return () => {
       controller.abort()
     }
   }
 
   return {
-    completedDropsOwnersAndMetrics: completed,
-    loadingDropsOwnersAndMetrics: loadingCache,
-    loadingOwnersAndMetricsDrops: loading,
-    dropsOwnersAndMetricsErrors: errors,
-    dropsOwners: owners,
+    completedDropsCollectorsAndMetrics: completed,
+    loadingDropsCollectorsAndMetrics: loadingCache,
+    loadingCollectorsAndMetricsDrops: loading,
+    dropsCollectorsAndMetricsErrors: errors,
+    dropsCollectors: collectors,
     dropsMetrics: metrics,
-    fetchDropsOwnersAndMetrics: fetchDropsOwnersAndMetrics,
-    retryEventOwnersAndMetrics,
+    fetchDropsCollectorsAndMetrics,
+    retryDropCollectorsAndMetrics,
   }
 }
 

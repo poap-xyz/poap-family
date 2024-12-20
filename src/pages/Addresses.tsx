@@ -4,7 +4,7 @@ import { formatStat } from 'utils/number'
 import { parseAddress, parseAddresses, ParsedAddress } from 'models/address'
 import { parseDropIds, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { InCommon } from 'models/api'
+import { InCommon } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
 import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
@@ -53,7 +53,7 @@ function Addresses() {
   const [addresses, setAddresses] = useState<ParsedAddress[] | null>(null)
   const [collectors, setCollectors] = useState<Record<number, string>>({})
   const [errors, setErrors] = useState<Error[]>([])
-  const [loadingDropsOwners, setLoadingDropsOwners] = useState<boolean>(false)
+  const [loadingDropsCollectors, setLoadingDropsCollectors] = useState<boolean>(false)
   const [loadingByAddress, setLoadingByAddress] = useState<Record<string, boolean>>({})
   const [loadingByIndex, setLoadingByIndex] = useState<Record<number, boolean>>({})
   const [repeatedByAddress, setRepeatedByAddress] = useState<Record<string, boolean>>({})
@@ -311,15 +311,15 @@ function Addresses() {
           }
         }
       } else if (searchDropIds.length > 0) {
-        setLoadingDropsOwners(true)
+        setLoadingDropsCollectors(true)
         const controller = new AbortController()
         fetchDropsCollectors(searchDropIds, controller.signal).then(
           (collectors) => {
             let addresses: ParsedAddress[] | undefined
             try {
-              addresses = collectors.map((owner) => parseAddress(owner))
+              addresses = collectors.map((collector) => parseAddress(collector))
             } catch (err: unknown) {
-              setLoadingDropsOwners(false)
+              setLoadingDropsCollectors(false)
               addError(
                 new Error('Cannot parse collectors', {
                   cause: err,
@@ -328,11 +328,11 @@ function Addresses() {
               return
             }
 
-            setLoadingDropsOwners(false)
+            setLoadingDropsCollectors(false)
             updateAddresses(addresses)
           },
           (err) => {
-            setLoadingDropsOwners(false)
+            setLoadingDropsCollectors(false)
             addError(
               new Error(`Cannot load drops ${searchDropIds.join(', ')}`, {
                 cause: err,
@@ -501,7 +501,7 @@ function Addresses() {
     [addresses, setTitle]
   )
 
-  if (loadingDropsOwners) {
+  if (loadingDropsCollectors) {
     return (
       <CenterPage>
         <Card>

@@ -47,12 +47,12 @@ function Event() {
     loadedInCommon,
     loadedInCommonDrops,
     loadedInCommonDownload,
-    loadedOwners,
-    ownersErrors,
+    loadedCollectors,
+    collectorsErrors,
     inCommon,
     drops,
     cachedTs,
-    fetchEventInCommon,
+    fetchDropInCommon,
     retryAddress,
   } = useEventInCommon(
     drop.id,
@@ -85,12 +85,12 @@ function Event() {
 
   useEffect(
     () => {
-      const cancelEventInCommon = fetchEventInCommon()
+      const cancelEventInCommon = fetchDropInCommon()
       return () => {
         cancelEventInCommon()
       }
     },
-    [fetchEventInCommon]
+    [fetchDropInCommon]
   )
 
   useEffect(
@@ -170,8 +170,8 @@ function Event() {
         </div>
         {loadingEventInCommon && (
           <Card>
-            {loadedOwners > 0
-              ? <Loading count={loadedOwners} total={collectors.length} />
+            {loadedCollectors > 0
+              ? <Loading count={loadedCollectors} total={collectors.length} />
               : (
                 loadedInCommonDrops != null
                   ? (
@@ -203,7 +203,7 @@ function Event() {
                     )
               )
             }
-            <AddressErrorList errors={ownersErrors} onRetry={retryAddress} />
+            <AddressErrorList errors={collectorsErrors} onRetry={retryAddress} />
           </Card>
         )}
         {!loadingEventInCommon && (
@@ -218,10 +218,10 @@ function Event() {
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </WarningMessage>
             )}
-            {ownersErrors.length > 0 && (
+            {collectorsErrors.length > 0 && (
               <Card>
                 <AddressErrorList
-                  errors={ownersErrors}
+                  errors={collectorsErrors}
                   onRetry={retryAddress}
                 />
               </Card>
@@ -251,7 +251,7 @@ function Event() {
                 }}
               />
             )}
-            {completedEventInCommon && loadedOwners === 0 && (
+            {completedEventInCommon && loadedCollectors === 0 && (
               <Card>
                 <ErrorMessage message="No collectors" />
               </Card>

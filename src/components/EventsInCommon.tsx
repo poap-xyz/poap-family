@@ -1,7 +1,7 @@
 import { ReactNode, useMemo, useState } from 'react'
 import { Drop, DropPower } from 'models/drop'
-import type { InCommon } from 'models/api'
 import {
+  InCommon,
   filterInCommon,
   INCOMMON_DROPS_LIMIT,
   sortInCommonEntries,

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { chunks } from 'utils/array'
+import { chunks, uniq } from 'utils/array'
 import { Drop } from 'models/drop'
-import { InCommon } from 'models/api'
 import {
+  InCommon,
   getAddressInCommonAddresses,
   getAddressInCommonEventIds,
 } from 'models/in-common'
@@ -34,85 +34,92 @@ function inverseCollectorsSortedEntries(
 }
 
 function EventsOwners({
-  dropsOwners,
+  dropsCollectors,
   inCommon,
   drops,
   all = false,
 }: {
-  dropsOwners: InCommon
+  dropsCollectors: InCommon
   inCommon: InCommon
   drops: Record<number, Drop>
   all?: boolean
 }) {
   const [showAll, setShowAll] = useState<boolean>(all)
 
-  let ownersDrops = useMemo(
-    () => inverseCollectorsSortedEntries(dropsOwners),
-    [dropsOwners]
+  let collectorsDrops = useMemo(
+    () => inverseCollectorsSortedEntries(dropsCollectors),
+    [dropsCollectors]
   )
 
   const dropIds = useMemo(
-    () => Object.keys(dropsOwners).map(
+    () => Object.keys(dropsCollectors).map(
       (rawDropId) => parseInt(rawDropId)
     ),
-    [dropsOwners]
+    [dropsCollectors]
   )
 
-  const ownersTotal = ownersDrops.length
+  const collectors = useMemo(
+    () => uniq(collectorsDrops.map(
+      ([collectorAddress]) => collectorAddress
+    )),
+    [collectorsDrops]
+  )
+
+  const collectorsTotal = collectors.length
   const dropsTotal = dropIds.length
 
-  const inCommonOwnersTotal = useMemo(
+  const inCommonCollectorsTotal = useMemo(
     () => {
       const inCommonAddresses = []
-      for (const [ownerAddress, ownerEventIds] of ownersDrops) {
-        if (ownerEventIds.length === dropsTotal) {
-          inCommonAddresses.push(ownerAddress)
+      for (const [collectorAddress, collectorDropIds] of collectorsDrops) {
+        if (collectorDropIds.length === dropsTotal) {
+          inCommonAddresses.push(collectorAddress)
         }
       }
       return inCommonAddresses.length
     },
-    [ownersDrops, dropsTotal]
+    [collectorsDrops, dropsTotal]
   )
 
-  if (ownersTotal > inCommonOwnersTotal && !showAll && !all) {
-    ownersDrops = ownersDrops.slice(0, inCommonOwnersTotal)
+  if (collectorsTotal > inCommonCollectorsTotal && !showAll && !all) {
+    collectorsDrops = collectorsDrops.slice(0, inCommonCollectorsTotal)
   }
 
-  const ownersDropsChunks = chunks(ownersDrops, 10)
+  const collectorsDropsChunks = chunks(collectorsDrops, 10)
 
   return (
     <div className="events-owners">
       <Card>
         {(all || showAll) && (
-          <h4>{ownersTotal} collector{ownersTotal === 1 ? '' : 's'}</h4>
+          <h4>{collectorsTotal} collector{collectorsTotal === 1 ? '' : 's'}</h4>
         )}
         {!all && !showAll && (
           <h4>
-            {inCommonOwnersTotal}{' '}
-            collector{inCommonOwnersTotal === 1 ? '' : 's'}{' '}
+            {inCommonCollectorsTotal}{' '}
+            collector{inCommonCollectorsTotal === 1 ? '' : 's'}{' '}
             in common
           </h4>
         )}
         <div className="events-owners-chunks">
-          {ownersDropsChunks.map((ownersDropsChunk, chunkIndex) => (
+          {collectorsDropsChunks.map((collectorsDropsChunk, chunkIndex) => (
             <ul key={chunkIndex}>
-              {ownersDropsChunk.map(([owner, ownerEventIds]) => {
+              {collectorsDropsChunk.map(([collector, collectorDropIds]) => {
                 const inCommonEventIds = getAddressInCommonEventIds(
                   inCommon,
-                  owner
+                  collector
                 )
                 const inCommonAddresses = getAddressInCommonAddresses(
                   inCommon,
                   inCommonEventIds,
-                  owner
+                  collector
                 )
                 return (
-                  <li key={owner} className="owner-list-item">
+                  <li key={collector} className="owner-list-item">
                     <AddressOwner
-                      address={owner}
+                      address={collector}
                       drops={drops}
                       dropIds={dropIds}
-                      collectorsDropIds={ownerEventIds}
+                      collectorsDropIds={collectorDropIds}
                       inCommonDropIds={inCommonEventIds}
                       inCommonAddresses={inCommonAddresses}
                       linkToScan={false}
@@ -121,8 +128,8 @@ function EventsOwners({
                 )
               })}
               {(
-                chunkIndex + 1 === ownersDropsChunks.length &&
-                ownersTotal > inCommonOwnersTotal &&
+                chunkIndex + 1 === collectorsDropsChunks.length &&
+                collectorsTotal > inCommonCollectorsTotal &&
                 !all
               ) && (
                 <li key="show-more">
@@ -133,12 +140,12 @@ function EventsOwners({
                       {
                         showAll
                           ? (
-                            inCommonOwnersTotal === 0
+                            inCommonCollectorsTotal === 0
                               ? 'hide all'
-                              : `show ${inCommonOwnersTotal}` +
+                              : `show ${inCommonCollectorsTotal}` +
                                 `${all ? '' : ' in common'}`
                             )
-                          : `show all ${ownersTotal}`
+                          : `show all ${collectorsTotal}`
                       }
                     </ButtonLink>
                   </div>
@@ -147,7 +154,7 @@ function EventsOwners({
             </ul>
           ))}
         </div>
-        {inCommonOwnersTotal === 0 && ownersTotal === 0 && (
+        {inCommonCollectorsTotal === 0 && collectorsTotal === 0 && (
           <div className="show-more">
             <ButtonLink
               onClick={() => setShowAll((prevShowAll) => !prevShowAll)}
@@ -155,17 +162,17 @@ function EventsOwners({
               {
                 showAll
                   ? (
-                      inCommonOwnersTotal === 0
+                      inCommonCollectorsTotal === 0
                         ? 'hide all'
-                        : `show ${inCommonOwnersTotal}` +
+                        : `show ${inCommonCollectorsTotal}` +
                           `${all ? '' : ' in common'}`
                     )
-                  : `show all ${ownersTotal}`
+                  : `show all ${collectorsTotal}`
               }
             </ButtonLink>
           </div>
         )}
-        {ownersTotal > 0 && (
+        {collectorsTotal > 0 && (
           <ButtonGroup right={true}>
             <ButtonExportAddressCsv
               filename={
@@ -178,7 +185,7 @@ function EventsOwners({
                   ? drops[dropIds[0]].name
                   : undefined
               }
-              addresses={ownersDrops.map(([address]) => address)}
+              addresses={collectorsDrops.map(([address]) => address)}
               title={
                 `Generates CSV file with collectors in common ` +
                 `between drop${dropsTotal === 1 ? '' : 's'} ` +
@@ -193,7 +200,7 @@ function EventsOwners({
                 `drop${dropsTotal === 1 ? '' : 's'} ` +
                 `#${dropIds.join(', #')}`
               }
-              addresses={ownersDrops.map(([ownerAddress]) => ownerAddress)}
+              addresses={collectors}
               dropIds={dropIds}
             />
           </ButtonGroup>
