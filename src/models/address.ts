@@ -16,6 +16,13 @@ export function isAddress(address: unknown): address is string {
   )
 }
 
+export function areAddressesEqual(
+  leftAddress: string,
+  rightAddress: string,
+): boolean {
+  return String(leftAddress).toLowerCase() === String(rightAddress).toLowerCase()
+}
+
 export interface ParsedAddress {
   address: string | null
   ens: string | null

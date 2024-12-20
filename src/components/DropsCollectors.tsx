@@ -4,15 +4,15 @@ import { Drop } from 'models/drop'
 import {
   InCommon,
   getAddressInCommonAddresses,
-  getAddressInCommonEventIds,
+  getAddressInCommonDropIds,
 } from 'models/in-common'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
-import AddressOwner from 'components/AddressOwner'
+import AddressCollectorLine from 'components/AddressCollectorLine'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonGroup from 'components/ButtonGroup'
 import ButtonExpand from 'components/ButtonExpand'
-import 'styles/events-owners.css'
+import 'styles/drops-collectors.css'
 
 function inverseCollectorsSortedEntries(
   inCommon: InCommon,
@@ -33,7 +33,7 @@ function inverseCollectorsSortedEntries(
   return result
 }
 
-function EventsOwners({
+function DropsCollectors({
   dropsCollectors,
   inCommon,
   drops,
@@ -88,7 +88,7 @@ function EventsOwners({
   const collectorsDropsChunks = chunks(collectorsDrops, 10)
 
   return (
-    <div className="events-owners">
+    <div className="drops-collectors">
       <Card>
         {(all || showAll) && (
           <h4>{collectorsTotal} collector{collectorsTotal === 1 ? '' : 's'}</h4>
@@ -100,11 +100,11 @@ function EventsOwners({
             in common
           </h4>
         )}
-        <div className="events-owners-chunks">
+        <div className="drops-collectors-chunks">
           {collectorsDropsChunks.map((collectorsDropsChunk, chunkIndex) => (
             <ul key={chunkIndex}>
               {collectorsDropsChunk.map(([collector, collectorDropIds]) => {
-                const inCommonEventIds = getAddressInCommonEventIds(
+                const inCommonEventIds = getAddressInCommonDropIds(
                   inCommon,
                   collector
                 )
@@ -115,7 +115,7 @@ function EventsOwners({
                 )
                 return (
                   <li key={collector} className="owner-list-item">
-                    <AddressOwner
+                    <AddressCollectorLine
                       address={collector}
                       drops={drops}
                       dropIds={dropIds}
@@ -210,4 +210,4 @@ function EventsOwners({
   )
 }
 
-export default EventsOwners
+export default DropsCollectors

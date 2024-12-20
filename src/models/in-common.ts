@@ -1,5 +1,9 @@
 import { equals, intersection } from 'utils/array'
-import { filterInvalidAddresses, isAddress } from 'models/address'
+import {
+  areAddressesEqual,
+  filterInvalidAddresses,
+  isAddress,
+} from 'models/address'
 
 export const INCOMMON_DROPS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
@@ -113,14 +117,17 @@ export function mergeAddressesInCommon(inCommon: InCommon): string[] {
  * Retrieve a list of drops that the given {address} is found in the in-common
  * object.
  */
-export function getAddressInCommonEventIds(
+export function getAddressInCommonDropIds(
   inCommon: InCommon,
   address: string,
 ): number[] {
   const dropIds: number[] = []
   for (const [rawDropId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
-      dropIds.push(parseInt(rawDropId))
+      const dropId = parseInt(rawDropId)
+      if (!isNaN(dropId)) {
+        dropIds.push(dropId)
+      }
     }
   }
   return dropIds
@@ -142,10 +149,16 @@ export function getAddressInCommonAddresses(
   return mergeAddressesInCommon(
     Object.fromEntries(
       Object.entries(inCommon).filter(
-        ([inCommonEventId]) => dropIds.includes(parseInt(inCommonEventId))
+        ([inCommonDropId]) => {
+          const dropId = parseInt(inCommonDropId)
+          if (isNaN(dropId)) {
+            return false
+          }
+          return dropIds.includes(dropId)
+        }
       )
     )
   ).filter(
-    (inCommonAddress) => inCommonAddress.toLowerCase() !== address.toLowerCase()
+    (inCommonAddress) => areAddressesEqual(inCommonAddress, address)
   )
 }
