@@ -6,7 +6,7 @@ export const IGNORED_ADDRESSES = [
   '0x0000000000000000000000000000000000000000',
 ]
 
-export function isAddress(address: unknown): boolean {
+export function isAddress(address: unknown): address is string {
   return (
     address != null &&
     typeof address === 'string' &&

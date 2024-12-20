@@ -1,3 +1,5 @@
+import { isAddress } from 'models/address'
+
 export interface Drop {
   id: number
   name: string
@@ -216,11 +218,8 @@ export function parseDropData(
   }
   if (
     !Array.isArray(data.collectors) ||
-    !data.collectors.every((collector: unknown): collector is string =>
-      collector != null &&
-      typeof collector === 'string' &&
-      collector.startsWith('0x') &&
-      collector.length === 42
+    !data.collectors.every(
+      (collector: unknown): collector is string => isAddress(collector)
     )
   ) {
     throw new Error('Malformed drop data: malformed collectors')

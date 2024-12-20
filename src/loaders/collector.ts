@@ -1,4 +1,4 @@
-import { IGNORED_ADDRESSES } from 'models/address'
+import { IGNORED_ADDRESSES, isAddress } from 'models/address'
 import { InCommon } from 'models/in-common'
 import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'models/collector'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
@@ -31,10 +31,7 @@ export async function fetchCollectorsByDrops(
           data.drop_id == null ||
           typeof data.drop_id !== 'number' ||
           !('collector_address' in data) ||
-          data.collector_address == null ||
-          typeof data.collector_address !== 'string' ||
-          !data.collector_address.startsWith('0x') ||
-          data.collector_address.length !== 42
+          !isAddress(data.collector_address)
         ) {
           throw new Error('Malformed drop collector')
         }

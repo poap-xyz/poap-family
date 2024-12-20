@@ -1,5 +1,5 @@
 import { equals, intersection } from 'utils/array'
-import { filterInvalidAddresses } from 'models/address'
+import { filterInvalidAddresses, isAddress } from 'models/address'
 
 export const INCOMMON_DROPS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
@@ -17,11 +17,8 @@ export function parseInCommon(inCommon: unknown): InCommon {
       (addresses: unknown): addresses is string[] =>
         addresses != null &&
         Array.isArray(addresses) &&
-        addresses.every((address: unknown): address is string =>
-          address != null &&
-          typeof address === 'string' &&
-          address.startsWith('0x') &&
-          address.length === 42
+        addresses.every(
+          (address: unknown): address is string => isAddress(address)
       )
     )
   ) {
