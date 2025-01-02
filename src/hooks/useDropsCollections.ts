@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { fetchDropsCollections as fetchCollectorsByDrops } from 'services/collections'
 
-function useDropsCollections(dropIds: number[]): {
+function useDropsCollections(dropIds?: number[]): {
   loading: boolean
   error: Error | null
   collections: Awaited<ReturnType<typeof fetchCollectorsByDrops>>['collections'] | null
@@ -15,6 +15,9 @@ function useDropsCollections(dropIds: number[]): {
 
   const fetchDropsCollections = useCallback(
     () => {
+      if (dropIds == null) {
+        return () => {}
+      }
       const controller = new AbortController()
       setLoading(true)
       fetchCollectorsByDrops(
