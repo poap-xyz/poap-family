@@ -57,9 +57,9 @@ function AddressProfile({
   const inCommonDropsTotal = inCommonDropIds == null ? 0 : inCommonDropIds.length
   const inCommonDropsHasMore = inCommonDropsTotal > INCOMMON_DROPS_LIMIT
 
-  let inCommonEventIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
+  let inCommonDropIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
   if (inCommonDropsHasMore && !showAllInCommonDrops) {
-    inCommonEventIdsVisible = inCommonEventIdsVisible.slice(0, INCOMMON_DROPS_LIMIT)
+    inCommonDropIdsVisible = inCommonDropIdsVisible.slice(0, INCOMMON_DROPS_LIMIT)
   }
 
   const inCommonAddressesTotal = inCommonAddresses == null ? 0 : inCommonAddresses.length
@@ -124,10 +124,10 @@ function AddressProfile({
                 )}
               </h4>
               {poapsVisible.map((token) => (
-                token.id && token.event && (
+                token.id && token.drop && (
                   <TokenImage
                     key={token.id}
-                    drop={token.event}
+                    drop={token.drop}
                     size={18}
                     resize={true}
                   />
@@ -155,7 +155,7 @@ function AddressProfile({
               )}
             >
               <h4>{inCommonDropsTotal} in common drops</h4>
-              {inCommonEventIdsVisible.map((dropId) => (
+              {inCommonDropIdsVisible.map((dropId) => (
                 dropId in drops && (
                   <TokenImage
                     key={dropId}

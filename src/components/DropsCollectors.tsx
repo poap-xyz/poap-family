@@ -104,13 +104,13 @@ function DropsCollectors({
           {collectorsDropsChunks.map((collectorsDropsChunk, chunkIndex) => (
             <ul key={chunkIndex}>
               {collectorsDropsChunk.map(([collector, collectorDropIds]) => {
-                const inCommonEventIds = getAddressInCommonDropIds(
+                const inCommonDropIds = getAddressInCommonDropIds(
                   inCommon,
                   collector
                 )
                 const inCommonAddresses = getAddressInCommonAddresses(
                   inCommon,
-                  inCommonEventIds,
+                  inCommonDropIds,
                   collector
                 )
                 return (
@@ -120,7 +120,7 @@ function DropsCollectors({
                       drops={drops}
                       dropIds={dropIds}
                       collectorsDropIds={collectorDropIds}
-                      inCommonDropIds={inCommonEventIds}
+                      inCommonDropIds={inCommonDropIds}
                       inCommonAddresses={inCommonAddresses}
                       linkToScan={false}
                     />

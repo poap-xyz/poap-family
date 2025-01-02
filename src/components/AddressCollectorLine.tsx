@@ -37,7 +37,7 @@ function AddressCollectorLine({
         <ButtonAddressProfile
           address={address}
           drops={drops}
-          inCommonEventIds={inCommonDropIds}
+          inCommonDropIds={inCommonDropIds}
           inCommonAddresses={inCommonAddresses}
           showEns={true}
           ens={ens}
