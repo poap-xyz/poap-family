@@ -1,18 +1,15 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { AdminProvider } from 'stores/admin'
+import { createBrowserRouter, replace, RouterProvider } from 'react-router-dom'
 import { SettingsProvider } from 'stores/settings'
 import { EnsProvider } from 'stores/ethereum'
 import { HTMLProvider } from 'stores/html'
-import { eventLoader, eventsLoader } from 'loaders/event'
+import { dropLoader, dropsLoader } from 'loaders/drops'
 import Root from 'app/layout/Root'
-import Admin from 'app/layout/Admin'
 import Home from 'pages/Home'
 import Addresses from 'pages/Addresses'
-import Event from 'pages/Event'
-import Events from 'pages/Events'
+import Drop from 'pages/Drop'
+import Drops from 'pages/Drops'
 import Last from 'pages/Last'
-import FeedbackList from 'pages/FeedbackList'
-import EventsPageError from 'components/EventsPageError'
+import DropsPageError from 'components/DropsPageError'
 import PageError from 'components/PageError'
 import CenterPage from 'components/CenterPage'
 import Loading from 'components/Loading'
@@ -24,55 +21,52 @@ export default function App() {
     <main className="app">
       <HTMLProvider>
         <SettingsProvider>
-          <AdminProvider>
-            <EnsProvider>
-              <RouterProvider
-                router={createBrowserRouter([
-                  {
-                    path: '/',
-                    element: <Root />,
-                    errorElement: <PageError />,
-                    children: [
-                      {
-                        index: true,
-                        element: <Home />,
-                      },
-                      {
-                        path: '/event/:eventId',
-                        loader: eventLoader,
-                        element: <Event />,
-                        errorElement: <PageError />,
-                      },
-                      {
-                        path: '/events/:eventIds',
-                        loader: eventsLoader,
-                        element: <Events />,
-                        errorElement: <EventsPageError />,
-                      },
-                      {
-                        path: '/addresses',
-                        element: <Addresses />,
-                      },
-                      {
-                        path: '/last',
-                        element: <Last />,
-                      },
-                      {
-                        element: <Admin />,
-                        children: [
-                          {
-                            path: '/feedback',
-                            element: <FeedbackList />,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ])}
-                fallbackElement={<CenterPage><Loading /></CenterPage>}
-              />
-            </EnsProvider>
-          </AdminProvider>
+          <EnsProvider>
+            <RouterProvider
+              router={createBrowserRouter([
+                {
+                  path: '/',
+                  element: <Root />,
+                  errorElement: <PageError />,
+                  children: [
+                    {
+                      index: true,
+                      element: <Home />,
+                    },
+                    {
+                      path: '/drop/:dropId',
+                      loader: dropLoader,
+                      element: <Drop />,
+                      errorElement: <PageError />,
+                    },
+                    {
+                      path: '/drops/:dropIds',
+                      loader: dropsLoader,
+                      element: <Drops />,
+                      errorElement: <DropsPageError />,
+                    },
+                    {
+                      path: '/event/:eventId',
+                      loader: ({ params }) => replace(`/drop/${params.eventId}`),
+                    },
+                    {
+                      path: '/events/:eventIds',
+                      loader: ({ params }) => replace(`/drops/${params.eventIds}`),
+                    },
+                    {
+                      path: '/addresses',
+                      element: <Addresses />,
+                    },
+                    {
+                      path: '/last',
+                      element: <Last />,
+                    },
+                  ],
+                },
+              ])}
+              fallbackElement={<CenterPage><Loading /></CenterPage>}
+            />
+          </EnsProvider>
         </SettingsProvider>
       </HTMLProvider>
     </main>

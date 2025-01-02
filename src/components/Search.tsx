@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { joinEventIds, parseEventIds, SEARCH_LIMIT } from 'models/event'
-import { Drop } from 'models/drop'
+import { SEARCH_LIMIT, Drop, parseDropIds, joinDropIds } from 'models/drop'
 import { CollectionWithDrops } from 'models/collection'
-import useEvent from 'hooks/useEvent'
-import useEventSearch from 'hooks/useEventSearch'
+import useDrop from 'hooks/useDrop'
+import useDropSearch from 'hooks/useDropSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
-import SearchResultEvent from 'components/SearchResultEvent'
+import SearchResultDrop from 'components/SearchResultDrop'
 import SearchResultCollection from 'components/SearchResultCollection'
 import Pagination from 'components/Pagination'
 import 'styles/search.css'
@@ -19,25 +18,25 @@ function Search() {
   const [error, setError] = useState<Error | null>(null)
   const [query, setQuery] = useState<string>('')
   const [page, setPage] = useState<number>(1)
-  const [selectedEvents, setSelectedEvents] = useState<Drop[]>([])
+  const [selectedDrops, setSelectedDrops] = useState<Drop[]>([])
   const [selectedCollections, setSelectedCollections] = useState<CollectionWithDrops[]>([])
 
   const {
-    loadingEvent,
-    eventError,
-    event,
-    fetchEvent,
-    retryEvent,
-  } = useEvent()
+    loading: loadingDrop,
+    error: dropError,
+    drop,
+    fetchDrop,
+    retryDrop,
+  } = useDrop()
 
   const {
-    loadingEventSearch,
-    eventSearchError,
-    totalEventResults,
-    resultEvents,
-    searchEvents,
-    retryEventSearch,
-  } = useEventSearch()
+    loading: loadingSearch,
+    error: errorSearch,
+    total: totalResults,
+    resultDrops,
+    searchDrops,
+    retryDropSearch,
+  } = useDropSearch()
 
   const {
     loadingCollectionSearch,
@@ -67,25 +66,25 @@ function Search() {
   )
 
   function search(searchQuery: string, searchPage: number): void {
-    let cancelEvent: () => void | undefined
-    let cancelEventSearch: () => void | undefined
+    let cancelDrop: () => void | undefined
+    let cancelDropSearch: () => void | undefined
     let cancelCollectionSearch: () => void | undefined
     if (searchQuery.length > 0) {
       if (/^[0-9]+$/.test(searchQuery)) {
-        const eventId = parseInt(searchQuery)
-        if (!isNaN(eventId)) {
-          cancelEvent = fetchEvent(eventId)
+        const dropId = parseInt(searchQuery)
+        if (!isNaN(dropId)) {
+          cancelDrop = fetchDrop(dropId)
         }
       }
-      cancelEventSearch = searchEvents(searchQuery, searchPage)
+      cancelDropSearch = searchDrops(searchQuery, searchPage)
       cancelCollectionSearch = searchCollections(searchQuery, searchPage)
     }
     cancelSearch.current = () => {
-      if (cancelEvent) {
-        cancelEvent()
+      if (cancelDrop) {
+        cancelDrop()
       }
-      if (cancelEventSearch) {
-        cancelEventSearch()
+      if (cancelDropSearch) {
+        cancelDropSearch()
       }
       if (cancelCollectionSearch) {
         cancelCollectionSearch()
@@ -94,52 +93,52 @@ function Search() {
   }
 
   function onSearch(): void {
-    if (selectedEvents.length === 1 && selectedCollections.length === 0) {
-      navigate(`/event/${selectedEvents[0].id}`)
+    if (selectedDrops.length === 1 && selectedCollections.length === 0) {
+      navigate(`/drop/${selectedDrops[0].id}`)
       return
     }
-    if (selectedEvents.length === 0 && selectedCollections.length === 1) {
-      navigate(`/events/${joinEventIds(selectedCollections[0].dropIds)}`)
+    if (selectedDrops.length === 0 && selectedCollections.length === 1) {
+      navigate(`/drops/${joinDropIds(selectedCollections[0].dropIds)}`)
       return
     }
-    const newEventIds: number[] = []
-    if (selectedEvents.length > 0) {
-      for (const selectedEvent of selectedEvents) {
-        newEventIds.push(selectedEvent.id)
+    const newDropIds: number[] = []
+    if (selectedDrops.length > 0) {
+      for (const selectedDrop of selectedDrops) {
+        newDropIds.push(selectedDrop.id)
       }
     }
     if (selectedCollections.length > 0) {
       for (const selectedCollection of selectedCollections) {
-        newEventIds.push(...selectedCollection.dropIds)
+        newDropIds.push(...selectedCollection.dropIds)
       }
     }
-    if (newEventIds.length > 0) {
-      navigate(`/events/${joinEventIds(newEventIds)}`)
+    if (newDropIds.length > 0) {
+      navigate(`/drops/${joinDropIds(newDropIds)}`)
       return
     }
-    if (event) {
-      navigate(`/event/${event.id}`)
+    if (drop) {
+      navigate(`/drop/${drop.id}`)
       return
     }
     if (/^[0-9]+$/.test(query)) {
-      navigate(`/event/${query}`)
+      navigate(`/drop/${query}`)
       return
     }
     if (query.startsWith('#')) {
       const subValue = query.substring(1)
       if (/^[0-9]+$/.test(subValue)) {
-        navigate(`/event/${subValue}`)
+        navigate(`/drop/${subValue}`)
         return
       }
     }
     if (/^[0-9]+(, *[0-9]+)*$/.test(query)) {
-      const rawEventIds = parseEventIds(query)
-      if (rawEventIds.length > 0) {
-        navigate(`/events/${joinEventIds(rawEventIds)}`)
+      const rawDropIds = parseDropIds(query)
+      if (rawDropIds.length > 0) {
+        navigate(`/drops/${joinDropIds(rawDropIds)}`)
         return
       }
     }
-    if (resultCollections.length > 0 || resultEvents.length > 0) {
+    if (resultCollections.length > 0 || resultDrops.length > 0) {
       setError(new Error('Select any POAP drop to continue'))
     } else if (query.length === 0) {
       setError(new Error('Search and select any POAP drop to continue'))
@@ -168,47 +167,47 @@ function Search() {
   }
 
   function clearErrors(): void {
-    retryEvent()
-    retryEventSearch()
+    retryDrop()
+    retryDropSearch()
     retryCollectionSearch()
     setError(null)
   }
 
-  function addSelectEvent(eventId: number): void {
-    const resultEvent = resultEvents.find((queried) => queried.id === eventId)
-    if (resultEvent) {
-      setSelectedEvents((prevSelectedEvents) => {
-        const exists = -1 !== prevSelectedEvents.findIndex(
-          (prevSelectedEvent) => prevSelectedEvent.id === resultEvent.id
+  function addSelectDrop(dropId: number): void {
+    const resultDrop = resultDrops.find((queried) => queried.id === dropId)
+    if (resultDrop) {
+      setSelectedDrops((prevSelectedDrops) => {
+        const exists = -1 !== prevSelectedDrops.findIndex(
+          (prevSelectedDrop) => prevSelectedDrop.id === resultDrop.id
         )
         if (exists) {
-          return prevSelectedEvents
+          return prevSelectedDrops
         }
-        return [...prevSelectedEvents, resultEvent]
+        return [...prevSelectedDrops, resultDrop]
       })
-    } else if (event) {
-      setSelectedEvents((prevSelectedEvents) => {
-        const exists = -1 !== prevSelectedEvents.findIndex(
-          (prevSelectedEvent) => prevSelectedEvent.id === event.id
+    } else if (drop) {
+      setSelectedDrops((prevSelectedDrops) => {
+        const exists = -1 !== prevSelectedDrops.findIndex(
+          (prevSelectedDrop) => prevSelectedDrop.id === drop.id
         )
         if (exists) {
-          return prevSelectedEvents
+          return prevSelectedDrops
         }
-        return [...prevSelectedEvents, event]
+        return [...prevSelectedDrops, drop]
       })
     }
     clearErrors()
   }
 
-  function delSelectEvent(eventId: number): void {
-    const selectedIndex = selectedEvents.findIndex(
-      (selected) => selected.id === eventId
+  function delSelectDrop(dropId: number): void {
+    const selectedIndex = selectedDrops.findIndex(
+      (selected) => selected.id === dropId
     )
     if (selectedIndex !== -1) {
-      setSelectedEvents((prevSelectedEvents) => {
-        const newSelectedEvents = [...prevSelectedEvents]
-        newSelectedEvents.splice(selectedIndex, 1)
-        return newSelectedEvents
+      setSelectedDrops((prevSelectedDrops) => {
+        const newSelectedDrops = [...prevSelectedDrops]
+        newSelectedDrops.splice(selectedIndex, 1)
+        return newSelectedDrops
       })
     }
     clearErrors()
@@ -246,13 +245,13 @@ function Search() {
     clearErrors()
   }
 
-  const selectedNotInEvents = selectedEvents.filter(
-    (selected) => -1 === resultEvents.findIndex(
+  const selectedNotInDrops = selectedDrops.filter(
+    (selected) => -1 === resultDrops.findIndex(
       (queried) => queried.id === selected.id
     ) && (
       page !== 1 ||
-      !event || (
-        event.id !== selected.id
+      !drop || (
+        drop.id !== selected.id
       )
     )
   )
@@ -266,7 +265,7 @@ function Search() {
     0
   )
 
-  const maxTotal = Math.max(totalEventResults, totalCollectionResults)
+  const maxTotal = Math.max(totalResults, totalCollectionResults)
   const pages = Math.ceil(maxTotal / SEARCH_LIMIT)
 
   function onPageChange(newPage: number): void {
@@ -276,8 +275,8 @@ function Search() {
   }
 
   const isLoading = (
-    loadingEvent ||
-    loadingEventSearch ||
+    loadingDrop ||
+    loadingSearch ||
     loadingCollectionSearch
   )
 
@@ -307,23 +306,23 @@ function Search() {
               className="go"
               type="submit"
               value="Find POAPs In Common"
-              disabled={!event &&
-                selectedEvents.length === 0 &&
+              disabled={!drop &&
+                selectedDrops.length === 0 &&
                 selectedCollections.length === 0}
             />
           </div>
         </form>
         {(
-          !eventError &&
-          !eventSearchError &&
+          !dropError &&
+          !errorSearch &&
           !collectionSearchError &&
           !error &&
-          selectedEvents.length === 0 &&
+          selectedDrops.length === 0 &&
           selectedCollections.length === 0 &&
-          resultEvents.length === 0 &&
+          resultDrops.length === 0 &&
           resultCollections.length === 0 &&
           !isLoading &&
-          !event
+          !drop
         ) && (
           <div className="search-options">
             <Link className="link" to="/addresses">
@@ -331,17 +330,17 @@ function Search() {
             </Link>
           </div>
         )}
-        {eventError && resultEvents.length === 0 && resultCollections.length === 0 && (
+        {dropError && resultDrops.length === 0 && resultCollections.length === 0 && (
           <div className="search-error">
-            <p>{eventError.message}</p>
+            <p>{dropError.message}</p>
           </div>
         )}
-        {eventSearchError && !event && (
+        {errorSearch && !drop && (
           <div className="search-error">
-            <p>{eventSearchError.message}</p>
+            <p>{errorSearch.message}</p>
           </div>
         )}
-        {collectionSearchError && !event && (
+        {collectionSearchError && !drop && (
           <div className="search-error">
             <p>{collectionSearchError.message}</p>
           </div>
@@ -352,9 +351,9 @@ function Search() {
           </div>
         )}
         {(
-          selectedEvents.length > 0 ||
+          selectedDrops.length > 0 ||
           selectedCollections.length > 0 ||
-          resultEvents.length > 0 ||
+          resultDrops.length > 0 ||
           resultCollections.length > 0
         ) && (
           <div className="search-header">
@@ -367,8 +366,8 @@ function Search() {
               </h3>
             )}
             <h3>
-              {selectedEvents.length + selectedCollectionsTotalDrops}{' '}
-              drop{selectedEvents.length + selectedCollectionsTotalDrops === 1 ? '' : 's'}
+              {selectedDrops.length + selectedCollectionsTotalDrops}{' '}
+              drop{selectedDrops.length + selectedCollectionsTotalDrops === 1 ? '' : 's'}
             </h3>
           </div>
         )}
@@ -385,14 +384,14 @@ function Search() {
             )
           )
         )}
-        {selectedNotInEvents.length > 0 && (
-          selectedNotInEvents.map(
-            (selectedEvent) => (
-              <SearchResultEvent
-                key={selectedEvent.id}
-                event={selectedEvent}
+        {selectedNotInDrops.length > 0 && (
+          selectedNotInDrops.map(
+            (selectedDrop) => (
+              <SearchResultDrop
+                key={selectedDrop.id}
+                drop={selectedDrop}
                 checked={true}
-                onCheckChange={() => delSelectEvent(selectedEvent.id)}
+                onCheckChange={() => delSelectDrop(selectedDrop.id)}
                 className="search-result"
               />
             )
@@ -400,9 +399,9 @@ function Search() {
         )}
         {(
           selectedNotInCollections.length > 0 ||
-          selectedNotInEvents.length > 0
+          selectedNotInDrops.length > 0
         ) && (
-          resultEvents.length > 0 ||
+          resultDrops.length > 0 ||
           resultCollections.length > 0 ||
           isLoading
         ) && (
@@ -416,18 +415,18 @@ function Search() {
             </div>
           </div>
         )}
-        {!isLoading && event && page === 1 && (
-          <SearchResultEvent
-            key={event.id}
-            event={event}
-            checked={-1 !== selectedEvents.findIndex(
-              (selected) => selected.id === event.id
+        {!isLoading && drop && page === 1 && (
+          <SearchResultDrop
+            key={drop.id}
+            drop={drop}
+            checked={-1 !== selectedDrops.findIndex(
+              (selected) => selected.id === drop.id
             )}
             onCheckChange={(checked) => {
               if (checked) {
-                addSelectEvent(event.id)
+                addSelectDrop(drop.id)
               } else {
-                delSelectEvent(event.id)
+                delSelectDrop(drop.id)
               }
             }}
             className="search-result"
@@ -454,29 +453,29 @@ function Search() {
             )
           )
         )}
-        {resultEvents.length > 0 && (
-          resultEvents.map((resultEvent) => (
-            !event ||
-            event.id !== resultEvent.id
+        {resultDrops.length > 0 && (
+          resultDrops.map((resultDrop) => (
+            !drop ||
+            drop.id !== resultDrop.id
           ) && (
-            <SearchResultEvent
-              key={resultEvent.id}
-              event={resultEvent}
-              checked={-1 !== selectedEvents.findIndex(
-                (selected) => selected.id === resultEvent.id
+            <SearchResultDrop
+              key={resultDrop.id}
+              drop={resultDrop}
+              checked={-1 !== selectedDrops.findIndex(
+                (selected) => selected.id === resultDrop.id
               )}
               onCheckChange={(checked) => {
                 if (checked) {
-                  addSelectEvent(resultEvent.id)
+                  addSelectDrop(resultDrop.id)
                 } else {
-                  delSelectEvent(resultEvent.id)
+                  delSelectDrop(resultDrop.id)
                 }
               }}
               className="search-result"
             />
           ))
         )}
-        {resultEvents.length > 0 && pages > 1 && (
+        {resultDrops.length > 0 && pages > 1 && (
           <div className="search-pagination">
             <Pagination
               page={page}

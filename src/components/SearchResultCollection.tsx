@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { joinEventIds } from 'models/event'
+import { joinDropIds } from 'models/drop'
 import {
   CollectionWithDrops,
   resizeCollectionImageUrl,
@@ -37,7 +37,7 @@ function SearchResultCollection({
         <div className="collection-logo">
           {collection.logo_image_url && (
             <Link
-              to={`/events/${joinEventIds(collection.dropIds)}`}
+              to={`/drops/${joinDropIds(collection.dropIds)}`}
               className="collection-link"
             >
               <CollectionLogo collection={collection} size={18} />

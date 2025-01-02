@@ -1,36 +1,35 @@
 import { useCallback, useState } from 'react'
-import { SEARCH_LIMIT } from 'models/drop'
-import { searchCollections as loadSearchCollections } from 'services/collections'
+import { SEARCH_LIMIT, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { CollectionWithDrops } from 'models/collection'
+import { searchDrops as queryDrops } from 'services/drops'
 
-function useCollectionSearch(query?: string, page: number = 1): {
-  loadingCollectionSearch: boolean
-  collectionSearchError: Error | null
-  totalCollectionResults: number | null
-  resultCollections: CollectionWithDrops[]
-  searchCollections: (newQuery?: string | null, newPage?: number) => () => void
-  retryCollectionSearch: () => void
+function useDropSearch(query?: string, page: number = 1): {
+  loading: boolean
+  error: Error | null
+  total: number | null
+  resultDrops: Drop[]
+  searchDrops: (newQuery?: string | null, newPage?: number) => () => void
+  retryDropSearch: () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [total, setTotal] = useState<number | null>(null)
-  const [resultCollections, setResultCollections] = useState<CollectionWithDrops[]>([])
+  const [resultDrops, setResultDrops] = useState<Drop[]>([])
 
-  const searchCollections = useCallback(
+  const searchDrops = useCallback(
     (newQuery: string, newPage: number) => {
       let controller: AbortController | undefined
       if (query == null && newQuery == null) {
-        setError(new Error('No query to search collections'))
+        setError(new Error('No query to search drops'))
       } else {
         setError(null)
         setTotal(null)
-        setResultCollections([])
+        setResultDrops([])
         const offset = ((newPage ?? page) - 1) * SEARCH_LIMIT
         if (total == null || offset <= total) {
           controller = new AbortController()
           setLoading(true)
-          loadSearchCollections(
+          queryDrops(
             newQuery ?? query,
             controller.signal,
             offset,
@@ -38,14 +37,13 @@ function useCollectionSearch(query?: string, page: number = 1): {
           ).then(
             (results) => {
               setLoading(false)
-              setResultCollections(results.items)
-              if (results.total) {
-                setTotal(results.total)
-              } else {
-                setTotal(0)
+              setTotal(results.total)
+              setResultDrops(results.items)
+              if (results.total === 0 || results.items.length === 0) {
+                setError(new Error('No drops results for query'))
               }
             },
-            (err: unknown) => {
+            (err) => {
               setLoading(false)
               if (!(err instanceof AbortedError)) {
                 console.error(err)
@@ -53,7 +51,7 @@ function useCollectionSearch(query?: string, page: number = 1): {
                   setError(err)
                 } else {
                   setError(new Error(
-                    `Cannot search collections for "${query}"`,
+                    `Cannot search drops for "${query}"`,
                     { cause: err }
                   ))
                 }
@@ -69,24 +67,24 @@ function useCollectionSearch(query?: string, page: number = 1): {
         setLoading(false)
         setError(null)
         setTotal(null)
-        setResultCollections([])
+        setResultDrops([])
       }
     },
-    [query, page, total]
+    [page, query, total]
   )
 
-  function retryCollectionSearch(): void {
+  function retryDropSearch(): void {
     setError(null)
   }
 
   return {
-    loadingCollectionSearch: loading,
-    collectionSearchError: error,
-    totalCollectionResults: total,
-    resultCollections,
-    searchCollections,
-    retryCollectionSearch,
+    loading,
+    error,
+    total,
+    resultDrops,
+    searchDrops,
+    retryDropSearch,
   }
 }
 
-export default useCollectionSearch
+export default useDropSearch

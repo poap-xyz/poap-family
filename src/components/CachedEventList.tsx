@@ -35,7 +35,7 @@ function CachedEventList({
               target = target.parentElement
             }
             if (target != null && target.nodeName === 'LI') {
-              navigate(`/event/${cachedEvent.id}`)
+              navigate(`/drop/${cachedEvent.id}`)
             }
           }}
         >
@@ -47,7 +47,7 @@ function CachedEventList({
                 size={tokenImageSize}
               />
               <Link
-                to={`/event/${cachedEvent.id}`}
+                to={`/drop/${cachedEvent.id}`}
                 className="event-id"
               >
                 #{cachedEvent.id}

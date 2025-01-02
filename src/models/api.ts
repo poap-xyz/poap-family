@@ -1,31 +1,8 @@
 import { Drop } from 'models/drop'
+import { InCommon } from 'models/in-common'
 
 export const FAMILY_API_URL = process.env.REACT_APP_FAMILY_API_URL ?? 'https://api.poap.family'
 export const FAMILY_API_KEY = process.env.REACT_APP_FAMILY_API_KEY
-
-export type InCommon = Record<number, string[]>
-
-export function parseInCommon(inCommon: unknown): InCommon {
-  if (
-    inCommon == null ||
-    typeof inCommon !== 'object' ||
-    !Object.keys(inCommon)
-      .map((rawEventId) => parseInt(rawEventId))
-      .every((eventId) => eventId != null && !isNaN(eventId)) ||
-    !Object.values(inCommon).every((addresses) =>
-      addresses != null &&
-      Array.isArray(addresses) &&
-      addresses.every((address) =>
-        address != null &&
-        typeof address === 'string'
-      )
-    )
-  ) {
-    throw new Error('Invalid in common collectors by drop')
-  }
-  // @ts-ignore
-  return inCommon
-}
 
 export interface EventsInCommon {
   events: Record<number, Drop>
@@ -70,11 +47,4 @@ export function parseCachedEvent(cachedEvent: unknown): CachedEvent {
     cached_ts: cachedEvent.cached_ts,
     in_common_count: cachedEvent.in_common_count,
   }
-}
-
-export interface Feedback {
-  id: number
-  message: string
-  location: string
-  ts: number
 }

@@ -1,0 +1,19 @@
+.drop-power {
+  position: relative;
+}
+
+.drop-power .drop-power-value {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+  border-radius: 50%;
+  font-weight: bold;
+  text-align: center;
+  width: 32.25px;
+  height: 32.25px;
+  line-height: 32px;
+  overflow: visible;
+}

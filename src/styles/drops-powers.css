@@ -1,0 +1,43 @@
+.drops-powers {
+  margin-bottom: .5rem;
+}
+
+.drops-powers .drop-power-card {
+  display: inline-block;
+  border: .1rem solid transparent;
+  border-radius: 12px;
+  margin: .2rem;
+  overflow-wrap: break-word;
+  width: 72px;
+}
+
+.drops-powers.show-all .drop-power-card.perfect {
+  background-color: #eee;
+  border-color: #cdcdcd;
+}
+
+.drops-powers .drop-power-card.selected {
+  background-color: #7d73e2 !important;
+  border-color: #473e6b !important;
+}
+
+.drops-powers .drop-power-card .drop-select-button {
+  background: transparent;
+  border-width: 0;
+  cursor: pointer;
+  display: inline-block;
+  margin: 4px;
+  outline: none;
+}
+
+.drops-powers .drop-power-card .drop-id {
+  text-align: center;
+  display: block;
+  cursor: pointer;
+  font-size: 80%;
+  margin: 1px;
+}
+
+.drops-powers .drop-power-card.selected .drop-id {
+  color: white;
+}

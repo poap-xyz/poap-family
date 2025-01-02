@@ -12,7 +12,7 @@ import {
   resolveAddress as ethereumResolveAddress,
   resolveEnsNames as ethereumResolveEnsNames,
   resolveEnsAvatar as ethereumResolveEnsAvatar,
-} from 'loaders/ethereum'
+} from 'services/ethereum'
 
 export const ResolverEnsContext = createContext<{
   resolveAddress: (ensName: string) => Promise<string | null>

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { getLastEvents } from 'loaders/api'
+import { getLastEvents } from 'services/api'
 import { CachedEvent } from 'models/api'
 
 function useLastEvents(page: number, perPage: number): {

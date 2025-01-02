@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
-import { InCommon } from 'models/api'
-import { filterInCommon } from 'models/in-common'
-import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
-import { fetchCollectorDrops } from 'loaders/collector'
+import { InCommon, filterInCommon } from 'models/in-common'
+import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'services/api'
+import { fetchCollectorDrops } from 'services/collectors'
 
 function useEventInCommon(
-  eventId: number,
-  owners: string[],
+  dropId: number,
+  collectors: string[],
   force: boolean = false,
   local: boolean = false,
   stream: boolean = false,
@@ -18,31 +17,31 @@ function useEventInCommon(
   loadingEventInCommon: boolean
   loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null
   loadedInCommon: CountProgress & { totalFinal: boolean } | null
-  loadedInCommonEvents: CountProgress | null
+  loadedInCommonDrops: CountProgress | null
   loadedInCommonDownload: DownloadProgress | null
-  loadedOwners: number
-  ownersErrors: Array<{ address: string; error: Error }>
+  loadedCollectors: number
+  collectorsErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   cachedTs: number | null
-  fetchEventInCommon: () => () => void
+  fetchDropInCommon: () => () => void
   retryAddress: (address: string) => void
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null>(null)
   const [loadedInCommon, setLoadedInCommon] = useState<CountProgress & { totalFinal: boolean } | null>(null)
-  const [loadedInCommonEvents, setLoadedInCommonEvents] = useState<CountProgress | null>(null)
+  const [loadedInCommonDrops, setLoadedInCommonDrops] = useState<CountProgress | null>(null)
   const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
-  const [loadedOwners, setLoadedOwners] = useState<number>(0)
+  const [loadedCollectors, setLoadedCollectors] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [events, setEvents] = useState<Record<number, Drop>>({})
+  const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [cachedTs, setCachedTs] = useState<number | null>(null)
 
   useEffect(
     () => {
-      if (loadedOwners === owners.length && !cachedTs) {
+      if (loadedCollectors === collectors.length && !cachedTs) {
         const inCommonProcessed = filterInCommon(inCommon)
 
         if (Object.keys(inCommonProcessed).length > 0) {
@@ -50,7 +49,7 @@ function useEventInCommon(
         }
       }
     },
-    [eventId, owners, loadedOwners, cachedTs, inCommon]
+    [dropId, collectors, loadedCollectors, cachedTs, inCommon]
   )
 
   function addError(address: string, err: unknown): void {
@@ -105,55 +104,58 @@ function useEventInCommon(
           }
           return prevInCommon
         })
-        setEvents((prevEvents) => ({
-          ...prevEvents,
+        setDrops((prevDrops) => ({
+          ...prevDrops,
           [addressDropId]: addressDrop,
         }))
       }
-      setLoadedOwners((prevLoadedCount) => prevLoadedCount + 1)
+      setLoadedCollectors((prevLoadedCount) => prevLoadedCount + 1)
     },
     []
   )
 
-  const fetchOwnersInCommon = useCallback(
+  const fetchCollectorsInCommon = useCallback(
     async (controllers: Record<string, AbortController>) => {
       setLoading(true)
-      setLoadedOwners(0)
+      setLoadedCollectors(0)
       setErrors([])
       let promise = new Promise((r) => { r(undefined) })
-      for (const owner of owners) {
+      for (const collector of collectors) {
         promise = promise.then(
-          () => fetchAddressInCommon(owner, controllers[owner].signal)
+          () => fetchAddressInCommon(collector, controllers[collector].signal)
         )
       }
       await promise
       setLoading(false)
     },
-    [owners, fetchAddressInCommon]
+    [collectors, fetchAddressInCommon]
   )
 
-  const fetchEventInCommon = useCallback(
+  const fetchDropInCommon = useCallback(
     () => {
       const controller = new AbortController()
-      const controllers: Record<string, AbortController> = owners.reduce(
-        (ctrls, owner) => ({ ...ctrls, [owner]: new AbortController() }),
+      const controllers: Record<string, AbortController> = collectors.reduce(
+        (ctrls, collector) => ({
+          ...ctrls,
+          [collector]: new AbortController(),
+        }),
         {}
       )
       setCompleted(false)
       if (local) {
-        fetchOwnersInCommon(controllers).finally(() => {
+        fetchCollectorsInCommon(controllers).finally(() => {
           setCompleted(true)
         })
       } else {
         setLoading(true)
-        setLoadedOwners(0)
+        setLoadedCollectors(0)
         setLoadedInCommon(null)
         setLoadedProgress(null)
         setLoadedInCommonState(null)
         ;(
           stream
             ? getInCommonEventsWithEvents(
-                eventId,
+                dropId,
                 /*refresh*/force,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/(
@@ -192,7 +194,7 @@ function useEventInCommon(
                     setLoadedInCommonState(
                       (prevState) => prevState === 'owners-z' ? 'events-a' : prevState
                     )
-                    setLoadedInCommonEvents({
+                    setLoadedInCommonDrops({
                       count: receivedEvents ?? 0,
                       total: totalEvents,
                     })
@@ -205,7 +207,7 @@ function useEventInCommon(
                 },
               )
             : getInCommonEventsWithProgress(
-                eventId,
+                dropId,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/({ progress, estimated, rate }) => {
                   if (progress != null) {
@@ -226,21 +228,21 @@ function useEventInCommon(
             setLoadedInCommon(null)
             setLoadedProgress(null)
             if (!result) {
-              return fetchOwnersInCommon(controllers)
+              return fetchCollectorsInCommon(controllers)
             }
             setLoading(false)
-            if (eventId in result.inCommon) {
-              setLoadedOwners(result.inCommon[eventId].length)
+            if (dropId in result.inCommon) {
+              setLoadedCollectors(result.inCommon[dropId].length)
             }
             setInCommon(result.inCommon)
-            setEvents(result.events)
+            setDrops(result.events)
             setCachedTs(result.ts)
           },
           (err) => {
             setLoadedInCommon(null)
             setLoadedProgress(null)
             console.error(err)
-            return fetchOwnersInCommon(controllers)
+            return fetchCollectorsInCommon(controllers)
           }
         ).finally(() => {
           setCompleted(true)
@@ -256,12 +258,12 @@ function useEventInCommon(
         setLoadedInCommon(null)
         setLoadedProgress(null)
         setLoadedInCommonState(null)
-        setLoadedOwners(0)
+        setLoadedCollectors(0)
         setErrors([])
         setInCommon({})
       }
     },
-    [eventId, owners, force, local, stream, fetchOwnersInCommon]
+    [dropId, collectors, force, local, stream, fetchCollectorsInCommon]
   )
 
   function retryAddress(address: string): () => void {
@@ -280,14 +282,14 @@ function useEventInCommon(
     loadingEventInCommon: loading,
     loadedInCommonState,
     loadedInCommon,
-    loadedInCommonEvents,
+    loadedInCommonDrops: loadedInCommonDrops,
     loadedInCommonDownload: loadedProgress,
-    loadedOwners,
-    ownersErrors: errors,
+    loadedCollectors,
+    collectorsErrors: errors,
     inCommon,
-    events,
+    drops,
     cachedTs,
-    fetchEventInCommon,
+    fetchDropInCommon,
     retryAddress,
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@poap-xyz/poap-family",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "author": {
     "name": "POAP",
     "url": "https://poap.xyz"
@@ -28,15 +28,15 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-lazy-images": "^1.1.0",
-    "react-modal": "^3.16.1",
-    "react-router-dom": "^6.28.0",
+    "react-modal": "^3.16.3",
+    "react-router-dom": "^6.28.1",
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "@types/downloadjs": "^1.4.6",
-    "@types/node": "^20.17.9",
-    "@types/react": "^18.3.14",
-    "@types/react-dom": "^18.3.2",
+    "@types/node": "^20.17.11",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@types/react-modal": "^3.16.3",
     "typescript": "^5.7.2"
   },

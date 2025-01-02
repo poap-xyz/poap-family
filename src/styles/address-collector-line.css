@@ -1,0 +1,51 @@
+.address-collector-line {
+  display: flex;
+  gap: .5rem;
+  justify-content: space-between;
+}
+
+.address-collector-line .collector-name {
+  flex-grow: 1;
+  width: 25.8rem;
+}
+
+.address-collector-line .collector-drops {
+  padding: 0;
+}
+
+.address-collector-line .collector-drop-empty {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+.address-collector-line .collector-scan {
+  width: 16px;
+  height: 16px;
+  background:
+    linear-gradient(to right, #020202 2px, transparent 2px) 0 0,
+    linear-gradient(to right, #020202 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, #020202 2px, transparent 2px) 100% 0,
+    linear-gradient(to left, #020202 2px, transparent 2px) 100% 100%,
+    linear-gradient(to bottom, #020202 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, #020202 2px, transparent 2px) 100% 0,
+    linear-gradient(to top, #020202 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, #020202 2px, transparent 2px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: pointer;
+}
+
+.address-collector-line .collector-scan:hover {
+  background:
+    linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 0,
+    linear-gradient(to right, #7d73e2 2px, transparent 2px) 0 100%,
+    linear-gradient(to left, #7d73e2 2px, transparent 2px) 100% 0,
+    linear-gradient(to left, #7d73e2 2px, transparent 2px) 100% 100%,
+    linear-gradient(to bottom, #7d73e2 2px, transparent 2px) 0 0,
+    linear-gradient(to bottom, #7d73e2 2px, transparent 2px) 100% 0,
+    linear-gradient(to top, #7d73e2 2px, transparent 2px) 0 100%,
+    linear-gradient(to top, #7d73e2 2px, transparent 2px) 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+}

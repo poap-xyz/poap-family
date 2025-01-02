@@ -1,0 +1,11 @@
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.drop-header-info {
+  width: 100%;
+  display: flex;
+  overflow-x: auto;
+}
