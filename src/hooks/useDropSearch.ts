@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react'
 import { SEARCH_LIMIT, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { searchDrops as loadDrops } from 'services/drops'
+import { searchDrops as queryDrops } from 'services/drops'
 
 function useDropSearch(query?: string, page: number = 1): {
-  loadingDropSearch: boolean
-  dropSearchError: Error | null
-  totalEventResults: number | null
+  loading: boolean
+  error: Error | null
+  total: number | null
   resultDrops: Drop[]
   searchDrops: (newQuery?: string | null, newPage?: number) => () => void
   retryDropSearch: () => void
@@ -29,7 +29,7 @@ function useDropSearch(query?: string, page: number = 1): {
         if (total == null || offset <= total) {
           controller = new AbortController()
           setLoading(true)
-          loadDrops(
+          queryDrops(
             newQuery ?? query,
             controller.signal,
             offset,
@@ -78,9 +78,9 @@ function useDropSearch(query?: string, page: number = 1): {
   }
 
   return {
-    loadingDropSearch: loading,
-    dropSearchError: error,
-    totalEventResults: total,
+    loading,
+    error,
+    total,
     resultDrops,
     searchDrops,
     retryDropSearch,

@@ -35,9 +35,9 @@ function useDropsMetrics(dropIds?: number[]): {
         return {}
       }
       const newLoading: Record<number, boolean> = {}
-      for (const [loadingEventId, loading] of Object.entries(alsoLoading)) {
-        if (String(dropId) !== String(loadingEventId)) {
-          newLoading[loadingEventId] = loading
+      for (const [loadingDropId, loading] of Object.entries(alsoLoading)) {
+        if (String(dropId) !== String(loadingDropId)) {
+          newLoading[loadingDropId] = loading
         }
       }
       return newLoading
@@ -57,9 +57,9 @@ function useDropsMetrics(dropIds?: number[]): {
         return {}
       }
       const newErrors: Record<number, Error> = {}
-      for (const [errorEventId, error] of Object.entries(alsoErrors)) {
-        if (String(dropId) !== String(errorEventId)) {
-          newErrors[errorEventId] = error
+      for (const [errorDropId, error] of Object.entries(alsoErrors)) {
+        if (String(dropId) !== String(errorDropId)) {
+          newErrors[errorDropId] = error
         }
       }
       return newErrors
