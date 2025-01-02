@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SEARCH_LIMIT, Drop, parseDropIds, joinDropIds } from 'models/drop'
 import { CollectionWithDrops } from 'models/collection'
-import useEvent from 'hooks/useEvent'
-import useEventSearch from 'hooks/useEventSearch'
+import useDrop from 'hooks/useDrop'
+import useDropSearch from 'hooks/useDropSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
 import SearchResultEvent from 'components/SearchResultEvent'
@@ -27,16 +27,16 @@ function Search() {
     drop,
     fetchDrop,
     retryDrop,
-  } = useEvent()
+  } = useDrop()
 
   const {
-    loadingDropSearch,
-    dropSearchError,
-    totalEventResults,
+    loading: loadingSearch,
+    error: errorSearch,
+    total: totalResults,
     resultDrops,
     searchDrops,
     retryDropSearch,
-  } = useEventSearch()
+  } = useDropSearch()
 
   const {
     loadingCollectionSearch,
@@ -265,7 +265,7 @@ function Search() {
     0
   )
 
-  const maxTotal = Math.max(totalEventResults, totalCollectionResults)
+  const maxTotal = Math.max(totalResults, totalCollectionResults)
   const pages = Math.ceil(maxTotal / SEARCH_LIMIT)
 
   function onPageChange(newPage: number): void {
@@ -276,7 +276,7 @@ function Search() {
 
   const isLoading = (
     loadingDrop ||
-    loadingDropSearch ||
+    loadingSearch ||
     loadingCollectionSearch
   )
 
@@ -314,7 +314,7 @@ function Search() {
         </form>
         {(
           !dropError &&
-          !dropSearchError &&
+          !errorSearch &&
           !collectionSearchError &&
           !error &&
           selectedDrops.length === 0 &&
@@ -335,9 +335,9 @@ function Search() {
             <p>{dropError.message}</p>
           </div>
         )}
-        {dropSearchError && !drop && (
+        {errorSearch && !drop && (
           <div className="search-error">
-            <p>{dropSearchError.message}</p>
+            <p>{errorSearch.message}</p>
           </div>
         )}
         {collectionSearchError && !drop && (
@@ -454,21 +454,21 @@ function Search() {
           )
         )}
         {resultDrops.length > 0 && (
-          resultDrops.map((resultEvent) => (
+          resultDrops.map((resultDrop) => (
             !drop ||
-            drop.id !== resultEvent.id
+            drop.id !== resultDrop.id
           ) && (
             <SearchResultEvent
-              key={resultEvent.id}
-              drop={resultEvent}
+              key={resultDrop.id}
+              drop={resultDrop}
               checked={-1 !== selectedDrops.findIndex(
-                (selected) => selected.id === resultEvent.id
+                (selected) => selected.id === resultDrop.id
               )}
               onCheckChange={(checked) => {
                 if (checked) {
-                  addSelectDrop(resultEvent.id)
+                  addSelectDrop(resultDrop.id)
                 } else {
-                  delSelectDrop(resultEvent.id)
+                  delSelectDrop(resultDrop.id)
                 }
               }}
               className="search-result"

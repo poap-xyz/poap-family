@@ -1,23 +1,26 @@
 import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
-import { fetchDropsCollections } from 'services/collections'
+import { fetchDropsCollections as fetchCollectorsByDrops } from 'services/collections'
 
-function useEventsCollections(dropIds: number[]): {
-  loadingCollections: boolean
-  collectionsError: Error | null
-  collections: Awaited<ReturnType<typeof fetchDropsCollections>>['collections'] | null
-  relatedCollections: Awaited<ReturnType<typeof fetchDropsCollections>>['related'] | null
-  fetchEventsCollections: () => () => void
+function useDropsCollections(dropIds?: number[]): {
+  loading: boolean
+  error: Error | null
+  collections: Awaited<ReturnType<typeof fetchCollectorsByDrops>>['collections'] | null
+  relatedCollections: Awaited<ReturnType<typeof fetchCollectorsByDrops>>['related'] | null
+  fetchDropsCollections: () => () => void
 } {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
-  const [result, setResult] = useState<Awaited<ReturnType<typeof fetchDropsCollections>> | null>(null)
+  const [result, setResult] = useState<Awaited<ReturnType<typeof fetchCollectorsByDrops>> | null>(null)
 
-  const fetchEventsCollections = useCallback(
+  const fetchDropsCollections = useCallback(
     () => {
+      if (dropIds == null) {
+        return () => {}
+      }
       const controller = new AbortController()
       setLoading(true)
-      fetchDropsCollections(
+      fetchCollectorsByDrops(
         dropIds,
         controller.signal
       ).then((result) => {
@@ -47,12 +50,12 @@ function useEventsCollections(dropIds: number[]): {
   )
 
   return {
-    loadingCollections: loading,
-    collectionsError: error,
+    loading,
+    error,
     collections: result == null ? null : result.collections,
     relatedCollections: result == null ? null : result.related,
-    fetchEventsCollections,
+    fetchDropsCollections,
   }
 }
 
-export default useEventsCollections
+export default useDropsCollections

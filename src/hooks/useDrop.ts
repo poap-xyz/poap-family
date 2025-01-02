@@ -3,7 +3,7 @@ import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { fetchDrop as loadDrop } from 'services/drops'
 
-function useEvent(dropId?: number): {
+function useDrop(dropId?: number): {
   loading: boolean
   error: Error | null
   drop: Drop | null
@@ -78,4 +78,4 @@ function useEvent(dropId?: number): {
   }
 }
 
-export default useEvent
+export default useDrop
