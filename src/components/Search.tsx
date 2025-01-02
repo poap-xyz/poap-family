@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SEARCH_LIMIT, Drop, parseDropIds, joinDropIds } from 'models/drop'
 import { CollectionWithDrops } from 'models/collection'
 import useDrop from 'hooks/useDrop'
-import useEventSearch from 'hooks/useEventSearch'
+import useDropSearch from 'hooks/useDropSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
 import SearchResultEvent from 'components/SearchResultEvent'
@@ -36,7 +36,7 @@ function Search() {
     resultDrops,
     searchDrops,
     retryDropSearch,
-  } = useEventSearch()
+  } = useDropSearch()
 
   const {
     loadingCollectionSearch,
