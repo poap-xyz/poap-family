@@ -12,7 +12,7 @@ import ButtonLink from 'components/ButtonLink'
 function DropsPageError() {
   const navigate = useNavigate()
   const error = useRouteError()
-  const { eventIds: rawDropIds } = useParams()
+  const { dropIds: rawDropIds } = useParams()
 
   function delDrop(dropId: number): void {
     const dropIds = parseDropIds(String(rawDropIds)).filter(

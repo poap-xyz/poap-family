@@ -33,7 +33,7 @@ import 'styles/events.css'
 
 function Drops() {
   const navigate = useNavigate()
-  const { eventIds: rawDropIds } = useParams()
+  const { dropIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
