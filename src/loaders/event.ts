@@ -1,7 +1,7 @@
 import { parseDropIds, Drop, DropData } from 'models/drop'
 import { HttpError } from 'models/error'
-import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'loaders/drop'
-import { fetchDropsCollectors } from 'loaders/collector'
+import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'services/drops'
+import { fetchDropsCollectors } from 'services/collectors'
 
 export async function eventLoader({ params }): Promise<DropData> {
   const dropId = parseInt(String(params.eventId))

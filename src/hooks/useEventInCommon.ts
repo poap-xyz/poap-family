@@ -4,7 +4,7 @@ import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
 import { InCommon, filterInCommon } from 'models/in-common'
 import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
-import { fetchCollectorDrops } from 'loaders/collector'
+import { fetchCollectorDrops } from 'services/collectors'
 
 function useEventInCommon(
   dropId: number,

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { fetchCollectorPOAPs } from 'loaders/collector'
+import { fetchCollectorPOAPs } from 'services/collectors'
 import { POAP } from 'models/poap'
 
 function useAddressTokens(address: string): {
