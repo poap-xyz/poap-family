@@ -1,0 +1,92 @@
+.drops {
+  display: flex;
+  flex-direction: column;
+}
+
+.drops .drops-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 .5rem;
+}
+
+.drops .drops-table table thead tr th.drop-head {
+  text-align: left;
+}
+
+.drops .drops-table table thead tr th.drop-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .25rem;
+  padding-right: 3rem;
+}
+
+.drops .drops-table table tbody tr {
+  outline: thin dotted;
+  border: 1px dotted #B5AEFF;
+}
+
+.drops .drops-table table tbody tr td {
+  padding: .5rem;
+}
+
+.drops .drops-table table tbody tr td.drop-cell-info {
+  display: flex;
+}
+
+.drops .drops-table table tbody tr td.drop-cell-info .drop-image {
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 72px;
+}
+
+.drops .drops-table table tbody tr td.drop-cell-info .drop-id {
+  display: block;
+  cursor: pointer;
+  font-size: 80%;
+  margin: 4px;
+}
+
+.drops .drops-table table tbody tr td.drop-cell-info .drop-data {
+  margin-left: 1rem;
+}
+
+.drops .drops-table table tbody tr td.drop-cell-metrics {
+  text-align: center;
+}
+
+.drops .status-error-message {
+  margin-left: .5rem;
+}
+
+.drops .address-error-message {
+  margin-top: .2rem;
+  margin-bottom: .2rem;
+  color: #e6698c;
+}
+
+.drops .status-cached-ts {
+  white-space: nowrap;
+}
+
+@media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
+  .drops .drops-table table,
+  .drops .drops-table table thead,
+  .drops .drops-table table tbody,
+  .drops .drops-table table tbody tr,
+  .drops .drops-table table tbody tr td {
+    display: block;
+  }
+
+  .drops .drops-table table thead tr {
+    display: none;
+  }
+
+  .drops .drops-table table tbody tr {
+    margin: 0 0 1rem 0;
+  }
+
+  .drops .drops-table table tbody tr td.drop-cell-progress {
+    text-align: center;
+  }
+}
