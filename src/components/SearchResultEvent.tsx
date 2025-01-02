@@ -20,7 +20,7 @@ function SearchResultEvent({
     <div className={clsx('search-result-event', className)}>
       <div className="drop-info">
         <div className="drop-image">
-          <Link to={`/event/${drop.id}`} className="drop-link">
+          <Link to={`/drop/${drop.id}`} className="drop-link">
             <TokenImage drop={drop} size={18} />
           </Link>
         </div>

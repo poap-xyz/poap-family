@@ -28,7 +28,7 @@ export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
       status: 301,
       statusText: 'One drop',
       headers: {
-        location: `/event/${dropIds[0]}`,
+        location: `/drop/${dropIds[0]}`,
       },
     })
   }

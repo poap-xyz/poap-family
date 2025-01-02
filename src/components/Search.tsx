@@ -94,7 +94,7 @@ function Search() {
 
   function onSearch(): void {
     if (selectedDrops.length === 1 && selectedCollections.length === 0) {
-      navigate(`/event/${selectedDrops[0].id}`)
+      navigate(`/drop/${selectedDrops[0].id}`)
       return
     }
     if (selectedDrops.length === 0 && selectedCollections.length === 1) {
@@ -117,17 +117,17 @@ function Search() {
       return
     }
     if (drop) {
-      navigate(`/event/${drop.id}`)
+      navigate(`/drop/${drop.id}`)
       return
     }
     if (/^[0-9]+$/.test(query)) {
-      navigate(`/event/${query}`)
+      navigate(`/drop/${query}`)
       return
     }
     if (query.startsWith('#')) {
       const subValue = query.substring(1)
       if (/^[0-9]+$/.test(subValue)) {
-        navigate(`/event/${subValue}`)
+        navigate(`/drop/${subValue}`)
         return
       }
     }

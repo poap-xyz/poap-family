@@ -54,7 +54,7 @@ function DropsPowers({
             }
           </button>
           <Link
-            to={`/event/${dropId}`}
+            to={`/drop/${dropId}`}
             className="drop-id"
           >
             #{dropId}
