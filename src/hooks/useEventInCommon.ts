@@ -287,7 +287,7 @@ function useEventInCommon(
     loadedCollectors,
     collectorsErrors: errors,
     inCommon,
-    drops: drops,
+    drops,
     cachedTs,
     fetchDropInCommon,
     retryAddress,
