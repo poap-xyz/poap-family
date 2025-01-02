@@ -13,7 +13,7 @@ import {
   queryCompass,
   queryFirstCompass,
   queryManyCompass,
-} from 'loaders/compass'
+} from 'services/compass'
 
 export async function searchDrops(
   query: string,

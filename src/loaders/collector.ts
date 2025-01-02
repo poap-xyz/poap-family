@@ -4,7 +4,7 @@ import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'mode
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
 import { DEFAULT_DROP_LIMIT, Drop } from 'models/drop'
-import { queryAllCompass } from 'loaders/compass'
+import { queryAllCompass } from 'services/compass'
 
 export async function fetchCollectorsByDrops(
   dropIds: number[],
