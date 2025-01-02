@@ -4,7 +4,7 @@ import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { InCommon, mergeAllInCommon } from 'models/in-common'
-import { Drop, parseDrops, parseDropIds } from 'models/drop'
+import { Drop, parseDrops, parseDropIds, joinDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
@@ -159,7 +159,7 @@ function Drops() {
     if (newDropIds.length === 1) {
       navigate(`/drop/${newDropIds[0]}`)
     } else if (newDropIds.length > 0) {
-      navigate(`/events/${newDropIds.join(',')}`)
+      navigate(`/drops/${joinDropIds(newDropIds)}`)
     } else {
       navigate('/')
     }

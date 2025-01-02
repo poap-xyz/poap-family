@@ -1,4 +1,4 @@
-import { Drop, DropData, parseDropIds } from 'models/drop'
+import { Drop, DropData, joinDropIds, parseDropIds } from 'models/drop'
 import { HttpError } from 'models/error'
 import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'services/drops'
 import { fetchDropsCollectors } from 'services/collectors'
@@ -78,7 +78,7 @@ export async function dropsLoader({
       status: 301,
       statusText: 'Drops given unordered',
       headers: {
-        location: `/events/${dropIds.join(',')}`,
+        location: `/drops/${joinDropIds(dropIds)}`,
       },
     })
   }

@@ -16,7 +16,7 @@ function DropNavigateButtons({
   const navigate = useNavigate()
 
   const addEvent = () => {
-    navigate(`/events/${joinDropIds([...baseDropIds, dropId])}`)
+    navigate(`/drops/${joinDropIds([...baseDropIds, dropId])}`)
   }
 
   return (
