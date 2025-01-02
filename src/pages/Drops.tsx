@@ -270,8 +270,8 @@ function Drops() {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevEventsEnsNames) => ({
-          ...prevEventsEnsNames,
+        setDropsEnsNames((prevDropsEnsNames) => ({
+          ...prevDropsEnsNames,
           [dropId]: ensNames,
         }))
       })

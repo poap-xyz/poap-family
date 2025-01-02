@@ -19,7 +19,7 @@ export interface POAP {
   id: string
   collector: string
   created: Date
-  event?: Drop
+  drop?: Drop
 }
 
 export function parsePOAP(token: unknown): POAP {
@@ -115,7 +115,7 @@ export function parsePOAP(token: unknown): POAP {
     id: tokenId,
     collector: collectorAddress,
     created: mintedOn,
-    event: drop,
+    drop,
   }
 }
 

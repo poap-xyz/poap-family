@@ -78,20 +78,20 @@ export function mergeAllInCommon(
 ): InCommon {
   const mergedInCommon: InCommon = {}
   for (const inCommon of allInCommon) {
-    for (const [inCommonEventId, addresses] of Object.entries(inCommon)) {
-      if (inCommonEventId in mergedInCommon) {
+    for (const [inCommonDropId, addresses] of Object.entries(inCommon)) {
+      if (inCommonDropId in mergedInCommon) {
         if (all) {
-          if (!equals(mergedInCommon[inCommonEventId], addresses)) {
-            delete mergedInCommon[inCommonEventId]
+          if (!equals(mergedInCommon[inCommonDropId], addresses)) {
+            delete mergedInCommon[inCommonDropId]
           }
         } else {
-          mergedInCommon[inCommonEventId] = intersection(
-            mergedInCommon[inCommonEventId],
+          mergedInCommon[inCommonDropId] = intersection(
+            mergedInCommon[inCommonDropId],
             addresses
           )
         }
       } else {
-        mergedInCommon[inCommonEventId] = addresses
+        mergedInCommon[inCommonDropId] = addresses
       }
     }
   }
@@ -136,7 +136,7 @@ export function getAddressInCommonDropIds(
 /**
  * Given the list of drops that the address has in common, retrieve all other
  * addresses that share the same drops. The given {dropIds} must be the
- * result of `getAddressInCommonEventIds(inCommon, address)`.
+ * result of `getAddressInCommonDropIds(inCommon, address)`.
  */
 export function getAddressInCommonAddresses(
   inCommon: InCommon,

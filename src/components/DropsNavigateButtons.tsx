@@ -16,11 +16,11 @@ function DropsNavigateButtons({
     if (dropIds.length === 0) {
       return
     }
-    const newEventIds = [...baseDropIds, ...dropIds]
-    if (newEventIds.length > 0) {
-      navigate(`/drops/${joinDropIds(newEventIds)}`)
-    } else if (newEventIds.length === 1) {
-      navigate(`/drop/${newEventIds[0]}`)
+    const newDropIds = [...baseDropIds, ...dropIds]
+    if (newDropIds.length > 0) {
+      navigate(`/drops/${joinDropIds(newDropIds)}`)
+    } else if (newDropIds.length === 1) {
+      navigate(`/drop/${newDropIds[0]}`)
     }
   }
 

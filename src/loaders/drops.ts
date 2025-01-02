@@ -130,7 +130,7 @@ export async function dropsLoader({
 
     if (Object.keys(errorsByDropId).length > 0) {
       const response = JSON.stringify({
-        errorsByEventId: Object.fromEntries(
+        errorsByDropIds: Object.fromEntries(
           Object.entries(errorsByDropId).map(
             ([rawDropId, error]) => ([
               rawDropId,

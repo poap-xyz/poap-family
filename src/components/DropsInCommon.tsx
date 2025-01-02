@@ -35,7 +35,7 @@ function DropsInCommon({
   dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
-  const [activeEventIds, setActiveEventIds] = useState<number[]>([])
+  const [activeDropIds, setActiveDropIds] = useState<number[]>([])
 
   const inCommonEntries = useMemo(() =>
     sortInCommonEntries(
@@ -88,24 +88,24 @@ function DropsInCommon({
   )
 
   function removeActiveDropId(dropId: number): void {
-    setActiveEventIds((prevActiveEventIds) => {
-      if (prevActiveEventIds == null) {
+    setActiveDropIds((prevActiveDropIds) => {
+      if (prevActiveDropIds == null) {
         return []
       }
-      const newActiveEventIds = []
-      for (const activeEventId of prevActiveEventIds) {
-        if (activeEventId !== dropId) {
-          newActiveEventIds.push(activeEventId)
+      const newActiveDropIds = []
+      for (const activeDropId of prevActiveDropIds) {
+        if (activeDropId !== dropId) {
+          newActiveDropIds.push(activeDropId)
         }
       }
-      return newActiveEventIds
+      return newActiveDropIds
     })
   }
 
   function toggleActiveDropId(dropId: number): void {
-    if (activeEventIds.indexOf(dropId) === -1) {
-      setActiveEventIds((prevActiveEventIds) => ([
-        ...(prevActiveEventIds ?? []),
+    if (activeDropIds.indexOf(dropId) === -1) {
+      setActiveDropIds((prevActiveDropIds) => ([
+        ...(prevActiveDropIds ?? []),
         dropId,
       ]))
       if (onActive) {
@@ -116,9 +116,9 @@ function DropsInCommon({
     }
   }
 
-  const activeEventsEnsNames = useMemo(
+  const activeDropsEnsNames = useMemo(
     () => dropsEnsNames
-      ? (activeEventIds.length === 0
+      ? (activeDropIds.length === 0
           ? {}
           : Object.fromEntries(
               Object.entries(dropsEnsNames).filter(([rawDropId]) => {
@@ -126,12 +126,12 @@ function DropsInCommon({
                 if (isNaN(dropId)) {
                   return false
                 }
-                return activeEventIds.includes(dropId)
+                return activeDropIds.includes(dropId)
               })
             )
         )
       : undefined,
-    [dropsEnsNames, activeEventIds]
+    [dropsEnsNames, activeDropIds]
   )
 
   const inCommonTotal = inCommonEntries.length
@@ -155,7 +155,7 @@ function DropsInCommon({
         <DropsPowers
           showAll={showAll}
           perfectPower={showCount}
-          selectedDropIds={activeEventIds}
+          selectedDropIds={activeDropIds}
           onSelect={toggleActiveDropId}
           drops={drops}
           powers={powers}
@@ -176,18 +176,18 @@ function DropsInCommon({
         {inCommonTotal > 0 && (
           <DropsNavigateButtons
             baseDropIds={baseDropIds}
-            dropIds={activeEventIds}
+            dropIds={activeDropIds}
           />
         )}
       </Card>
-      {activeEventIds.length > 0 && showActive &&
+      {activeDropIds.length > 0 && showActive &&
         <DropsCompare
           baseDropIds={baseDropIds}
-          dropIds={activeEventIds}
+          dropIds={activeDropIds}
           drops={drops}
           inCommon={inCommon}
           onClose={removeActiveDropId}
-          dropsEnsNames={activeEventsEnsNames}
+          dropsEnsNames={activeDropsEnsNames}
         />
       }
     </div>

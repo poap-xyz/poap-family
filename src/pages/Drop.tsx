@@ -42,8 +42,8 @@ function Drop() {
   )
 
   const {
-    completedEventInCommon,
-    loadingEventInCommon,
+    completedEventInCommon: completedDropInCommon,
+    loadingEventInCommon: loadingDropInCommon,
     loadedInCommon,
     loadedInCommonDrops,
     loadedInCommonDownload,
@@ -71,7 +71,7 @@ function Drop() {
     loading: loadingCollections,
     error: collectionsError,
     collections,
-    fetchDropsCollections: fetchEventsCollections,
+    fetchDropsCollections,
   } = useDropsCollections(
     dropIds
   )
@@ -85,9 +85,9 @@ function Drop() {
 
   useEffect(
     () => {
-      const cancelEventInCommon = fetchDropInCommon()
+      const cancelDropInCommon = fetchDropInCommon()
       return () => {
-        cancelEventInCommon()
+        cancelDropInCommon()
       }
     },
     [fetchDropInCommon]
@@ -102,24 +102,24 @@ function Drop() {
 
   useEffect(
     () => {
-      let cancelEventsCollections: () => void | undefined
+      let cancelDropsCollections: () => void | undefined
       if (
         metrics &&
         metrics.collectionsIncludes > 0 &&
-        completedEventInCommon
+        completedDropInCommon
       ) {
-        cancelEventsCollections = fetchEventsCollections()
+        cancelDropsCollections = fetchDropsCollections()
       }
       return () => {
-        if (cancelEventsCollections) {
-          cancelEventsCollections()
+        if (cancelDropsCollections) {
+          cancelDropsCollections()
         }
       }
     },
     [
       metrics,
-      completedEventInCommon,
-      fetchEventsCollections,
+      completedDropInCommon,
+      fetchDropsCollections,
     ]
   )
 
@@ -131,8 +131,8 @@ function Drop() {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevEventsEnsNames) => ({
-          ...prevEventsEnsNames,
+        setDropsEnsNames((prevDropsEnsNames) => ({
+          ...prevDropsEnsNames,
           [dropId]: ensNames,
         }))
       })
@@ -168,7 +168,7 @@ function Drop() {
             }
           </DropInfo>
         </div>
-        {loadingEventInCommon && (
+        {loadingDropInCommon && (
           <Card>
             {loadedCollectors > 0
               ? <Loading count={loadedCollectors} total={collectors.length} />
@@ -206,7 +206,7 @@ function Drop() {
             <AddressErrorList errors={collectorsErrors} onRetry={retryAddress} />
           </Card>
         )}
-        {!loadingEventInCommon && (
+        {!loadingDropInCommon && (
           <>
             {(
               cachedTs &&
@@ -251,7 +251,7 @@ function Drop() {
                 }}
               />
             )}
-            {completedEventInCommon && loadedCollectors === 0 && (
+            {completedDropInCommon && loadedCollectors === 0 && (
               <Card>
                 <ErrorMessage message="No collectors" />
               </Card>

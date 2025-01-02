@@ -15,7 +15,7 @@ function DropNavigateButtons({
 }) {
   const navigate = useNavigate()
 
-  const addEvent = () => {
+  const addDrop = () => {
     navigate(`/drops/${joinDropIds([...baseDropIds, dropId])}`)
   }
 
@@ -23,7 +23,7 @@ function DropNavigateButtons({
     <ButtonGroup>
       {baseDropIds.length > 0 && !baseDropIds.includes(dropId) && (
         <ButtonAdd
-          onAdd={() => addEvent()}
+          onAdd={() => addDrop()}
           title={`Combines drop #${dropId} to #${baseDropIds.join(', #')}`}
         />
       )}

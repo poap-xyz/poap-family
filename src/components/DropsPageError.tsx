@@ -16,7 +16,7 @@ function DropsPageError() {
 
   function delDrop(dropId: number): void {
     const dropIds = parseDropIds(String(rawDropIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(dropId)
+      (paramDropId) => String(paramDropId) !== String(dropId)
     )
     if (dropIds.length === 1) {
       navigate(`/drop/${dropIds[0]}`)
@@ -46,11 +46,11 @@ function DropsPageError() {
     'data' in error &&
     error.data != null &&
     typeof error.data === 'object' &&
-    'errorsByEventId' in error.data &&
-    error.data.errorsByEventId != null &&
-    typeof error.data.errorsByEventId === 'object'
+    'errorsByDropIds' in error.data &&
+    error.data.errorsByDropIds != null &&
+    typeof error.data.errorsByDropIds === 'object'
   )
-    ? error.data.errorsByEventId
+    ? error.data.errorsByDropIds
     : undefined
 
   if (errorsByDropId) {

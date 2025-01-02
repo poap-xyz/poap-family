@@ -12,14 +12,14 @@ function ButtonAddressProfile({
   ens,
   address,
   drops,
-  inCommonEventIds = [],
+  inCommonDropIds = [],
   inCommonAddresses = [],
   showEns = true,
 }: {
   ens?: string
   address: string
   drops: Record<number, Drop>
-  inCommonEventIds?: number[]
+  inCommonDropIds?: number[]
   inCommonAddresses?: string[]
   showEns?: boolean
 }) {
@@ -53,7 +53,7 @@ function ButtonAddressProfile({
               ens={ens}
               address={address}
               drops={drops}
-              inCommonDropIds={inCommonEventIds}
+              inCommonDropIds={inCommonDropIds}
               inCommonAddresses={inCommonAddresses}
             />
           </Card>
