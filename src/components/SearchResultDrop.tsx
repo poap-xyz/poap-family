@@ -3,9 +3,9 @@ import { clsx } from 'clsx'
 import { Drop } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import Checkbox from 'components/Checkbox'
-import 'styles/search-result-event.css'
+import 'styles/search-result-drop.css'
 
-function SearchResultEvent({
+function SearchResultDrop({
   drop,
   checked,
   onCheckChange,
@@ -17,7 +17,7 @@ function SearchResultEvent({
   className?: string
 }) {
   return (
-    <div className={clsx('search-result-event', className)}>
+    <div className={clsx('search-result-drop', className)}>
       <div className="drop-info">
         <div className="drop-image">
           <Link to={`/drop/${drop.id}`} className="drop-link">
@@ -38,4 +38,4 @@ function SearchResultEvent({
   )
 }
 
-export default SearchResultEvent
+export default SearchResultDrop

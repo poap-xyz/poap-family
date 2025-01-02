@@ -6,7 +6,7 @@ import useDrop from 'hooks/useDrop'
 import useDropSearch from 'hooks/useDropSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
-import SearchResultEvent from 'components/SearchResultEvent'
+import SearchResultDrop from 'components/SearchResultDrop'
 import SearchResultCollection from 'components/SearchResultCollection'
 import Pagination from 'components/Pagination'
 import 'styles/search.css'
@@ -387,7 +387,7 @@ function Search() {
         {selectedNotInDrops.length > 0 && (
           selectedNotInDrops.map(
             (selectedEvent) => (
-              <SearchResultEvent
+              <SearchResultDrop
                 key={selectedEvent.id}
                 drop={selectedEvent}
                 checked={true}
@@ -416,7 +416,7 @@ function Search() {
           </div>
         )}
         {!isLoading && drop && page === 1 && (
-          <SearchResultEvent
+          <SearchResultDrop
             key={drop.id}
             drop={drop}
             checked={-1 !== selectedDrops.findIndex(
@@ -458,7 +458,7 @@ function Search() {
             !drop ||
             drop.id !== resultDrop.id
           ) && (
-            <SearchResultEvent
+            <SearchResultDrop
               key={resultDrop.id}
               drop={resultDrop}
               checked={-1 !== selectedDrops.findIndex(
