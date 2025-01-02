@@ -1,12 +1,12 @@
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { Drop, DropPower } from 'models/drop'
+import { Drop, DropPower as Power } from 'models/drop'
 import TokenImage from 'components/TokenImage'
-import EventPower from 'components/EventPower'
-import 'styles/events-powers.css'
+import DropPower from 'components/DropPower'
+import 'styles/drops-powers.css'
 
-function EventsPowers({
+function DropsPowers({
   showAll = false,
   perfectPower,
   selectedDropIds,
@@ -21,23 +21,23 @@ function EventsPowers({
   selectedDropIds: number[]
   onSelect: (dropId: number) => void
   drops: Record<number, Drop>
-  powers: DropPower[]
+  powers: Power[]
   size?: number
   children?: ReactNode
 }) {
   return (
-    <div className={clsx('events-powers', showAll && 'show-all')}>
+    <div className={clsx('drops-powers', showAll && 'show-all')}>
       {powers.map(({ dropId, power }) => (
         <div
           key={dropId}
-          className={clsx('event-power-card', {
+          className={clsx('drop-power-card', {
             selected: selectedDropIds.includes(dropId),
             perfect: perfectPower === power,
           })}
           title={drops[dropId].name}
         >
           <button
-            className="event-select-button"
+            className="drop-select-button"
             onClick={() => onSelect(dropId)}
             style={{
               width: `${size}px`,
@@ -46,7 +46,7 @@ function EventsPowers({
           >
             {perfectPower === power
               ? <TokenImage drop={drops[dropId]} size={size} />
-              : <EventPower
+              : <DropPower
                 drop={drops[dropId]}
                 count={power}
                 size={size}
@@ -55,7 +55,7 @@ function EventsPowers({
           </button>
           <Link
             to={`/event/${dropId}`}
-            className="event-id"
+            className="drop-id"
           >
             #{dropId}
           </Link>
@@ -66,4 +66,4 @@ function EventsPowers({
   )
 }
 
-export default EventsPowers
+export default DropsPowers

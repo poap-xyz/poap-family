@@ -13,7 +13,7 @@ import useEventsInCommon from 'hooks/useEventsInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
-import EventButtonGroup from 'components/EventButtonGroup'
+import DropButtonGroup from 'components/DropButtonGroup'
 import Page from 'components/Page'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Status from 'components/Status'
@@ -21,7 +21,7 @@ import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
-import EventsInCommon from 'components/EventsInCommon'
+import DropsInCommon from 'components/DropsInCommon'
 import CollectionSet from 'components/CollectionSet'
 import DropsCollectors from 'components/DropsCollectors'
 import Switch from 'components/Switch'
@@ -456,7 +456,7 @@ function Events() {
                       )}
                     </td>
                     <td className="event-cell-actions">
-                      <EventButtonGroup
+                      <DropButtonGroup
                         drop={drop}
                         right={true}
                         viewInGallery={true}
@@ -465,7 +465,7 @@ function Events() {
                           onDelete={() => delDrop(drop.id)}
                           title={`Removes drop #${drop.id}`}
                         />
-                      </EventButtonGroup>
+                      </DropButtonGroup>
                     </td>
                   </tr>
                 ))}
@@ -537,7 +537,7 @@ function Events() {
               drops={allDrops}
               all={all}
             />
-            <EventsInCommon
+            <DropsInCommon
               onActive={handleDropActive}
               inCommon={inCommon}
               drops={allDrops}

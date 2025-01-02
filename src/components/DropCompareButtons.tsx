@@ -1,10 +1,10 @@
 import { Drop } from 'models/drop'
 import { InCommon } from 'models/in-common'
-import EventButtonGroup from 'components/EventButtonGroup'
+import DropButtonGroup from 'components/DropButtonGroup'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import ButtonExpand from 'components/ButtonExpand'
 
-function EventCompareButtons({
+function DropCompareButtons({
   dropId,
   dropIds,
   drops,
@@ -22,7 +22,7 @@ function EventCompareButtons({
   )
 
   return (
-    <EventButtonGroup
+    <DropButtonGroup
       drop={drops[dropId]}
       viewInGallery={viewInGallery}
     >
@@ -58,8 +58,8 @@ function EventCompareButtons({
           />
         </>
       )}
-    </EventButtonGroup>
+    </DropButtonGroup>
   )
 }
 
-export default EventCompareButtons
+export default DropCompareButtons

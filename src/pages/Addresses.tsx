@@ -20,7 +20,7 @@ import Status from 'components/Status'
 import ShadowText from 'components/ShadowText'
 import Loading from 'components/Loading'
 import ButtonGroup from 'components/ButtonGroup'
-import EventsInCommon from 'components/EventsInCommon'
+import DropsInCommon from 'components/DropsInCommon'
 import AddressAddForm from 'components/AddressAddForm'
 import ButtonDelete from 'components/ButtonDelete'
 import ButtonEdit from 'components/ButtonEdit'
@@ -795,7 +795,7 @@ function Addresses() {
           </table>
         </Card>
         {state === STATE_END_RESULTS && (
-          <EventsInCommon
+          <DropsInCommon
             onActive={handleDropActive}
             inCommon={inCommon}
             drops={drops}

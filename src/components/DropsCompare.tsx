@@ -9,14 +9,14 @@ import { EnsByAddress } from 'models/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
-import EventHeader from 'components/EventHeader'
+import DropHeader from 'components/DropHeader'
 import AddressCollectorLine from 'components/AddressCollectorLine'
-import EventCompareButtons from 'components/EventCompareButtons'
-import EventNavigateButtons from 'components/EventNavigateButtons'
+import DropCompareButtons from 'components/DropCompareButtons'
+import DropNavigateButtons from 'components/DropNavigateButtons'
 import ButtonClose from 'components/ButtonClose'
-import 'styles/events-compare.css'
+import 'styles/drops-compare.css'
 
-function EventsCompare({
+function DropsCompare({
   baseDropIds,
   dropIds,
   drops,
@@ -69,28 +69,31 @@ function EventsCompare({
   }
 
   return (
-    <div className="events-compare">
+    <div className="drops-compare">
       {dropIds.map((dropId) =>
-        <div className="event-compare" key={dropId}>
+        <div className="drop-compare" key={dropId}>
           <Card>
-            <EventHeader drop={drops[dropId]} size={48} />
-            <div className="event-compare-actions">
-              <EventNavigateButtons
+            <DropHeader drop={drops[dropId]} size={48} />
+            <div className="drop-compare-actions">
+              <DropNavigateButtons
                 baseDropIds={baseDropIds}
                 dropId={dropId}
               >
                 {onClose && (
-                  <ButtonClose onClose={() => onClose(dropId)} />
+                  <ButtonClose
+                    onClose={() => onClose(dropId)}
+                    className="drop-compare-actions-close"
+                  />
                 )}
-              </EventNavigateButtons>
+              </DropNavigateButtons>
             </div>
             <h4>
               {inCommon[dropId].length}{' '}
               collector{inCommon[dropId].length === 1 ? '' : 's'}
               {' '}in common
             </h4>
-            <div className="event-compare-owners">
-              <ul className="owners">
+            <div className="drop-compare-collectors">
+              <ul className="collectors">
                 {inCommon[dropId].map((collector) => {
                   const inCommonDropIds = getAddressInCommonDropIds(
                     inCommon,
@@ -140,7 +143,7 @@ function EventsCompare({
                 })}
               </ul>
             </div>
-            <EventCompareButtons
+            <DropCompareButtons
               dropId={dropId}
               dropIds={baseDropIds}
               drops={drops}
@@ -154,4 +157,4 @@ function EventsCompare({
   )
 }
 
-export default EventsCompare
+export default DropsCompare

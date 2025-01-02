@@ -1,8 +1,8 @@
-.events-powers {
+.drops-powers {
   margin-bottom: .5rem;
 }
 
-.events-powers .event-power-card {
+.drops-powers .drop-power-card {
   display: inline-block;
   border: .1rem solid transparent;
   border-radius: 12px;
@@ -11,17 +11,17 @@
   width: 72px;
 }
 
-.events-powers.show-all .event-power-card.perfect {
+.drops-powers.show-all .drop-power-card.perfect {
   background-color: #eee;
   border-color: #cdcdcd;
 }
 
-.events-powers .event-power-card.selected {
+.drops-powers .drop-power-card.selected {
   background-color: #7d73e2 !important;
   border-color: #473e6b !important;
 }
 
-.events-powers .event-power-card .event-select-button {
+.drops-powers .drop-power-card .drop-select-button {
   background: transparent;
   border-width: 0;
   cursor: pointer;
@@ -30,7 +30,7 @@
   outline: none;
 }
 
-.events-powers .event-power-card .event-id {
+.drops-powers .drop-power-card .drop-id {
   text-align: center;
   display: block;
   cursor: pointer;
@@ -38,6 +38,6 @@
   margin: 1px;
 }
 
-.events-powers .event-power-card.selected .event-id {
+.drops-powers .drop-power-card.selected .drop-id {
   color: white;
 }
