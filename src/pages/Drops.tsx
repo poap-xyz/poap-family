@@ -30,7 +30,7 @@ import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonDelete from 'components/ButtonDelete'
-import 'styles/events.css'
+import 'styles/drops.css'
 
 function Drops() {
   const navigate = useNavigate()
@@ -105,7 +105,7 @@ function Drops() {
 
   useEffect(
     () => {
-      setTitle(Object.values(drops).map((event) => event.name).join(', '))
+      setTitle(Object.values(drops).map((drop) => drop.name).join(', '))
     },
     [drops, setTitle]
   )
@@ -174,7 +174,7 @@ function Drops() {
 
   function delDrop(dropId: number): void {
     const newDropIds = parseDropIds(String(rawDropIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(dropId)
+      (paramDropId) => String(paramDropId) !== String(dropId)
     )
     if (newDropIds.length === 1) {
       navigate(`/drop/${newDropIds[0]}`)
@@ -280,17 +280,17 @@ function Drops() {
 
   return (
     <Page>
-      <div className="events">
-        <div className="events-table">
+      <div className="drops">
+        <div className="drops-table">
           <Card>
             <table>
               <thead>
                 <tr>
-                  <th className="event-head" align="left">Drop</th>
+                  <th className="drop-head" align="left">Drop</th>
                   <th>Collectors</th>
                   <th></th>
                   <th></th>
-                  <th className="event-head-actions">
+                  <th className="drop-head-actions">
                     <span>In Common</span>
                     <Switch
                       id="all"
@@ -306,8 +306,8 @@ function Drops() {
               <tbody>
                 {Object.values(drops).map((drop) => (
                   <tr key={drop.id}>
-                    <td className="event-cell-info">
-                      <div className="event-image">
+                    <td className="drop-cell-info">
+                      <div className="drop-image">
                         <TokenImageZoom
                           drop={drop}
                           zoomSize={512}
@@ -315,24 +315,24 @@ function Drops() {
                         />
                         <Link
                           to={`/drop/${drop.id}`}
-                          className="event-id"
+                          className="drop-id"
                         >
                           #{drop.id}
                         </Link>
                       </div>
-                      <div className="event-data">
+                      <div className="drop-data">
                         <h2>{drop.name}</h2>
-                        <div className="event-date">
+                        <div className="drop-date">
                           {formatDate(drop.start_date)}
                         </div>
                         {drop.city && drop.country && (
-                          <div className="place">
+                          <div className="drop-place">
                             {drop.city}, {drop.country}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="event-cell-metrics">
+                    <td className="drop-cell-metrics">
                       {(
                         loadingCollectors ||
                         loadingMetrics ||
@@ -353,7 +353,7 @@ function Drops() {
                         </ShadowText>
                       )}
                     </td>
-                    <td className="event-cell-status">
+                    <td className="drop-cell-status">
                       <Status
                         loading={
                           loadingInCommonDrops[drop.id]
@@ -401,7 +401,7 @@ function Drops() {
                         </>
                       )}
                     </td>
-                    <td className="event-cell-progress">
+                    <td className="drop-cell-progress">
                       {(
                         loadingInCommonDrops[drop.id] != null &&
                         loadedDropsInCommon[drop.id] == null &&
@@ -496,7 +496,7 @@ function Drops() {
                         </p>
                       )}
                     </td>
-                    <td className="event-cell-actions">
+                    <td className="drop-cell-actions">
                       <DropButtonGroup
                         drop={drop}
                         right={true}

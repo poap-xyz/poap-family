@@ -1,4 +1,4 @@
-.search-result-event .drop-info {
+.search-result-drop .drop-info {
   display: flex;
   padding: .5rem;
   gap: 1rem;
@@ -8,23 +8,23 @@
   position: relative;
 }
 
-.search-result-event .drop-info .drop-image {
+.search-result-drop .drop-info .drop-image {
   overflow: hidden;
   height: 18px;
   width: 18px;
   border-radius: 50%;
 }
 
-.search-result-event .drop-info .drop-image .drop-link {
+.search-result-drop .drop-info .drop-image .drop-link {
   display: block;
 }
 
-.search-result-event .drop-info .drop-name {
+.search-result-drop .drop-info .drop-name {
   flex-grow: 1;
   border-radius: 3px;
 }
 
-.search-result-event .drop-info .drop-name h4 {
+.search-result-drop .drop-info .drop-name h4 {
   max-width: 360px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -34,6 +34,6 @@
   position: relative;
 }
 
-.search-result-event .drop-info .drop-select {
+.search-result-drop .drop-info .drop-select {
   text-align: center;
 }
