@@ -157,7 +157,7 @@ function Events() {
       (paramEventId) => String(paramEventId) !== String(dropId)
     )
     if (newDropIds.length === 1) {
-      navigate(`/event/${newDropIds[0]}`)
+      navigate(`/drop/${newDropIds[0]}`)
     } else if (newDropIds.length > 0) {
       navigate(`/events/${newDropIds.join(',')}`)
     } else {
@@ -294,7 +294,7 @@ function Events() {
                           size={48}
                         />
                         <Link
-                          to={`/event/${drop.id}`}
+                          to={`/drop/${drop.id}`}
                           className="event-id"
                         >
                           #{drop.id}

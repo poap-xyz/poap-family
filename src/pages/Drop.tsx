@@ -23,7 +23,7 @@ import DropButtonGroup from 'components/DropButtonGroup'
 import DropButtonMoments from 'components/DropButtonMoments'
 import 'styles/event.css'
 
-function Event() {
+function Drop() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
@@ -272,4 +272,4 @@ function Event() {
   )
 }
 
-export default Event
+export default Drop

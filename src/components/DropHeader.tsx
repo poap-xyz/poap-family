@@ -16,7 +16,7 @@ function DropHeader({
         <TokenImageZoom drop={drop} zoomSize={512} size={size} />
       </div>
       <div className="drop-header-details">
-        <Link to={`/event/${drop.id}`} className="drop-id">#{drop.id}</Link>
+        <Link to={`/drop/${drop.id}`} className="drop-id">#{drop.id}</Link>
         <h2 title={drop.name}>{drop.name}</h2>
       </div>
     </div>

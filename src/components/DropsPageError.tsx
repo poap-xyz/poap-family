@@ -19,7 +19,7 @@ function DropsPageError() {
       (paramEventId) => String(paramEventId) !== String(dropId)
     )
     if (dropIds.length === 1) {
-      navigate(`/event/${dropIds[0]}`)
+      navigate(`/drop/${dropIds[0]}`)
     } else if (dropIds.length > 0) {
       navigate(`/events/${dropIds.join(',')}`)
     } else {

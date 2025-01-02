@@ -1,51 +1,7 @@
-import { parseDropIds, Drop, DropData } from 'models/drop'
+import { parseDropIds, Drop } from 'models/drop'
 import { HttpError } from 'models/error'
-import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'services/drops'
-import { fetchDropsCollectors } from 'services/collectors'
+import { fetchDrop, fetchDropsOrErrors } from 'services/drops'
 
-export async function eventLoader({ params }): Promise<DropData> {
-  const dropId = parseInt(String(params.eventId))
-
-  if (isNaN(dropId)) {
-    throw new Response('', {
-      status: 400,
-      statusText: 'Invalid drop id',
-    })
-  }
-
-  const drop = await fetchDrop(dropId, /*includeDescription*/true)
-
-  if (!drop) {
-    throw new Response('', {
-      status: 404,
-      statusText: 'Drop not found',
-    })
-  }
-
-  const [collectorsSettled, metricsSettled] = await Promise.allSettled([
-    fetchDropsCollectors([dropId]),
-    fetchDropMetrics(dropId, /*abortSignal*/undefined),
-  ])
-
-  if (collectorsSettled.status === 'rejected') {
-    throw new Response('', {
-      status: 503,
-      statusText:
-        `Drop collectors could not be fetched: ${collectorsSettled.reason}`,
-    })
-  }
-
-  const collectors = collectorsSettled.value
-  const metrics = metricsSettled.status === 'fulfilled'
-    ? metricsSettled.value
-    : null
-
-  return {
-    drop,
-    collectors,
-    metrics,
-  }
-}
 
 export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
   const dropIds = parseDropIds(params.eventIds)
@@ -72,7 +28,7 @@ export async function eventsLoader({ params }): Promise<Record<number, Drop>> {
       status: 301,
       statusText: 'One drop',
       headers: {
-        location: `/event/${dropIds[0]}`,
+        location: `/drop/${dropIds[0]}`,
       },
     })
   }

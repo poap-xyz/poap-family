@@ -1,12 +1,13 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, replace, RouterProvider } from 'react-router-dom'
 import { SettingsProvider } from 'stores/settings'
 import { EnsProvider } from 'stores/ethereum'
 import { HTMLProvider } from 'stores/html'
-import { eventLoader, eventsLoader } from 'loaders/event'
+import { eventsLoader } from 'loaders/event'
+import { dropLoader } from 'loaders/drops'
 import Root from 'app/layout/Root'
 import Home from 'pages/Home'
 import Addresses from 'pages/Addresses'
-import Event from 'pages/Event'
+import Drop from 'pages/Drop'
 import Events from 'pages/Events'
 import Last from 'pages/Last'
 import DropsPageError from 'components/DropsPageError'
@@ -34,10 +35,14 @@ export default function App() {
                       element: <Home />,
                     },
                     {
-                      path: '/event/:eventId',
-                      loader: eventLoader,
-                      element: <Event />,
+                      path: '/drop/:dropId',
+                      loader: dropLoader,
+                      element: <Drop />,
                       errorElement: <PageError />,
+                    },
+                    {
+                      path: '/event/:eventId',
+                      loader: ({ params }) => replace(`/drop/${params.eventId}`),
                     },
                     {
                       path: '/events/:eventIds',
