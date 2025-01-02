@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SEARCH_LIMIT, Drop, parseDropIds, joinDropIds } from 'models/drop'
 import { CollectionWithDrops } from 'models/collection'
-import useEvent from 'hooks/useEvent'
+import useDrop from 'hooks/useDrop'
 import useEventSearch from 'hooks/useEventSearch'
 import useCollectionSearch from 'hooks/useCollectionSearch'
 import Card from 'components/Card'
@@ -27,7 +27,7 @@ function Search() {
     drop,
     fetchDrop,
     retryDrop,
-  } = useEvent()
+  } = useDrop()
 
   const {
     loadingDropSearch,
