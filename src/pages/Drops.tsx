@@ -31,7 +31,7 @@ import ErrorMessage from 'components/ErrorMessage'
 import ButtonDelete from 'components/ButtonDelete'
 import 'styles/events.css'
 
-function Events() {
+function Drops() {
   const navigate = useNavigate()
   const { eventIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
@@ -551,4 +551,4 @@ function Events() {
   )
 }
 
-export default Events
+export default Drops
