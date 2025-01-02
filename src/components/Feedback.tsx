@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { addFeedback } from 'loaders/api'
+import { addFeedback } from 'services/api'
 import { useSettings } from 'stores/settings'
 import Button from 'components/Button'
 import ButtonLink from 'components/ButtonLink'

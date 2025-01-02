@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { SEARCH_LIMIT, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { searchDrops as loadDrops } from 'loaders/drop'
+import { searchDrops as loadDrops } from 'services/drops'
 
 function useEventSearch(query?: string, page: number = 1): {
   loadingDropSearch: boolean

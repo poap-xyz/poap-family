@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { getSettings, saveSettings } from 'loaders/settings'
+import { getSettings, saveSettings } from 'services/settings'
 import { DEFAULT_SETTINGS, Settings } from 'models/settings'
 
 export const SettingsContext = createContext<{

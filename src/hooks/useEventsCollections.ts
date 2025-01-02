@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
-import { fetchDropsCollections } from 'loaders/collection'
+import { fetchDropsCollections } from 'services/collections'
 
 function useEventsCollections(dropIds: number[]): {
   loadingCollections: boolean

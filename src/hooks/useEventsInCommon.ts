@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'loaders/api'
-import { fetchCollectorDrops } from 'loaders/collector'
+import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'services/api'
+import { fetchCollectorDrops } from 'services/collectors'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'

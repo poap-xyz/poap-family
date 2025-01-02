@@ -3,8 +3,8 @@ import { filterInvalidAddresses } from 'models/address'
 import { InCommon } from 'models/in-common'
 import { DropMetrics } from 'models/drop'
 import { AbortedError } from 'models/error'
-import { fetchCollectorsByDrops, fetchDropsCollectors } from 'loaders/collector'
-import { fetchDropMetrics, fetchDropsMetrics } from 'loaders/drop'
+import { fetchCollectorsByDrops, fetchDropsCollectors } from 'services/collectors'
+import { fetchDropMetrics, fetchDropsMetrics } from 'services/drops'
 import { fillNull } from 'utils/object'
 
 function useEventsOwnersAndMetrics(dropIds: number[]): {

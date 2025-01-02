@@ -10,7 +10,7 @@ import {
   queryAggregateCountCompass,
   queryAllCompass,
   queryManyCompass,
-} from 'loaders/compass'
+} from 'services/compass'
 
 /**
  * Retrieve collections that has all given drops and collections that only have

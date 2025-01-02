@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
-import { fetchDrop as loadDrop } from 'loaders/drop'
+import { fetchDrop as loadDrop } from 'services/drops'
 
 function useEvent(dropId?: number): {
   loading: boolean
