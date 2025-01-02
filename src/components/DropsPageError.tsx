@@ -21,7 +21,7 @@ function DropsPageError() {
     if (dropIds.length === 1) {
       navigate(`/drop/${dropIds[0]}`)
     } else if (dropIds.length > 0) {
-      navigate(`/drops/${dropIds.join(',')}`)
+      navigate(`/drops/${joinDropIds(dropIds)}`)
     } else {
       navigate('/')
     }
