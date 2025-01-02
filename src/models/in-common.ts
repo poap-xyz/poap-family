@@ -2,7 +2,7 @@ import { equals, intersection } from 'utils/array'
 import { filterInvalidOwners } from 'models/address'
 import { InCommon } from 'models/api'
 
-export const INCOMMON_EVENTS_LIMIT = 20
+export const INCOMMON_DROPS_LIMIT = 20
 export const INCOMMON_ADDRESSES_LIMIT = 10
 
 /**
@@ -16,7 +16,7 @@ export function filterInCommon(inCommon: InCommon): InCommon {
   // With at least one in-common address.
   return Object.fromEntries(
     Object.entries(inCommon)
-      .map(([eventId, owners]) => [eventId, filterInvalidOwners(owners)])
+      .map(([rawDropId, owners]) => [rawDropId, filterInvalidOwners(owners)])
       .filter(
         ([, addresses]) => addresses.length > 1
       )
@@ -39,7 +39,7 @@ export function sortInCommonEntries(
 
 /**
  * From a list of in-common objects, merge them into one in-common object. If
- * all is true then, collectors must be the same in all events to be included
+ * all is true then, collectors must be the same in all drops to be included
  * or if not merges the partial collectors alltoguether.
  */
 export function mergeAllInCommon(
@@ -69,7 +69,7 @@ export function mergeAllInCommon(
 }
 
 /**
- * Merges in-common collectors that belong to all events.
+ * Merges in-common collectors that belong to all drops.
  */
 export function mergeAddressesInCommon(inCommon: InCommon): string[] {
   let mergedAddresses: string[] | null = null
@@ -91,32 +91,32 @@ export function getAddressInCommonEventIds(
   inCommon: InCommon,
   address: string,
 ): number[] {
-  const eventIds: number[] = []
-  for (const [rawEventId, addresses] of Object.entries(inCommon)) {
+  const dropIds: number[] = []
+  for (const [rawDropId, addresses] of Object.entries(inCommon)) {
     if (addresses.indexOf(address) !== -1) {
-      eventIds.push(parseInt(rawEventId))
+      dropIds.push(parseInt(rawDropId))
     }
   }
-  return eventIds
+  return dropIds
 }
 
 /**
- * Given the list of events that the address has in common, retrieve all other
- * addresses that share the same events. The given {eventIds} must be the
+ * Given the list of drops that the address has in common, retrieve all other
+ * addresses that share the same drops. The given {dropIds} must be the
  * result of `getAddressInCommonEventIds(inCommon, address)`.
  */
 export function getAddressInCommonAddresses(
   inCommon: InCommon,
-  eventIds: number[],
+  dropIds: number[],
   address: string,
 ): string[] {
-  if (eventIds.length < 2) {
+  if (dropIds.length < 2) {
     return []
   }
   return mergeAddressesInCommon(
     Object.fromEntries(
       Object.entries(inCommon).filter(
-        ([inCommonEventId]) => eventIds.includes(parseInt(inCommonEventId))
+        ([inCommonEventId]) => dropIds.includes(parseInt(inCommonEventId))
       )
     )
   ).filter(

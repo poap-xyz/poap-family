@@ -17,28 +17,28 @@ import ButtonClose from 'components/ButtonClose'
 import 'styles/events-compare.css'
 
 function EventsCompare({
-  baseEventIds,
-  eventIds,
-  events,
+  baseDropIds,
+  dropIds,
+  drops,
   inCommon,
   onClose,
-  eventsEnsNames,
+  dropsEnsNames,
 }: {
-  baseEventIds: number[]
-  eventIds: number[]
-  events: Record<number, Drop>
+  baseDropIds: number[]
+  dropIds: number[]
+  drops: Record<number, Drop>
   inCommon: InCommon
-  onClose: (eventId: number) => void
-  eventsEnsNames?: Record<number, EnsByAddress>
+  onClose: (dropId: number) => void
+  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
   const adressesColors = useMemo(
-    () => eventIds.length < 2
+    () => dropIds.length < 2
       ? {}
       : Object.fromEntries(
           intersection(
-            ...eventIds.map((eventId) => inCommon[eventId])
+            ...dropIds.map((dropId) => inCommon[dropId])
           )
           .map(
             (address) => [
@@ -47,7 +47,7 @@ function EventsCompare({
             ]
           )
         ),
-    [eventIds, inCommon]
+    [dropIds, inCommon]
   )
 
   function onOwnerEnter(ownerEventId: number, owner: string): void {
@@ -70,28 +70,28 @@ function EventsCompare({
 
   return (
     <div className="events-compare">
-      {eventIds.map((eventId) =>
-        <div className="event-compare" key={eventId}>
+      {dropIds.map((dropId) =>
+        <div className="event-compare" key={dropId}>
           <Card>
-            <EventHeader event={events[eventId]} size={48} />
+            <EventHeader drop={drops[dropId]} size={48} />
             <div className="event-compare-actions">
               <EventNavigateButtons
-                baseEventIds={baseEventIds}
-                eventId={eventId}
+                baseDropIds={baseDropIds}
+                dropId={dropId}
               >
                 {onClose && (
-                  <ButtonClose onClose={() => onClose(eventId)} />
+                  <ButtonClose onClose={() => onClose(dropId)} />
                 )}
               </EventNavigateButtons>
             </div>
             <h4>
-              {inCommon[eventId].length}{' '}
-              collector{inCommon[eventId].length === 1 ? '' : 's'}
+              {inCommon[dropId].length}{' '}
+              collector{inCommon[dropId].length === 1 ? '' : 's'}
               {' '}in common
             </h4>
             <div className="event-compare-owners">
               <ul className="owners">
-                {inCommon[eventId].map((owner) => {
+                {inCommon[dropId].map((owner) => {
                   const inCommonEventIds = getAddressInCommonEventIds(
                     inCommon,
                     owner
@@ -115,22 +115,22 @@ function EventsCompare({
                             : undefined,
                       }}
                       onMouseEnter={() => {
-                        onOwnerEnter(eventId, owner)
+                        onOwnerEnter(dropId, owner)
                       }}
                       onMouseLeave={() => {
-                        onOwnerLeave(eventId, owner)
+                        onOwnerLeave(dropId, owner)
                       }}
                     >
                       <AddressOwner
                         ens={
-                          eventsEnsNames &&
-                          eventId in eventsEnsNames &&
-                          owner in eventsEnsNames[eventId]
-                            ? eventsEnsNames[eventId][owner]
+                          dropsEnsNames &&
+                          dropId in dropsEnsNames &&
+                          owner in dropsEnsNames[dropId]
+                            ? dropsEnsNames[dropId][owner]
                             : undefined}
                         address={owner}
-                        events={events}
-                        inCommonEventIds={inCommonEventIds}
+                        drops={drops}
+                        inCommonDropIds={inCommonEventIds}
                         inCommonAddresses={inCommonAddresses}
                         linkToScan={
                           !highlighted || highlighted === owner}
@@ -141,9 +141,9 @@ function EventsCompare({
               </ul>
             </div>
             <EventCompareButtons
-              eventId={eventId}
-              eventIds={baseEventIds}
-              events={events}
+              dropId={dropId}
+              dropIds={baseDropIds}
+              drops={drops}
               inCommon={inCommon}
               viewInGallery={true}
             />

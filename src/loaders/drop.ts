@@ -1,6 +1,12 @@
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
-import { DEFAULT_DROP_LIMIT, DEFAULT_SEARCH_LIMIT } from 'models/event'
-import { Drop, DropMetrics, parseDrop, parseDropMetrics } from 'models/drop'
+import {
+  Drop,
+  DropMetrics,
+  parseDrop,
+  parseDropMetrics,
+  DEFAULT_SEARCH_LIMIT,
+  DEFAULT_DROP_LIMIT,
+} from 'models/drop'
 import { HttpError } from 'models/error'
 import {
   queryAggregateCountCompass,
@@ -95,7 +101,7 @@ export async function fetchDropsOrErrors(
   Record<number, Drop>,
   Record<number, Error>
 ]> {
-  const eventsMap: Record<number, Drop> = {}
+  const dropsMap: Record<number, Drop> = {}
   const errorsMap: Record<number, Error> = {}
 
   for (let i = 0; i < dropIds.length; i += limit) {
@@ -143,7 +149,7 @@ export async function fetchDropsOrErrors(
             status: 404,
           })
         } else {
-          eventsMap[id] = drop
+          dropsMap[id] = drop
         }
       }
     } catch (err: unknown) {
@@ -155,7 +161,7 @@ export async function fetchDropsOrErrors(
     }
   }
 
-  return [eventsMap, errorsMap]
+  return [dropsMap, errorsMap]
 }
 
 export async function fetchDrop(

@@ -5,12 +5,12 @@ import LinkButton from 'components/LinkButton'
 import { ReactNode } from 'react'
 
 function EventButtonGroup({
-  event,
+  drop,
   children,
   viewInGallery = true,
   right = false,
 }: {
-  event: Drop
+  drop: Drop
   children?: ReactNode
   viewInGallery?: boolean
   right?: boolean
@@ -23,7 +23,7 @@ function EventButtonGroup({
     <ButtonGroup right={right}>
       {viewInGallery && (
         <LinkButton
-          href={`${POAP_GALLERY_URL}/${event.id}`}
+          href={`${POAP_GALLERY_URL}/${drop.id}`}
           external={true}
         >
           View in Gallery

@@ -2,8 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { parseAddress, parseAddresses, ParsedAddress } from 'models/address'
-import { parseEventIds } from 'models/event'
-import { Drop } from 'models/drop'
+import { parseDropIds, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { InCommon } from 'models/api'
 import { EnsByAddress } from 'models/ethereum'
@@ -54,7 +53,7 @@ function Addresses() {
   const [addresses, setAddresses] = useState<ParsedAddress[] | null>(null)
   const [collectors, setCollectors] = useState<Record<number, string>>({})
   const [errors, setErrors] = useState<Error[]>([])
-  const [loadingEventsOwners, setLoadingEventsOwners] = useState<boolean>(false)
+  const [loadingDropsOwners, setLoadingDropsOwners] = useState<boolean>(false)
   const [loadingByAddress, setLoadingByAddress] = useState<Record<string, boolean>>({})
   const [loadingByIndex, setLoadingByIndex] = useState<Record<number, boolean>>({})
   const [repeatedByAddress, setRepeatedByAddress] = useState<Record<string, boolean>>({})
@@ -62,9 +61,9 @@ function Addresses() {
   const [errorsByIndex, setErrorsByIndex] = useState<Record<number, Error>>({})
   const [powers, setPowers] = useState<Record<string, number>>({})
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [events, setEvents] = useState<Record<number, Drop>>({})
+  const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
-  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
+  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   function enableLoadingByAddress(address: string): void {
     setLoadingByAddress((prevLoading) => ({
@@ -106,24 +105,24 @@ function Addresses() {
     }))
   }
 
-  function updateAddressEvent(address: string, event: Drop): void {
-    const eventId = event.id
+  function updateAddressDrop(address: string, drop: Drop): void {
+    const dropId = drop.id
     setInCommon((alsoInCommon) => {
       if (!alsoInCommon) {
-        return { [eventId]: [address] }
+        return { [dropId]: [address] }
       }
-      if (eventId in alsoInCommon) {
-        if (!alsoInCommon[eventId].includes(address)) {
-          alsoInCommon[eventId].push(address)
+      if (dropId in alsoInCommon) {
+        if (!alsoInCommon[dropId].includes(address)) {
+          alsoInCommon[dropId].push(address)
         }
       } else {
-        alsoInCommon[eventId] = [address]
+        alsoInCommon[dropId] = [address]
       }
       return alsoInCommon
     })
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [eventId]: event,
+    setDrops((prevDrops) => ({
+      ...prevDrops,
+      [dropId]: drop,
     }))
   }
 
@@ -190,7 +189,7 @@ function Addresses() {
         incrLoadedCount()
         setPower(address, addressDrops.length)
         for (const addressDrop of addressDrops) {
-          updateAddressEvent(address, addressDrop)
+          updateAddressDrop(address, addressDrop)
         }
         disableLoadingByAddress(address)
       } catch (err: unknown) {
@@ -215,7 +214,7 @@ function Addresses() {
     (resolved: string[]): Record<string, AbortController> => {
       setLoadedCount(0)
       setInCommon({})
-      setEvents({})
+      setDrops({})
       setPowers({})
       setErrorsByAddress({})
       let promise = new Promise((r) => r(undefined))
@@ -279,8 +278,8 @@ function Addresses() {
     [resolveAddress, setEnsName]
   )
 
-  const searchEvents = useMemo(
-    () => parseEventIds(
+  const searchDropIds = useMemo(
+    () => parseDropIds(
       searchParams.get('events') ?? ''
     ),
     [searchParams]
@@ -294,7 +293,7 @@ function Addresses() {
       setErrorsByAddress({})
       setErrorsByIndex({})
       setInCommon({})
-      setEvents({})
+      setDrops({})
       setPowers({})
       let hash = window.location.hash
       if (hash.startsWith('#')) {
@@ -311,16 +310,16 @@ function Addresses() {
             setErrorByIndex(index, new Error('Address not found'))
           }
         }
-      } else if (searchEvents.length > 0) {
-        setLoadingEventsOwners(true)
+      } else if (searchDropIds.length > 0) {
+        setLoadingDropsOwners(true)
         const controller = new AbortController()
-        fetchDropsCollectors(searchEvents, controller.signal).then(
+        fetchDropsCollectors(searchDropIds, controller.signal).then(
           (collectors) => {
             let addresses: ParsedAddress[] | undefined
             try {
               addresses = collectors.map((owner) => parseAddress(owner))
             } catch (err: unknown) {
-              setLoadingEventsOwners(false)
+              setLoadingDropsOwners(false)
               addError(
                 new Error('Cannot parse collectors', {
                   cause: err,
@@ -329,13 +328,13 @@ function Addresses() {
               return
             }
 
-            setLoadingEventsOwners(false)
+            setLoadingDropsOwners(false)
             updateAddresses(addresses)
           },
           (err) => {
-            setLoadingEventsOwners(false)
+            setLoadingDropsOwners(false)
             addError(
-              new Error(`Cannot load drops ${searchEvents.join(', ')}`, {
+              new Error(`Cannot load drops ${searchDropIds.join(', ')}`, {
                 cause: err,
               })
             )
@@ -348,7 +347,7 @@ function Addresses() {
       }
       return controllers
     },
-    [searchEvents]
+    [searchDropIds]
   )
 
   useEffect(
@@ -502,7 +501,7 @@ function Addresses() {
     [addresses, setTitle]
   )
 
-  if (loadingEventsOwners) {
+  if (loadingDropsOwners) {
     return (
       <CenterPage>
         <Card>
@@ -628,13 +627,13 @@ function Addresses() {
     0
   )
 
-  function handleEventActive(eventId: number): void {
-    const addresses = inCommon[eventId]
+  function handleDropActive(dropId: number): void {
+    const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setEventsEnsNames((prevEventsEnsNames) => ({
-          ...prevEventsEnsNames,
-          [eventId]: ensNames,
+        setDropsEnsNames((prevDropsEnsNames) => ({
+          ...prevDropsEnsNames,
+          [dropId]: ensNames,
         }))
       }).catch((err: unknown) => {
         setErrors((oldErrors) => ([
@@ -667,8 +666,8 @@ function Addresses() {
                 </th>
                 <th></th>
                 <th>Power</th>
-                {searchEvents.map((eventId) => (
-                  <th key={eventId}></th>
+                {searchDropIds.map((dropId) => (
+                  <th key={dropId}></th>
                 ))}
                 <th className="collector-head-actions">
                   <ButtonGroup>
@@ -755,13 +754,13 @@ function Addresses() {
                       )
                     }
                   </td>
-                  {searchEvents.map((eventId) => (
-                    <td key={eventId}>
+                  {searchDropIds.map((dropId) => (
+                    <td key={dropId}>
                       {
-                        eventId in inCommon &&
-                        inCommon[eventId].includes(address) &&
-                        eventId in events && (
-                          <TokenImage drop={events[eventId]} size={48} />
+                        dropId in inCommon &&
+                        inCommon[dropId].includes(address) &&
+                        dropId in drops && (
+                          <TokenImage drop={drops[dropId]} size={48} />
                         )
                       }
                     </td>
@@ -797,11 +796,11 @@ function Addresses() {
         </Card>
         {state === STATE_END_RESULTS && (
           <EventsInCommon
-            onActive={handleEventActive}
+            onActive={handleDropActive}
             inCommon={inCommon}
-            events={events}
+            drops={drops}
             showCount={addresses.length}
-            eventsEnsNames={eventsEnsNames}
+            dropsEnsNames={dropsEnsNames}
           />
         )}
       </div>

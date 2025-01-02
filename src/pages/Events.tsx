@@ -4,8 +4,7 @@ import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { mergeAllInCommon } from 'models/in-common'
-import { parseEventIds } from 'models/event'
-import { Drop, parseDrops } from 'models/drop'
+import { Drop, parseDrops, parseDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { InCommon } from 'models/api'
 import { union, uniq } from 'utils/array'
@@ -35,12 +34,12 @@ import 'styles/events.css'
 
 function Events() {
   const navigate = useNavigate()
-  const { eventIds: rawEventIds } = useParams()
+  const { eventIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
+  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
@@ -50,37 +49,37 @@ function Events() {
     [loaderData]
   )
 
-  const eventIds = useMemo(
-    () => Object.keys(drops).map((rawEventId) => parseInt(rawEventId)),
+  const dropIds = useMemo(
+    () => Object.keys(drops).map((rawDropId) => parseInt(rawDropId)),
     [drops]
   )
 
   const {
-    completedEventsOwnersAndMetrics,
-    loadingEventsOwnersAndMetrics,
-    loadingOwnersAndMetricsEvents,
-    eventsOwnersAndMetricsErrors,
-    eventsOwners,
-    eventsMetrics,
-    fetchEventsOwnersAndMetrics,
+    completedDropsOwnersAndMetrics,
+    loadingDropsOwnersAndMetrics,
+    loadingOwnersAndMetricsDrops,
+    dropsOwnersAndMetricsErrors,
+    dropsOwners,
+    dropsMetrics,
+    fetchDropsOwnersAndMetrics,
     retryEventOwnersAndMetrics,
-  } = useEventsOwnersAndMetrics(eventIds)
+  } = useEventsOwnersAndMetrics(dropIds)
 
   const {
-    completedEventsInCommon,
-    completedInCommonEvents,
-    loadingInCommonEvents,
-    eventsInCommonErrors,
-    loadedEventsInCommon,
-    loadedEventsInCommonEvents,
-    loadedEventsProgress,
-    loadedEventsOwners,
-    eventsInCommon,
-    fetchEventsInCommon,
-    retryEventAddressInCommon,
+    completedDropsInCommon,
+    completedInCommonDrops,
+    loadingInCommonDrops,
+    dropsInCommonErrors,
+    loadedDropsInCommon,
+    loadedDropsInCommonDrops,
+    loadedDropsProgress,
+    loadedDropsOwners,
+    dropsInCommon,
+    fetchDropsInCommon,
+    retryDropAddressInCommon,
   } = useEventsInCommon(
-    eventIds,
-    eventsOwners,
+    dropIds,
+    dropsOwners,
     all,
     /*refresh*/force,
     /*local*/false,
@@ -93,7 +92,7 @@ function Events() {
     collections,
     relatedCollections,
     fetchEventsCollections,
-  } = useEventsCollections(eventIds)
+  } = useEventsCollections(dropIds)
 
   useEffect(
     () => {
@@ -105,27 +104,27 @@ function Events() {
   useEffect(
     () => {
       resolveEnsNames(
-        uniq(union(...Object.values(eventsOwners)))
+        uniq(union(...Object.values(dropsOwners)))
       )
     },
-    [eventsOwners, resolveEnsNames]
+    [dropsOwners, resolveEnsNames]
   )
 
   useEffect(
     () => {
-      const cancelEventsOwnersAndMetrics = fetchEventsOwnersAndMetrics()
+      const cancelEventsOwnersAndMetrics = fetchDropsOwnersAndMetrics()
       return () => {
         cancelEventsOwnersAndMetrics()
       }
     },
-    [fetchEventsOwnersAndMetrics]
+    [fetchDropsOwnersAndMetrics]
   )
 
   useEffect(
     () => {
       let cancelEventsInCommon: () => void | undefined
-      if (completedEventsOwnersAndMetrics) {
-        cancelEventsInCommon = fetchEventsInCommon()
+      if (completedDropsOwnersAndMetrics) {
+        cancelEventsInCommon = fetchDropsInCommon()
       }
       return () => {
         if (cancelEventsInCommon) {
@@ -133,13 +132,13 @@ function Events() {
         }
       }
     },
-    [completedEventsOwnersAndMetrics, fetchEventsInCommon]
+    [completedDropsOwnersAndMetrics, fetchDropsInCommon]
   )
 
   useEffect(
     () => {
       let cancelEventsCollections: () => void | undefined
-      if (completedEventsInCommon) {
+      if (completedDropsInCommon) {
         cancelEventsCollections = fetchEventsCollections()
       }
       return () => {
@@ -149,19 +148,19 @@ function Events() {
       }
     },
     [
-      completedEventsInCommon,
+      completedDropsInCommon,
       fetchEventsCollections,
     ]
   )
 
-  function delEvent(eventId: number): void {
-    const newEventIds = parseEventIds(String(rawEventIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(eventId)
+  function delDrop(dropId: number): void {
+    const newDropIds = parseDropIds(String(rawDropIds)).filter(
+      (paramEventId) => String(paramEventId) !== String(dropId)
     )
-    if (newEventIds.length === 1) {
-      navigate(`/event/${newEventIds[0]}`)
-    } else if (newEventIds.length > 0) {
-      navigate(`/events/${newEventIds.join(',')}`)
+    if (newDropIds.length === 1) {
+      navigate(`/event/${newDropIds[0]}`)
+    } else if (newDropIds.length > 0) {
+      navigate(`/events/${newDropIds.join(',')}`)
     } else {
       navigate('/')
     }
@@ -177,45 +176,45 @@ function Events() {
 
   const inCommon: InCommon = useMemo(
     () => {
-      if (!completedEventsInCommon) {
+      if (!completedDropsInCommon) {
         return {}
       }
       return mergeAllInCommon(
-        Object.values(eventsInCommon).map(
+        Object.values(dropsInCommon).map(
           (oneEventData) => oneEventData?.inCommon ?? {}
         ),
         all
       )
     },
-    [completedEventsInCommon, eventsInCommon, all]
+    [completedDropsInCommon, dropsInCommon, all]
   )
 
-  const allEvents: Record<number, Drop> = useMemo(
-    () => Object.values(eventsInCommon).reduce(
-      (allEvents, data) => ({
-        ...allEvents,
+  const allDrops: Record<number, Drop> = useMemo(
+    () => Object.values(dropsInCommon).reduce(
+      (allDrops, data) => ({
+        ...allDrops,
         ...data.events,
       }),
       {}
     ),
-    [eventsInCommon]
+    [dropsInCommon]
   )
 
-  const staleEvents = useMemo(
+  const staleDrops = useMemo(
     () => {
-      if (!completedEventsInCommon) {
+      if (!completedDropsInCommon) {
         return 0
       }
-      return eventIds.reduce(
-        (total, eventId) => {
+      return dropIds.reduce(
+        (total, dropId) => {
           if (
-            loadedEventsOwners[eventId] == null ||
-            eventsOwners[eventId] == null ||
-            eventsInCommon[eventId] == null ||
-            eventsInCommon[eventId].inCommon[eventId] == null ||
+            loadedDropsOwners[dropId] == null ||
+            dropsOwners[dropId] == null ||
+            dropsInCommon[dropId] == null ||
+            dropsInCommon[dropId].inCommon[dropId] == null ||
             (
-              loadedEventsOwners[eventId] !== eventsOwners[eventId].length &&
-              eventsInCommon[eventId].inCommon[eventId].length !== eventsOwners[eventId].length
+              loadedDropsOwners[dropId] !== dropsOwners[dropId].length &&
+              dropsInCommon[dropId].inCommon[dropId].length !== dropsOwners[dropId].length
             )
           ) {
             return total + 1
@@ -226,11 +225,11 @@ function Events() {
       )
     },
     [
-      eventIds,
-      eventsOwners,
-      completedEventsInCommon,
-      loadedEventsOwners,
-      eventsInCommon,
+      dropIds,
+      dropsOwners,
+      completedDropsInCommon,
+      loadedDropsOwners,
+      dropsInCommon,
     ]
   )
 
@@ -239,22 +238,22 @@ function Events() {
   }
 
   function sumCollectionsIncludes(): number {
-    if (typeof eventsMetrics !== 'object') {
+    if (typeof dropsMetrics !== 'object') {
       return 0
     }
-    return Object.values(eventsMetrics).reduce(
+    return Object.values(dropsMetrics).reduce(
       (total, metric) => total + metric.collectionsIncludes,
       0
     )
   }
 
-  function handleEventActive(eventId: number): void {
-    const addresses = inCommon[eventId]
+  function handleDropActive(dropId: number): void {
+    const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setEventsEnsNames((prevEventsEnsNames) => ({
+        setDropsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
-          [eventId]: ensNames,
+          [dropId]: ensNames,
         }))
       })
     }
@@ -316,19 +315,19 @@ function Events() {
                     </td>
                     <td className="event-cell-metrics">
                       {(
-                        loadingEventsOwnersAndMetrics ||
-                        loadingOwnersAndMetricsEvents[drop.id] != null
+                        loadingDropsOwnersAndMetrics ||
+                        loadingOwnersAndMetricsDrops[drop.id] != null
                       ) && (
                         <Loading small={true} />
                       )}
-                      {eventsOwners[drop.id] != null && (
+                      {dropsOwners[drop.id] != null && (
                         <ShadowText grow={true} medium={true}>
-                          {formatStat(eventsOwners[drop.id].length)}
+                          {formatStat(dropsOwners[drop.id].length)}
                           {(
-                            eventsMetrics[drop.id] != null &&
-                            eventsMetrics[drop.id].emailReservations > 0
+                            dropsMetrics[drop.id] != null &&
+                            dropsMetrics[drop.id].emailReservations > 0
                           ) && (
-                            ` + ${formatStat(eventsMetrics[drop.id].emailReservations)}`
+                            ` + ${formatStat(dropsMetrics[drop.id].emailReservations)}`
                           )}
                         </ShadowText>
                       )}
@@ -336,22 +335,22 @@ function Events() {
                     <td className="event-cell-status">
                       <Status
                         loading={
-                          loadingInCommonEvents[drop.id]
+                          loadingInCommonDrops[drop.id]
                         }
                         error={
-                          eventsOwnersAndMetricsErrors[drop.id] != null ||
-                          eventsInCommonErrors[drop.id] != null
+                          dropsOwnersAndMetricsErrors[drop.id] != null ||
+                          dropsInCommonErrors[drop.id] != null
                         }
                       />
-                      {eventsOwnersAndMetricsErrors[drop.id] != null && (
+                      {dropsOwnersAndMetricsErrors[drop.id] != null && (
                         <>
                           <span
                             className="status-error-message"
-                            title={eventsOwnersAndMetricsErrors[drop.id].cause
-                              ? `${eventsOwnersAndMetricsErrors[drop.id].cause}`
+                            title={dropsOwnersAndMetricsErrors[drop.id].cause
+                              ? `${dropsOwnersAndMetricsErrors[drop.id].cause}`
                               : undefined}
                           >
-                            {eventsOwnersAndMetricsErrors[drop.id].message}
+                            {dropsOwnersAndMetricsErrors[drop.id].message}
                           </span>
                           {' '}
                           <ButtonLink
@@ -364,57 +363,57 @@ function Events() {
                     </td>
                     <td className="event-cell-progress">
                       {(
-                        loadingInCommonEvents[drop.id] != null &&
-                        loadedEventsInCommon[drop.id] == null &&
-                        loadedEventsInCommonEvents[drop.id] == null &&
-                        loadedEventsProgress[drop.id] == null &&
-                        loadedEventsOwners[drop.id] != null &&
-                        eventsOwners[drop.id] != null
+                        loadingInCommonDrops[drop.id] != null &&
+                        loadedDropsInCommon[drop.id] == null &&
+                        loadedDropsInCommonDrops[drop.id] == null &&
+                        loadedDropsProgress[drop.id] == null &&
+                        loadedDropsOwners[drop.id] != null &&
+                        dropsOwners[drop.id] != null
                       ) && (
                         <Progress
-                          value={loadedEventsOwners[drop.id]}
-                          max={eventsOwners[drop.id].length}
-                          showValue={loadedEventsOwners[drop.id] > 0}
+                          value={loadedDropsOwners[drop.id]}
+                          max={dropsOwners[drop.id].length}
+                          showValue={loadedDropsOwners[drop.id] > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[drop.id] != null &&
-                        loadedEventsInCommonEvents[drop.id] == null &&
-                        loadedEventsProgress[drop.id] == null
+                        loadedDropsInCommon[drop.id] != null &&
+                        loadedDropsInCommonDrops[drop.id] == null &&
+                        loadedDropsProgress[drop.id] == null
                        ) && (
                         <Progress
-                          value={loadedEventsInCommon[drop.id].count}
-                          max={loadedEventsInCommon[drop.id].total}
-                          maxFinal={loadedEventsInCommon[drop.id].totalFinal}
-                          showValue={loadedEventsInCommon[drop.id].total > 0}
+                          value={loadedDropsInCommon[drop.id].count}
+                          max={loadedDropsInCommon[drop.id].total}
+                          maxFinal={loadedDropsInCommon[drop.id].totalFinal}
+                          showValue={loadedDropsInCommon[drop.id].total > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[drop.id] != null &&
-                        loadedEventsInCommonEvents[drop.id] != null &&
-                        loadedEventsProgress[drop.id] == null
+                        loadedDropsInCommon[drop.id] != null &&
+                        loadedDropsInCommonDrops[drop.id] != null &&
+                        loadedDropsProgress[drop.id] == null
                        ) && (
                         <Progress
-                          value={loadedEventsInCommonEvents[drop.id].count}
-                          max={loadedEventsInCommonEvents[drop.id].total}
-                          showValue={loadedEventsInCommonEvents[drop.id].total > 0}
+                          value={loadedDropsInCommonDrops[drop.id].count}
+                          max={loadedDropsInCommonDrops[drop.id].total}
+                          showValue={loadedDropsInCommonDrops[drop.id].total > 0}
                         />
                       )}
                       {(
-                        loadedEventsInCommon[drop.id] == null &&
-                        loadedEventsInCommonEvents[drop.id] == null &&
-                        loadedEventsProgress[drop.id] != null
+                        loadedDropsInCommon[drop.id] == null &&
+                        loadedDropsInCommonDrops[drop.id] == null &&
+                        loadedDropsProgress[drop.id] != null
                        ) && (
                         <Progress
-                          value={loadedEventsProgress[drop.id].progress}
+                          value={loadedDropsProgress[drop.id].progress}
                           max={1}
                           showPercent={true}
-                          eta={loadedEventsProgress[drop.id].estimated}
-                          rate={loadedEventsProgress[drop.id].rate}
+                          eta={loadedDropsProgress[drop.id].estimated}
+                          rate={loadedDropsProgress[drop.id].rate}
                         />
                       )}
-                      {eventsInCommonErrors[drop.id] != null && Object.entries(
-                        eventsInCommonErrors[drop.id]
+                      {dropsInCommonErrors[drop.id] != null && Object.entries(
+                        dropsInCommonErrors[drop.id]
                       ).map(
                         ([address, error]) => (
                           <p key={address} className="address-error-message">
@@ -426,7 +425,7 @@ function Events() {
                             </span>{' '}
                             <ButtonLink
                               onClick={() => {
-                                retryEventAddressInCommon(drop.id, address)
+                                retryDropAddressInCommon(drop.id, address)
                               }}
                             >
                               retry
@@ -435,17 +434,17 @@ function Events() {
                         )
                       )}
                       {(
-                        eventsInCommon[drop.id] != null &&
-                        eventsInCommon[drop.id].ts != null
+                        dropsInCommon[drop.id] != null &&
+                        dropsInCommon[drop.id].ts != null
                       ) && (
                         <p className="status-cached-ts">
-                          Cached <Timestamp ts={eventsInCommon[drop.id].ts} />
+                          Cached <Timestamp ts={dropsInCommon[drop.id].ts} />
                           {(
-                            completedInCommonEvents[drop.id] &&
-                            eventsOwners[drop.id] != null &&
-                            eventsInCommon[drop.id] != null &&
-                            eventsInCommon[drop.id].inCommon[drop.id] != null &&
-                            eventsInCommon[drop.id].inCommon[drop.id].length !== eventsOwners[drop.id].length
+                            completedInCommonDrops[drop.id] &&
+                            dropsOwners[drop.id] != null &&
+                            dropsInCommon[drop.id] != null &&
+                            dropsInCommon[drop.id].inCommon[drop.id] != null &&
+                            dropsInCommon[drop.id].inCommon[drop.id].length !== dropsOwners[drop.id].length
                           ) && (
                             <>
                               {' '}
@@ -459,12 +458,12 @@ function Events() {
                     </td>
                     <td className="event-cell-actions">
                       <EventButtonGroup
-                        event={drop}
+                        drop={drop}
                         right={true}
                         viewInGallery={true}
                       >
                         <ButtonDelete
-                          onDelete={() => delEvent(drop.id)}
+                          onDelete={() => delDrop(drop.id)}
                           title={`Removes drop #${drop.id}`}
                         />
                       </EventButtonGroup>
@@ -475,28 +474,28 @@ function Events() {
             </table>
           </Card>
         </div>
-        {staleEvents > 0 && (
+        {staleDrops > 0 && (
           <WarningMessage>
-            There have been new mints in {staleEvents}{' '}
-            POAP{staleEvents === 1 ? '' : 's'} since cached,{' '}
+            There have been new mints in {staleDrops}{' '}
+            POAP{staleDrops === 1 ? '' : 's'} since cached,{' '}
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
-        {!completedEventsOwnersAndMetrics && !completedEventsInCommon && (
+        {!completedDropsOwnersAndMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading title="Loading collectors and metrics" />
           </Card>
         )}
-        {completedEventsOwnersAndMetrics && !completedEventsInCommon && (
+        {completedDropsOwnersAndMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading
               title="Loading drops"
-              count={Object.values(loadedEventsOwners).length}
-              total={eventIds.length}
+              count={Object.values(loadedDropsOwners).length}
+              total={dropIds.length}
             />
           </Card>
         )}
-        {completedEventsInCommon && (
+        {completedDropsInCommon && (
           <>
             {loadingCollections && !collectionsError && (
               <Card>
@@ -534,17 +533,17 @@ function Events() {
               />
             )}
             <EventsOwners
-              eventsOwners={eventsOwners}
+              dropsOwners={dropsOwners}
               inCommon={inCommon}
-              events={allEvents}
+              drops={allDrops}
               all={all}
             />
             <EventsInCommon
-              onActive={handleEventActive}
+              onActive={handleDropActive}
               inCommon={inCommon}
-              events={allEvents}
-              baseEventIds={eventIds}
-              eventsEnsNames={eventsEnsNames}
+              drops={allDrops}
+              baseDropIds={dropIds}
+              dropsEnsNames={dropsEnsNames}
             />
           </>
         )}

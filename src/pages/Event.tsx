@@ -28,7 +28,7 @@ function Event() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  const [eventsEnsNames, setEventsEnsNames] = useState<Record<number, EnsByAddress>>({})
+  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
 
@@ -45,12 +45,12 @@ function Event() {
     completedEventInCommon,
     loadingEventInCommon,
     loadedInCommon,
-    loadedInCommonEvents,
+    loadedInCommonDrops,
     loadedInCommonDownload,
     loadedOwners,
     ownersErrors,
     inCommon,
-    events,
+    drops,
     cachedTs,
     fetchEventInCommon,
     retryAddress,
@@ -62,7 +62,7 @@ function Event() {
     /*stream*/true
   )
 
-  const eventIds = useMemo(
+  const dropIds = useMemo(
     () => [drop.id],
     [drop]
   )
@@ -73,7 +73,7 @@ function Event() {
     collections,
     fetchEventsCollections,
   } = useEventsCollections(
-    eventIds
+    dropIds
   )
 
   useEffect(
@@ -127,13 +127,13 @@ function Event() {
     setSearchParams({ force: 'true' })
   }
 
-  function handleEventActive(eventId: number): void {
-    const addresses = inCommon[eventId]
+  function handleDropActive(dropId: number): void {
+    const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
-        setEventsEnsNames((prevEventsEnsNames) => ({
+        setDropsEnsNames((prevEventsEnsNames) => ({
           ...prevEventsEnsNames,
-          [eventId]: ensNames,
+          [dropId]: ensNames,
         }))
       })
     }
@@ -149,7 +149,7 @@ function Event() {
               collectors={collectors.length}
               metrics={metrics}
             />
-            <EventButtonGroup event={drop} viewInGallery={true}>
+            <EventButtonGroup drop={drop} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${drop.id}`}
                 name={drop.name}
@@ -158,7 +158,7 @@ function Event() {
                   `Generates CSV file with collectors of drop #${drop.id}`
                 }
               />
-              <EventButtonMoments event={drop} />
+              <EventButtonMoments drop={drop} />
             </EventButtonGroup>
             {cachedTs &&
               <div className="cached">
@@ -173,11 +173,11 @@ function Event() {
             {loadedOwners > 0
               ? <Loading count={loadedOwners} total={collectors.length} />
               : (
-                loadedInCommonEvents != null
+                loadedInCommonDrops != null
                   ? (
                     <Loading
-                      count={loadedInCommonEvents.count}
-                      total={loadedInCommonEvents.total}
+                      count={loadedInCommonDrops.count}
+                      total={loadedInCommonDrops.total}
                     />
                   )
                   : (
@@ -258,11 +258,11 @@ function Event() {
             )}
             {cachedTs && (
               <EventsInCommon
-                onActive={handleEventActive}
+                onActive={handleDropActive}
                 inCommon={inCommon}
-                events={events}
-                baseEventIds={eventIds}
-                eventsEnsNames={eventsEnsNames}
+                drops={drops}
+                baseDropIds={dropIds}
+                dropsEnsNames={dropsEnsNames}
               />
             )}
           </>

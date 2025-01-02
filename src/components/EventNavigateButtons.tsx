@@ -1,30 +1,30 @@
 import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { joinEventIds } from 'models/event'
+import { joinDropIds } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import ButtonAdd from 'components/ButtonAdd'
 
 function EventNavigateButtons({
-  baseEventIds,
-  eventId,
+  baseDropIds,
+  dropId,
   children,
 }: {
-  baseEventIds: number[]
-  eventId: number
+  baseDropIds: number[]
+  dropId: number
   children?: ReactNode
 }) {
   const navigate = useNavigate()
 
   const addEvent = () => {
-    navigate(`/events/${joinEventIds([...baseEventIds, eventId])}`)
+    navigate(`/events/${joinDropIds([...baseDropIds, dropId])}`)
   }
 
   return (
     <ButtonGroup>
-      {baseEventIds.length > 0 && !baseEventIds.includes(eventId) && (
+      {baseDropIds.length > 0 && !baseDropIds.includes(dropId) && (
         <ButtonAdd
           onAdd={() => addEvent()}
-          title={`Combines drop #${eventId} to #${baseEventIds.join(', #')}`}
+          title={`Combines drop #${dropId} to #${baseDropIds.join(', #')}`}
         />
       )}
       {children}

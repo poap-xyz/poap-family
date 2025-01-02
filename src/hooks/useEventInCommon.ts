@@ -8,7 +8,7 @@ import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'load
 import { fetchCollectorDrops } from 'loaders/collector'
 
 function useEventInCommon(
-  eventId: number,
+  dropId: number,
   owners: string[],
   force: boolean = false,
   local: boolean = false,
@@ -18,12 +18,12 @@ function useEventInCommon(
   loadingEventInCommon: boolean
   loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null
   loadedInCommon: CountProgress & { totalFinal: boolean } | null
-  loadedInCommonEvents: CountProgress | null
+  loadedInCommonDrops: CountProgress | null
   loadedInCommonDownload: DownloadProgress | null
   loadedOwners: number
   ownersErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
-  events: Record<number, Drop>
+  drops: Record<number, Drop>
   cachedTs: number | null
   fetchEventInCommon: () => () => void
   retryAddress: (address: string) => void
@@ -32,12 +32,12 @@ function useEventInCommon(
   const [loading, setLoading] = useState<boolean>(false)
   const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null>(null)
   const [loadedInCommon, setLoadedInCommon] = useState<CountProgress & { totalFinal: boolean } | null>(null)
-  const [loadedInCommonEvents, setLoadedInCommonEvents] = useState<CountProgress | null>(null)
+  const [loadedInCommonDrops, setLoadedInCommonDrops] = useState<CountProgress | null>(null)
   const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
   const [loadedOwners, setLoadedOwners] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [events, setEvents] = useState<Record<number, Drop>>({})
+  const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [cachedTs, setCachedTs] = useState<number | null>(null)
 
   useEffect(
@@ -50,7 +50,7 @@ function useEventInCommon(
         }
       }
     },
-    [eventId, owners, loadedOwners, cachedTs, inCommon]
+    [dropId, owners, loadedOwners, cachedTs, inCommon]
   )
 
   function addError(address: string, err: unknown): void {
@@ -105,8 +105,8 @@ function useEventInCommon(
           }
           return prevInCommon
         })
-        setEvents((prevEvents) => ({
-          ...prevEvents,
+        setDrops((prevDrops) => ({
+          ...prevDrops,
           [addressDropId]: addressDrop,
         }))
       }
@@ -153,7 +153,7 @@ function useEventInCommon(
         ;(
           stream
             ? getInCommonEventsWithEvents(
-                eventId,
+                dropId,
                 /*refresh*/force,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/(
@@ -192,7 +192,7 @@ function useEventInCommon(
                     setLoadedInCommonState(
                       (prevState) => prevState === 'owners-z' ? 'events-a' : prevState
                     )
-                    setLoadedInCommonEvents({
+                    setLoadedInCommonDrops({
                       count: receivedEvents ?? 0,
                       total: totalEvents,
                     })
@@ -205,7 +205,7 @@ function useEventInCommon(
                 },
               )
             : getInCommonEventsWithProgress(
-                eventId,
+                dropId,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/({ progress, estimated, rate }) => {
                   if (progress != null) {
@@ -229,11 +229,11 @@ function useEventInCommon(
               return fetchOwnersInCommon(controllers)
             }
             setLoading(false)
-            if (eventId in result.inCommon) {
-              setLoadedOwners(result.inCommon[eventId].length)
+            if (dropId in result.inCommon) {
+              setLoadedOwners(result.inCommon[dropId].length)
             }
             setInCommon(result.inCommon)
-            setEvents(result.events)
+            setDrops(result.events)
             setCachedTs(result.ts)
           },
           (err) => {
@@ -261,7 +261,7 @@ function useEventInCommon(
         setInCommon({})
       }
     },
-    [eventId, owners, force, local, stream, fetchOwnersInCommon]
+    [dropId, owners, force, local, stream, fetchOwnersInCommon]
   )
 
   function retryAddress(address: string): () => void {
@@ -280,12 +280,12 @@ function useEventInCommon(
     loadingEventInCommon: loading,
     loadedInCommonState,
     loadedInCommon,
-    loadedInCommonEvents,
+    loadedInCommonDrops: loadedInCommonDrops,
     loadedInCommonDownload: loadedProgress,
     loadedOwners,
     ownersErrors: errors,
     inCommon,
-    events,
+    drops: drops,
     cachedTs,
     fetchEventInCommon,
     retryAddress,
