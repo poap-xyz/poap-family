@@ -261,7 +261,7 @@ export interface DropPower {
   power: number
 }
 
-export function parseDropIds(rawIds: string): number[] {
+export function parseDropIds(rawIds?: string): number[] {
   let dropIds = (rawIds ?? '').split(',')
     .filter((value, index, all) => all.indexOf(value) === index)
     .map((value) => parseInt(value.trim()))

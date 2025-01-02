@@ -4,7 +4,7 @@ import {
   useParams,
   useRouteError,
 } from 'react-router-dom'
-import { parseDropIds } from 'models/drop'
+import { joinDropIds, parseDropIds } from 'models/drop'
 import PageError from 'components/PageError'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
@@ -12,7 +12,7 @@ import ButtonLink from 'components/ButtonLink'
 function DropsPageError() {
   const navigate = useNavigate()
   const error = useRouteError()
-  const { eventIds: rawDropIds } = useParams()
+  const { dropIds: rawDropIds } = useParams()
 
   function delDrop(dropId: number): void {
     const dropIds = parseDropIds(String(rawDropIds)).filter(
@@ -21,7 +21,7 @@ function DropsPageError() {
     if (dropIds.length === 1) {
       navigate(`/drop/${dropIds[0]}`)
     } else if (dropIds.length > 0) {
-      navigate(`/events/${dropIds.join(',')}`)
+      navigate(`/drops/${joinDropIds(dropIds)}`)
     } else {
       navigate('/')
     }
@@ -33,7 +33,7 @@ function DropsPageError() {
       (paramDropId) => oldDropIds.indexOf(String(paramDropId)) === -1
     )
     if (newDropIds.length > 0) {
-      navigate(`/events/${newDropIds.join(',')}`)
+      navigate(`/drops/${joinDropIds(newDropIds)}`)
     } else {
       navigate('/')
     }

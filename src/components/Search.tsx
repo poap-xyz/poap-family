@@ -98,7 +98,7 @@ function Search() {
       return
     }
     if (selectedDrops.length === 0 && selectedCollections.length === 1) {
-      navigate(`/events/${joinDropIds(selectedCollections[0].dropIds)}`)
+      navigate(`/drops/${joinDropIds(selectedCollections[0].dropIds)}`)
       return
     }
     const newDropIds: number[] = []
@@ -113,7 +113,7 @@ function Search() {
       }
     }
     if (newDropIds.length > 0) {
-      navigate(`/events/${joinDropIds(newDropIds)}`)
+      navigate(`/drops/${joinDropIds(newDropIds)}`)
       return
     }
     if (drop) {
@@ -134,7 +134,7 @@ function Search() {
     if (/^[0-9]+(, *[0-9]+)*$/.test(query)) {
       const rawDropIds = parseDropIds(query)
       if (rawDropIds.length > 0) {
-        navigate(`/events/${joinDropIds(rawDropIds)}`)
+        navigate(`/drops/${joinDropIds(rawDropIds)}`)
         return
       }
     }
