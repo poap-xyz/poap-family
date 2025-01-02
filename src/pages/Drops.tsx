@@ -11,7 +11,7 @@ import { formatDate } from 'utils/date'
 import useDropsCollectors from 'hooks/useDropsCollectors'
 import useDropsMetrics from 'hooks/useDropsMetrics'
 import useEventsInCommon from 'hooks/useEventsInCommon'
-import useEventsCollections from 'hooks/useEventsCollections'
+import useDropsCollections from 'hooks/useDropsCollections'
 import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
 import DropButtonGroup from 'components/DropButtonGroup'
@@ -96,12 +96,12 @@ function Drops() {
   )
 
   const {
-    loadingCollections,
-    collectionsError,
+    loading: loadingCollections,
+    error: errorCollections,
     collections,
     relatedCollections,
-    fetchEventsCollections,
-  } = useEventsCollections(dropIds)
+    fetchDropsCollections,
+  } = useDropsCollections(dropIds)
 
   useEffect(
     () => {
@@ -158,7 +158,7 @@ function Drops() {
     () => {
       let cancelDropsCollections: () => void | undefined
       if (completedDropsInCommon) {
-        cancelDropsCollections = fetchEventsCollections()
+        cancelDropsCollections = fetchDropsCollections()
       }
       return () => {
         if (cancelDropsCollections) {
@@ -168,7 +168,7 @@ function Drops() {
     },
     [
       completedDropsInCommon,
-      fetchEventsCollections,
+      fetchDropsCollections,
     ]
   )
 
@@ -537,21 +537,21 @@ function Drops() {
         )}
         {completedDropsInCommon && (
           <>
-            {loadingCollections && !collectionsError && (
+            {loadingCollections && !errorCollections && (
               <Card>
                 <h4>Collections</h4>
                 <Loading />
               </Card>
             )}
-            {!loadingCollections && collectionsError && (
+            {!loadingCollections && errorCollections && (
               <Card>
                 <h4>Collections</h4>
-                <ErrorMessage error={collectionsError} />
+                <ErrorMessage error={errorCollections} />
               </Card>
             )}
             {(
               !loadingCollections &&
-              !collectionsError &&
+              !errorCollections &&
               collections != null &&
               relatedCollections != null
             ) && (

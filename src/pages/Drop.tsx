@@ -5,7 +5,7 @@ import { ReverseEnsContext } from 'stores/ethereum'
 import { parseDropData } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import useEventInCommon from 'hooks/useEventInCommon'
-import useEventsCollections from 'hooks/useEventsCollections'
+import useDropsCollections from 'hooks/useDropsCollections'
 import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
@@ -68,11 +68,11 @@ function Drop() {
   )
 
   const {
-    loadingCollections,
-    collectionsError,
+    loading: loadingCollections,
+    error: collectionsError,
     collections,
-    fetchEventsCollections,
-  } = useEventsCollections(
+    fetchDropsCollections: fetchEventsCollections,
+  } = useDropsCollections(
     dropIds
   )
 
