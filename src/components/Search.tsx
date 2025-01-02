@@ -103,8 +103,8 @@ function Search() {
     }
     const newDropIds: number[] = []
     if (selectedDrops.length > 0) {
-      for (const selectedEvent of selectedDrops) {
-        newDropIds.push(selectedEvent.id)
+      for (const selectedDrop of selectedDrops) {
+        newDropIds.push(selectedDrop.id)
       }
     }
     if (selectedCollections.length > 0) {
@@ -178,7 +178,7 @@ function Search() {
     if (resultDrop) {
       setSelectedDrops((prevSelectedDrops) => {
         const exists = -1 !== prevSelectedDrops.findIndex(
-          (prevSelectedEvent) => prevSelectedEvent.id === resultDrop.id
+          (prevSelectedDrop) => prevSelectedDrop.id === resultDrop.id
         )
         if (exists) {
           return prevSelectedDrops
@@ -188,7 +188,7 @@ function Search() {
     } else if (drop) {
       setSelectedDrops((prevSelectedDrops) => {
         const exists = -1 !== prevSelectedDrops.findIndex(
-          (prevSelectedEvent) => prevSelectedEvent.id === drop.id
+          (prevSelectedDrop) => prevSelectedDrop.id === drop.id
         )
         if (exists) {
           return prevSelectedDrops
@@ -386,12 +386,12 @@ function Search() {
         )}
         {selectedNotInDrops.length > 0 && (
           selectedNotInDrops.map(
-            (selectedEvent) => (
+            (selectedDrop) => (
               <SearchResultDrop
-                key={selectedEvent.id}
-                drop={selectedEvent}
+                key={selectedDrop.id}
+                drop={selectedDrop}
                 checked={true}
-                onCheckChange={() => delSelectDrop(selectedEvent.id)}
+                onCheckChange={() => delSelectDrop(selectedDrop.id)}
                 className="search-result"
               />
             )

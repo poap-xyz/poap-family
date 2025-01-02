@@ -16,7 +16,7 @@ export function parseInCommon(inCommon: unknown): InCommon {
     typeof inCommon !== 'object' ||
     !Object.keys(inCommon)
       .map((rawDropId) => parseInt(rawDropId))
-      .every((eventId) => eventId != null && !isNaN(eventId)) ||
+      .every((dropId) => dropId != null && !isNaN(dropId)) ||
     !Object.values(inCommon).every(
       (addresses: unknown): addresses is string[] =>
         addresses != null &&

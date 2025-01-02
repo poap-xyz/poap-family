@@ -174,7 +174,7 @@ function Drops() {
 
   function delDrop(dropId: number): void {
     const newDropIds = parseDropIds(String(rawDropIds)).filter(
-      (paramEventId) => String(paramEventId) !== String(dropId)
+      (paramDropId) => String(paramDropId) !== String(dropId)
     )
     if (newDropIds.length === 1) {
       navigate(`/drop/${newDropIds[0]}`)
