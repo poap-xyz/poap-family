@@ -8,7 +8,8 @@ import { Drop, parseDrops, parseDropIds, joinDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
-import useEventsOwnersAndMetrics from 'hooks/useEventsOwnersAndMetrics'
+import useDropsCollectors from 'hooks/useDropsCollectors'
+import useDropsMetrics from 'hooks/useDropsMetrics'
 import useEventsInCommon from 'hooks/useEventsInCommon'
 import useEventsCollections from 'hooks/useEventsCollections'
 import Timestamp from 'components/Timestamp'
@@ -54,15 +55,24 @@ function Drops() {
   )
 
   const {
-    completedDropsCollectorsAndMetrics,
-    loadingDropsCollectorsAndMetrics,
-    loadingCollectorsAndMetricsDrops,
-    dropsCollectorsAndMetricsErrors,
+    completed: completedCollectors,
+    loading: loadingCollectors,
+    loadingDrops: loadingCollectorsByDrop,
+    errors: errorsCollectorsByDrop,
     dropsCollectors,
+    fetchDropsCollectors,
+    retryDropCollectors,
+  } = useDropsCollectors(dropIds)
+
+  const {
+    completed: completedMetrics,
+    loading: loadingMetrics,
+    loadingDrops: loadingMetricsByDrop,
+    errors: errorsMetricsByDrop,
     dropsMetrics,
-    fetchDropsCollectorsAndMetrics,
-    retryDropCollectorsAndMetrics,
-  } = useEventsOwnersAndMetrics(dropIds)
+    fetchDropsMetrics,
+    retryDropMetrics,
+  }= useDropsMetrics(dropIds)
 
   const {
     completedDropsInCommon,
@@ -111,18 +121,28 @@ function Drops() {
 
   useEffect(
     () => {
-      const cancelDropsCollectorsAndMetrics = fetchDropsCollectorsAndMetrics()
+      const cancelDropsCollectors = fetchDropsCollectors()
       return () => {
-        cancelDropsCollectorsAndMetrics()
+        cancelDropsCollectors()
       }
     },
-    [fetchDropsCollectorsAndMetrics]
+    [fetchDropsCollectors]
+  )
+
+  useEffect(
+    () => {
+      const cancelDropsMetrics = fetchDropsMetrics()
+      return () => {
+        cancelDropsMetrics()
+      }
+    },
+    [fetchDropsMetrics]
   )
 
   useEffect(
     () => {
       let cancelDropsInCommon: () => void | undefined
-      if (completedDropsCollectorsAndMetrics) {
+      if (completedCollectors && completedMetrics) {
         cancelDropsInCommon = fetchDropsInCommon()
       }
       return () => {
@@ -131,7 +151,7 @@ function Drops() {
         }
       }
     },
-    [completedDropsCollectorsAndMetrics, fetchDropsInCommon]
+    [completedCollectors, completedMetrics, fetchDropsInCommon]
   )
 
   useEffect(
@@ -314,8 +334,10 @@ function Drops() {
                     </td>
                     <td className="event-cell-metrics">
                       {(
-                        loadingDropsCollectorsAndMetrics ||
-                        loadingCollectorsAndMetricsDrops[drop.id] != null
+                        loadingCollectors ||
+                        loadingMetrics ||
+                        loadingCollectorsByDrop[drop.id] != null ||
+                        loadingMetricsByDrop[drop.id] != null
                       ) && (
                         <Loading small={true} />
                       )}
@@ -337,23 +359,42 @@ function Drops() {
                           loadingInCommonDrops[drop.id]
                         }
                         error={
-                          dropsCollectorsAndMetricsErrors[drop.id] != null ||
+                          errorsCollectorsByDrop[drop.id] != null ||
+                          errorsMetricsByDrop[drop.id] != null ||
                           dropsInCommonErrors[drop.id] != null
                         }
                       />
-                      {dropsCollectorsAndMetricsErrors[drop.id] != null && (
+                      {errorsCollectorsByDrop[drop.id] != null && (
                         <>
                           <span
                             className="status-error-message"
-                            title={dropsCollectorsAndMetricsErrors[drop.id].cause
-                              ? `${dropsCollectorsAndMetricsErrors[drop.id].cause}`
+                            title={errorsCollectorsByDrop[drop.id].cause
+                              ? `${errorsCollectorsByDrop[drop.id].cause}`
                               : undefined}
                           >
-                            {dropsCollectorsAndMetricsErrors[drop.id].message}
+                            {errorsCollectorsByDrop[drop.id].message}
                           </span>
                           {' '}
                           <ButtonLink
-                            onClick={() => retryDropCollectorsAndMetrics(drop.id)}
+                            onClick={() => retryDropCollectors(drop.id)}
+                          >
+                            retry
+                          </ButtonLink>
+                        </>
+                      )}
+                      {errorsMetricsByDrop[drop.id] != null && (
+                        <>
+                          <span
+                            className="status-error-message"
+                            title={errorsMetricsByDrop[drop.id].cause
+                              ? `${errorsMetricsByDrop[drop.id].cause}`
+                              : undefined}
+                          >
+                            {errorsMetricsByDrop[drop.id].message}
+                          </span>
+                          {' '}
+                          <ButtonLink
+                            onClick={() => retryDropMetrics(drop.id)}
                           >
                             retry
                           </ButtonLink>
@@ -480,12 +521,12 @@ function Drops() {
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
-        {!completedDropsCollectorsAndMetrics && !completedDropsInCommon && (
+        {(loadingCollectors || loadingMetrics) && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading title="Loading collectors and metrics" />
           </Card>
         )}
-        {completedDropsCollectorsAndMetrics && !completedDropsInCommon && (
+        {completedCollectors && completedMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading
               title="Loading drops"
