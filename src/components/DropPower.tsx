@@ -1,6 +1,6 @@
 import { Drop } from 'models/drop'
 import TokenImage from 'components/TokenImage'
-import 'styles/event-power.css'
+import 'styles/drop-power.css'
 
 function DropPower({
   drop,
@@ -12,9 +12,9 @@ function DropPower({
   size?: number
 }) {
   return (
-    <div className="event-power">
+    <div className="drop-power">
       <TokenImage drop={drop} size={size} />
-      <span className="power">{count}</span>
+      <span className="drop-power-value">{count}</span>
     </div>
   )
 }

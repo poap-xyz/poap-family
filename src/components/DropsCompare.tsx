@@ -14,7 +14,7 @@ import AddressCollectorLine from 'components/AddressCollectorLine'
 import DropCompareButtons from 'components/DropCompareButtons'
 import DropNavigateButtons from 'components/DropNavigateButtons'
 import ButtonClose from 'components/ButtonClose'
-import 'styles/events-compare.css'
+import 'styles/drops-compare.css'
 
 function DropsCompare({
   baseDropIds,
@@ -69,18 +69,21 @@ function DropsCompare({
   }
 
   return (
-    <div className="events-compare">
+    <div className="drops-compare">
       {dropIds.map((dropId) =>
-        <div className="event-compare" key={dropId}>
+        <div className="drop-compare" key={dropId}>
           <Card>
             <DropHeader drop={drops[dropId]} size={48} />
-            <div className="event-compare-actions">
+            <div className="drop-compare-actions">
               <DropNavigateButtons
                 baseDropIds={baseDropIds}
                 dropId={dropId}
               >
                 {onClose && (
-                  <ButtonClose onClose={() => onClose(dropId)} />
+                  <ButtonClose
+                    onClose={() => onClose(dropId)}
+                    className="drop-compare-actions-close"
+                  />
                 )}
               </DropNavigateButtons>
             </div>
@@ -89,8 +92,8 @@ function DropsCompare({
               collector{inCommon[dropId].length === 1 ? '' : 's'}
               {' '}in common
             </h4>
-            <div className="event-compare-owners">
-              <ul className="owners">
+            <div className="drop-compare-collectors">
+              <ul className="collectors">
                 {inCommon[dropId].map((collector) => {
                   const inCommonDropIds = getAddressInCommonDropIds(
                     inCommon,

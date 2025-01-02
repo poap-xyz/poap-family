@@ -1,15 +1,15 @@
-.event-header {
+.drop-header {
   display: flex;
   gap: .5rem;
 }
 
-.event-header .event-id {
+.drop-header .drop-header-details .drop-id {
   font-weight: bold;
   line-height: 1.6;
   color: black;
 }
 
-.event-header h2 {
+.drop-header .drop-header-details h2 {
   max-width: 300px;
   text-overflow: ellipsis;
   overflow: hidden;

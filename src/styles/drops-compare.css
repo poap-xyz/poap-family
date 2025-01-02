@@ -1,0 +1,65 @@
+.drops-compare {
+  display: flex;
+  overflow-x: auto;
+  /* position: absolute; */
+  left: 0;
+  right: 0;
+}
+
+.drops-compare .drop-compare {
+  position: relative;
+}
+
+.drops-compare .drop-compare h4 {
+  margin-top: 1rem;
+}
+
+.drops-compare .drop-compare .drop-compare-actions {
+  position: absolute;
+  top: 12px;
+  right: 24px;
+}
+
+.drops-compare .drop-compare .drop-compare-actions .drop-compare-actions-close {
+  margin-left: .5rem;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  padding: .1rem;
+}
+
+.drops-compare .drop-compare .drop-compare-actions .drop-compare-actions-close svg {
+  position: relative;
+  top: 2px;
+  text-align: center;
+}
+
+.drops-compare .drop-compare .drop-compare-actions .drop-compare-actions-close:hover {
+  background-color: #eee;
+  border-color: black;
+  cursor: pointer;
+}
+
+.drops-compare .drop-compare .drop-compare-collectors {
+  margin-bottom: .5rem;
+  max-height: 57rem;
+  overflow-y: scroll;
+  scroll-margin-left: .5rem;
+}
+
+.drops-compare .drop-compare .drop-compare-collectors ul.collectors {
+  min-height: 101%;
+  list-style-type: none;
+  margin-bottom: .5rem;
+}
+
+.drops-compare .drop-compare .drop-compare-collectors .collectors li {
+  border: .2rem dashed transparent;
+  margin: .1rem 0;
+  padding: .2rem;
+}
+
+.drops-compare .drop-compare .drop-compare-collectors .collectors li:hover {
+  border-color: black;
+}
+

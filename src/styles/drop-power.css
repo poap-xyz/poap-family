@@ -1,8 +1,8 @@
-.event-power {
+.drop-power {
   position: relative;
 }
 
-.event-power .power {
+.drop-power .drop-power-value {
   position: absolute;
   top: 32px;
   right: 0;

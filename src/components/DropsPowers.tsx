@@ -4,7 +4,7 @@ import { clsx } from 'clsx'
 import { Drop, DropPower as Power } from 'models/drop'
 import TokenImage from 'components/TokenImage'
 import DropPower from 'components/DropPower'
-import 'styles/events-powers.css'
+import 'styles/drops-powers.css'
 
 function DropsPowers({
   showAll = false,
@@ -26,18 +26,18 @@ function DropsPowers({
   children?: ReactNode
 }) {
   return (
-    <div className={clsx('events-powers', showAll && 'show-all')}>
+    <div className={clsx('drops-powers', showAll && 'show-all')}>
       {powers.map(({ dropId, power }) => (
         <div
           key={dropId}
-          className={clsx('event-power-card', {
+          className={clsx('drop-power-card', {
             selected: selectedDropIds.includes(dropId),
             perfect: perfectPower === power,
           })}
           title={drops[dropId].name}
         >
           <button
-            className="event-select-button"
+            className="drop-select-button"
             onClick={() => onSelect(dropId)}
             style={{
               width: `${size}px`,
@@ -55,7 +55,7 @@ function DropsPowers({
           </button>
           <Link
             to={`/event/${dropId}`}
-            className="event-id"
+            className="drop-id"
           >
             #{dropId}
           </Link>

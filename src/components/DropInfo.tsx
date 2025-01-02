@@ -8,7 +8,7 @@ import Ilustration from 'assets/images/Illustration_Cities_BuenosAires.png'
 import Card from 'components/Card'
 import TokenImageZoom from 'components/TokenImageZoom'
 import ExternalLink from 'components/ExternalLink'
-import 'styles/event-info.css'
+import 'styles/drop-info.css'
 
 function DropInfo({
   drop,
@@ -20,12 +20,12 @@ function DropInfo({
   const [extraOpen, setExtraOpen] = useState<boolean>(false)
 
   return (
-    <div className="event-info-header">
+    <div className="drop-info">
       {drop.description && (
-        <div className={clsx('event-info-extra', extraOpen ? 'open' : 'close')}>
-          <div className="event-info-extra-card">
+        <div className={clsx('drop-info-extra', extraOpen ? 'open' : 'close')}>
+          <div className="drop-info-extra-card">
             {extraOpen && (
-              <div className="event-info-extra-content">
+              <div className="drop-info-extra-content">
                 {drop.description.split('\n').map(
                   (p, i) => (
                     <p key={`p${i}`}>
@@ -39,7 +39,7 @@ function DropInfo({
             )}
             <button
               onClick={() => setExtraOpen((prev) => !prev)}
-              className="event-info-extra-button"
+              className="drop-info-extra-button"
             >
               {extraOpen ? <FastArrowLeft /> : <FastArrowRight />}
             </button>
@@ -52,15 +52,15 @@ function DropInfo({
           pos: '-3rem -8rem',
         }}
       >
-        <div className="event-info">
-          <div className="event-image">
+        <div className="drop-info-details">
+          <div className="drop-info-image">
             <TokenImageZoom drop={drop} zoomSize={512} size={128} />
           </div>
-          <div className="event-data">
+          <div className="drop-info-data">
             <h1>{drop.name}</h1>
-            <div className="event-date">{formatDate(drop.start_date)}</div>
+            <div className="drop-date">{formatDate(drop.start_date)}</div>
             {drop.city && drop.country && (
-              <div className="place">{drop.city}, {drop.country}</div>
+              <div className="drop-place">{drop.city}, {drop.country}</div>
             )}
             {children}
           </div>
