@@ -1,4 +1,5 @@
-import { IGNORED_OWNERS } from 'models/address'
+import { IGNORED_ADDRESSES, isAddress } from 'models/address'
+import { InCommon } from 'models/in-common'
 import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'models/collector'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
@@ -10,7 +11,7 @@ export async function fetchCollectorsByDrops(
   abortSignal?: AbortSignal,
   dropsLimit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
   collectorsLimit: number = Math.min(DEFAULT_COLLECTOR_LIMIT, DEFAULT_COMPASS_LIMIT),
-): Promise<Record<number, string[]>> {
+): Promise<InCommon> {
   const collectorsByDrops: Record<number, Set<string>> = {}
 
   for (let i = 0; i < dropIds.length; i += dropsLimit) {
@@ -30,10 +31,7 @@ export async function fetchCollectorsByDrops(
           data.drop_id == null ||
           typeof data.drop_id !== 'number' ||
           !('collector_address' in data) ||
-          data.collector_address == null ||
-          typeof data.collector_address !== 'string' ||
-          !data.collector_address.startsWith('0x') ||
-          data.collector_address.length !== 42
+          !isAddress(data.collector_address)
         ) {
           throw new Error('Malformed drop collector')
         }
@@ -52,7 +50,7 @@ export async function fetchCollectorsByDrops(
             where: {
               drop_id: { _in: $dropIds }
               collector_address: {
-                _nin: ["${IGNORED_OWNERS.join('", "')}"]
+                _nin: ["${IGNORED_ADDRESSES.join('", "')}"]
               }
             }
             offset: $offset
@@ -105,7 +103,7 @@ export async function fetchDropsCollectors(
           where: {
             drop_id: { _in: $dropIds }
             collector_address: {
-              _nin: ["${IGNORED_OWNERS.join('", "')}"]
+              _nin: ["${IGNORED_ADDRESSES.join('", "')}"]
             }
           }
           distinct_on: collector_address

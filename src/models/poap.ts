@@ -17,7 +17,7 @@ export const DEFAULT_POAP_LIMIT = 100
 
 export interface POAP {
   id: string
-  owner: string
+  collector: string
   created: Date
   event?: Drop
 }
@@ -113,7 +113,7 @@ export function parsePOAP(token: unknown): POAP {
 
   return {
     id: tokenId,
-    owner: collectorAddress,
+    collector: collectorAddress,
     created: mintedOn,
     event: drop,
   }
