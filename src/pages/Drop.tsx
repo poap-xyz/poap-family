@@ -21,7 +21,7 @@ import ButtonLink from 'components/ButtonLink'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
 import DropButtonGroup from 'components/DropButtonGroup'
 import DropButtonMoments from 'components/DropButtonMoments'
-import 'styles/event.css'
+import 'styles/drop.css'
 
 function Drop() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -141,8 +141,8 @@ function Drop() {
 
   return (
     <Page>
-      <div className="event">
-        <div className="event-header-info">
+      <div className="drop">
+        <div className="drop-header-info">
           <DropInfo drop={drop}>
             <DropStats
               drop={drop}
