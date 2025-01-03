@@ -9,17 +9,25 @@ function DropStats({
   metrics,
 }: {
   drop: Drop
-  collectors: number
+  collectors?: number
   metrics?: DropMetrics
 }) {
-  const stats = {
-    'collectors': metrics && metrics.emailReservations > 0
-      ? {
-          text: formatStat(collectors + metrics.emailReservations),
-        }
-      : {
-          text: formatStat(collectors),
-        },
+  const stats: Record<string, {
+    text: string
+    title?: string
+    href?: string
+    external?: boolean
+    small?: boolean
+  }> = {}
+
+  if (collectors) {
+    stats['collectors'] = metrics && metrics.emailReservations > 0
+      ? { text: formatStat(collectors + metrics.emailReservations) }
+      : { text: formatStat(collectors) }
+  } else {
+    stats['collectors'] = metrics && metrics.emailReservations > 0
+      ? { text: formatStat(0) }
+      : { text: formatStat(metrics.emailReservations) }
   }
 
   if (metrics && metrics.emailReservations > 0) {

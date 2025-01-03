@@ -36,9 +36,15 @@ function Drop() {
     () => parseDropData(
       loaderData,
       /*includeDescription*/true,
+      /*includeCollectors*/true,
       /*includeMetrics*/true,
     ),
     [loaderData]
+  )
+
+  const dropIds = useMemo(
+    () => [drop.id],
+    [drop]
   )
 
   const {
@@ -62,11 +68,6 @@ function Drop() {
     /*stream*/true
   )
 
-  const dropIds = useMemo(
-    () => [drop.id],
-    [drop]
-  )
-
   const {
     loading: loadingCollections,
     error: collectionsError,
@@ -78,6 +79,9 @@ function Drop() {
 
   useEffect(
     () => {
+      if (collectors == null) {
+        return
+      }
       resolveEnsNames(collectors)
     },
     [collectors, resolveEnsNames]
@@ -146,18 +150,20 @@ function Drop() {
           <DropInfo drop={drop}>
             <DropStats
               drop={drop}
-              collectors={collectors.length}
+              collectors={collectors?.length}
               metrics={metrics}
             />
             <DropButtonGroup drop={drop} viewInGallery={true}>
-              <ButtonExportAddressCsv
-                filename={`collectors-${drop.id}`}
-                name={drop.name}
-                addresses={collectors}
-                title={
-                  `Generates CSV file with collectors of drop #${drop.id}`
-                }
-              />
+              {collectors != null && (
+                <ButtonExportAddressCsv
+                  filename={`collectors-${drop.id}`}
+                  name={drop.name}
+                  addresses={collectors}
+                  title={
+                    `Generates CSV file with collectors of drop #${drop.id}`
+                  }
+                />
+              )}
               <DropButtonMoments drop={drop} />
             </DropButtonGroup>
             {cachedTs &&
@@ -171,7 +177,7 @@ function Drop() {
         {loadingDropInCommon && (
           <Card>
             {loadedCollectors > 0
-              ? <Loading count={loadedCollectors} total={collectors.length} />
+              ? <Loading count={loadedCollectors} total={collectors?.length} />
               : (
                 loadedInCommonDrops != null
                   ? (
@@ -209,6 +215,7 @@ function Drop() {
         {!loadingDropInCommon && (
           <>
             {(
+              collectors != null &&
               cachedTs &&
               drop.id in inCommon &&
               inCommon[drop.id].length !== collectors.length

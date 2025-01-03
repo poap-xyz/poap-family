@@ -1,4 +1,4 @@
-import { isAddress } from 'models/address'
+import { parseCollectors } from 'models/collector'
 
 export interface Drop {
   id: number
@@ -199,45 +199,47 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
 
 export interface DropData {
   drop: Drop
-  collectors: string[]
+  collectors: string[] | null
   metrics: DropMetrics | null
 }
 
 export function parseDropData(
   data: unknown,
   includeDescription: boolean = false,
-  includeMetrics: boolean = true,
+  includeCollectors: boolean = false,
+  includeMetrics: boolean = false,
 ): DropData {
   if (
     data == null ||
     typeof data !== 'object' ||
     !('drop' in data) ||
-    !('collectors' in data)
+    data.drop == null
   ) {
-    throw new Error('Malformed drop data: missing drop or collectors')
+    throw new Error('Malformed drop data: missing drop')
   }
+
+  let collectors: unknown
   if (
-    !Array.isArray(data.collectors) ||
-    !data.collectors.every(
-      (collector: unknown): collector is string => isAddress(collector)
-    )
+    includeCollectors &&
+    'collectors' in data &&
+    data.collectors != null
   ) {
-    throw new Error('Malformed drop data: malformed collectors')
+    collectors = data.collectors
   }
-  if (!includeMetrics) {
-    return {
-      drop: parseDrop(data.drop, includeDescription),
-      collectors: data.collectors,
-      metrics: null,
-    }
+
+  let metrics: unknown
+  if (
+    includeCollectors &&
+    'metrics' in data &&
+    data.metrics != null
+  ) {
+    metrics = data.metrics
   }
-  if (!('metrics' in data)) {
-    throw new Error('Malformed drop data: missing metrics')
-  }
+
   return {
     drop: parseDrop(data.drop, includeDescription),
-    collectors: data.collectors,
-    metrics: parseDropMetrics(data.metrics),
+    collectors: includeCollectors ? parseCollectors(collectors) : null,
+    metrics: includeMetrics ? parseDropMetrics(metrics) : null,
   }
 }
 
