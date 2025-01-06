@@ -334,7 +334,7 @@ function Drops() {
                     </td>
                     <td className="drop-cell-metrics">
                       {(loadingMetrics || loadingMetricsByDrop[drop.id]) && (
-                        <Loading small={true} />
+                        <Loading size="small" />
                       )}
                       {dropsMetrics != null && dropsMetrics[drop.id] != null && (
                         <ShadowText grow={true} medium={true}>
@@ -398,7 +398,7 @@ function Drops() {
                         (loadingCollectors || loadingCollectorsByDrop[drop.id]) &&
                         (!loadingMetrics && !loadingMetricsByDrop[drop.id])
                       ) && (
-                        <Loading small={true} />
+                        <Loading size="small" />
                       )}
                       {(
                         loadingInCommonDrops[drop.id] != null &&
@@ -521,12 +521,13 @@ function Drops() {
         )}
         {(loadingCollectors || loadingMetrics) && !completedDropsInCommon && (
           <Card shink={true}>
-            <Loading title="Loading collectors and metrics" />
+            <Loading size="big" title="Loading collectors and metrics" />
           </Card>
         )}
         {completedCollectors && completedMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading
+              size="big"
               title="Loading drops"
               count={Object.values(loadedDropsCollectors).length}
               total={dropIds.length}
@@ -538,7 +539,7 @@ function Drops() {
             {loadingCollections && !errorCollections && (
               <Card>
                 <h4>Collections</h4>
-                <Loading />
+                <Loading size="big" />
               </Card>
             )}
             {!loadingCollections && errorCollections && (

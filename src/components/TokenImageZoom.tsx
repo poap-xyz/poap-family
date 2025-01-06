@@ -74,7 +74,7 @@ function TokenImageZoom({ drop, size = 128, zoomSize = 512 }: {
             <div className="token-image-zoom-modal token-image-zoom-loading">
               <Card>
                 <ButtonClose onClose={() => setShowModal(false)} />
-                <Loading small={true} />
+                <Loading size="small" />
                 <button
                   onClick={() => setShowModal((show) => !show)}
                   className="token-image-zoom-out-button"

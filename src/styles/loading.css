@@ -113,6 +113,29 @@
   border-width: 3px;
 }
 
+.loading.icon {
+  margin: 0;
+}
+
+.loading.icon .count {
+  top: 5px;
+}
+
+.loading.icon .total {
+  top: 10px;
+}
+
+.loading.icon .lds-dual-ring {
+  width: 16px;
+  height: 16px;
+}
+
+.loading.icon .lds-dual-ring:after {
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
+}
+
 .loading h4:after {
   overflow: hidden;
   display: inline-block;
