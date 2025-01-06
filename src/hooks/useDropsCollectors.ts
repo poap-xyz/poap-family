@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { InCommon } from 'models/in-common'
 import { filterInvalidAddresses } from 'models/address'
 import { AbortedError } from 'models/error'
 import { fillNull } from 'utils/object'
@@ -13,7 +12,7 @@ function useDropsCollectors(dropIds?: number[]): {
   loading: boolean
   loadingDrops: Record<number, boolean>
   errors: Record<number, Error>
-  dropsCollectors: InCommon
+  dropsCollectors: Record<number, string[]>
   fetchDropsCollectors: () => () => void
   retryDropCollectors: (dropId: number) => () => void
 } {
@@ -21,7 +20,7 @@ function useDropsCollectors(dropIds?: number[]): {
   const [loading, setLoading] = useState<boolean>(false)
   const [loadingDrops, setLoadingDrops] = useState<Record<number, boolean>>({})
   const [errors, setErrors] = useState<Record<number, Error>>({})
-  const [dropsCollectors, setDropsCollectors] = useState<InCommon>({})
+  const [dropsCollectors, setDropsCollectors] = useState<Record<number, string[]>>({})
 
   function addLoading(dropId: number): void {
     setLoadingDrops((alsoLoading) => ({
@@ -74,7 +73,9 @@ function useDropsCollectors(dropIds?: number[]): {
     }))
   }
 
-  function updateDropsCollectors(dropsCollectors: InCommon): void {
+  function updateDropsCollectors(
+    dropsCollectors: Record<number, string[]>,
+  ): void {
     setDropsCollectors((prevCollectors) => ({
       ...prevCollectors,
       ...Object.fromEntries(
