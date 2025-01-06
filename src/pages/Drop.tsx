@@ -211,18 +211,15 @@ function Drop() {
       <div className="drop">
         <div className="drop-header-info">
           <DropInfo drop={drop}>
-            {(loadingCollectors || loadingMetrics) && (
+            {loadingMetrics && (
               <Loading />
             )}
             {
-              completedCollectors &&
-              collectors != null &&
               completedMetrics &&
               metrics != null &&
               (
                 <DropStats
                   drop={drop}
-                  collectors={collectors.length}
                   metrics={metrics}
                 />
               )
@@ -248,10 +245,15 @@ function Drop() {
             )}
           </DropInfo>
         </div>
+        {loadingCollectors && (
+          <Card>
+            <Loading />
+          </Card>
+        )}
         {loadingDropInCommon && (
           <Card>
             {loadedCollectors > 0
-              ? <Loading count={loadedCollectors} total={collectors?.length} />
+              ? <Loading count={loadedCollectors} total={metrics.mints} />
               : (
                 loadedInCommonDrops != null
                   ? (
@@ -304,10 +306,11 @@ function Drop() {
         {!loadingDropInCommon && (
           <>
             {(
-              collectors != null &&
+              completedMetrics &&
+              metrics != null &&
               cachedTs &&
               drop.id in inCommon &&
-              inCommon[drop.id].length !== collectors.length
+              inCommon[drop.id].length !== metrics.mints
             ) && (
               <WarningMessage>
                 There have been new mints since this POAP was cached,{' '}

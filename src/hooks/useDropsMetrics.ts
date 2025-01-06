@@ -136,6 +136,7 @@ function useDropsMetrics(dropIds?: number[]): {
             dropsCollectors,
             dropIds.map((dropId) => String(dropId)),
             {
+              mints: 0,
               emailReservations: 0,
               emailClaims: 0,
               emailClaimsMinted: 0,
