@@ -519,9 +519,14 @@ function Drops() {
             <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
           </WarningMessage>
         )}
-        {(loadingCollectors || loadingMetrics) && !completedDropsInCommon && (
+        {loadingMetrics && !completedDropsInCommon && (
           <Card shink={true}>
-            <Loading size="big" title="Loading collectors and metrics" />
+            <Loading size="big" title="Loading metrics" />
+          </Card>
+        )}
+        {loadingCollectors && !loadingMetrics && !completedDropsInCommon && (
+          <Card shink={true}>
+            <Loading size="big" title="Loading collectors" />
           </Card>
         )}
         {completedCollectors && completedMetrics && !completedDropsInCommon && (
