@@ -2,9 +2,11 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
-import { parseDropData } from 'models/drop'
+import { parseDrop } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import useEventInCommon from 'hooks/useEventInCommon'
+import useDropsCollectors from 'hooks/useDropsCollectors'
+import useDropsMetrics from 'hooks/useDropsMetrics'
 import useDropsCollections from 'hooks/useDropsCollections'
 import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
@@ -32,13 +34,45 @@ function Drop() {
 
   const force = searchParams.get('force') === 'true'
 
-  const { drop, collectors, metrics } = useMemo(
-    () => parseDropData(
+  const drop = useMemo(
+    () => parseDrop(
       loaderData,
       /*includeDescription*/true,
-      /*includeMetrics*/true,
     ),
     [loaderData]
+  )
+
+  const dropIds = useMemo(
+    () => [drop.id],
+    [drop]
+  )
+
+  const {
+    completed: completedCollectors,
+    loading: loadingCollectors,
+    errors: errorsCollectorsByDrop,
+    dropsCollectors,
+    fetchDropsCollectors,
+    retryDropCollectors,
+  } = useDropsCollectors(dropIds)
+
+  const collectors = useMemo(
+    () => dropsCollectors[drop.id],
+    [dropsCollectors, drop.id]
+  )
+
+  const {
+    completed: completedMetrics,
+    loading: loadingMetrics,
+    errors: errorsMetricsByDrop,
+    dropsMetrics,
+    fetchDropsMetrics,
+    retryDropMetrics,
+  } = useDropsMetrics(dropIds)
+
+  const metrics = useMemo(
+    () => dropsMetrics[drop.id],
+    [dropsMetrics, drop.id]
   )
 
   const {
@@ -62,11 +96,6 @@ function Drop() {
     /*stream*/true
   )
 
-  const dropIds = useMemo(
-    () => [drop.id],
-    [drop]
-  )
-
   const {
     loading: loadingCollections,
     error: collectionsError,
@@ -78,33 +107,64 @@ function Drop() {
 
   useEffect(
     () => {
-      resolveEnsNames(collectors)
-    },
-    [collectors, resolveEnsNames]
-  )
-
-  useEffect(
-    () => {
-      const cancelDropInCommon = fetchDropInCommon()
+      const cancelDropsCollectors = fetchDropsCollectors()
       return () => {
-        cancelDropInCommon()
+        cancelDropsCollectors()
       }
     },
-    [fetchDropInCommon]
+    [
+      fetchDropsCollectors,
+    ]
   )
 
   useEffect(
     () => {
-      setTitle(drop.name)
+      const cancelDropsMetrics = fetchDropsMetrics()
+      return () => {
+        cancelDropsMetrics()
+      }
     },
-    [drop.name, setTitle]
+    [
+      fetchDropsMetrics,
+    ]
+  )
+
+  useEffect(
+    () => {
+      if (completedCollectors) {
+        resolveEnsNames(collectors)
+      }
+    },
+    [
+      completedCollectors,
+      collectors,
+      resolveEnsNames,
+    ]
+  )
+
+  useEffect(
+    () => {
+      let cancelDropInCommon: () => void | undefined
+      if (completedCollectors) {
+        cancelDropInCommon = fetchDropInCommon()
+      }
+      return () => {
+        if (cancelDropInCommon) {
+          cancelDropInCommon()
+        }
+      }
+    },
+    [
+      completedCollectors,
+      fetchDropInCommon,
+    ]
   )
 
   useEffect(
     () => {
       let cancelDropsCollections: () => void | undefined
       if (
-        metrics &&
+        metrics != null &&
         metrics.collectionsIncludes > 0 &&
         completedDropInCommon
       ) {
@@ -121,6 +181,13 @@ function Drop() {
       completedDropInCommon,
       fetchDropsCollections,
     ]
+  )
+
+  useEffect(
+    () => {
+      setTitle(drop.name)
+    },
+    [drop.name, setTitle]
   )
 
   function refreshCache(): void {
@@ -144,34 +211,47 @@ function Drop() {
       <div className="drop">
         <div className="drop-header-info">
           <DropInfo drop={drop}>
-            <DropStats
-              drop={drop}
-              collectors={collectors.length}
-              metrics={metrics}
-            />
+            {(loadingCollectors || loadingMetrics) && (
+              <Loading />
+            )}
+            {
+              completedCollectors &&
+              collectors != null &&
+              completedMetrics &&
+              metrics != null &&
+              (
+                <DropStats
+                  drop={drop}
+                  collectors={collectors.length}
+                  metrics={metrics}
+                />
+              )
+            }
             <DropButtonGroup drop={drop} viewInGallery={true}>
-              <ButtonExportAddressCsv
-                filename={`collectors-${drop.id}`}
-                name={drop.name}
-                addresses={collectors}
-                title={
-                  `Generates CSV file with collectors of drop #${drop.id}`
-                }
-              />
+              {collectors != null && (
+                <ButtonExportAddressCsv
+                  filename={`collectors-${drop.id}`}
+                  name={drop.name}
+                  addresses={collectors}
+                  title={
+                    `Generates CSV file with collectors of drop #${drop.id}`
+                  }
+                />
+              )}
               <DropButtonMoments drop={drop} />
             </DropButtonGroup>
-            {cachedTs &&
+            {cachedTs && (
               <div className="cached">
                 Cached <Timestamp ts={cachedTs} />,{' '}
                 <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
               </div>
-            }
+            )}
           </DropInfo>
         </div>
         {loadingDropInCommon && (
           <Card>
             {loadedCollectors > 0
-              ? <Loading count={loadedCollectors} total={collectors.length} />
+              ? <Loading count={loadedCollectors} total={collectors?.length} />
               : (
                 loadedInCommonDrops != null
                   ? (
@@ -203,12 +283,28 @@ function Drop() {
                     )
               )
             }
-            <AddressErrorList errors={collectorsErrors} onRetry={retryAddress} />
+            {errorsCollectorsByDrop != null && errorsCollectorsByDrop[drop.id] && (
+              <ErrorMessage error={errorsCollectorsByDrop[drop.id]}>
+                <ButtonLink onClick={() => retryDropCollectors(drop.id)}>retry</ButtonLink>
+              </ErrorMessage>
+            )}
+            {errorsMetricsByDrop != null && errorsMetricsByDrop[drop.id] && (
+              <ErrorMessage error={errorsMetricsByDrop[drop.id]}>
+                <ButtonLink onClick={() => retryDropMetrics(drop.id)}>retry</ButtonLink>
+              </ErrorMessage>
+            )}
+            {collectorsErrors != null && collectorsErrors.length > 0 && (
+              <AddressErrorList
+                errors={collectorsErrors}
+                onRetry={retryAddress}
+              />
+            )}
           </Card>
         )}
         {!loadingDropInCommon && (
           <>
             {(
+              collectors != null &&
               cachedTs &&
               drop.id in inCommon &&
               inCommon[drop.id].length !== collectors.length

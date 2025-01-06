@@ -1,7 +1,6 @@
-import { Drop, DropData, joinDropIds, parseDropIds } from 'models/drop'
+import { Drop, joinDropIds, parseDropIds } from 'models/drop'
 import { HttpError } from 'models/error'
-import { fetchDrop, fetchDropMetrics, fetchDropsOrErrors } from 'services/drops'
-import { fetchDropsCollectors } from 'services/collectors'
+import { fetchDrop, fetchDropsOrErrors } from 'services/drops'
 
 interface DropParams {
   dropId?: string
@@ -11,7 +10,7 @@ export async function dropLoader({
   params,
 }: {
   params: DropParams
-}): Promise<DropData> {
+}): Promise<Drop> {
   const dropId = parseInt(String(params.dropId))
 
   if (isNaN(dropId)) {
@@ -30,29 +29,7 @@ export async function dropLoader({
     })
   }
 
-  const [collectorsSettled, metricsSettled] = await Promise.allSettled([
-    fetchDropsCollectors([dropId], /*abortSignal*/undefined),
-    fetchDropMetrics(dropId, /*abortSignal*/undefined),
-  ])
-
-  if (collectorsSettled.status === 'rejected') {
-    throw new Response('', {
-      status: 503,
-      statusText:
-        `Drop collectors could not be fetched: ${collectorsSettled.reason}`,
-    })
-  }
-
-  const collectors = collectorsSettled.value
-  const metrics = metricsSettled.status === 'fulfilled'
-    ? metricsSettled.value
-    : null
-
-  return {
-    drop,
-    collectors,
-    metrics,
-  }
+  return drop
 }
 
 interface DropsParams {

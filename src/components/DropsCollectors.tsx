@@ -15,10 +15,13 @@ import ButtonExpand from 'components/ButtonExpand'
 import 'styles/drops-collectors.css'
 
 function inverseCollectorsSortedEntries(
-  inCommon: InCommon,
+  dropsCollectors?: Record<number, string[]>,
 ): Array<[string, number[]]> {
+  if (dropsCollectors == null) {
+    return []
+  }
   const addressToDropIds: Record<string, number[]> = {}
-  for (const [rawDropId, addresses] of Object.entries(inCommon)) {
+  for (const [rawDropId, addresses] of Object.entries(dropsCollectors)) {
     const dropId = parseInt(rawDropId)
     for (const address of addresses) {
       if (address in addressToDropIds) {
@@ -39,7 +42,7 @@ function DropsCollectors({
   drops,
   all = false,
 }: {
-  dropsCollectors: InCommon
+  dropsCollectors?: Record<number, string[]>
   inCommon: InCommon
   drops: Record<number, Drop>
   all?: boolean
@@ -52,7 +55,7 @@ function DropsCollectors({
   )
 
   const dropIds = useMemo(
-    () => Object.keys(dropsCollectors).map(
+    () => dropsCollectors == null ? [] : Object.keys(dropsCollectors).map(
       (rawDropId) => parseInt(rawDropId)
     ),
     [dropsCollectors]

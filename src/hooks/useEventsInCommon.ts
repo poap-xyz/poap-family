@@ -5,11 +5,11 @@ import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
 import { EventsInCommon } from 'models/api'
-import { InCommon, filterInCommon } from 'models/in-common'
+import { filterInCommon } from 'models/in-common'
 
 function useEventsInCommon(
   dropIds: number[],
-  dropsCollectors: InCommon,
+  dropsCollectors?: Record<number, string[]>,
   all: boolean = false,
   force: boolean = false,
   local: boolean = false,
@@ -40,6 +40,9 @@ function useEventsInCommon(
 
   useEffect(
     () => {
+      if (dropsCollectors == null) {
+        return
+      }
       for (const dropId of dropIds) {
         if (dropsCollectors[dropId] == null) {
           continue
@@ -573,6 +576,9 @@ function useEventsInCommon(
 
   const fetchDropsInCommon = useCallback(
     () => {
+      if (dropsCollectors == null) {
+        return () => {}
+      }
       const controllers: AbortController[] = []
       setCompleted({})
       setLoading({})

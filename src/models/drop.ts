@@ -1,5 +1,3 @@
-import { isAddress } from 'models/address'
-
 export interface Drop {
   id: number
   name: string
@@ -195,50 +193,6 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
     }
   }
   throw new Error('Malformed drop metrics')
-}
-
-export interface DropData {
-  drop: Drop
-  collectors: string[]
-  metrics: DropMetrics | null
-}
-
-export function parseDropData(
-  data: unknown,
-  includeDescription: boolean = false,
-  includeMetrics: boolean = true,
-): DropData {
-  if (
-    data == null ||
-    typeof data !== 'object' ||
-    !('drop' in data) ||
-    !('collectors' in data)
-  ) {
-    throw new Error('Malformed drop data: missing drop or collectors')
-  }
-  if (
-    !Array.isArray(data.collectors) ||
-    !data.collectors.every(
-      (collector: unknown): collector is string => isAddress(collector)
-    )
-  ) {
-    throw new Error('Malformed drop data: malformed collectors')
-  }
-  if (!includeMetrics) {
-    return {
-      drop: parseDrop(data.drop, includeDescription),
-      collectors: data.collectors,
-      metrics: null,
-    }
-  }
-  if (!('metrics' in data)) {
-    throw new Error('Malformed drop data: missing metrics')
-  }
-  return {
-    drop: parseDrop(data.drop, includeDescription),
-    collectors: data.collectors,
-    metrics: parseDropMetrics(data.metrics),
-  }
 }
 
 export function parseDrops(

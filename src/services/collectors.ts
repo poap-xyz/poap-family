@@ -1,6 +1,6 @@
 import { IGNORED_ADDRESSES, isAddress } from 'models/address'
 import { InCommon } from 'models/in-common'
-import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollector } from 'models/collector'
+import { DEFAULT_COLLECTOR_LIMIT, parseColectorDrop, parseCollectorAddress } from 'models/collector'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import { DEFAULT_POAP_LIMIT, parsePOAP, POAP } from 'models/poap'
 import { DEFAULT_DROP_LIMIT, Drop } from 'models/drop'
@@ -92,7 +92,7 @@ export async function fetchDropsCollectors(
 ): Promise<string[]> {
   return await queryAllCompass(
     `poaps`,
-    parseCollector,
+    parseCollectorAddress,
     `
       query FetchDropsCollectors(
         $dropIds: [bigint!]
