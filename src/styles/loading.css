@@ -12,9 +12,12 @@
   border-width: 0;
 }
 
+.loading .loading-inner {
+  position: relative;
+}
+
 .loading.big .loading-inner {
   padding: 2rem;
-  position: relative;
 }
 
 .loading .progress, .loading .count {
@@ -52,7 +55,8 @@
   bottom: -12px;
 }
 
-.loading .details .eta, .loading .details .rate {
+.loading .details .eta,
+.loading .details .rate {
   white-space: nowrap;
   display: block;
   text-align: center;

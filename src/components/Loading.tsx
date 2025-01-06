@@ -54,7 +54,7 @@ function Loading({
             </>
           )}
         </div>
-        {showDetails && (
+        {showDetails && (typeof eta === 'number' || typeof rate === 'number') && (
           <div className="details">
             {typeof eta === 'number' && (
               <div className="eta"><i>ETA</i> {secondsInTheFuture(eta)}</div>

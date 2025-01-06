@@ -333,21 +333,13 @@ function Drops() {
                       </div>
                     </td>
                     <td className="drop-cell-metrics">
-                      {(
-                        loadingCollectors ||
-                        loadingMetrics ||
-                        loadingCollectorsByDrop[drop.id] != null ||
-                        loadingMetricsByDrop[drop.id] != null
-                      ) && (
+                      {(loadingMetrics || loadingMetricsByDrop[drop.id]) && (
                         <Loading small={true} />
                       )}
-                      {dropsCollectors[drop.id] != null && (
+                      {dropsMetrics != null && dropsMetrics[drop.id] != null && (
                         <ShadowText grow={true} medium={true}>
-                          {formatStat(dropsCollectors[drop.id].length)}
-                          {(
-                            dropsMetrics[drop.id] != null &&
-                            dropsMetrics[drop.id].emailReservations > 0
-                          ) && (
+                          {formatStat(dropsMetrics[drop.id].mints)}
+                          {dropsMetrics[drop.id].emailReservations > 0 && (
                             ` + ${formatStat(dropsMetrics[drop.id].emailReservations)}`
                           )}
                         </ShadowText>
@@ -402,6 +394,12 @@ function Drops() {
                       )}
                     </td>
                     <td className="drop-cell-progress">
+                      {(
+                        (loadingCollectors || loadingCollectorsByDrop[drop.id]) &&
+                        (!loadingMetrics && !loadingMetricsByDrop[drop.id])
+                      ) && (
+                        <Loading small={true} />
+                      )}
                       {(
                         loadingInCommonDrops[drop.id] != null &&
                         loadedDropsInCommon[drop.id] == null &&

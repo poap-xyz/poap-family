@@ -5,12 +5,10 @@ import Stats from 'components/Stats'
 
 function DropStats({
   drop,
-  collectors,
   metrics,
 }: {
   drop: Drop
-  collectors?: number
-  metrics?: DropMetrics
+  metrics: DropMetrics
 }) {
   const stats: Record<string, {
     text: string
@@ -20,21 +18,13 @@ function DropStats({
     small?: boolean
   }> = {}
 
-  if (collectors != null) {
-    stats['collectors'] = metrics != null && metrics.emailReservations > 0
-      ? { text: formatStat(collectors + metrics.emailReservations) }
-      : { text: formatStat(collectors) }
-  } else {
-    stats['collectors'] = metrics != null && metrics.emailReservations > 0
-      ? { text: formatStat(metrics.emailReservations) }
-      : { text: formatStat(0) }
-  }
+  stats['collectors'] = metrics.emailReservations > 0
+    ? { text: formatStat(metrics.mints + metrics.emailReservations) }
+    : { text: formatStat(metrics.mints) }
 
-  if (metrics != null && metrics.emailReservations > 0) {
-    if (collectors != null) {
-      stats['mints'] = {
-        text: formatStat(collectors),
-      }
+  if (metrics.emailReservations > 0) {
+    stats['mints'] = {
+      text: formatStat(metrics.mints),
     }
     stats['reservations'] = {
       text: formatStat(metrics.emailReservations),
@@ -42,23 +32,24 @@ function DropStats({
   }
 
   if (
-    metrics != null &&
     metrics.emailClaims > 0 &&
     metrics.emailClaimsMinted > 0
   ) {
     stats['email conversion'] = {
       text: formatStat(metrics.emailClaimsMinted),
-      title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
+      title:
+        `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}%` +
+        ` of ${metrics.emailClaims} email claims`,
     }
   }
 
-  if (metrics != null && metrics.collectionsIncludes > 0) {
+  if (metrics.collectionsIncludes > 0) {
     stats['collections'] = {
       text: formatStat(metrics.collectionsIncludes),
     }
   }
 
-  if (metrics != null && metrics.momentsUploaded > 0) {
+  if (metrics.momentsUploaded > 0) {
     stats['moments'] = {
       text: formatStat(metrics.momentsUploaded),
       title: `View uploaded moments on ${drop.name}`,
