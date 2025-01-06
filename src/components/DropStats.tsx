@@ -20,39 +20,45 @@ function DropStats({
     small?: boolean
   }> = {}
 
-  if (collectors) {
-    stats['collectors'] = metrics && metrics.emailReservations > 0
+  if (collectors != null) {
+    stats['collectors'] = metrics != null && metrics.emailReservations > 0
       ? { text: formatStat(collectors + metrics.emailReservations) }
       : { text: formatStat(collectors) }
   } else {
-    stats['collectors'] = metrics && metrics.emailReservations > 0
-      ? { text: formatStat(0) }
-      : { text: formatStat(metrics.emailReservations) }
+    stats['collectors'] = metrics != null && metrics.emailReservations > 0
+      ? { text: formatStat(metrics.emailReservations) }
+      : { text: formatStat(0) }
   }
 
-  if (metrics && metrics.emailReservations > 0) {
-    stats['mints'] = {
-      text: formatStat(collectors),
+  if (metrics != null && metrics.emailReservations > 0) {
+    if (collectors != null) {
+      stats['mints'] = {
+        text: formatStat(collectors),
+      }
     }
     stats['reservations'] = {
       text: formatStat(metrics.emailReservations),
     }
   }
 
-  if (metrics && metrics.emailClaims > 0 && metrics.emailClaimsMinted > 0) {
+  if (
+    metrics != null &&
+    metrics.emailClaims > 0 &&
+    metrics.emailClaimsMinted > 0
+  ) {
     stats['email conversion'] = {
       text: formatStat(metrics.emailClaimsMinted),
       title: `${Math.trunc(metrics.emailClaimsMinted * 100 / metrics.emailClaims)}% of ${metrics.emailClaims} email claims`,
     }
   }
 
-  if (metrics && metrics.collectionsIncludes > 0) {
+  if (metrics != null && metrics.collectionsIncludes > 0) {
     stats['collections'] = {
       text: formatStat(metrics.collectionsIncludes),
     }
   }
 
-  if (metrics && metrics.momentsUploaded > 0) {
+  if (metrics != null && metrics.momentsUploaded > 0) {
     stats['moments'] = {
       text: formatStat(metrics.momentsUploaded),
       title: `View uploaded moments on ${drop.name}`,

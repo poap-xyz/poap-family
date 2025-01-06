@@ -1,5 +1,3 @@
-import { parseCollectors } from 'models/collector'
-
 export interface Drop {
   id: number
   name: string
@@ -195,52 +193,6 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
     }
   }
   throw new Error('Malformed drop metrics')
-}
-
-export interface DropData {
-  drop: Drop
-  collectors: string[] | null
-  metrics: DropMetrics | null
-}
-
-export function parseDropData(
-  data: unknown,
-  includeDescription: boolean = false,
-  includeCollectors: boolean = false,
-  includeMetrics: boolean = false,
-): DropData {
-  if (
-    data == null ||
-    typeof data !== 'object' ||
-    !('drop' in data) ||
-    data.drop == null
-  ) {
-    throw new Error('Malformed drop data: missing drop')
-  }
-
-  let collectors: unknown
-  if (
-    includeCollectors &&
-    'collectors' in data &&
-    data.collectors != null
-  ) {
-    collectors = data.collectors
-  }
-
-  let metrics: unknown
-  if (
-    includeCollectors &&
-    'metrics' in data &&
-    data.metrics != null
-  ) {
-    metrics = data.metrics
-  }
-
-  return {
-    drop: parseDrop(data.drop, includeDescription),
-    collectors: includeCollectors ? parseCollectors(collectors) : null,
-    metrics: includeMetrics ? parseDropMetrics(metrics) : null,
-  }
 }
 
 export function parseDrops(

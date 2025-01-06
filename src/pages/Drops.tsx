@@ -72,7 +72,7 @@ function Drops() {
     dropsMetrics,
     fetchDropsMetrics,
     retryDropMetrics,
-  }= useDropsMetrics(dropIds)
+  } = useDropsMetrics(dropIds)
 
   const {
     completedDropsInCommon,
