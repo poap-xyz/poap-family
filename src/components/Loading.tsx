@@ -11,7 +11,7 @@ function Loading({
   count,
   total,
   totalFinal = true,
-  small = false,
+  size = 'big',
   title,
 }: {
   progress?: number
@@ -20,7 +20,7 @@ function Loading({
   count?: number
   total?: number
   totalFinal?: boolean
-  small?: boolean
+  size?: 'icon' | 'small' | 'big'
   title?: ReactNode
 }) {
   const [showDetails, setShowDetails] = useState<boolean>(true)
@@ -28,7 +28,7 @@ function Loading({
   const hasDetails = typeof eta === 'number' || typeof rate === 'number'
 
   return (
-    <div className={clsx('loading', small ? 'small' : 'big')}>
+    <div className={clsx('loading', size)}>
       {title && <h4>{title}</h4>}
       <div className="loading-inner">
         <div className="lds-dual-ring">

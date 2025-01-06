@@ -212,7 +212,7 @@ function Drop() {
         <div className="drop-header-info">
           <DropInfo drop={drop}>
             {loadingMetrics && (
-              <Loading />
+              <Loading size="big" />
             )}
             {
               completedMetrics &&
@@ -225,16 +225,14 @@ function Drop() {
               )
             }
             <DropButtonGroup drop={drop} viewInGallery={true}>
-              {collectors != null && (
-                <ButtonExportAddressCsv
-                  filename={`collectors-${drop.id}`}
-                  name={drop.name}
-                  addresses={collectors}
-                  title={
-                    `Generates CSV file with collectors of drop #${drop.id}`
-                  }
-                />
-              )}
+              <ButtonExportAddressCsv
+                filename={`collectors-${drop.id}`}
+                name={drop.name}
+                addresses={collectors}
+                title={
+                  `Generates CSV file with collectors of drop #${drop.id}`
+                }
+              />
               <DropButtonMoments drop={drop} />
             </DropButtonGroup>
             {cachedTs && (
@@ -247,40 +245,77 @@ function Drop() {
         </div>
         {loadingCollectors && (
           <Card>
-            <Loading />
+            <h4>Collectors</h4>
+            <Loading size="big" />
           </Card>
         )}
         {loadingDropInCommon && (
           <Card>
             {loadedCollectors > 0
-              ? <Loading count={loadedCollectors} total={metrics.mints} />
+              ? (
+                <>
+                  <h4>Drops in common</h4>
+                  <Loading
+                    size="big"
+                    count={loadedCollectors}
+                    total={metrics.mints}
+                  />
+                </>
+              )
               : (
                 loadedInCommonDrops != null
                   ? (
-                    <Loading
-                      count={loadedInCommonDrops.count}
-                      total={loadedInCommonDrops.total}
-                    />
+                    <>
+                      {loadedInCommonDrops.count === 0 && (
+                        <>
+                          <h4>Drops in common</h4>
+                          <Loading size="big" />
+                        </>
+                      )}
+                      {loadedInCommonDrops.count > 0 && (
+                        <>
+                          <h4>Drops in common</h4>
+                          <Loading
+                            size="big"
+                            count={loadedInCommonDrops.count}
+                            total={loadedInCommonDrops.total}
+                          />
+                        </>
+                      )}
+                    </>
                   )
                   : (
                       loadedInCommon != null
                         ? (
-                          <Loading
-                            count={loadedInCommon.count}
-                            total={loadedInCommon.total}
-                            totalFinal={loadedInCommon.totalFinal}
-                          />
+                          <>
+                            <h4>Drops in common</h4>
+                            <Loading
+                              size="big"
+                              count={loadedInCommon.count}
+                              total={loadedInCommon.total}
+                              totalFinal={loadedInCommon.totalFinal}
+                            />
+                          </>
                         )
                         : (
                           loadedInCommonDownload != null
                             ? (
+                              <>
+                                <h4>Drops in common</h4>
                                 <Loading
+                                  size="big"
                                   progress={loadedInCommonDownload.progress}
                                   eta={loadedInCommonDownload.estimated}
                                   rate={loadedInCommonDownload.rate}
                                 />
-                              )
-                            : <Loading />
+                              </>
+                            )
+                            : (
+                              <>
+                                <h4>Drops in common</h4>
+                                <Loading size="big" />
+                              </>
+                            )
                         )
                     )
               )
@@ -328,7 +363,7 @@ function Drop() {
             {loadingCollections && collectionsError == null && (
               <Card>
                 <h4>Collections</h4>
-                <Loading />
+                <Loading size="big" />
               </Card>
             )}
             {!loadingCollections && collectionsError != null && (
