@@ -1,5 +1,3 @@
-import { isAddress } from 'models/address'
-
 export interface Drop {
   id: number
   name: string
@@ -102,6 +100,7 @@ export function parseDrop(data: unknown, includeDescription: boolean): Drop {
 }
 
 export interface DropMetrics {
+  mints: number
   emailReservations: number
   emailClaimsMinted: number
   emailClaims: number
@@ -116,33 +115,15 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
   if (
     typeof eventMetrics === 'object' &&
     eventMetrics != null &&
-    'emailReservations' in eventMetrics &&
-    eventMetrics.emailReservations != null &&
-    typeof eventMetrics.emailReservations === 'number' &&
-    'emailClaimsMinted' in eventMetrics &&
-    eventMetrics.emailClaimsMinted != null &&
-    typeof eventMetrics.emailClaimsMinted === 'number' &&
-    'emailClaims' in eventMetrics &&
-    eventMetrics.emailClaims != null &&
-    typeof eventMetrics.emailClaims === 'number' &&
-    'momentsUploaded' in eventMetrics &&
-    eventMetrics.momentsUploaded != null &&
-    typeof eventMetrics.momentsUploaded === 'number' &&
-    'collectionsIncludes' in eventMetrics &&
-    eventMetrics.collectionsIncludes != null &&
-    typeof eventMetrics.collectionsIncludes === 'number'
-  ) {
-    return {
-      emailReservations: eventMetrics.emailReservations,
-      emailClaimsMinted: eventMetrics.emailClaimsMinted,
-      emailClaims: eventMetrics.emailClaims,
-      momentsUploaded: eventMetrics.momentsUploaded,
-      collectionsIncludes: eventMetrics.collectionsIncludes,
-    }
-  }
-  if (
-    typeof eventMetrics === 'object' &&
-    eventMetrics != null &&
+    'poaps_aggregate' in eventMetrics &&
+    eventMetrics.poaps_aggregate != null &&
+    typeof eventMetrics.poaps_aggregate === 'object' &&
+    'aggregate' in eventMetrics.poaps_aggregate &&
+    eventMetrics.poaps_aggregate.aggregate != null &&
+    typeof eventMetrics.poaps_aggregate.aggregate === 'object' &&
+    'count' in eventMetrics.poaps_aggregate.aggregate &&
+    eventMetrics.poaps_aggregate.aggregate.count != null &&
+    typeof eventMetrics.poaps_aggregate.aggregate.count === 'number' &&
     'email_claims_stats' in eventMetrics &&
     'moments_stats' in eventMetrics &&
     'collections_items_aggregate' in eventMetrics &&
@@ -186,6 +167,7 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
       momentsUploaded = eventMetrics.moments_stats.moments_uploaded;
     }
     return {
+      mints: eventMetrics.poaps_aggregate.aggregate.count,
       emailReservations,
       emailClaimsMinted,
       emailClaims,
@@ -195,50 +177,6 @@ export function parseDropMetrics(eventMetrics: unknown): DropMetrics | null {
     }
   }
   throw new Error('Malformed drop metrics')
-}
-
-export interface DropData {
-  drop: Drop
-  collectors: string[]
-  metrics: DropMetrics | null
-}
-
-export function parseDropData(
-  data: unknown,
-  includeDescription: boolean = false,
-  includeMetrics: boolean = true,
-): DropData {
-  if (
-    data == null ||
-    typeof data !== 'object' ||
-    !('drop' in data) ||
-    !('collectors' in data)
-  ) {
-    throw new Error('Malformed drop data: missing drop or collectors')
-  }
-  if (
-    !Array.isArray(data.collectors) ||
-    !data.collectors.every(
-      (collector: unknown): collector is string => isAddress(collector)
-    )
-  ) {
-    throw new Error('Malformed drop data: malformed collectors')
-  }
-  if (!includeMetrics) {
-    return {
-      drop: parseDrop(data.drop, includeDescription),
-      collectors: data.collectors,
-      metrics: null,
-    }
-  }
-  if (!('metrics' in data)) {
-    throw new Error('Malformed drop data: missing metrics')
-  }
-  return {
-    drop: parseDrop(data.drop, includeDescription),
-    collectors: data.collectors,
-    metrics: parseDropMetrics(data.metrics),
-  }
 }
 
 export function parseDrops(

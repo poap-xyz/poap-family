@@ -19,7 +19,7 @@ export default function Root() {
   if (fetcher.state === 'loading' || navigation.state === 'loading') {
     return (
       <CenterPage>
-        <Loading />
+        <Loading size="big" />
       </CenterPage>
     )
   }

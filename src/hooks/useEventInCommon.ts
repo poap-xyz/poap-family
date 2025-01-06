@@ -8,7 +8,7 @@ import { fetchCollectorDrops } from 'services/collectors'
 
 function useEventInCommon(
   dropId: number,
-  collectors: string[],
+  collectors: string[] | null,
   force: boolean = false,
   local: boolean = false,
   stream: boolean = false,
@@ -41,6 +41,9 @@ function useEventInCommon(
 
   useEffect(
     () => {
+      if (collectors == null) {
+        return
+      }
       if (loadedCollectors === collectors.length && !cachedTs) {
         const inCommonProcessed = filterInCommon(inCommon)
 
@@ -116,6 +119,9 @@ function useEventInCommon(
 
   const fetchCollectorsInCommon = useCallback(
     async (controllers: Record<string, AbortController>) => {
+      if (collectors == null) {
+        return
+      }
       setLoading(true)
       setLoadedCollectors(0)
       setErrors([])
@@ -133,6 +139,9 @@ function useEventInCommon(
 
   const fetchDropInCommon = useCallback(
     () => {
+      if (collectors == null) {
+        return () => {}
+      }
       const controller = new AbortController()
       const controllers: Record<string, AbortController> = collectors.reduce(
         (ctrls, collector) => ({

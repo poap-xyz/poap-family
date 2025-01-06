@@ -64,7 +64,7 @@ export default function App() {
                   ],
                 },
               ])}
-              fallbackElement={<CenterPage><Loading /></CenterPage>}
+              fallbackElement={<CenterPage><Loading size="big" /></CenterPage>}
             />
           </EnsProvider>
         </SettingsProvider>

@@ -505,7 +505,7 @@ function Addresses() {
     return (
       <CenterPage>
         <Card>
-          <Loading />
+          <Loading size="big" />
         </Card>
       </CenterPage>
     )
@@ -738,7 +738,7 @@ function Addresses() {
                       (address ?? collectors[index]) in loadingByAddress &&
                       !((address ?? collectors[index]) in errorsByAddress) &&
                       (
-                        <Loading small={true} />
+                        <Loading size="small" />
                       )
                     }
                     {(address ?? collectors[index]) in powers &&

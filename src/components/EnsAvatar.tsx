@@ -42,7 +42,7 @@ function EnsAvatar({ ens }: { ens: string }) {
       )}
       loading={() => (
         <div className="ens-avatar">
-          <Loading small={true} />
+          <Loading size="small" />
         </div>
       )}
       error={() => (

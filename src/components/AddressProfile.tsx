@@ -95,7 +95,7 @@ function AddressProfile({
   return (
     <div className="address-profile">
       {loadingAddressTokens && (
-        <Loading small={true} />
+        <Loading size="small" />
       )}
       {addressTokensError && (
         <ErrorMessage error={addressTokensError} />

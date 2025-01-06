@@ -83,7 +83,7 @@ function LastEvents({
         {showRefresh && lastEvents.length > 0 && !loading && page === 1 && (
           <ButtonRefresh onRefresh={onRefresh} />
         )}
-        {loading && <Loading />}
+        {loading && <Loading size="big" />}
         {!loading && showPerPage && (
           <div className="per-page">
             <span className="label">Per page</span>:{' '}

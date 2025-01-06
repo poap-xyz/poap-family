@@ -12,9 +12,12 @@
   border-width: 0;
 }
 
+.loading .loading-inner {
+  position: relative;
+}
+
 .loading.big .loading-inner {
   padding: 2rem;
-  position: relative;
 }
 
 .loading .progress, .loading .count {
@@ -52,7 +55,8 @@
   bottom: -12px;
 }
 
-.loading .details .eta, .loading .details .rate {
+.loading .details .eta,
+.loading .details .rate {
   white-space: nowrap;
   display: block;
   text-align: center;
@@ -107,6 +111,29 @@
   width: 28px;
   height: 28px;
   border-width: 3px;
+}
+
+.loading.icon {
+  margin: 0;
+}
+
+.loading.icon .count {
+  top: 5px;
+}
+
+.loading.icon .total {
+  top: 10px;
+}
+
+.loading.icon .lds-dual-ring {
+  width: 16px;
+  height: 16px;
+}
+
+.loading.icon .lds-dual-ring:after {
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
 }
 
 .loading h4:after {

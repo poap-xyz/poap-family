@@ -219,6 +219,11 @@ export async function fetchDropMetrics(
     `
       query DropMetrics($dropId: Int!) {
         drops_by_pk(id: $dropId) {
+          poaps_aggregate {
+            aggregate {
+              count
+            }
+          }
           email_claims_stats {
             minted
             reserved
@@ -281,6 +286,11 @@ export async function fetchDropsMetrics(
               id: { _in: $dropIds }
             }
           ) {
+            poaps_aggregate {
+              aggregate {
+                count
+              }
+            }
             email_claims_stats {
               minted
               reserved
@@ -306,6 +316,7 @@ export async function fetchDropsMetrics(
 
     for (const drop of drops) {
       dropsMetrics[drop.id] = {
+        mints: drop.mints,
         emailReservations: drop.emailReservations,
         emailClaimsMinted: drop.emailClaimsMinted,
         emailClaims: drop.emailClaims,
