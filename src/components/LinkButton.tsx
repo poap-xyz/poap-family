@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { clsx } from 'clsx'
 import { OpenNewWindow } from 'iconoir-react'
+import Loading from 'components/Loading'
 import 'styles/link-button.css'
 
 function LinkButton({
@@ -10,6 +11,8 @@ function LinkButton({
   children,
   external = false,
   secondary = false,
+  disabled = false,
+  loading = false,
   className,
 }: {
   href: string
@@ -18,6 +21,8 @@ function LinkButton({
   children?: ReactNode
   external?: boolean
   secondary?: boolean
+  disabled?: boolean
+  loading?: boolean
   className?: string
 }) {
   if (external && !icon) {
@@ -29,15 +34,25 @@ function LinkButton({
       title={title}
       className={clsx('link-button', className,
         secondary ? 'secondary' : 'primary',
+        {
+          disabled,
+          loading,
+        },
       )}
+      aria-disabled={disabled || loading}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
     >
       <span className="link-button-content">
-        {icon && (
+        {icon && !loading && (
           <span className="link-button-icon">
             {icon}
           </span>
+        )}
+        {loading && (
+          <div className="link-button-loading">
+            <Loading size="icon" />
+          </div>
         )}
         {children}
       </span>

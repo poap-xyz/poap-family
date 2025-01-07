@@ -23,11 +23,11 @@
   transition: background-color .3s ease-out;
 }
 
-.link-button:hover {
+.link-button:not(.disabled):not(.loading):hover {
   text-decoration: none;
 }
 
-.link-button.primary:hover .link-button-content {
+.link-button:not(.disabled):not(.loading).primary:hover .link-button-content {
   background-color: #7d73e2;
 }
 
@@ -46,7 +46,7 @@
   border-radius: 3.2rem;
 }
 
-.link-button:not(.disabled).primary {
+.link-button:not(.disabled):not(.loading).primary {
   margin-left: 1rem;
 }
 
@@ -88,7 +88,7 @@
   transition: background-color .3s ease-out,transform .3s ease-out,border-color .3s ease-out;
 }
 
-.link-button.secondary:hover .link-button-content {
+.link-button:not(.disabled):not(.loading).secondary:hover .link-button-content {
   background-color: #968cff;
   color: white;
   stroke: white;
@@ -96,8 +96,36 @@
   border-color: #5e58a5;
 }
 
+.link-button.disabled .link-button-content,
+.link-button.disabled:hover .link-button-content {
+  background-color: #f5f4ff;
+  border-color: #dddaff;
+  color: lightslategray;
+  stroke: lightslategray;
+  fill: lightslategray;
+  cursor: default;
+}
+
+.link-button.disabled::before {
+  content: unset;
+}
+
+.link-button.loading,
+.link-button.loading .link-button-content,
+.link-button.loading:hover,
+.link-button.loading:hover .link-button-content {
+  cursor: progress;
+  pointer-events: none;
+}
+
 .link-button .link-button-content .link-button-icon {
   position: relative;
   top: 2px;
   margin-right: .25rem;
+}
+
+.link-button .link-button-content .link-button-loading {
+  position: relative;
+  top: -2px;
+  margin-right: .5rem;
 }

@@ -9,7 +9,7 @@ function ButtonExpand({
   link = false,
   title,
 }: {
-  addresses: string[]
+  addresses?: string[]
   dropIds?: number[]
   link?: boolean
   title?: string
@@ -29,8 +29,13 @@ function ButtonExpand({
           <LinkButton
             title={title}
             secondary={true}
+            loading={addresses == null}
             icon={<Expand />}
-            href={`/addresses${queryString}#${addresses.join(',')}`}
+            href={
+              addresses == null
+                ? '#'
+                : `/addresses${queryString}#${addresses.join(',')}`
+            }
           >
             Expand
           </LinkButton>
@@ -39,8 +44,12 @@ function ButtonExpand({
           <Button
             title={title}
             secondary={true}
+            loading={addresses == null}
             icon={<Expand />}
             onClick={() => {
+              if (addresses == null) {
+                return
+              }
               navigate(`/addresses${queryString}#${addresses.join(',')}`)
             }}
           >
