@@ -14,12 +14,14 @@ function DropCompareButtons({
   dropId: number
   dropIds: number[]
   drops: Record<number, Drop>
-  inCommon: InCommon
+  inCommon?: InCommon
   viewInGallery?: boolean
 }) {
   const compareItself = (
     dropIds.length === 1 && String(dropId) === String(dropIds[0])
   )
+
+  const addresses = inCommon != null ? inCommon[dropId] : undefined
 
   return (
     <DropButtonGroup
@@ -39,7 +41,7 @@ function DropCompareButtons({
                 ? drops[dropIds[0]].name
                 : undefined
             }
-            addresses={inCommon[dropId]}
+            addresses={addresses}
             title={
               compareItself
                 ? `Generates CSV file with collectors of drop #${dropId}`
@@ -48,7 +50,7 @@ function DropCompareButtons({
             }
           />
           <ButtonExpand
-            addresses={inCommon[dropId]}
+            addresses={addresses}
             title={
               compareItself
                 ? `Expands collectors of drop #${dropId}`

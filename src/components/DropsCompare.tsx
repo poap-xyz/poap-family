@@ -34,37 +34,33 @@ function DropsCompare({
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
   const adressesColors = useMemo(
-    () => dropIds.length < 2
-      ? {}
-      : Object.fromEntries(
-          intersection(
-            ...dropIds.map((dropId) => inCommon[dropId])
+    () => (
+      dropIds.length < 2
+        ? {}
+        : Object.fromEntries(
+            intersection(
+              ...dropIds.map((dropId) => inCommon[dropId])
+            )
+            .map(
+              (address) => [
+                address,
+                getColorForSeed(address),
+              ]
+            )
           )
-          .map(
-            (address) => [
-              address,
-              getColorForSeed(address),
-            ]
-          )
-        ),
+    ),
     [dropIds, inCommon]
   )
 
   function onCollectorEnter(collectorDropId: number, collector: string): void {
     setHighlighted((current) => (
-      current !== collector &&
-        collector in adressesColors
-        ? collector
-        : current
+      current !== collector && collector in adressesColors ? collector : current
     ))
   }
 
   function onCollectorLeave(collectorDropId: number, collector: string): void {
     setHighlighted((current) => (
-      current === collector &&
-        collector in adressesColors
-        ? null
-        : current
+      current === collector && collector in adressesColors ? null : current
     ))
   }
 

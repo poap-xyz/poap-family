@@ -17,7 +17,7 @@
   transition: background-color .3s ease-out;
 }
 
-.button:not(.disabled).primary {
+.button.primary {
   margin-left: .5rem;
 }
 
@@ -29,11 +29,11 @@
   border-color: #5e58a5;
 }
 
-.button.primary:hover .button-content {
+.button:not(.loading).primary:hover .button-content {
   background-color: #7d73e2;
 }
 
-.button.secondary:hover .button-content {
+.button:not(.loading).secondary:hover .button-content {
   background-color: #968cff;
   color: white;
   stroke: white;
@@ -50,7 +50,8 @@
   border-color: #5e58a5;
 }
 
-.button.disabled .button-content, .button.disabled:hover .button-content {
+.button.disabled .button-content,
+.button.disabled:hover .button-content {
   background-color: #f5f4ff;
   border-color: #dddaff;
   color: lightslategray;
@@ -60,8 +61,15 @@
   cursor: default;
 }
 
-.button.primary.disabled::before {
+.button.disabled.primary::before {
   content: unset;
+}
+
+.button.loading,
+.button.loading .button-content,
+.button.loading:hover
+.button.loading:hover .button-content {
+  cursor: progress;
 }
 
 .button .button-content {

@@ -24,7 +24,6 @@ function Button({
   icon?: ReactNode
   title?: string
 }) {
-  const isLoading = loading && !disabled
   return (
     <button
       className={clsx('button', {
@@ -33,19 +32,19 @@ function Button({
         primary: !secondary,
         secondary,
         borderless,
-        loading: isLoading,
+        loading,
       })}
-      disabled={disabled}
+      disabled={disabled || loading}
       onClick={onClick}
       title={title}
     >
       <span className="button-content">
-        {icon && !isLoading && (
+        {icon && !loading && (
           <span className="button-content-icon">
             {icon}
           </span>
         )}
-        {isLoading && (
+        {loading && (
           <div className="button-content-loading">
             <Loading size="icon" />
           </div>

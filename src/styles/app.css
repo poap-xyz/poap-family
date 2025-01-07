@@ -33,8 +33,12 @@ a {
   text-decoration: none;
 }
 
-a:hover {
+a:not(.disabled):not(.loading):hover {
   text-decoration: underline;
+}
+
+a.disabled, a.loading {
+  pointer-events: none;
 }
 
 p {
