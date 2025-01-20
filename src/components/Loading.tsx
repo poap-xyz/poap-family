@@ -20,7 +20,7 @@ function Loading({
   count?: number
   total?: number
   totalFinal?: boolean
-  size?: 'icon' | 'small' | 'big'
+  size?: 'icon' | 'small' | 'medium' | 'big'
   title?: ReactNode
 }) {
   const [showDetails, setShowDetails] = useState<boolean>(true)

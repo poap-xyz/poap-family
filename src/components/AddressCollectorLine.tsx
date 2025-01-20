@@ -1,4 +1,7 @@
-import { Drop } from 'models/drop'
+import { Fragment } from 'react'
+import { useDrops } from 'stores/drops'
+import Loading from 'components/Loading'
+import ErrorMessage from 'components/ErrorMessage'
 import TokenImage from 'components/TokenImage'
 import LinkToScan from 'components/LinkToScan'
 import ButtonAddressProfile from 'components/ButtonAddressProfile'
@@ -7,7 +10,6 @@ import 'styles/address-collector-line.css'
 function AddressCollectorLine({
   ens,
   address,
-  drops,
   dropIds,
   collectorsDropIds = [],
   inCommonDropIds = [],
@@ -16,27 +18,24 @@ function AddressCollectorLine({
 }: {
   ens?: string
   address: string
-  drops: Record<number, Drop>
   dropIds?: number[]
   collectorsDropIds?: number[]
   inCommonDropIds?: number[]
   inCommonAddresses?: string[]
   linkToScan?: boolean
 }) {
-  const hasDrops = (
-    drops != null &&
-    typeof drops === 'object' &&
-    dropIds != null &&
-    Array.isArray(dropIds) &&
-    dropIds.length > 0
-  )
+  const {
+    drops,
+    loading,
+    error,
+    errors,
+  } = useDrops()
 
   return (
     <div className="address-collector-line">
       <div className="collector-name">
         <ButtonAddressProfile
           address={address}
-          drops={drops}
           inCommonDropIds={inCommonDropIds}
           inCommonAddresses={inCommonAddresses}
           showEns={true}
@@ -52,20 +51,31 @@ function AddressCollectorLine({
           ens={ens}
         />
       )}
-      {hasDrops && (
-        <div className="collector-drops">
-          {dropIds.map(
-            (dropId) =>
-              dropId in drops &&
+      {dropIds != null && (
+        <>
+          {error && (
+            <ErrorMessage error={error} />
+          )}
+          <div className="collector-drops">
+            {dropIds.map((dropId) => (
               collectorsDropIds != null &&
               collectorsDropIds.includes(dropId)
                 ? (
-                    <TokenImage
-                      key={dropId}
-                      drop={drops[dropId]}
-                      size={18}
-                      resize={true}
-                    />
+                    <Fragment key={dropId}>
+                      {!drops[dropId] && loading[dropId] && (
+                        <Loading size="small" />
+                      )}
+                      {!drops[dropId] && !loading[dropId] && errors[dropId] && (
+                        <ErrorMessage error={errors[dropId]} />
+                      )}
+                      {drops[dropId] && (
+                        <TokenImage
+                          drop={drops[dropId]}
+                          size={18}
+                          resize={true}
+                        />
+                      )}
+                    </Fragment>
                   )
                 : (
                     <div
@@ -75,8 +85,9 @@ function AddressCollectorLine({
                       {' '}
                     </div>
                   )
-          )}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

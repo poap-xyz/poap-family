@@ -3,11 +3,13 @@ import { fetchCollectorPOAPs } from 'services/collectors'
 import { POAP } from 'models/poap'
 
 function useAddressTokens(address: string): {
+  completed: boolean
   loadingAddressTokens: boolean
   addressTokensError: Error | null
   tokens: POAP[] | null
   fetchTokens: () => () => void
 } {
+  const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [poaps, setPOAPs] = useState<POAP[] | null>(null)
@@ -16,13 +18,16 @@ function useAddressTokens(address: string): {
     () => {
       const controller = new AbortController()
       setLoading(true)
+      setCompleted(false)
       fetchCollectorPOAPs(address, controller.signal).then(
         (foundPOAPs) => {
           setLoading(false)
+          setCompleted(true)
           setPOAPs(foundPOAPs)
         },
         (err: unknown) => {
           setLoading(false)
+          setCompleted(false)
           if (err instanceof Error) {
             setError(err)
           } else {
@@ -38,6 +43,7 @@ function useAddressTokens(address: string): {
           controller.abort()
         }
         setLoading(false)
+        setCompleted(false)
         setError(null)
         setPOAPs(null)
       }
@@ -46,6 +52,7 @@ function useAddressTokens(address: string): {
   )
 
   return {
+    completed,
     loadingAddressTokens: loading,
     addressTokensError: error,
     tokens: poaps,

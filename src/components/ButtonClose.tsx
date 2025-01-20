@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import { Xmark } from 'iconoir-react'
 import 'styles/button-close.css'
 

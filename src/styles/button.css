@@ -103,6 +103,7 @@
 
 .button .button-content .button-content-loading {
   position: relative;
-  top: -2px;
+  top: 6px;
+  left: 4px;
   margin-right: .5rem;
 }

@@ -84,7 +84,6 @@ function Drop() {
     loadedCollectors,
     collectorsErrors,
     inCommon,
-    drops,
     cachedTs,
     fetchDropInCommon,
     retryAddress,
@@ -108,6 +107,7 @@ function Drop() {
   useEffect(
     () => {
       const cancelDropsCollectors = fetchDropsCollectors()
+
       return () => {
         cancelDropsCollectors()
       }
@@ -120,6 +120,7 @@ function Drop() {
   useEffect(
     () => {
       const cancelDropsMetrics = fetchDropsMetrics()
+
       return () => {
         cancelDropsMetrics()
       }
@@ -145,9 +146,11 @@ function Drop() {
   useEffect(
     () => {
       let cancelDropInCommon: () => void | undefined
+
       if (completedCollectors) {
         cancelDropInCommon = fetchDropInCommon()
       }
+
       return () => {
         if (cancelDropInCommon) {
           cancelDropInCommon()
@@ -163,6 +166,7 @@ function Drop() {
   useEffect(
     () => {
       let cancelDropsCollections: () => void | undefined
+
       if (
         metrics != null &&
         metrics.collectionsIncludes > 0 &&
@@ -170,6 +174,7 @@ function Drop() {
       ) {
         cancelDropsCollections = fetchDropsCollections()
       }
+
       return () => {
         if (cancelDropsCollections) {
           cancelDropsCollections()
@@ -190,12 +195,13 @@ function Drop() {
     [drop.name, setTitle]
   )
 
-  function refreshCache(): void {
+  const refreshCache = (): void => {
     setSearchParams({ force: 'true' })
   }
 
-  function handleDropActive(dropId: number): void {
+  const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
+
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
         setDropsEnsNames((prevDropsEnsNames) => ({
@@ -224,7 +230,7 @@ function Drop() {
                 />
               )
             }
-            <DropButtonGroup drop={drop} viewInGallery={true}>
+            <DropButtonGroup dropId={drop.id} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${drop.id}`}
                 name={drop.name}
@@ -394,7 +400,6 @@ function Drop() {
               <DropsInCommon
                 onActive={handleDropActive}
                 inCommon={inCommon}
-                drops={drops}
                 baseDropIds={dropIds}
                 dropsEnsNames={dropsEnsNames}
               />

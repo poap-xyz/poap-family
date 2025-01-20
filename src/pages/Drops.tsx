@@ -4,7 +4,7 @@ import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { InCommon, mergeAllInCommon } from 'models/in-common'
-import { Drop, parseDrops, parseDropIds, joinDropIds } from 'models/drop'
+import { parseDrops, parseDropIds, joinDropIds } from 'models/drop'
 import { EnsByAddress } from 'models/ethereum'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
@@ -112,6 +112,10 @@ function Drops() {
 
   useEffect(
     () => {
+      if (dropsCollectors == null) {
+        return
+      }
+
       resolveEnsNames(
         uniq(union(...Object.values(dropsCollectors)))
       )
@@ -122,6 +126,7 @@ function Drops() {
   useEffect(
     () => {
       const cancelDropsCollectors = fetchDropsCollectors()
+
       return () => {
         cancelDropsCollectors()
       }
@@ -132,6 +137,7 @@ function Drops() {
   useEffect(
     () => {
       const cancelDropsMetrics = fetchDropsMetrics()
+
       return () => {
         cancelDropsMetrics()
       }
@@ -142,9 +148,11 @@ function Drops() {
   useEffect(
     () => {
       let cancelDropsInCommon: () => void | undefined
+
       if (completedCollectors && completedMetrics) {
         cancelDropsInCommon = fetchDropsInCommon()
       }
+
       return () => {
         if (cancelDropsInCommon) {
           cancelDropsInCommon()
@@ -157,9 +165,11 @@ function Drops() {
   useEffect(
     () => {
       let cancelDropsCollections: () => void | undefined
+
       if (completedDropsInCommon) {
         cancelDropsCollections = fetchDropsCollections()
       }
+
       return () => {
         if (cancelDropsCollections) {
           cancelDropsCollections()
@@ -185,11 +195,11 @@ function Drops() {
     }
   }
 
-  function handleAllChange(checked: boolean): void {
+  const handleAllChange = (checked: boolean): void => {
     setSearchParams({ all: checked ? 'true' : 'false' })
   }
 
-  function handleViewAll(): void {
+  const handleViewAll = (): void => {
     setSearchParams({ all: 'true' })
   }
 
@@ -206,17 +216,6 @@ function Drops() {
       )
     },
     [completedDropsInCommon, dropsInCommon, all]
-  )
-
-  const allDrops: Record<number, Drop> = useMemo(
-    () => Object.values(dropsInCommon).reduce(
-      (allDrops, data) => ({
-        ...allDrops,
-        ...data.events,
-      }),
-      {}
-    ),
-    [dropsInCommon]
   )
 
   const staleDrops = useMemo(
@@ -252,11 +251,11 @@ function Drops() {
     ]
   )
 
-  function refreshCache(): void {
+  const refreshCache = (): void => {
     setSearchParams({ force: 'true' })
   }
 
-  function sumCollectionsIncludes(): number {
+  const sumCollectionsIncludes = (): number => {
     if (typeof dropsMetrics !== 'object') {
       return 0
     }
@@ -266,7 +265,7 @@ function Drops() {
     )
   }
 
-  function handleDropActive(dropId: number): void {
+  const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
       resolveEnsNames(addresses).then((ensNames) => {
@@ -496,7 +495,7 @@ function Drops() {
                     </td>
                     <td className="drop-cell-actions">
                       <DropButtonGroup
-                        drop={drop}
+                        dropId={drop.id}
                         right={true}
                         viewInGallery={true}
                       >
@@ -564,7 +563,7 @@ function Drops() {
                 emptyMessage={(
                   <>
                     No collections found that includes exactly all{' '}
-                    {Object.keys(drops).length} POAPs,{' '}
+                    {dropIds.length} POAPs,{' '}
                     <ButtonLink onClick={handleViewAll}>
                       view related collections
                     </ButtonLink>.
@@ -579,13 +578,11 @@ function Drops() {
             <DropsCollectors
               dropsCollectors={dropsCollectors}
               inCommon={inCommon}
-              drops={allDrops}
               all={all}
             />
             <DropsInCommon
               onActive={handleDropActive}
               inCommon={inCommon}
-              drops={allDrops}
               baseDropIds={dropIds}
               dropsEnsNames={dropsEnsNames}
             />

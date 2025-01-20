@@ -8,6 +8,7 @@
   border-radius: 12px;
   margin: .2rem;
   overflow-wrap: break-word;
+  cursor: pointer;
   width: 72px;
 }
 
@@ -16,9 +17,14 @@
   border-color: #cdcdcd;
 }
 
-.drops-powers .drop-power-card.selected {
+.drops-powers .drop-power-card:not(.error).selected {
   background-color: #7d73e2 !important;
   border-color: #473e6b !important;
+}
+
+.drops-powers .drop-power-card.error {
+  background-color: #E9A1B6 !important;
+  cursor: help;
 }
 
 .drops-powers .drop-power-card .drop-select-button {

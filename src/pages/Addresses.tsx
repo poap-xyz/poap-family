@@ -798,7 +798,6 @@ function Addresses() {
           <DropsInCommon
             onActive={handleDropActive}
             inCommon={inCommon}
-            drops={drops}
             showCount={addresses.length}
             dropsEnsNames={dropsEnsNames}
           />
