@@ -6,7 +6,7 @@ import { parseDropIds, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { InCommon } from 'models/in-common'
 import { HTMLContext } from 'stores/html'
-import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
+import { useEns, useEnsResolver } from 'stores/ethereum'
 import { fetchCollectorDrops, fetchDropsCollectors } from 'services/collectors'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
@@ -40,12 +40,12 @@ function Addresses() {
     getAddress,
     isEnsAddressFound,
     isEnsAddressNotFound,
-  } = useContext(ResolverEnsContext)
+  } = useEnsResolver()
   const {
     resolveEnsNames,
     setEnsName,
     getEnsName,
-  } = useContext(ReverseEnsContext)
+  } = useEns()
 
   const [editMode, setEditMode] = useState<boolean>(false)
   const [state, setState] = useState<number>(STATE_INIT_PARSING)

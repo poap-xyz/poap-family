@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { parseDrop } from 'models/drop'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useDropsCollectors from 'hooks/useDropsCollectors'
@@ -27,7 +27,7 @@ import 'styles/drop.css'
 function Drop() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { resolveEnsNames } = useContext(ReverseEnsContext)
+  const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
 
   const force = searchParams.get('force') === 'true'

@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { InCommon, mergeAllInCommon } from 'models/in-common'
 import { parseDrops, parseDropIds, joinDropIds } from 'models/drop'
 import { union, uniq } from 'utils/array'
@@ -36,7 +36,7 @@ function Drops() {
   const { dropIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
-  const { resolveEnsNames } = useContext(ReverseEnsContext)
+  const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
 
   const force = searchParams.get('force') === 'true'

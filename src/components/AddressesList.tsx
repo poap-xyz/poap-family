@@ -1,6 +1,5 @@
-import { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import LinkToScan from 'components/LinkToScan'
 import 'styles/addresses-list.css'
 
@@ -11,7 +10,7 @@ function AddressesList({
   addresses: string[]
   addressToCompare?: string
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   return (
     <ol className="addresses-list">

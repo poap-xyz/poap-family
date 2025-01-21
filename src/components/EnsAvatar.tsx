@@ -1,12 +1,12 @@
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { LazyImage } from 'react-lazy-images'
-import { ResolverEnsContext } from 'stores/ethereum'
+import { useEnsResolver } from 'stores/ethereum'
 import Loading from 'components/Loading'
 import ErrorMessage from 'components/ErrorMessage'
 import 'styles/ens-avatar.css'
 
 function EnsAvatar({ ens }: { ens: string }) {
-  const { resolveMeta, getMeta } = useContext(ResolverEnsContext)
+  const { resolveMeta, getMeta } = useEnsResolver()
 
   useEffect(
     () => {

@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { formatMonthYear } from 'utils/date'
@@ -8,7 +8,7 @@ import {
   INCOMMON_DROPS_LIMIT,
 } from 'models/in-common'
 import { POAP_PROFILE_LIMIT } from 'models/poap'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { useDrops } from 'stores/drops'
 import useAddressTokens from 'hooks/useAddressTokens'
 import EnsAvatar from 'components/EnsAvatar'
@@ -31,7 +31,7 @@ function AddressProfile({
   inCommonDropIds?: number[]
   inCommonAddresses?: string[]
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const [showAllPOAPs, setShowAllPOAPs] = useState<boolean>(false)
   const [showAllInCommonDrops, setShowAllInCommonDrops] = useState<boolean>(false)

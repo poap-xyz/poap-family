@@ -1,6 +1,5 @@
-import { useContext } from 'react'
 import { clsx } from 'clsx'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { POAP_SCAN_URL } from 'models/poap'
 import POAP_Stamp from 'assets/images/POAP_Stamp.svg'
 import 'styles/link-to-scan.css'
@@ -20,7 +19,7 @@ function LinkToScan({
   stamp?: boolean
   showEns?: boolean
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const ensName = ens ?? getEnsName(address)
 

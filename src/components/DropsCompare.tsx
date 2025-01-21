@@ -1,11 +1,11 @@
-import { useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   InCommon,
   getAddressInCommonAddresses,
   getAddressInCommonDropIds,
 } from 'models/in-common'
 import { useDrops } from 'stores/drops'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
@@ -28,7 +28,7 @@ function DropsCompare({
   inCommon: InCommon
   onClose: (dropId: number) => void
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
   const {
