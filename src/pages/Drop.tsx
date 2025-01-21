@@ -1,9 +1,8 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { parseDrop } from 'models/drop'
-import { EnsByAddress } from 'models/ethereum'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useDropsCollectors from 'hooks/useDropsCollectors'
 import useDropsMetrics from 'hooks/useDropsMetrics'
@@ -30,7 +29,6 @@ function Drop() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
 
@@ -203,12 +201,7 @@ function Drop() {
     const addresses = inCommon[dropId]
 
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevDropsEnsNames) => ({
-          ...prevDropsEnsNames,
-          [dropId]: ensNames,
-        }))
-      })
+      resolveEnsNames(addresses)
     }
   }
 
@@ -401,7 +394,6 @@ function Drop() {
                 onActive={handleDropActive}
                 inCommon={inCommon}
                 baseDropIds={dropIds}
-                dropsEnsNames={dropsEnsNames}
               />
             )}
           </>

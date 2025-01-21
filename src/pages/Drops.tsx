@@ -1,11 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { ReverseEnsContext } from 'stores/ethereum'
 import { InCommon, mergeAllInCommon } from 'models/in-common'
 import { parseDrops, parseDropIds, joinDropIds } from 'models/drop'
-import { EnsByAddress } from 'models/ethereum'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
 import useDropsCollectors from 'hooks/useDropsCollectors'
@@ -39,7 +38,6 @@ function Drops() {
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useContext(ReverseEnsContext)
   const loaderData = useLoaderData()
-  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
@@ -267,13 +265,9 @@ function Drops() {
 
   const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
+
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevDropsEnsNames) => ({
-          ...prevDropsEnsNames,
-          [dropId]: ensNames,
-        }))
-      })
+      resolveEnsNames(addresses)
     }
   }
 
@@ -584,7 +578,6 @@ function Drops() {
               onActive={handleDropActive}
               inCommon={inCommon}
               baseDropIds={dropIds}
-              dropsEnsNames={dropsEnsNames}
             />
           </>
         )}
