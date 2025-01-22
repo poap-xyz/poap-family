@@ -90,7 +90,7 @@ function Drops() {
     all,
     /*refresh*/force,
     /*local*/false,
-    /*stream*/false
+    /*stream*/true
   )
 
   const {
