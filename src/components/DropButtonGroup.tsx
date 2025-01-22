@@ -1,16 +1,15 @@
 import { ReactNode } from 'react'
 import { POAP_GALLERY_URL } from 'models/poap'
-import { Drop } from 'models/drop'
 import ButtonGroup from 'components/ButtonGroup'
 import LinkButton from 'components/LinkButton'
 
 function DropButtonGroup({
-  drop,
+  dropId,
   children,
   viewInGallery = true,
   right = false,
 }: {
-  drop: Drop
+  dropId: number
   children?: ReactNode
   viewInGallery?: boolean
   right?: boolean
@@ -23,7 +22,7 @@ function DropButtonGroup({
     <ButtonGroup right={right}>
       {viewInGallery && (
         <LinkButton
-          href={`${POAP_GALLERY_URL}/${drop.id}`}
+          href={`${POAP_GALLERY_URL}/${dropId}`}
           external={true}
         >
           View in Gallery

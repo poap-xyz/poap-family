@@ -216,4 +216,6 @@ export const DEFAULT_SEARCH_LIMIT = 10
 
 export const DEFAULT_DROP_LIMIT = 100
 
+export const DROPS_LIMIT = 20
+
 export const SEARCH_LIMIT = 10

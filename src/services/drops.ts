@@ -95,7 +95,8 @@ export async function searchDrops(
 
 export async function fetchDropsOrErrors(
   dropIds: number[],
-  includeDescription: boolean,
+  includeDescription: boolean = false,
+  abortSignal?: AbortSignal,
   limit: number = Math.min(DEFAULT_DROP_LIMIT, DEFAULT_COMPASS_LIMIT),
 ): Promise<[
   Record<number, Drop>,
@@ -139,6 +140,7 @@ export async function fetchDropsOrErrors(
         {
           dropIds: ids,
         },
+        abortSignal
       )
 
       for (const id of ids) {

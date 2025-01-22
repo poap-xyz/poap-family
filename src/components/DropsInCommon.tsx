@@ -1,5 +1,5 @@
-import { ReactNode, useMemo, useState } from 'react'
-import { Drop, DropPower } from 'models/drop'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { DropPower } from 'models/drop'
 import {
   InCommon,
   filterInCommon,
@@ -7,6 +7,7 @@ import {
   sortInCommonEntries,
 } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
+import { useDrops } from 'stores/drops'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
@@ -18,7 +19,6 @@ import 'styles/in-common.css'
 function DropsInCommon({
   children,
   inCommon: initialInCommon,
-  drops,
   showCount,
   showActive = true,
   baseDropIds = [],
@@ -27,7 +27,6 @@ function DropsInCommon({
 }: {
   children?: ReactNode
   inCommon: InCommon
-  drops: Record<number, Drop>
   showCount?: number
   showActive?: boolean
   baseDropIds?: number[]
@@ -37,14 +36,19 @@ function DropsInCommon({
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeDropIds, setActiveDropIds] = useState<number[]>([])
 
-  const inCommonEntries = useMemo(() =>
-    sortInCommonEntries(
+  const inCommonEntries = useMemo(
+    () => sortInCommonEntries(
       Object
         .entries(filterInCommon(initialInCommon))
         .map(([rawDropId, addresses]) => [parseInt(rawDropId), addresses])
     ),
     [initialInCommon]
   )
+
+  // const dropIds = useMemo(
+  //   () => inCommonEntries.map(([dropId]) => dropId),
+  //   [inCommonEntries]
+  // )
 
   const inCommon = useMemo(
     () => Object.fromEntries(inCommonEntries),
@@ -69,7 +73,7 @@ function DropsInCommon({
     [inCommonEntries, showCount]
   )
 
-  const inCommonDropsAddresses = useMemo(
+  const inCommonVisible = useMemo(
     () => {
       if (!showAll && inCommonEntries.length > inCommonLimit) {
         return inCommonEntries.slice(0, inCommonLimit)
@@ -79,15 +83,20 @@ function DropsInCommon({
     [inCommonEntries, inCommonLimit, showAll]
   )
 
+  const dropIdsVisible = useMemo(
+    () => inCommonVisible.map(([dropId]) => dropId),
+    [inCommonVisible]
+  )
+
   const powers = useMemo(
-    () => inCommonDropsAddresses.map(([dropId, addresses]): DropPower => ({
+    () => inCommonVisible.map(([dropId, addresses]): DropPower => ({
       dropId,
       power: addresses.length,
     })),
-    [inCommonDropsAddresses]
+    [inCommonVisible]
   )
 
-  function removeActiveDropId(dropId: number): void {
+  const removeActiveDropId = (dropId: number): void => {
     setActiveDropIds((prevActiveDropIds) => {
       if (prevActiveDropIds == null) {
         return []
@@ -102,7 +111,7 @@ function DropsInCommon({
     })
   }
 
-  function toggleActiveDropId(dropId: number): void {
+  const toggleActiveDropId = (dropId: number): void => {
     if (activeDropIds.indexOf(dropId) === -1) {
       setActiveDropIds((prevActiveDropIds) => ([
         ...(prevActiveDropIds ?? []),
@@ -137,6 +146,19 @@ function DropsInCommon({
   const inCommonTotal = inCommonEntries.length
   const hasMore = inCommonTotal > inCommonLimit
 
+  const { fetchDrops } = useDrops()
+
+  useEffect(
+    () => {
+      const cancelFetchDrops = fetchDrops(dropIdsVisible)
+
+      return () => {
+        cancelFetchDrops()
+      }
+    },
+    [dropIdsVisible, fetchDrops]
+  )
+
   return (
     <div className="in-common">
       <Card>
@@ -157,7 +179,6 @@ function DropsInCommon({
           perfectPower={showCount}
           selectedDropIds={activeDropIds}
           onSelect={toggleActiveDropId}
-          drops={drops}
           powers={powers}
         >
           {hasMore && (
@@ -184,7 +205,6 @@ function DropsInCommon({
         <DropsCompare
           baseDropIds={baseDropIds}
           dropIds={activeDropIds}
-          drops={drops}
           inCommon={inCommon}
           onClose={removeActiveDropId}
           dropsEnsNames={activeDropsEnsNames}

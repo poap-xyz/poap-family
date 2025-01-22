@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react'
-import { Drop } from 'models/drop'
 import {
   InCommon,
   getAddressInCommonAddresses,
   getAddressInCommonDropIds,
 } from 'models/in-common'
 import { EnsByAddress } from 'models/ethereum'
+import { useDrops } from 'stores/drops'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
+import ErrorMessage from 'components/ErrorMessage'
 import DropHeader from 'components/DropHeader'
 import AddressCollectorLine from 'components/AddressCollectorLine'
 import DropCompareButtons from 'components/DropCompareButtons'
@@ -19,19 +20,24 @@ import 'styles/drops-compare.css'
 function DropsCompare({
   baseDropIds,
   dropIds,
-  drops,
   inCommon,
   onClose,
   dropsEnsNames,
 }: {
   baseDropIds: number[]
   dropIds: number[]
-  drops: Record<number, Drop>
   inCommon: InCommon
   onClose: (dropId: number) => void
   dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [highlighted, setHighlighted] = useState<string | null>(null)
+
+  const {
+    drops,
+    loading,
+    error,
+    errors,
+  } = useDrops()
 
   const adressesColors = useMemo(
     () => (
@@ -66,10 +72,19 @@ function DropsCompare({
 
   return (
     <div className="drops-compare">
+      {error && (
+        <ErrorMessage error={error} />
+      )}
       {dropIds.map((dropId) =>
         <div className="drop-compare" key={dropId}>
           <Card>
-            <DropHeader drop={drops[dropId]} size={48} />
+            <DropHeader
+              dropId={dropId}
+              drop={drops[dropId]}
+              loading={loading[dropId]}
+              error={errors[dropId]}
+              size={48}
+            />
             <div className="drop-compare-actions">
               <DropNavigateButtons
                 baseDropIds={baseDropIds}
@@ -128,7 +143,6 @@ function DropsCompare({
                             ? dropsEnsNames[dropId][collector]
                             : undefined}
                         address={collector}
-                        drops={drops}
                         inCommonDropIds={inCommonDropIds}
                         inCommonAddresses={inCommonAddresses}
                         linkToScan={
@@ -142,7 +156,6 @@ function DropsCompare({
             <DropCompareButtons
               dropId={dropId}
               dropIds={baseDropIds}
-              drops={drops}
               inCommon={inCommon}
               viewInGallery={true}
             />
