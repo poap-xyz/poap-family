@@ -6,7 +6,6 @@ import {
   INCOMMON_DROPS_LIMIT,
   sortInCommonEntries,
 } from 'models/in-common'
-import { EnsByAddress } from 'models/ethereum'
 import { useDrops } from 'stores/drops'
 import ButtonLink from 'components/ButtonLink'
 import Card from 'components/Card'
@@ -23,7 +22,6 @@ function DropsInCommon({
   showActive = true,
   baseDropIds = [],
   onActive,
-  dropsEnsNames,
 }: {
   children?: ReactNode
   inCommon: InCommon
@@ -31,7 +29,6 @@ function DropsInCommon({
   showActive?: boolean
   baseDropIds?: number[]
   onActive?: (dropId: number) => void
-  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
   const [showAll, setShowAll] = useState<boolean>(false)
   const [activeDropIds, setActiveDropIds] = useState<number[]>([])
@@ -125,24 +122,6 @@ function DropsInCommon({
     }
   }
 
-  const activeDropsEnsNames = useMemo(
-    () => dropsEnsNames
-      ? (activeDropIds.length === 0
-          ? {}
-          : Object.fromEntries(
-              Object.entries(dropsEnsNames).filter(([rawDropId]) => {
-                const dropId = parseInt(rawDropId)
-                if (isNaN(dropId)) {
-                  return false
-                }
-                return activeDropIds.includes(dropId)
-              })
-            )
-        )
-      : undefined,
-    [dropsEnsNames, activeDropIds]
-  )
-
   const inCommonTotal = inCommonEntries.length
   const hasMore = inCommonTotal > inCommonLimit
 
@@ -207,7 +186,6 @@ function DropsInCommon({
           dropIds={activeDropIds}
           inCommon={inCommon}
           onClose={removeActiveDropId}
-          dropsEnsNames={activeDropsEnsNames}
         />
       }
     </div>

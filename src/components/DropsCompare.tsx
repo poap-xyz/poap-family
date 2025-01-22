@@ -4,8 +4,8 @@ import {
   getAddressInCommonAddresses,
   getAddressInCommonDropIds,
 } from 'models/in-common'
-import { EnsByAddress } from 'models/ethereum'
 import { useDrops } from 'stores/drops'
+import { useEns } from 'stores/ethereum'
 import { intersection } from 'utils/array'
 import { getColorForSeed } from 'utils/color'
 import Card from 'components/Card'
@@ -22,14 +22,13 @@ function DropsCompare({
   dropIds,
   inCommon,
   onClose,
-  dropsEnsNames,
 }: {
   baseDropIds: number[]
   dropIds: number[]
   inCommon: InCommon
   onClose: (dropId: number) => void
-  dropsEnsNames?: Record<number, EnsByAddress>
 }) {
+  const { getEnsName } = useEns()
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
   const {
@@ -136,12 +135,7 @@ function DropsCompare({
                       }}
                     >
                       <AddressCollectorLine
-                        ens={
-                          dropsEnsNames &&
-                          dropId in dropsEnsNames &&
-                          collector in dropsEnsNames[dropId]
-                            ? dropsEnsNames[dropId][collector]
-                            : undefined}
+                        ens={getEnsName(collector)}
                         address={collector}
                         inCommonDropIds={inCommonDropIds}
                         inCommonAddresses={inCommonAddresses}

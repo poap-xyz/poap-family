@@ -1,5 +1,5 @@
-import { useContext, useState } from 'react'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useState } from 'react'
+import { useEns } from 'stores/ethereum'
 import Modal from 'components/Modal'
 import Card from 'components/Card'
 import ButtonClose from 'components/ButtonClose'
@@ -20,7 +20,7 @@ function ButtonAddressProfile({
   inCommonAddresses?: string[]
   showEns?: boolean
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const [showModal, setShowModal] = useState<boolean>(false)
 

@@ -5,9 +5,8 @@ import { parseAddress, parseAddresses, ParsedAddress } from 'models/address'
 import { parseDropIds, Drop } from 'models/drop'
 import { AbortedError } from 'models/error'
 import { InCommon } from 'models/in-common'
-import { EnsByAddress } from 'models/ethereum'
 import { HTMLContext } from 'stores/html'
-import { ResolverEnsContext, ReverseEnsContext } from 'stores/ethereum'
+import { useEns, useEnsResolver } from 'stores/ethereum'
 import { fetchCollectorDrops, fetchDropsCollectors } from 'services/collectors'
 import AddressesForm from 'components/AddressesForm'
 import Card from 'components/Card'
@@ -41,12 +40,12 @@ function Addresses() {
     getAddress,
     isEnsAddressFound,
     isEnsAddressNotFound,
-  } = useContext(ResolverEnsContext)
+  } = useEnsResolver()
   const {
     resolveEnsNames,
     setEnsName,
     getEnsName,
-  } = useContext(ReverseEnsContext)
+  } = useEns()
 
   const [editMode, setEditMode] = useState<boolean>(false)
   const [state, setState] = useState<number>(STATE_INIT_PARSING)
@@ -63,7 +62,6 @@ function Addresses() {
   const [inCommon, setInCommon] = useState<InCommon>({})
   const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [loadedCount, setLoadedCount] = useState<number>(0)
-  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   function enableLoadingByAddress(address: string): void {
     setLoadingByAddress((prevLoading) => ({
@@ -630,12 +628,7 @@ function Addresses() {
   function handleDropActive(dropId: number): void {
     const addresses = inCommon[dropId]
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevDropsEnsNames) => ({
-          ...prevDropsEnsNames,
-          [dropId]: ensNames,
-        }))
-      }).catch((err: unknown) => {
+      resolveEnsNames(addresses).catch((err: unknown) => {
         setErrors((oldErrors) => ([
           ...(oldErrors ?? []),
           new Error(`Could not resolve drop ENS names`, { cause: err }),
@@ -799,7 +792,6 @@ function Addresses() {
             onActive={handleDropActive}
             inCommon={inCommon}
             showCount={addresses.length}
-            dropsEnsNames={dropsEnsNames}
           />
         )}
       </div>

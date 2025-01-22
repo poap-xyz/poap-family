@@ -30,6 +30,8 @@ export const ResolverEnsContext = createContext<{
   getMeta: (ensName: string): EnsMeta => null,
 })
 
+export const useEnsResolver = () => useContext(ResolverEnsContext)
+
 export const ReverseEnsContext = createContext<{
   resolveEnsNames: (addresses: string[], resolve?: boolean) => Promise<EnsByAddress>
   setEnsName: (address: string, ensName: string) => void
@@ -39,6 +41,8 @@ export const ReverseEnsContext = createContext<{
   setEnsName: (address: string, ensName: string): void => {},
   getEnsName: (address: string): string | null => null,
 })
+
+export const useEns = () => useContext(ReverseEnsContext)
 
 type DataByEnsName = Record<string, {
   address: string | null
