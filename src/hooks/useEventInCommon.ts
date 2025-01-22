@@ -15,28 +15,24 @@ function useEventInCommon(
 ): {
   completedEventInCommon: boolean
   loadingEventInCommon: boolean
-  loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null
+  loadedInCommonState: 'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-t' | null
   loadedInCommon: CountProgress & { totalFinal: boolean } | null
-  loadedInCommonDrops: CountProgress | null
   loadedInCommonDownload: DownloadProgress | null
   loadedCollectors: number
   collectorsErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
-  drops: Record<number, Drop>
   cachedTs: number | null
   fetchDropInCommon: () => () => void
   retryAddress: (address: string) => void
 } {
   const [completed, setCompleted] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-a' | 'events-z' | null>(null)
+  const [loadedInCommonState, setLoadedInCommonState] = useState<'eventIds-a' | 'eventIds-z' | 'owners-a' | 'owners-z' | 'events-t' | null>(null)
   const [loadedInCommon, setLoadedInCommon] = useState<CountProgress & { totalFinal: boolean } | null>(null)
-  const [loadedInCommonDrops, setLoadedInCommonDrops] = useState<CountProgress | null>(null)
   const [loadedProgress, setLoadedProgress] = useState<DownloadProgress | null>(null)
   const [loadedCollectors, setLoadedCollectors] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [drops, setDrops] = useState<Record<number, Drop>>({})
   const [cachedTs, setCachedTs] = useState<number | null>(null)
 
   useEffect(
@@ -107,10 +103,6 @@ function useEventInCommon(
           }
           return prevInCommon
         })
-        setDrops((prevDrops) => ({
-          ...prevDrops,
-          [addressDropId]: addressDrop,
-        }))
       }
       setLoadedCollectors((prevLoadedCount) => prevLoadedCount + 1)
     },
@@ -171,7 +163,6 @@ function useEventInCommon(
                   receivedOwners,
                   receivedEventIds,
                   totalInCommon,
-                  receivedEvents,
                   totalEvents
                 ) => {
                   if (receivedEventIds) {
@@ -201,17 +192,8 @@ function useEventInCommon(
                   }
                   if (totalEvents) {
                     setLoadedInCommonState(
-                      (prevState) => prevState === 'owners-z' ? 'events-a' : prevState
+                      (prevState) => prevState === 'owners-z' ? 'events-t' : prevState
                     )
-                    setLoadedInCommonDrops({
-                      count: receivedEvents ?? 0,
-                      total: totalEvents,
-                    })
-                    if (receivedEvents === totalEvents) {
-                      setLoadedInCommonState(
-                        (prevState) => prevState === 'events-a' ? 'events-z' : prevState
-                      )
-                    }
                   }
                 },
               )
@@ -244,7 +226,6 @@ function useEventInCommon(
               setLoadedCollectors(result.inCommon[dropId].length)
             }
             setInCommon(result.inCommon)
-            setDrops(result.events)
             setCachedTs(result.ts)
           },
           (err) => {
@@ -291,12 +272,10 @@ function useEventInCommon(
     loadingEventInCommon: loading,
     loadedInCommonState,
     loadedInCommon,
-    loadedInCommonDrops: loadedInCommonDrops,
     loadedInCommonDownload: loadedProgress,
     loadedCollectors,
     collectorsErrors: errors,
     inCommon,
-    drops,
     cachedTs,
     fetchDropInCommon,
     retryAddress,

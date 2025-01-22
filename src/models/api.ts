@@ -1,11 +1,9 @@
-import { Drop } from 'models/drop'
 import { InCommon } from 'models/in-common'
 
 export const FAMILY_API_URL = process.env.REACT_APP_FAMILY_API_URL ?? 'https://api.poap.family'
 export const FAMILY_API_KEY = process.env.REACT_APP_FAMILY_API_KEY
 
 export interface EventsInCommon {
-  events: Record<number, Drop>
   inCommon: InCommon
   ts: number | null
 }
