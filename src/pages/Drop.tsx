@@ -90,7 +90,7 @@ function Drop() {
     collectors,
     /*refresh*/force,
     /*local*/false,
-    /*stream*/false
+    /*stream*/true
   )
 
   const {
