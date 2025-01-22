@@ -78,7 +78,6 @@ function Drops() {
     loadingInCommonDrops,
     dropsInCommonErrors,
     loadedDropsInCommon,
-    loadedDropsInCommonDrops,
     loadedDropsProgress,
     loadedDropsCollectors,
     dropsInCommon,
@@ -396,7 +395,6 @@ function Drops() {
                       {(
                         loadingInCommonDrops[drop.id] != null &&
                         loadedDropsInCommon[drop.id] == null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] == null &&
                         loadedDropsCollectors[drop.id] != null &&
                         dropsCollectors[drop.id] != null
@@ -409,7 +407,6 @@ function Drops() {
                       )}
                       {(
                         loadedDropsInCommon[drop.id] != null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] == null
                        ) && (
                         <Progress
@@ -420,19 +417,7 @@ function Drops() {
                         />
                       )}
                       {(
-                        loadedDropsInCommon[drop.id] != null &&
-                        loadedDropsInCommonDrops[drop.id] != null &&
-                        loadedDropsProgress[drop.id] == null
-                       ) && (
-                        <Progress
-                          value={loadedDropsInCommonDrops[drop.id].count}
-                          max={loadedDropsInCommonDrops[drop.id].total}
-                          showValue={loadedDropsInCommonDrops[drop.id].total > 0}
-                        />
-                      )}
-                      {(
                         loadedDropsInCommon[drop.id] == null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] != null
                        ) && (
                         <Progress

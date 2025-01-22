@@ -77,7 +77,6 @@ function Drop() {
     completedEventInCommon: completedDropInCommon,
     loadingEventInCommon: loadingDropInCommon,
     loadedInCommon,
-    loadedInCommonDrops,
     loadedInCommonDownload,
     loadedCollectors,
     collectorsErrors,
@@ -262,61 +261,38 @@ function Drop() {
                 </>
               )
               : (
-                loadedInCommonDrops != null
+                loadedInCommon != null
                   ? (
                     <>
-                      {loadedInCommonDrops.count === 0 && (
-                        <>
-                          <h4>Drops in common</h4>
-                          <Loading size="big" />
-                        </>
-                      )}
-                      {loadedInCommonDrops.count > 0 && (
+                      <h4>Drops in common</h4>
+                      <Loading
+                        size="big"
+                        count={loadedInCommon.count}
+                        total={loadedInCommon.total}
+                        totalFinal={loadedInCommon.totalFinal}
+                      />
+                    </>
+                  )
+                  : (
+                    loadedInCommonDownload != null
+                      ? (
                         <>
                           <h4>Drops in common</h4>
                           <Loading
                             size="big"
-                            count={loadedInCommonDrops.count}
-                            total={loadedInCommonDrops.total}
+                            progress={loadedInCommonDownload.progress}
+                            eta={loadedInCommonDownload.estimated}
+                            rate={loadedInCommonDownload.rate}
                           />
                         </>
-                      )}
-                    </>
+                      )
+                      : (
+                        <>
+                          <h4>Drops in common</h4>
+                          <Loading size="big" />
+                        </>
+                      )
                   )
-                  : (
-                      loadedInCommon != null
-                        ? (
-                          <>
-                            <h4>Drops in common</h4>
-                            <Loading
-                              size="big"
-                              count={loadedInCommon.count}
-                              total={loadedInCommon.total}
-                              totalFinal={loadedInCommon.totalFinal}
-                            />
-                          </>
-                        )
-                        : (
-                          loadedInCommonDownload != null
-                            ? (
-                              <>
-                                <h4>Drops in common</h4>
-                                <Loading
-                                  size="big"
-                                  progress={loadedInCommonDownload.progress}
-                                  eta={loadedInCommonDownload.estimated}
-                                  rate={loadedInCommonDownload.rate}
-                                />
-                              </>
-                            )
-                            : (
-                              <>
-                                <h4>Drops in common</h4>
-                                <Loading size="big" />
-                              </>
-                            )
-                        )
-                    )
               )
             }
             {errorsCollectorsByDrop != null && errorsCollectorsByDrop[drop.id] && (
