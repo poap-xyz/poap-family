@@ -65,10 +65,11 @@ export function parseCollectionWithDrops(collectionWithDrops: unknown): Collecti
     !('collections_items' in collectionWithDrops) ||
     collectionWithDrops.collections_items == null ||
     !Array.isArray(collectionWithDrops.collections_items) ||
-    !collectionWithDrops.collections_items.every((collectionItem) =>
-      typeof collectionItem === 'object' &&
-      'drop_id' in collectionItem &&
-      typeof collectionItem.drop_id === 'number'
+    !collectionWithDrops.collections_items.every(
+      (collectionItem): collectionItem is { drop_id: number } =>
+        typeof collectionItem === 'object' &&
+        'drop_id' in collectionItem &&
+        typeof collectionItem.drop_id === 'number'
     )
   ) {
     throw new Error(`Collection ${collection.id} with invalid drops`)

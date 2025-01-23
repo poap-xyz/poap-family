@@ -271,7 +271,7 @@ export async function getInCommonEventsWithEvents(
         data.eventIds &&
         Array.isArray(data.eventIds) &&
         data.eventIds.every(
-          (eventId) => eventId && typeof eventId === 'number'
+          (eventId): eventId is number => eventId && typeof eventId === 'number'
         )
       ) {
         if (receivedEventIds == null) {
@@ -317,7 +317,7 @@ export async function getInCommonEventsWithEvents(
         data.owners &&
         Array.isArray(data.owners) &&
         data.owners.every(
-          (owner) => owner && typeof owner === 'string'
+          (owner): owner is string => owner && typeof owner === 'string'
         )
       ) {
         if (receivedOwners == null) {

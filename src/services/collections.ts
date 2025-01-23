@@ -181,7 +181,7 @@ export async function searchCollections(
   if (itemsSettled.status === 'rejected') {
     throw itemsSettled.reason instanceof Error
       ? itemsSettled.reason
-      : new Error(itemsSettled.reason)
+      : new Error(`Collections failed to load: ${itemsSettled.reason}`)
   }
 
   const total = totalSettled.status === 'fulfilled' ? totalSettled.value : null
