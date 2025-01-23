@@ -1,9 +1,8 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useLoaderData, useSearchParams } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { parseDrop } from 'models/drop'
-import { EnsByAddress } from 'models/ethereum'
 import useEventInCommon from 'hooks/useEventInCommon'
 import useDropsCollectors from 'hooks/useDropsCollectors'
 import useDropsMetrics from 'hooks/useDropsMetrics'
@@ -28,9 +27,8 @@ import 'styles/drop.css'
 function Drop() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
-  const { resolveEnsNames } = useContext(ReverseEnsContext)
+  const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
-  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
 
@@ -79,12 +77,10 @@ function Drop() {
     completedEventInCommon: completedDropInCommon,
     loadingEventInCommon: loadingDropInCommon,
     loadedInCommon,
-    loadedInCommonDrops,
     loadedInCommonDownload,
     loadedCollectors,
     collectorsErrors,
     inCommon,
-    drops,
     cachedTs,
     fetchDropInCommon,
     retryAddress,
@@ -108,6 +104,7 @@ function Drop() {
   useEffect(
     () => {
       const cancelDropsCollectors = fetchDropsCollectors()
+
       return () => {
         cancelDropsCollectors()
       }
@@ -120,6 +117,7 @@ function Drop() {
   useEffect(
     () => {
       const cancelDropsMetrics = fetchDropsMetrics()
+
       return () => {
         cancelDropsMetrics()
       }
@@ -145,9 +143,11 @@ function Drop() {
   useEffect(
     () => {
       let cancelDropInCommon: () => void | undefined
+
       if (completedCollectors) {
         cancelDropInCommon = fetchDropInCommon()
       }
+
       return () => {
         if (cancelDropInCommon) {
           cancelDropInCommon()
@@ -163,6 +163,7 @@ function Drop() {
   useEffect(
     () => {
       let cancelDropsCollections: () => void | undefined
+
       if (
         metrics != null &&
         metrics.collectionsIncludes > 0 &&
@@ -170,6 +171,7 @@ function Drop() {
       ) {
         cancelDropsCollections = fetchDropsCollections()
       }
+
       return () => {
         if (cancelDropsCollections) {
           cancelDropsCollections()
@@ -190,19 +192,15 @@ function Drop() {
     [drop.name, setTitle]
   )
 
-  function refreshCache(): void {
+  const refreshCache = (): void => {
     setSearchParams({ force: 'true' })
   }
 
-  function handleDropActive(dropId: number): void {
+  const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
+
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevDropsEnsNames) => ({
-          ...prevDropsEnsNames,
-          [dropId]: ensNames,
-        }))
-      })
+      resolveEnsNames(addresses)
     }
   }
 
@@ -224,7 +222,7 @@ function Drop() {
                 />
               )
             }
-            <DropButtonGroup drop={drop} viewInGallery={true}>
+            <DropButtonGroup dropId={drop.id} viewInGallery={true}>
               <ButtonExportAddressCsv
                 filename={`collectors-${drop.id}`}
                 name={drop.name}
@@ -263,61 +261,38 @@ function Drop() {
                 </>
               )
               : (
-                loadedInCommonDrops != null
+                loadedInCommon != null
                   ? (
                     <>
-                      {loadedInCommonDrops.count === 0 && (
-                        <>
-                          <h4>Drops in common</h4>
-                          <Loading size="big" />
-                        </>
-                      )}
-                      {loadedInCommonDrops.count > 0 && (
+                      <h4>Drops in common</h4>
+                      <Loading
+                        size="big"
+                        count={loadedInCommon.count}
+                        total={loadedInCommon.total}
+                        totalFinal={loadedInCommon.totalFinal}
+                      />
+                    </>
+                  )
+                  : (
+                    loadedInCommonDownload != null
+                      ? (
                         <>
                           <h4>Drops in common</h4>
                           <Loading
                             size="big"
-                            count={loadedInCommonDrops.count}
-                            total={loadedInCommonDrops.total}
+                            progress={loadedInCommonDownload.progress}
+                            eta={loadedInCommonDownload.estimated}
+                            rate={loadedInCommonDownload.rate}
                           />
                         </>
-                      )}
-                    </>
+                      )
+                      : (
+                        <>
+                          <h4>Drops in common</h4>
+                          <Loading size="big" />
+                        </>
+                      )
                   )
-                  : (
-                      loadedInCommon != null
-                        ? (
-                          <>
-                            <h4>Drops in common</h4>
-                            <Loading
-                              size="big"
-                              count={loadedInCommon.count}
-                              total={loadedInCommon.total}
-                              totalFinal={loadedInCommon.totalFinal}
-                            />
-                          </>
-                        )
-                        : (
-                          loadedInCommonDownload != null
-                            ? (
-                              <>
-                                <h4>Drops in common</h4>
-                                <Loading
-                                  size="big"
-                                  progress={loadedInCommonDownload.progress}
-                                  eta={loadedInCommonDownload.estimated}
-                                  rate={loadedInCommonDownload.rate}
-                                />
-                              </>
-                            )
-                            : (
-                              <>
-                                <h4>Drops in common</h4>
-                                <Loading size="big" />
-                              </>
-                            )
-                        )
-                    )
               )
             }
             {errorsCollectorsByDrop != null && errorsCollectorsByDrop[drop.id] && (
@@ -394,9 +369,7 @@ function Drop() {
               <DropsInCommon
                 onActive={handleDropActive}
                 inCommon={inCommon}
-                drops={drops}
                 baseDropIds={dropIds}
-                dropsEnsNames={dropsEnsNames}
               />
             )}
           </>

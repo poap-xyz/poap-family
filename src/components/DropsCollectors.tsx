@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { chunks, uniq } from 'utils/array'
-import { Drop } from 'models/drop'
 import {
   InCommon,
   getAddressInCommonAddresses,
@@ -39,12 +38,10 @@ function inverseCollectorsSortedEntries(
 function DropsCollectors({
   dropsCollectors,
   inCommon,
-  drops,
   all = false,
 }: {
   dropsCollectors?: Record<number, string[]>
   inCommon: InCommon
-  drops: Record<number, Drop>
   all?: boolean
 }) {
   const [showAll, setShowAll] = useState<boolean>(all)
@@ -120,7 +117,6 @@ function DropsCollectors({
                   <li key={collector} className="owner-list-item">
                     <AddressCollectorLine
                       address={collector}
-                      drops={drops}
                       dropIds={dropIds}
                       collectorsDropIds={collectorDropIds}
                       inCommonDropIds={inCommonDropIds}
@@ -183,11 +179,11 @@ function DropsCollectors({
                 `drop${dropsTotal === 1 ? '' : 's'}-` +
                 `${dropIds.join('+')}`
               }
-              name={
-                dropsTotal === 1
-                  ? drops[dropIds[0]].name
-                  : undefined
-              }
+              // name={
+              //   dropsTotal === 1
+              //     ? drops[dropIds[0]].name
+              //     : undefined
+              // }
               addresses={collectorsDrops.map(([address]) => address)}
               title={
                 `Generates CSV file with collectors in common ` +

@@ -1,11 +1,10 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import { InCommon, mergeAllInCommon } from 'models/in-common'
-import { Drop, parseDrops, parseDropIds, joinDropIds } from 'models/drop'
-import { EnsByAddress } from 'models/ethereum'
+import { parseDrops, parseDropIds, joinDropIds } from 'models/drop'
 import { union, uniq } from 'utils/array'
 import { formatDate } from 'utils/date'
 import useDropsCollectors from 'hooks/useDropsCollectors'
@@ -37,9 +36,8 @@ function Drops() {
   const { dropIds: rawDropIds } = useParams()
   const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
-  const { resolveEnsNames } = useContext(ReverseEnsContext)
+  const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
-  const [dropsEnsNames, setDropsEnsNames] = useState<Record<number, EnsByAddress>>({})
 
   const force = searchParams.get('force') === 'true'
   const all = searchParams.get('all') === 'true'
@@ -80,7 +78,6 @@ function Drops() {
     loadingInCommonDrops,
     dropsInCommonErrors,
     loadedDropsInCommon,
-    loadedDropsInCommonDrops,
     loadedDropsProgress,
     loadedDropsCollectors,
     dropsInCommon,
@@ -112,6 +109,10 @@ function Drops() {
 
   useEffect(
     () => {
+      if (dropsCollectors == null) {
+        return
+      }
+
       resolveEnsNames(
         uniq(union(...Object.values(dropsCollectors)))
       )
@@ -122,6 +123,7 @@ function Drops() {
   useEffect(
     () => {
       const cancelDropsCollectors = fetchDropsCollectors()
+
       return () => {
         cancelDropsCollectors()
       }
@@ -132,6 +134,7 @@ function Drops() {
   useEffect(
     () => {
       const cancelDropsMetrics = fetchDropsMetrics()
+
       return () => {
         cancelDropsMetrics()
       }
@@ -142,9 +145,11 @@ function Drops() {
   useEffect(
     () => {
       let cancelDropsInCommon: () => void | undefined
+
       if (completedCollectors && completedMetrics) {
         cancelDropsInCommon = fetchDropsInCommon()
       }
+
       return () => {
         if (cancelDropsInCommon) {
           cancelDropsInCommon()
@@ -157,9 +162,11 @@ function Drops() {
   useEffect(
     () => {
       let cancelDropsCollections: () => void | undefined
+
       if (completedDropsInCommon) {
         cancelDropsCollections = fetchDropsCollections()
       }
+
       return () => {
         if (cancelDropsCollections) {
           cancelDropsCollections()
@@ -185,11 +192,11 @@ function Drops() {
     }
   }
 
-  function handleAllChange(checked: boolean): void {
+  const handleAllChange = (checked: boolean): void => {
     setSearchParams({ all: checked ? 'true' : 'false' })
   }
 
-  function handleViewAll(): void {
+  const handleViewAll = (): void => {
     setSearchParams({ all: 'true' })
   }
 
@@ -206,17 +213,6 @@ function Drops() {
       )
     },
     [completedDropsInCommon, dropsInCommon, all]
-  )
-
-  const allDrops: Record<number, Drop> = useMemo(
-    () => Object.values(dropsInCommon).reduce(
-      (allDrops, data) => ({
-        ...allDrops,
-        ...data.events,
-      }),
-      {}
-    ),
-    [dropsInCommon]
   )
 
   const staleDrops = useMemo(
@@ -252,11 +248,11 @@ function Drops() {
     ]
   )
 
-  function refreshCache(): void {
+  const refreshCache = (): void => {
     setSearchParams({ force: 'true' })
   }
 
-  function sumCollectionsIncludes(): number {
+  const sumCollectionsIncludes = (): number => {
     if (typeof dropsMetrics !== 'object') {
       return 0
     }
@@ -266,15 +262,11 @@ function Drops() {
     )
   }
 
-  function handleDropActive(dropId: number): void {
+  const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
+
     if (addresses != null && addresses.length > 0) {
-      resolveEnsNames(addresses).then((ensNames) => {
-        setDropsEnsNames((prevDropsEnsNames) => ({
-          ...prevDropsEnsNames,
-          [dropId]: ensNames,
-        }))
-      })
+      resolveEnsNames(addresses)
     }
   }
 
@@ -403,7 +395,6 @@ function Drops() {
                       {(
                         loadingInCommonDrops[drop.id] != null &&
                         loadedDropsInCommon[drop.id] == null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] == null &&
                         loadedDropsCollectors[drop.id] != null &&
                         dropsCollectors[drop.id] != null
@@ -416,7 +407,6 @@ function Drops() {
                       )}
                       {(
                         loadedDropsInCommon[drop.id] != null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] == null
                        ) && (
                         <Progress
@@ -427,19 +417,7 @@ function Drops() {
                         />
                       )}
                       {(
-                        loadedDropsInCommon[drop.id] != null &&
-                        loadedDropsInCommonDrops[drop.id] != null &&
-                        loadedDropsProgress[drop.id] == null
-                       ) && (
-                        <Progress
-                          value={loadedDropsInCommonDrops[drop.id].count}
-                          max={loadedDropsInCommonDrops[drop.id].total}
-                          showValue={loadedDropsInCommonDrops[drop.id].total > 0}
-                        />
-                      )}
-                      {(
                         loadedDropsInCommon[drop.id] == null &&
-                        loadedDropsInCommonDrops[drop.id] == null &&
                         loadedDropsProgress[drop.id] != null
                        ) && (
                         <Progress
@@ -496,7 +474,7 @@ function Drops() {
                     </td>
                     <td className="drop-cell-actions">
                       <DropButtonGroup
-                        drop={drop}
+                        dropId={drop.id}
                         right={true}
                         viewInGallery={true}
                       >
@@ -564,7 +542,7 @@ function Drops() {
                 emptyMessage={(
                   <>
                     No collections found that includes exactly all{' '}
-                    {Object.keys(drops).length} POAPs,{' '}
+                    {dropIds.length} POAPs,{' '}
                     <ButtonLink onClick={handleViewAll}>
                       view related collections
                     </ButtonLink>.
@@ -579,15 +557,12 @@ function Drops() {
             <DropsCollectors
               dropsCollectors={dropsCollectors}
               inCommon={inCommon}
-              drops={allDrops}
               all={all}
             />
             <DropsInCommon
               onActive={handleDropActive}
               inCommon={inCommon}
-              drops={allDrops}
               baseDropIds={dropIds}
-              dropsEnsNames={dropsEnsNames}
             />
           </>
         )}

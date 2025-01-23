@@ -1,7 +1,7 @@
 import download from 'downloadjs'
 import { Download } from 'iconoir-react'
-import { ReactNode, useContext } from 'react'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { ReactNode } from 'react'
+import { useEns } from 'stores/ethereum'
 import Button from 'components/Button'
 
 function ButtonExportAddressCsv({
@@ -17,7 +17,7 @@ function ButtonExportAddressCsv({
   children?: ReactNode
   title?: string
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const handleExportCsv = () => {
     if (addresses == null) {

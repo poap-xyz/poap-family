@@ -1,15 +1,15 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { formatMonthYear } from 'utils/date'
 import { findInitialPOAPDate } from 'models/poap'
-import { Drop } from 'models/drop'
 import {
   INCOMMON_ADDRESSES_LIMIT,
   INCOMMON_DROPS_LIMIT,
 } from 'models/in-common'
 import { POAP_PROFILE_LIMIT } from 'models/poap'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
+import { useDrops } from 'stores/drops'
 import useAddressTokens from 'hooks/useAddressTokens'
 import EnsAvatar from 'components/EnsAvatar'
 import LinkToScan from 'components/LinkToScan'
@@ -23,17 +23,15 @@ import 'styles/address-profile.css'
 function AddressProfile({
   ens,
   address,
-  drops,
   inCommonDropIds = [],
   inCommonAddresses = [],
 }: {
   ens?: string
   address: string
-  drops: Record<number, Drop>
   inCommonDropIds?: number[]
   inCommonAddresses?: string[]
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const [showAllPOAPs, setShowAllPOAPs] = useState<boolean>(false)
   const [showAllInCommonDrops, setShowAllInCommonDrops] = useState<boolean>(false)
@@ -54,13 +52,26 @@ function AddressProfile({
     poapsVisible = poapsVisible.slice(0, POAP_PROFILE_LIMIT)
   }
 
-  const inCommonDropsTotal = inCommonDropIds == null ? 0 : inCommonDropIds.length
-  const inCommonDropsHasMore = inCommonDropsTotal > INCOMMON_DROPS_LIMIT
+  const inCommonDropsTotal = useMemo(
+    () => inCommonDropIds == null ? 0 : inCommonDropIds.length,
+    [inCommonDropIds]
+  )
 
-  let inCommonDropIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
-  if (inCommonDropsHasMore && !showAllInCommonDrops) {
-    inCommonDropIdsVisible = inCommonDropIdsVisible.slice(0, INCOMMON_DROPS_LIMIT)
-  }
+  const inCommonDropsHasMore = useMemo(
+    () => inCommonDropsTotal > INCOMMON_DROPS_LIMIT,
+    [inCommonDropsTotal]
+  )
+
+  const inCommonDropIdsVisible = useMemo(
+    () => {
+      let inCommonDropIdsVisible = inCommonDropIds == null ? [] : inCommonDropIds.slice()
+      if (inCommonDropsHasMore && !showAllInCommonDrops) {
+        inCommonDropIdsVisible = inCommonDropIdsVisible.slice(0, INCOMMON_DROPS_LIMIT)
+      }
+      return inCommonDropIdsVisible
+    },
+    [inCommonDropIds, inCommonDropsHasMore, showAllInCommonDrops]
+  )
 
   const inCommonAddressesTotal = inCommonAddresses == null ? 0 : inCommonAddresses.length
   const inCommonAddressesHasMore = inCommonAddressesTotal > INCOMMON_ADDRESSES_LIMIT
@@ -70,9 +81,12 @@ function AddressProfile({
     inCommonAddressesVisible = inCommonAddressesVisible.slice(0, INCOMMON_ADDRESSES_LIMIT)
   }
 
+  const { loading, error, errors, drops } = useDrops()
+
   useEffect(
     () => {
       const cancelFetchTokens = fetchTokens()
+
       return () => {
         cancelFetchTokens()
       }
@@ -155,15 +169,29 @@ function AddressProfile({
               )}
             >
               <h4>{inCommonDropsTotal} in common drops</h4>
+              {error && (
+                <ErrorMessage error={error} />
+              )}
               {inCommonDropIdsVisible.map((dropId) => (
-                dropId in drops && (
-                  <TokenImage
-                    key={dropId}
-                    drop={drops[dropId]}
-                    size={18}
-                    resize={true}
-                  />
-                )
+                <Fragment key={dropId}>
+                  {errors[dropId] && (
+                    <ErrorMessage error={errors[dropId]} />
+                  )}
+                </Fragment>
+              ))}
+              {inCommonDropIdsVisible.map((dropId) => (
+                <Fragment key={dropId}>
+                  {!drops[dropId] && loading[dropId] && (
+                    <Loading size="icon" />
+                  )}
+                  {drops[dropId] && (
+                    <TokenImage
+                      drop={drops[dropId]}
+                      size={18}
+                      resize={true}
+                    />
+                  )}
+                </Fragment>
               ))}
               {inCommonDropsHasMore && (
                 <div className="show-more">

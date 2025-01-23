@@ -6,7 +6,6 @@ import {
   CachedEvent,
   EventsInCommon,
 } from 'models/api'
-import { parseDrop, Drop } from 'models/drop'
 import { parseInCommon } from 'models/in-common'
 import { AbortedError, HttpError } from 'models/error'
 import { DownloadProgress } from 'models/http'
@@ -69,9 +68,6 @@ export async function getInCommonEvents(
     !('inCommon' in body) ||
     body.inCommon == null ||
     typeof body.inCommon !== 'object' ||
-    !('events' in body) ||
-    body.events == null ||
-    typeof body.events !== 'object' ||
     !('ts' in body) ||
     body.ts == null ||
     typeof body.ts !== 'number'
@@ -81,14 +77,6 @@ export async function getInCommonEvents(
 
   return {
     inCommon: parseInCommon(body.inCommon),
-    events: Object.fromEntries(
-      Object.entries(body.events).map(
-        ([eventId, event]) => ([
-          eventId,
-          parseDrop(event, /*includeDescription*/false),
-        ])
-      )
-    ),
     ts: body.ts,
   }
 }
@@ -168,9 +156,6 @@ export async function getInCommonEventsWithProgress(
     !('inCommon' in response.data) ||
     response.data.inCommon == null ||
     typeof response.data.inCommon !== 'object' ||
-    !('events' in response.data) ||
-    response.data.events == null ||
-    typeof response.data.events !== 'object' ||
     !('ts' in response.data) ||
     response.data.ts == null ||
     typeof response.data.ts !== 'number'
@@ -182,14 +167,6 @@ export async function getInCommonEventsWithProgress(
 
   return {
     inCommon: parseInCommon(response.data.inCommon),
-    events: Object.fromEntries(
-      Object.entries(response.data.events).map(
-        ([eventId, event]) => ([
-          eventId,
-          parseDrop(event, /*includeDescription*/false),
-        ])
-      )
-    ),
     ts: response.data.ts,
   }
 }
@@ -202,7 +179,6 @@ export async function getInCommonEventsWithEvents(
     receivedOwners: number | null,
     receivedEventIds: number | null,
     totalInCommon: number | null,
-    receivedEvents: number | null,
     totalEvents: number | null,
   ) => void,
   onTs?: (ts: number) => void,
@@ -210,7 +186,6 @@ export async function getInCommonEventsWithEvents(
   onTotal?: (total: number) => void,
   onInCommon?: (eventId: number, owners: string[]) => void,
   onEventsTotal?: (eventsTotal: number) => void,
-  onEvents?: (events: Drop[]) => void,
 ): Promise<EventsInCommon | null> {
   let resolved = false
 
@@ -218,10 +193,8 @@ export async function getInCommonEventsWithEvents(
   let totalEvents: number | null = null
   let receivedEventIds: number | null = null
   let receivedOwners: number | null = null
-  let receivedEvents: number | null = null
 
   const inCommon: EventsInCommon = {
-    events: {},
     inCommon: {},
     ts: null,
   }
@@ -252,10 +225,7 @@ export async function getInCommonEventsWithEvents(
         receivedOwners != null &&
         receivedOwners === receivedEventIds &&
         receivedEventIds === totalInCommon &&
-        receivedEvents != null &&
-        totalEvents != null &&
-        receivedEvents === totalEvents &&
-        Object.keys(inCommon.events).length === totalEvents
+        totalEvents != null
       ) {
         resolve(inCommon)
       } else {
@@ -293,7 +263,6 @@ export async function getInCommonEventsWithEvents(
           receivedOwners,
           receivedEventIds,
           totalInCommon,
-          receivedEvents,
           totalEvents
         )
       }
@@ -302,7 +271,7 @@ export async function getInCommonEventsWithEvents(
         data.eventIds &&
         Array.isArray(data.eventIds) &&
         data.eventIds.every(
-          (eventId) => eventId && typeof eventId === 'number'
+          (eventId): eventId is number => eventId && typeof eventId === 'number'
         )
       ) {
         if (receivedEventIds == null) {
@@ -318,7 +287,6 @@ export async function getInCommonEventsWithEvents(
           receivedOwners,
           receivedEventIds,
           totalInCommon,
-          receivedEvents,
           totalEvents
         )
       }
@@ -338,7 +306,6 @@ export async function getInCommonEventsWithEvents(
           receivedOwners,
           receivedEventIds,
           totalInCommon,
-          receivedEvents,
           totalEvents
         )
       }
@@ -350,7 +317,7 @@ export async function getInCommonEventsWithEvents(
         data.owners &&
         Array.isArray(data.owners) &&
         data.owners.every(
-          (owner) => owner && typeof owner === 'string'
+          (owner): owner is string => owner && typeof owner === 'string'
         )
       ) {
         if (receivedOwners == null) {
@@ -373,51 +340,8 @@ export async function getInCommonEventsWithEvents(
           receivedOwners,
           receivedEventIds,
           totalInCommon,
-          receivedEvents,
           totalEvents
         )
-      }
-      if (
-        'events' in data &&
-        data.events &&
-        Array.isArray(data.events) &&
-        data.events.every(
-          (event) => (
-            event && typeof event === 'object' &&
-            'id' in event && event.id && typeof event.id === 'number'
-          )
-        )
-      ) {
-        const newEvents = data.events.filter((event) =>
-          !Object.keys(inCommon.events).includes(String(event.id))
-        )
-
-        if (newEvents.length > 0) {
-          const drops = newEvents.map(
-            (event) => parseDrop(event, /*includeDescription*/false)
-          )
-          if (receivedEvents == null) {
-            receivedEvents = drops.length
-          } else {
-            receivedEvents += drops.length
-          }
-          for (const drop of drops) {
-            inCommon.events[drop.id] = drop
-          }
-          onEvents?.(drops)
-          onProgress?.(
-            receivedOwners,
-            receivedEventIds,
-            totalInCommon,
-            receivedEvents,
-            totalEvents
-          )
-        } else {
-          console.info(
-            `Received empty list of events ` +
-            `when streaming event '${eventId}' in common`
-          )
-        }
       }
       if (
         'eventsTotal' in data &&
@@ -439,7 +363,6 @@ export async function getInCommonEventsWithEvents(
           receivedOwners,
           receivedEventIds,
           totalInCommon,
-          receivedEvents,
           totalEvents
         )
       }
@@ -450,10 +373,7 @@ export async function getInCommonEventsWithEvents(
         receivedOwners != null &&
         receivedOwners === receivedEventIds &&
         receivedEventIds === totalInCommon &&
-        receivedEvents != null &&
-        totalEvents != null &&
-        receivedEvents === totalEvents &&
-        Object.keys(inCommon.events).length === totalEvents
+        totalEvents != null
       ) {
         resolved = true
         inCommonStream.close()

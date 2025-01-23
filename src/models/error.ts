@@ -12,3 +12,16 @@ export class HttpError extends Error {
 export class AbortedError extends Error {
   public aborted: boolean = true
 }
+
+export function filterAbortedErrors(
+  errors: Record<number, Error>,
+): Record<number, Error> {
+  return Object.fromEntries(
+    Object.entries(errors)
+      .map(([rawDropId, error]) => [
+        rawDropId,
+        error instanceof AbortedError ? null : error
+      ])
+      .filter(([, errorOrNull]) => errorOrNull != null)
+  )
+}

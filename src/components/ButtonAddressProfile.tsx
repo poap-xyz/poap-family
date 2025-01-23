@@ -1,6 +1,5 @@
-import { useContext, useState } from 'react'
-import { ReverseEnsContext } from 'stores/ethereum'
-import { Drop } from 'models/drop'
+import { useState } from 'react'
+import { useEns } from 'stores/ethereum'
 import Modal from 'components/Modal'
 import Card from 'components/Card'
 import ButtonClose from 'components/ButtonClose'
@@ -11,19 +10,17 @@ import 'styles/button-address-profile.css'
 function ButtonAddressProfile({
   ens,
   address,
-  drops,
   inCommonDropIds = [],
   inCommonAddresses = [],
   showEns = true,
 }: {
   ens?: string
   address: string
-  drops: Record<number, Drop>
   inCommonDropIds?: number[]
   inCommonAddresses?: string[]
   showEns?: boolean
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const [showModal, setShowModal] = useState<boolean>(false)
 
@@ -52,7 +49,6 @@ function ButtonAddressProfile({
             <AddressProfile
               ens={ens}
               address={address}
-              drops={drops}
               inCommonDropIds={inCommonDropIds}
               inCommonAddresses={inCommonAddresses}
             />

@@ -1,7 +1,6 @@
-import { useContext } from 'react'
 import { clsx } from 'clsx'
 import { POAP_SCAN_URL } from 'models/poap'
-import { ReverseEnsContext } from 'stores/ethereum'
+import { useEns } from 'stores/ethereum'
 import 'styles/address-collector.css'
 
 function AddressCollector({
@@ -15,7 +14,7 @@ function AddressCollector({
   bigEns?: boolean
   short?: boolean
 }) {
-  const { getEnsName } = useContext(ReverseEnsContext)
+  const { getEnsName } = useEns()
 
   const ensName = getEnsName(address)
 
