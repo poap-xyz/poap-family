@@ -117,6 +117,11 @@ function LastEvents({
             cachedEvents={lastEvents}
           />
         )}
+        {lastEvents.length === 0 && !error && !loading && (
+          <ErrorMessage>
+            No cached drops
+          </ErrorMessage>
+        )}
         {error && !loading &&
           <ErrorMessage away={true} error={error} />
         }
