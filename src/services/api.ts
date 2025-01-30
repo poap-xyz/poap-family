@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios'
 import {
-  parseCachedEvent,
+  parseEventInCommonCount,
   FAMILY_API_KEY,
   FAMILY_API_URL,
-  CachedEvent,
+  EventInCommonCount,
   EventsInCommon,
 } from 'models/api'
 import { parseInCommon } from 'models/in-common'
@@ -390,7 +390,7 @@ export async function getLastEvents(
 ): Promise<{
   pages: number
   total: number
-  lastEvents: CachedEvent[]
+  lastEvents: EventInCommonCount[]
 }> {
   if (!FAMILY_API_KEY) {
     throw new Error(
@@ -439,7 +439,7 @@ export async function getLastEvents(
     pages: body.pages,
     total: body.total,
     lastEvents: body.lastEvents.map(
-      (cachedEvent: unknown) => parseCachedEvent(cachedEvent)
+      (cachedEvent: unknown) => parseEventInCommonCount(cachedEvent)
     ),
   }
 }

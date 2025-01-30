@@ -53,7 +53,7 @@ function ErrorMessage({
   )
     ? error.statusText
     : undefined
-  
+
   return (
     <div className={clsx('error-message', { small, away })}>
       {errorTitle && (
