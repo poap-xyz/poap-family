@@ -223,9 +223,8 @@ export async function getInCommonEventsWithEvents(
         totalInCommon != null &&
         receivedEventIds != null &&
         receivedOwners != null &&
-        receivedOwners === receivedEventIds &&
-        receivedEventIds === totalInCommon &&
-        totalEvents != null
+        totalEvents != null &&
+        receivedOwners === totalInCommon
       ) {
         resolve(inCommon)
       } else {
@@ -371,9 +370,8 @@ export async function getInCommonEventsWithEvents(
         totalInCommon != null &&
         receivedEventIds != null &&
         receivedOwners != null &&
-        receivedOwners === receivedEventIds &&
-        receivedEventIds === totalInCommon &&
-        totalEvents != null
+        totalEvents != null &&
+        receivedOwners === totalInCommon
       ) {
         resolved = true
         inCommonStream.close()
