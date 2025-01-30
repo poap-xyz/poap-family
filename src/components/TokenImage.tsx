@@ -1,5 +1,4 @@
 import { Drop } from 'models/drop'
-import { CachedEvent } from 'models/api'
 import { resizeTokenImageUrl } from 'models/poap'
 import 'styles/token-image.css'
 
@@ -11,7 +10,7 @@ function TokenImage({
   imgix = false,
   original = false,
 }: {
-  drop: Drop | CachedEvent
+  drop: Drop
   size: number
   imgSize?: number
   resize?: boolean

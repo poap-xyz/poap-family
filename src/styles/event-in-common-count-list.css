@@ -1,32 +1,32 @@
-.cached-event-list {
+.event-in-common-count-list {
   list-style-type: none;
   overflow: auto;
 }
 
-.cached-event-list li {
+.event-in-common-count-list li {
   margin: .5rem 0;
 }
 
-.cached-event-list li:hover {
+.event-in-common-count-list li:hover {
   cursor: pointer;
   background-color: #B5AEFF;
 }
 
-.cached-event {
+.event-in-common-count {
   border: 1px dotted #B5AEFF;
   padding: 1rem;
   display: flex;
   gap: 1rem;
 }
 
-.cached-event .cached-event-info {
+.event-in-common-count .event-in-common-count-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.cached-event .cached-event-card .event-id {
+.event-in-common-count .event-in-common-count-card .event-id {
   text-align: center;
   display: block;
   cursor: pointer;
@@ -34,7 +34,7 @@
   margin: 1px;
 }
 
-.cached-event .cached-event-info h4 {
+.event-in-common-count .event-in-common-count-info h4 {
   display: inline-block;
   max-width: 330px;
   white-space: nowrap;
@@ -42,18 +42,18 @@
   text-overflow: ellipsis;
 }
 
-.cached-event .cached-event-info .cached-event-data {
+.event-in-common-count .event-in-common-count-info .event-in-common-count-data {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: .5rem;
 }
 
-.cached-event .cached-event-info .cached-event-data .in-common-count {
+.event-in-common-count .event-in-common-count-info .event-in-common-count-data .in-common-count {
   font-weight: 700;
   font-size: 120%;
 }
 
-.cached-event .cached-event-info .cached-event-data .cached-ts {
+.event-in-common-count .event-in-common-count-info .event-in-common-count-data .cached-ts {
   font-size: 11px;
 }
