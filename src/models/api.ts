@@ -8,30 +8,20 @@ export interface EventsInCommon {
   ts: number | null
 }
 
-export interface CachedEvent {
+export interface EventInCommonCount {
   id: number
-  name: string
-  image_url: string
-  cached_ts: number
+  cached_ts: number | null
   in_common_count: number
 }
 
-export function parseCachedEvent(cachedEvent: unknown): CachedEvent {
+export function parseEventInCommonCount(cachedEvent: unknown): EventInCommonCount {
   if (
     cachedEvent == null ||
     typeof cachedEvent !== 'object' ||
     !('id' in cachedEvent) ||
     cachedEvent.id == null ||
     typeof cachedEvent.id !== 'number' ||
-    !('name' in cachedEvent) ||
-    cachedEvent.name == null ||
-    typeof cachedEvent.name !== 'string' ||
-    !('image_url' in cachedEvent) ||
-    cachedEvent.image_url == null ||
-    typeof cachedEvent.image_url !== 'string' ||
     !('cached_ts' in cachedEvent) ||
-    cachedEvent.cached_ts == null ||
-    typeof cachedEvent.cached_ts !== 'number' ||
     !('in_common_count' in cachedEvent) ||
     cachedEvent.in_common_count == null ||
     typeof cachedEvent.in_common_count !== 'number'
@@ -40,9 +30,12 @@ export function parseCachedEvent(cachedEvent: unknown): CachedEvent {
   }
   return {
     id: cachedEvent.id,
-    name: cachedEvent.name,
-    image_url: cachedEvent.image_url,
-    cached_ts: cachedEvent.cached_ts,
+    cached_ts: (
+        cachedEvent.cached_ts != null &&
+        typeof cachedEvent.cached_ts === 'number'
+      )
+        ? cachedEvent.cached_ts
+        : null,
     in_common_count: cachedEvent.in_common_count,
   }
 }

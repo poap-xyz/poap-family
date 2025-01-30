@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useLastEvents from 'hooks/useLastEvents'
-import CachedEventList from 'components/CachedEventList'
+import EventInCommonCountList from 'components/EventInCommonCountList'
 import Card from 'components/Card'
 import Loading from 'components/Loading'
 import ErrorMessage from 'components/ErrorMessage'
@@ -113,8 +113,8 @@ function LastEvents({
           </div>
         )}
         {lastEvents.length > 0 && !loading && (
-          <CachedEventList
-            cachedEvents={lastEvents}
+          <EventInCommonCountList
+            eventsInCommonCount={lastEvents}
           />
         )}
         {lastEvents.length === 0 && !error && !loading && (

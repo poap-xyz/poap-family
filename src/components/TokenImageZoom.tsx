@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { LazyImage } from 'react-lazy-images'
 import { Drop } from 'models/drop'
-import { CachedEvent } from 'models/api'
 import Modal from 'components/Modal'
 import Card from 'components/Card'
 import ErrorMessage from 'components/ErrorMessage'
@@ -11,7 +10,7 @@ import Loading from 'components/Loading'
 import 'styles/token-image-zoom.css'
 
 function TokenImageZoom({ drop, size = 128, zoomSize = 512 }: {
-  drop: Drop | CachedEvent
+  drop: Drop
   size?: number
   zoomSize?: number
 }) {
