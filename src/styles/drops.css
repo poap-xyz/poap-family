@@ -13,14 +13,6 @@
   text-align: left;
 }
 
-.drops .drops-table table thead tr th.drop-head-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: .25rem;
-  padding-right: 3rem;
-}
-
 .drops .drops-table table tbody tr {
   outline: thin dotted;
   border: 1px dotted #B5AEFF;
