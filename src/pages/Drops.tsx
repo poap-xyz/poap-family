@@ -17,6 +17,7 @@ import DropButtonGroup from 'components/DropButtonGroup'
 import Page from 'components/Page'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Status from 'components/Status'
+import StatusErrorMessage from 'components/StatusErrorMessage'
 import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
@@ -349,40 +350,16 @@ function Drops() {
                         }
                       />
                       {errorsCollectorsByDrop[drop.id] != null && (
-                        <>
-                          <span
-                            className="status-error-message"
-                            title={errorsCollectorsByDrop[drop.id].cause
-                              ? `${errorsCollectorsByDrop[drop.id].cause}`
-                              : undefined}
-                          >
-                            {errorsCollectorsByDrop[drop.id].message}
-                          </span>
-                          {' '}
-                          <ButtonLink
-                            onClick={() => retryDropCollectors(drop.id)}
-                          >
-                            retry
-                          </ButtonLink>
-                        </>
+                        <StatusErrorMessage
+                          error={errorsCollectorsByDrop[drop.id]}
+                          onRetry={() => retryDropCollectors(drop.id)}
+                        />
                       )}
                       {errorsMetricsByDrop[drop.id] != null && (
-                        <>
-                          <span
-                            className="status-error-message"
-                            title={errorsMetricsByDrop[drop.id].cause
-                              ? `${errorsMetricsByDrop[drop.id].cause}`
-                              : undefined}
-                          >
-                            {errorsMetricsByDrop[drop.id].message}
-                          </span>
-                          {' '}
-                          <ButtonLink
-                            onClick={() => retryDropMetrics(drop.id)}
-                          >
-                            retry
-                          </ButtonLink>
-                        </>
+                        <StatusErrorMessage
+                          error={errorsMetricsByDrop[drop.id]}
+                          onRetry={() => retryDropMetrics(drop.id)}
+                        />
                       )}
                     </td>
                     <td className="drop-cell-progress">
