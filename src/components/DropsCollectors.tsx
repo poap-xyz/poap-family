@@ -38,13 +38,11 @@ function inverseCollectorsSortedEntries(
 function DropsCollectors({
   dropsCollectors,
   inCommon,
-  all = false,
 }: {
   dropsCollectors?: Record<number, string[]>
   inCommon: InCommon
-  all?: boolean
 }) {
-  const [showAll, setShowAll] = useState<boolean>(all)
+  const [showAll, setShowAll] = useState<boolean>(false)
 
   let collectorsDrops = useMemo(
     () => inverseCollectorsSortedEntries(dropsCollectors),
@@ -81,7 +79,7 @@ function DropsCollectors({
     [collectorsDrops, dropsTotal]
   )
 
-  if (collectorsTotal > inCommonCollectorsTotal && !showAll && !all) {
+  if (collectorsTotal > inCommonCollectorsTotal && !showAll) {
     collectorsDrops = collectorsDrops.slice(0, inCommonCollectorsTotal)
   }
 
@@ -90,10 +88,10 @@ function DropsCollectors({
   return (
     <div className="drops-collectors">
       <Card>
-        {(all || showAll) && (
+        {showAll && (
           <h4>{collectorsTotal} collector{collectorsTotal === 1 ? '' : 's'}</h4>
         )}
-        {!all && !showAll && (
+        {!showAll && (
           <h4>
             {inCommonCollectorsTotal}{' '}
             collector{inCommonCollectorsTotal === 1 ? '' : 's'}{' '}
@@ -128,8 +126,7 @@ function DropsCollectors({
               })}
               {(
                 chunkIndex + 1 === collectorsDropsChunks.length &&
-                collectorsTotal > inCommonCollectorsTotal &&
-                !all
+                collectorsTotal > inCommonCollectorsTotal
               ) && (
                 <li key="show-more">
                   <div className="show-more">
@@ -141,8 +138,7 @@ function DropsCollectors({
                           ? (
                             inCommonCollectorsTotal === 0
                               ? 'hide all'
-                              : `show ${inCommonCollectorsTotal}` +
-                                `${all ? '' : ' in common'}`
+                              : `show ${inCommonCollectorsTotal} in common`
                             )
                           : `show all ${collectorsTotal}`
                       }
@@ -163,8 +159,7 @@ function DropsCollectors({
                   ? (
                       inCommonCollectorsTotal === 0
                         ? 'hide all'
-                        : `show ${inCommonCollectorsTotal}` +
-                          `${all ? '' : ' in common'}`
+                        : `show ${inCommonCollectorsTotal} in common`
                     )
                   : `show all ${collectorsTotal}`
               }

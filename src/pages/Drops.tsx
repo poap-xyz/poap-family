@@ -17,6 +17,8 @@ import DropButtonGroup from 'components/DropButtonGroup'
 import Page from 'components/Page'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Status from 'components/Status'
+import StatusErrorMessage from 'components/StatusErrorMessage'
+import AddressErrorMessage from 'components/AddressErrorMessage'
 import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
@@ -24,7 +26,6 @@ import Progress from 'components/Progress'
 import DropsInCommon from 'components/DropsInCommon'
 import CollectionSet from 'components/CollectionSet'
 import DropsCollectors from 'components/DropsCollectors'
-import Switch from 'components/Switch'
 import WarningIcon from 'components/WarningIcon'
 import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
@@ -40,7 +41,6 @@ function Drops() {
   const loaderData = useLoaderData()
 
   const force = searchParams.get('force') === 'true'
-  const all = searchParams.get('all') === 'true'
 
   const drops = useMemo(
     () => parseDrops(loaderData, /*includeDescription*/false),
@@ -86,7 +86,7 @@ function Drops() {
   } = useEventsInCommon(
     dropIds,
     dropsCollectors,
-    all,
+    /*all*/true,
     /*refresh*/force,
     /*local*/false,
     /*stream*/true
@@ -192,14 +192,6 @@ function Drops() {
     }
   }
 
-  const handleAllChange = (checked: boolean): void => {
-    setSearchParams({ all: checked ? 'true' : 'false' })
-  }
-
-  const handleViewAll = (): void => {
-    setSearchParams({ all: 'true' })
-  }
-
   const inCommon: InCommon = useMemo(
     () => {
       if (!completedDropsInCommon) {
@@ -209,10 +201,10 @@ function Drops() {
         Object.values(dropsInCommon).map(
           (oneEventData) => oneEventData?.inCommon ?? {}
         ),
-        all
+        /*all*/true
       )
     },
-    [completedDropsInCommon, dropsInCommon, all]
+    [completedDropsInCommon, dropsInCommon]
   )
 
   const staleDrops = useMemo(
@@ -252,16 +244,6 @@ function Drops() {
     setSearchParams({ force: 'true' })
   }
 
-  const sumCollectionsIncludes = (): number => {
-    if (typeof dropsMetrics !== 'object') {
-      return 0
-    }
-    return Object.values(dropsMetrics).reduce(
-      (total, metric) => total + metric.collectionsIncludes,
-      0
-    )
-  }
-
   const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
 
@@ -282,17 +264,7 @@ function Drops() {
                   <th>Collectors</th>
                   <th></th>
                   <th></th>
-                  <th className="drop-head-actions">
-                    <span>In Common</span>
-                    <Switch
-                      id="all"
-                      checked={all}
-                      onChange={handleAllChange}
-                      labelOn="X"
-                      labelOff="X"
-                    />
-                    <span>All</span>
-                  </th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -349,40 +321,16 @@ function Drops() {
                         }
                       />
                       {errorsCollectorsByDrop[drop.id] != null && (
-                        <>
-                          <span
-                            className="status-error-message"
-                            title={errorsCollectorsByDrop[drop.id].cause
-                              ? `${errorsCollectorsByDrop[drop.id].cause}`
-                              : undefined}
-                          >
-                            {errorsCollectorsByDrop[drop.id].message}
-                          </span>
-                          {' '}
-                          <ButtonLink
-                            onClick={() => retryDropCollectors(drop.id)}
-                          >
-                            retry
-                          </ButtonLink>
-                        </>
+                        <StatusErrorMessage
+                          error={errorsCollectorsByDrop[drop.id]}
+                          onRetry={() => retryDropCollectors(drop.id)}
+                        />
                       )}
                       {errorsMetricsByDrop[drop.id] != null && (
-                        <>
-                          <span
-                            className="status-error-message"
-                            title={errorsMetricsByDrop[drop.id].cause
-                              ? `${errorsMetricsByDrop[drop.id].cause}`
-                              : undefined}
-                          >
-                            {errorsMetricsByDrop[drop.id].message}
-                          </span>
-                          {' '}
-                          <ButtonLink
-                            onClick={() => retryDropMetrics(drop.id)}
-                          >
-                            retry
-                          </ButtonLink>
-                        </>
+                        <StatusErrorMessage
+                          error={errorsMetricsByDrop[drop.id]}
+                          onRetry={() => retryDropMetrics(drop.id)}
+                        />
                       )}
                     </td>
                     <td className="drop-cell-progress">
@@ -432,21 +380,12 @@ function Drops() {
                         dropsInCommonErrors[drop.id]
                       ).map(
                         ([address, error]) => (
-                          <p key={address} className="address-error-message">
-                            <code>[{address}]</code>{' '}
-                            <span
-                              title={error.cause ? `${error.cause}` : undefined}
-                            >
-                              {error.message}
-                            </span>{' '}
-                            <ButtonLink
-                              onClick={() => {
-                                retryDropAddressInCommon(drop.id, address)
-                              }}
-                            >
-                              retry
-                            </ButtonLink>
-                          </p>
+                          <AddressErrorMessage
+                            key={address}
+                            error={error}
+                            address={address}
+                            onRetry={() => retryDropAddressInCommon(drop.id, address)}
+                          />
                         )
                       )}
                       {(
@@ -538,26 +477,16 @@ function Drops() {
               relatedCollections != null
             ) && (
               <CollectionSet
-                showEmpty={sumCollectionsIncludes() > 0}
-                emptyMessage={(
-                  <>
-                    No collections found that includes exactly all{' '}
-                    {dropIds.length} POAPs,{' '}
-                    <ButtonLink onClick={handleViewAll}>
-                      view related collections
-                    </ButtonLink>.
-                  </>
-                )}
+                showEmpty={false}
                 collectionMap={{
                   [`${collections.length} collections`]: collections,
-                  [`${relatedCollections.length} related collections`]: all ? relatedCollections : [],
+                  [`${relatedCollections.length} related collections`]: relatedCollections,
                 }}
               />
             )}
             <DropsCollectors
               dropsCollectors={dropsCollectors}
               inCommon={inCommon}
-              all={all}
             />
             <DropsInCommon
               onActive={handleDropActive}

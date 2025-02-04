@@ -25,3 +25,17 @@ export function filterAbortedErrors(
       .filter(([, errorOrNull]) => errorOrNull != null)
   )
 }
+
+export function getErrorCauseMessage(error: unknown): string | undefined {
+  let causeMessage: string | undefined
+
+  if (error instanceof Error && error.cause != null) {
+    if (error.cause instanceof Error) {
+      causeMessage = error.cause.message
+    } else if (typeof error.cause === 'string') {
+      causeMessage = error.cause
+    }
+  }
+
+  return causeMessage
+}
