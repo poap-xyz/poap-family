@@ -47,12 +47,6 @@
   text-align: center;
 }
 
-.drops .address-error-message {
-  margin-top: .2rem;
-  margin-bottom: .2rem;
-  color: #e6698c;
-}
-
 .drops .status-cached-ts {
   white-space: nowrap;
 }

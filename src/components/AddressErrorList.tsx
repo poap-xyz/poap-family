@@ -1,5 +1,4 @@
-import ButtonLink from 'components/ButtonLink'
-import ErrorMessage from 'components/ErrorMessage'
+import AddressErrorMessage from 'components/AddressErrorMessage'
 
 function AddressErrorList({
   errors,
@@ -17,14 +16,13 @@ function AddressErrorList({
 
   return (
     <div className="address-error-list">
-      {errors.map((error, index) =>
-        <ErrorMessage
-          key={index}
-          title={<code>{error.address}</code>}
+      {errors.map((error) =>
+        <AddressErrorMessage
+          key={error.address}
           error={error.error}
-        >
-          <ButtonLink onClick={() => onRetry(error.address)}>retry</ButtonLink>
-        </ErrorMessage>
+          address={error.address}
+          onRetry={() => onRetry(error.address)}
+        />
       )}
     </div>
   )

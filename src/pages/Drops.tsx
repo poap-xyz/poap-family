@@ -18,6 +18,7 @@ import Page from 'components/Page'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Status from 'components/Status'
 import StatusErrorMessage from 'components/StatusErrorMessage'
+import AddressErrorMessage from 'components/AddressErrorMessage'
 import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
 import ButtonLink from 'components/ButtonLink'
@@ -379,21 +380,12 @@ function Drops() {
                         dropsInCommonErrors[drop.id]
                       ).map(
                         ([address, error]) => (
-                          <p key={address} className="address-error-message">
-                            <code>[{address}]</code>{' '}
-                            <span
-                              title={error.cause ? `${error.cause}` : undefined}
-                            >
-                              {error.message}
-                            </span>{' '}
-                            <ButtonLink
-                              onClick={() => {
-                                retryDropAddressInCommon(drop.id, address)
-                              }}
-                            >
-                              retry
-                            </ButtonLink>
-                          </p>
+                          <AddressErrorMessage
+                            key={address}
+                            error={error}
+                            address={address}
+                            onRetry={() => retryDropAddressInCommon(drop.id, address)}
+                          />
                         )
                       )}
                       {(
