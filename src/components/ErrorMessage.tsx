@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { NavArrowDown, NavArrowRight } from 'iconoir-react'
 import { clsx } from 'clsx'
+import { getErrorCauseMessage } from 'models/error'
 import 'styles/error-message.css'
 
 const STATUS_TEXT = {
@@ -26,14 +27,7 @@ function ErrorMessage({
 }) {
   const [casueOpen, setCauseOpen] = useState<boolean>(false)
 
-  let causeMessage: string | undefined
-  if (error instanceof Error && error.cause != null) {
-    if (error.cause instanceof Error) {
-      causeMessage = error.cause.message
-    } else if (typeof error.cause === 'string') {
-      causeMessage = error.cause
-    }
-  }
+  const causeMessage = getErrorCauseMessage(error)
 
   const errorStatus = (
     error != null &&

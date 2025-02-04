@@ -52,11 +52,6 @@
   }
 }
 
-
-.addresses span.status-error-message {
-  margin-left: .5rem;
-}
-
 .addresses .collector-cell-power {
   text-align: center;
 }

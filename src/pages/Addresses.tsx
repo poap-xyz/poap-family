@@ -16,6 +16,7 @@ import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 import AddressCollector from 'components/AddressCollector'
 import Status from 'components/Status'
+import StatusErrorMessage from 'components/StatusErrorMessage'
 import ShadowText from 'components/ShadowText'
 import Loading from 'components/Loading'
 import ButtonGroup from 'components/ButtonGroup'
@@ -695,34 +696,20 @@ function Addresses() {
                         error={(address ?? collectors[index]) in errorsByAddress || index in errorsByIndex}
                       />
                       {(address ?? collectors[index]) in errorsByAddress && (
-                        <>
-                          <span className="status-error-message">
-                            {errorsByAddress[address ?? collectors[index]].message}
-                          </span>
-                          {' '}
-                          {!repeatedByAddress[address ?? collectors[index]] && (
-                            <ButtonLink
-                              onClick={() => {
-                                retryLoadCollector(address ?? collectors[index])
-                              }}
-                            >
-                              retry
-                            </ButtonLink>
-                          )}
-                        </>
+                        <StatusErrorMessage
+                          error={errorsByAddress[address ?? collectors[index]]}
+                          onRetry={
+                            !repeatedByAddress[address ?? collectors[index]]
+                              ? () => retryLoadCollector(address ?? collectors[index])
+                              : undefined
+                          }
+                        />
                       )}
                       {index in errorsByIndex && (
-                        <>
-                          <span className="status-error-message">
-                            {errorsByIndex[index].message}
-                          </span>
-                          {' '}
-                          <ButtonLink
-                            onClick={() => retryResolveAddress(index)}
-                          >
-                            retry
-                          </ButtonLink>
-                        </>
+                        <StatusErrorMessage
+                          error={errorsByIndex[index]}
+                          onRetry={() => retryResolveAddress(index)}
+                        />
                       )}
                     </div>
                   </td>
