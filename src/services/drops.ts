@@ -1,3 +1,4 @@
+import { IGNORED_ADDRESSES } from 'models/address'
 import { DEFAULT_COMPASS_LIMIT } from 'models/compass'
 import {
   Drop,
@@ -221,7 +222,14 @@ export async function fetchDropMetrics(
     `
       query DropMetrics($dropId: Int!) {
         drops_by_pk(id: $dropId) {
-          poaps_aggregate {
+          poaps_aggregate(
+            distinct_on: collector_address
+            where: {
+              collector_address: {
+                _nin: ["${IGNORED_ADDRESSES.join('", "')}"]
+              }
+            }
+          ) {
             aggregate {
               count
             }
@@ -288,7 +296,14 @@ export async function fetchDropsMetrics(
               id: { _in: $dropIds }
             }
           ) {
-            poaps_aggregate {
+            poaps_aggregate(
+              distinct_on: collector_address
+              where: {
+                collector_address: {
+                  _nin: ["${IGNORED_ADDRESSES.join('", "')}"]
+                }
+              }
+            ) {
               aggregate {
                 count
               }
