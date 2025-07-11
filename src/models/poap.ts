@@ -1,5 +1,4 @@
 import { Drop, parseDrop } from 'models/drop'
-import { getRandomInt } from 'utils/number'
 import { getAddress } from 'utils/ethereum'
 
 export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL ?? 'https://api.poap.tech'
