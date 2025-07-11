@@ -1,5 +1,3 @@
-import { getRandomInt } from 'utils/number'
-
 export const COLLECTIONS_LIMIT = 7
 
 export interface Collection {
