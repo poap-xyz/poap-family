@@ -87,86 +87,49 @@ export function parseCollectionWithDrops(collectionWithDrops: unknown): Collecti
   }
 }
 
-export function resizeCollectionImageUrl(imageUrl: string, size: string | number | { w: number; h: number }): string {
-  if (imageUrl.indexOf('collections-media-production') >= 0) {
-    const url = new URL(imageUrl)
-    url.host = `poap${Math.trunc(getRandomInt(0, 4))}-collections.imgix.net`
+export function resizeCollectionImageUrl(
+  imageUrl: string,
+  size: string | number | { w: number; h: number },
+): string {
+  let poapSize = 'medium'
 
-    let w: number | undefined
-    let h: number | undefined
-    if (size === 'xsmall') {
-      w = 64
-      h = 64
-    } else if (size === 'small') {
-      w = 128
-      h = 128
-    } else if  (size === 'medium') {
-      w = 256
-      h = 256
-    } else if  (size === 'large') {
-      w = 512
-      h = 512
-    } else if  (size === 'xlarge') {
-      w = 1024
-      h = 1024
-    } else if (
-      typeof size === 'object' &&
-      'w' in size && typeof size.w === 'number' &&
-      'h' in size && typeof size.h === 'number'
-    ) {
-      w = size.w
-      h = size.h
-    } else if (typeof size === 'number') {
-      w = size
-      h = size
+  if (
+    size === 'xsmall' ||
+    size === 'small' ||
+    size === 'medium' ||
+    size === 'large' ||
+    size === 'xlarge'
+  ) {
+    poapSize = size
+  } else if (
+    typeof size === 'object' &&
+    'w' in size &&
+    typeof size.w === 'number'
+  ) {
+    if (size.w <= 64) {
+      poapSize = 'xsmall'
+    } else if (size.w <= 128) {
+      poapSize = 'small'
+    } else if (size.w <= 256) {
+      poapSize = 'medium'
+    } else if (size.w <= 512) {
+      poapSize = 'large'
+    } else {
+      poapSize = 'xlarge'
     }
-
-    if (w && h) {
-      return url.toString() + `?w=${w}&h=${h}&fit=crop`
+  } else if (typeof size === 'number') {
+    if (size <= 64) {
+      poapSize = 'xsmall'
+    } else if (size <= 128) {
+      poapSize = 'small'
+    } else if (size <= 256) {
+      poapSize = 'medium'
+    } else if (size <= 512) {
+      poapSize = 'large'
+    } else {
+      poapSize = 'xlarge'
     }
-  } else if (imageUrl.indexOf('assets.poap.xyz') >= 0) {
-    let poapSize = 'medium'
-
-    if (
-      size === 'xsmall' ||
-      size === 'small' ||
-      size === 'medium' ||
-      size === 'large' ||
-      size === 'xlarge'
-    ) {
-      poapSize = size
-    } else if (
-      typeof size === 'object' &&
-      'w' in size &&
-      typeof size.w === 'number'
-    ) {
-      if (size.w <= 64) {
-        poapSize = 'xsmall'
-      } else if (size.w <= 128) {
-        poapSize = 'small'
-      } else if (size.w <= 256) {
-        poapSize = 'medium'
-      } else if (size.w <= 512) {
-        poapSize = 'large'
-      } else {
-        poapSize = 'xlarge'
-      }
-    } else if (typeof size === 'number') {
-      if (size <= 64) {
-        poapSize = 'xsmall'
-      } else if (size <= 128) {
-        poapSize = 'small'
-      } else if (size <= 256) {
-        poapSize = 'medium'
-      } else if (size <= 512) {
-        poapSize = 'large'
-      } else {
-        poapSize = 'xlarge'
-      }
-    }
-
-    return `${imageUrl}?size=${poapSize}`
   }
 
-  return imageUrl
+  return `${imageUrl}?size=${poapSize}`
 }

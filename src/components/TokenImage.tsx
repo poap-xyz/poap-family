@@ -7,14 +7,12 @@ function TokenImage({
   size,
   imgSize,
   resize = true,
-  imgix = false,
   original = false,
 }: {
   drop: Drop
   size: number
   imgSize?: number
   resize?: boolean
-  imgix?: boolean
   original?: boolean
 }) {
   let imageUrl = original && 'original_url' in drop
@@ -22,7 +20,7 @@ function TokenImage({
     : drop.image_url
 
   if (resize) {
-    imageUrl = resizeTokenImageUrl(imageUrl, size, imgix)
+    imageUrl = resizeTokenImageUrl(imageUrl, size)
   }
 
   return (
