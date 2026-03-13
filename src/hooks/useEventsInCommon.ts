@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'services/api'
 import { fetchCollectorDrops } from 'services/collectors'
 import { AbortedError } from 'models/error'

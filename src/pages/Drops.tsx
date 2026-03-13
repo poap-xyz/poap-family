@@ -67,7 +67,6 @@ function Drops() {
 
   const {
     completedDropsInCommon,
-    completedInCommonDrops,
     loadingInCommonDrops,
     dropsInCommonErrors,
     loadedDropsInCommon,
