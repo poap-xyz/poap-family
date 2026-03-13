@@ -1,91 +1,17 @@
 import axios, { AxiosResponse } from 'axios'
 import {
-  parseEventInCommonCount,
   FAMILY_API_KEY,
   FAMILY_API_URL,
-  EventInCommonCount,
   EventsInCommon,
 } from 'models/api'
 import { parseInCommon } from 'models/in-common'
 import { AbortedError, HttpError } from 'models/error'
 import { DownloadProgress } from 'models/http'
 
-export async function getInCommonEvents(
-  eventId: number,
-  abortSignal: AbortSignal,
-  refresh: boolean = false,
-): Promise<EventsInCommon | null> {
-  if (!FAMILY_API_KEY) {
-    throw new Error(
-      `Last in common drops (${eventId}) could not be fetched, ` +
-      `configure Family API key`
-    )
-  }
-
-  let response: Response
-
-  try {
-    response = await fetch(
-      `${FAMILY_API_URL}/event/${eventId}` +
-      `/in-common${refresh ? '?refresh=true' : ''}`,
-      {
-        signal: abortSignal instanceof AbortSignal ? abortSignal : null,
-        headers: {
-          'x-api-key': FAMILY_API_KEY,
-        },
-      }
-    )
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw new AbortedError(
-        `Fetch drop ${eventId} in common aborted`,
-        { cause: err }
-      )
-    }
-    throw new Error(
-      `Cannot fetch drop ${eventId} in common: ` +
-      `response was not success (network error)`,
-      { cause: err }
-    )
-  }
-
-  if (response.status === 404) {
-    return null
-  }
-
-  if (response.status !== 200) {
-    throw new HttpError(
-      `Drop ${eventId} in common failed to fetch (status ${response.status})`,
-      { status: response.status }
-    )
-  }
-
-  const body: unknown = await response.json()
-
-  if (
-    body == null ||
-    typeof body !== 'object' ||
-    !('inCommon' in body) ||
-    body.inCommon == null ||
-    typeof body.inCommon !== 'object' ||
-    !('ts' in body) ||
-    body.ts == null ||
-    typeof body.ts !== 'number'
-  ) {
-    throw new Error(`Malformed in common drops (type ${typeof body})`)
-  }
-
-  return {
-    inCommon: parseInCommon(body.inCommon),
-    ts: body.ts,
-  }
-}
-
 export async function getInCommonEventsWithProgress(
   eventId: number,
   abortSignal: AbortSignal,
   onProgress: (progressEvent: Partial<DownloadProgress>) => void,
-  refresh: boolean = false,
 ): Promise<EventsInCommon | null> {
   if (!FAMILY_API_KEY) {
     throw new Error(
@@ -98,8 +24,7 @@ export async function getInCommonEventsWithProgress(
 
   try {
     response = await axios.get(
-      `${FAMILY_API_URL}/event/${eventId}` +
-      `/in-common${refresh ? '?refresh=true' : ''}`,
+      `${FAMILY_API_URL}/event/${eventId}/in-common`,
       {
         signal: abortSignal instanceof AbortSignal ? abortSignal : undefined,
         onDownloadProgress: onProgress,
@@ -155,10 +80,7 @@ export async function getInCommonEventsWithProgress(
     typeof response.data !== 'object' ||
     !('inCommon' in response.data) ||
     response.data.inCommon == null ||
-    typeof response.data.inCommon !== 'object' ||
-    !('ts' in response.data) ||
-    response.data.ts == null ||
-    typeof response.data.ts !== 'number'
+    typeof response.data.inCommon !== 'object'
   ) {
     throw new Error(
       `Malformed in common drops (type ${typeof response.data})`
@@ -167,13 +89,11 @@ export async function getInCommonEventsWithProgress(
 
   return {
     inCommon: parseInCommon(response.data.inCommon),
-    ts: response.data.ts,
   }
 }
 
 export async function getInCommonEventsWithEvents(
   eventId: number,
-  refresh: boolean = false,
   abortSignal?: AbortSignal,
   onProgress?: (
     receivedOwners: number | null,
@@ -181,7 +101,6 @@ export async function getInCommonEventsWithEvents(
     totalInCommon: number | null,
     totalEvents: number | null,
   ) => void,
-  onTs?: (ts: number) => void,
   onEventIds?: (eventIds: number[]) => void,
   onTotal?: (total: number) => void,
   onInCommon?: (eventId: number, owners: string[]) => void,
@@ -196,11 +115,9 @@ export async function getInCommonEventsWithEvents(
 
   const inCommon: EventsInCommon = {
     inCommon: {},
-    ts: null,
   }
   const inCommonStream = new EventSource(
-    `${FAMILY_API_URL}/event/${eventId}/in-common` +
-      `/stream${refresh ? '?refresh=true' : ''}`
+    `${FAMILY_API_URL}/event/${eventId}/in-common/stream`
   )
 
   if (abortSignal) {
@@ -219,7 +136,6 @@ export async function getInCommonEventsWithEvents(
       inCommonStream.close()
 
       if (
-        inCommon.ts != null &&
         totalInCommon != null &&
         receivedEventIds != null &&
         receivedOwners != null &&
@@ -254,16 +170,6 @@ export async function getInCommonEventsWithEvents(
           `Malformed data '${data}' when streaming event '${eventId}' in common`
         ))
         return
-      }
-      if ('ts' in data && data.ts && typeof data.ts === 'number') {
-        inCommon.ts = data.ts
-        onTs?.(data.ts)
-        onProgress?.(
-          receivedOwners,
-          receivedEventIds,
-          totalInCommon,
-          totalEvents
-        )
       }
       if (
         'eventIds' in data &&
@@ -366,7 +272,6 @@ export async function getInCommonEventsWithEvents(
         )
       }
       if (
-        inCommon.ts != null &&
         totalInCommon != null &&
         receivedEventIds != null &&
         receivedOwners != null &&
@@ -380,66 +285,6 @@ export async function getInCommonEventsWithEvents(
       }
     })
   })
-}
-
-export async function getLastEvents(
-  page: number = 1,
-  qty: number = 3,
-): Promise<{
-  pages: number
-  total: number
-  lastEvents: EventInCommonCount[]
-}> {
-  if (!FAMILY_API_KEY) {
-    throw new Error(
-      `Last drops (${page}/${qty}) could not be fetched, ` +
-      `configure Family API key`
-    )
-  }
-
-  const response = await fetch(
-    `${FAMILY_API_URL}/events/last` +
-    `?page=${encodeURIComponent(page)}` +
-    `&qty=${encodeURIComponent(qty)}`,
-    {
-      headers: {
-        'x-api-key': FAMILY_API_KEY,
-      },
-    }
-  )
-
-  if (response.status !== 200) {
-    throw new HttpError(
-      `Last drops failed to fetch (status ${response.status})`,
-      { status: response.status }
-    )
-  }
-
-  const body: unknown = await response.json()
-
-  if (
-    body == null ||
-    typeof body !== 'object' ||
-    !('lastEvents' in body) ||
-    body.lastEvents == null ||
-    !Array.isArray(body.lastEvents) ||
-    !('pages' in body) ||
-    body.pages == null ||
-    typeof body.pages !== 'number' ||
-    !('total' in body) ||
-    body.total == null ||
-    typeof body.total !== 'number'
-  ) {
-    throw new Error(`Malformed last drops (type ${typeof body})`)
-  }
-
-  return {
-    pages: body.pages,
-    total: body.total,
-    lastEvents: body.lastEvents.map(
-      (cachedEvent: unknown) => parseEventInCommonCount(cachedEvent)
-    ),
-  }
 }
 
 export async function addFeedback(message: string, url: string): Promise<void> {

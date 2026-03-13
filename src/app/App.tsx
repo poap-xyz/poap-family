@@ -9,7 +9,7 @@ import Home from 'pages/Home'
 import Addresses from 'pages/Addresses'
 import Drop from 'pages/Drop'
 import Drops from 'pages/Drops'
-import Last from 'pages/Last'
+
 import DropsPageError from 'components/DropsPageError'
 import PageError from 'components/PageError'
 import CenterPage from 'components/CenterPage'
@@ -58,10 +58,6 @@ export default function App() {
                       {
                         path: '/addresses',
                         element: <Addresses />,
-                      },
-                      {
-                        path: '/last',
-                        element: <Last />,
                       },
                     ],
                   },

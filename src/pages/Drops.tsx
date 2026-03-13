@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react'
-import { Link, useLoaderData, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { formatStat } from 'utils/number'
 import { HTMLContext } from 'stores/html'
 import { useEns } from 'stores/ethereum'
@@ -11,7 +11,6 @@ import useDropsCollectors from 'hooks/useDropsCollectors'
 import useDropsMetrics from 'hooks/useDropsMetrics'
 import useEventsInCommon from 'hooks/useEventsInCommon'
 import useDropsCollections from 'hooks/useDropsCollections'
-import Timestamp from 'components/Timestamp'
 import Card from 'components/Card'
 import DropButtonGroup from 'components/DropButtonGroup'
 import Page from 'components/Page'
@@ -21,13 +20,10 @@ import StatusErrorMessage from 'components/StatusErrorMessage'
 import AddressErrorMessage from 'components/AddressErrorMessage'
 import Loading from 'components/Loading'
 import ShadowText from 'components/ShadowText'
-import ButtonLink from 'components/ButtonLink'
 import Progress from 'components/Progress'
 import DropsInCommon from 'components/DropsInCommon'
 import CollectionSet from 'components/CollectionSet'
 import DropsCollectors from 'components/DropsCollectors'
-import WarningIcon from 'components/WarningIcon'
-import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonDelete from 'components/ButtonDelete'
 import 'styles/drops.css'
@@ -35,12 +31,9 @@ import 'styles/drops.css'
 function Drops() {
   const navigate = useNavigate()
   const { dropIds: rawDropIds } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams({ all: 'false' })
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
-
-  const force = searchParams.get('force') === 'true'
 
   const drops = useMemo(
     () => parseDrops(loaderData, /*includeDescription*/false),
@@ -74,7 +67,6 @@ function Drops() {
 
   const {
     completedDropsInCommon,
-    completedInCommonDrops,
     loadingInCommonDrops,
     dropsInCommonErrors,
     loadedDropsInCommon,
@@ -87,7 +79,6 @@ function Drops() {
     dropIds,
     dropsCollectors,
     /*all*/true,
-    /*refresh*/force,
     /*local*/false,
     /*stream*/true
   )
@@ -206,43 +197,6 @@ function Drops() {
     },
     [completedDropsInCommon, dropsInCommon]
   )
-
-  const staleDrops = useMemo(
-    () => {
-      if (!completedDropsInCommon) {
-        return 0
-      }
-      return dropIds.reduce(
-        (total, dropId) => {
-          if (
-            loadedDropsCollectors[dropId] == null ||
-            dropsCollectors[dropId] == null ||
-            dropsInCommon[dropId] == null ||
-            dropsInCommon[dropId].inCommon[dropId] == null ||
-            (
-              loadedDropsCollectors[dropId] !== dropsCollectors[dropId].length &&
-              dropsInCommon[dropId].inCommon[dropId].length !== dropsCollectors[dropId].length
-            )
-          ) {
-            return total + 1
-          }
-          return total
-        },
-        0
-      )
-    },
-    [
-      dropIds,
-      dropsCollectors,
-      completedDropsInCommon,
-      loadedDropsCollectors,
-      dropsInCommon,
-    ]
-  )
-
-  const refreshCache = (): void => {
-    setSearchParams({ force: 'true' })
-  }
 
   const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
@@ -388,28 +342,6 @@ function Drops() {
                           />
                         )
                       )}
-                      {(
-                        dropsInCommon[drop.id] != null &&
-                        dropsInCommon[drop.id].ts != null
-                      ) && (
-                        <p className="status-cached-ts">
-                          Cached <Timestamp ts={dropsInCommon[drop.id].ts} />
-                          {(
-                            completedInCommonDrops[drop.id] &&
-                            dropsCollectors[drop.id] != null &&
-                            dropsInCommon[drop.id] != null &&
-                            dropsInCommon[drop.id].inCommon[drop.id] != null &&
-                            dropsInCommon[drop.id].inCommon[drop.id].length !== dropsCollectors[drop.id].length
-                          ) && (
-                            <>
-                              {' '}
-                              <WarningIcon
-                                title="There have been new mints since this POAP was cached"
-                              />
-                            </>
-                          )}
-                        </p>
-                      )}
                     </td>
                     <td className="drop-cell-actions">
                       <DropButtonGroup
@@ -429,13 +361,6 @@ function Drops() {
             </table>
           </Card>
         </div>
-        {staleDrops > 0 && (
-          <WarningMessage>
-            There have been new mints in {staleDrops}{' '}
-            POAP{staleDrops === 1 ? '' : 's'} since cached,{' '}
-            <ButtonLink onClick={() => refreshCache()}>refresh all</ButtonLink>.
-          </WarningMessage>
-        )}
         {loadingMetrics && !completedDropsInCommon && (
           <Card shink={true}>
             <Loading size="big" title="Loading metrics" />

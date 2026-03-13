@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import packageJson from '../../package.json'
 import { HTMLContext } from 'stores/html'
 import { useSettings } from 'stores/settings'
@@ -7,7 +6,6 @@ import CenterPage from 'components/CenterPage'
 import ExternalLink from 'components/ExternalLink'
 import Search from 'components/Search'
 import Welcome from 'components/Welcome'
-import LastEvents from 'components/LastEvents'
 import 'styles/home.css'
 
 const VERSION_BASE_URL = process.env.REACT_APP_VERSION_BASE_URL
@@ -29,17 +27,7 @@ function Home() {
         <Welcome showHelp={true} />
       )}
       <Search />
-      <LastEvents
-        page={1}
-        perPage={3}
-        showRefresh={true}
-        showMore={true}
-        maxPages={3}
-        moreQty={10}
-      />
       <div className="footer">
-        <Link className="link" to="/last">last</Link>
-        <span className="dot">·</span>
         <ExternalLink
           className="link"
           href="https://poap.notion.site/POAP-Family-FAQ-cef29bc0bb8c4f8f936164d988a944cc"
