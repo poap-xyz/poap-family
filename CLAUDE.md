@@ -63,7 +63,3 @@ Routes defined in `src/app/App.tsx`:
 - `/addresses/:addresses` - Address collector view
 - `/last` - Recent events
 - Legacy `/event(s)/` routes redirect to `/drop(s)/`
-
-## Backend
-
-The frontend talks to the POAP Family API backend (separate repo at `poap-family-backend`). See that project's CLAUDE.md for backend details.
