@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react'
-import { useLoaderData, useSearchParams } from 'react-router-dom'
+import { useLoaderData } from 'react-router-dom'
 import { HTMLContext } from 'stores/html'
 import { useEns } from 'stores/ethereum'
 import { parseDrop } from 'models/drop'
@@ -7,7 +7,6 @@ import useEventInCommon from 'hooks/useEventInCommon'
 import useDropsCollectors from 'hooks/useDropsCollectors'
 import useDropsMetrics from 'hooks/useDropsMetrics'
 import useDropsCollections from 'hooks/useDropsCollections'
-import Timestamp from 'components/Timestamp'
 import Page from 'components/Page'
 import Card from 'components/Card'
 import Loading from 'components/Loading'
@@ -16,7 +15,6 @@ import DropInfo from 'components/DropInfo'
 import DropStats from 'components/DropStats'
 import CollectionSet from 'components/CollectionSet'
 import AddressErrorList from 'components/AddressErrorList'
-import WarningMessage from 'components/WarningMessage'
 import ErrorMessage from 'components/ErrorMessage'
 import ButtonLink from 'components/ButtonLink'
 import ButtonExportAddressCsv from 'components/ButtonExportAddressCsv'
@@ -25,12 +23,9 @@ import DropButtonMoments from 'components/DropButtonMoments'
 import 'styles/drop.css'
 
 function Drop() {
-  const [searchParams, setSearchParams] = useSearchParams()
   const { setTitle } = useContext(HTMLContext)
   const { resolveEnsNames } = useEns()
   const loaderData = useLoaderData()
-
-  const force = searchParams.get('force') === 'true'
 
   const drop = useMemo(
     () => parseDrop(
@@ -81,13 +76,11 @@ function Drop() {
     loadedCollectors,
     collectorsErrors,
     inCommon,
-    cachedTs,
     fetchDropInCommon,
     retryAddress,
   } = useEventInCommon(
     drop.id,
     collectors,
-    /*refresh*/force,
     /*local*/false,
     /*stream*/true
   )
@@ -192,10 +185,6 @@ function Drop() {
     [drop.name, setTitle]
   )
 
-  const refreshCache = (): void => {
-    setSearchParams({ force: 'true' })
-  }
-
   const handleDropActive = (dropId: number): void => {
     const addresses = inCommon[dropId]
 
@@ -233,12 +222,6 @@ function Drop() {
               />
               <DropButtonMoments drop={drop} />
             </DropButtonGroup>
-            {cachedTs && (
-              <div className="cached">
-                Cached <Timestamp ts={cachedTs} />,{' '}
-                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-              </div>
-            )}
           </DropInfo>
         </div>
         {loadingCollectors && (
@@ -315,18 +298,6 @@ function Drop() {
         )}
         {!loadingDropInCommon && (
           <>
-            {(
-              completedMetrics &&
-              metrics != null &&
-              cachedTs &&
-              drop.id in inCommon &&
-              inCommon[drop.id].length !== metrics.mints
-            ) && (
-              <WarningMessage>
-                There have been new mints since this POAP was cached,{' '}
-                <ButtonLink onClick={() => refreshCache()}>refresh</ButtonLink>.
-              </WarningMessage>
-            )}
             {collectorsErrors.length > 0 && (
               <Card>
                 <AddressErrorList
@@ -365,7 +336,7 @@ function Drop() {
                 <ErrorMessage message="No collectors" />
               </Card>
             )}
-            {cachedTs && (
+            {completedDropInCommon && (
               <DropsInCommon
                 onActive={handleDropActive}
                 inCommon={inCommon}

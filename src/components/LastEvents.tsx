@@ -79,7 +79,7 @@ function LastEvents({
   return (
     <div className="last-events">
       <Card>
-        <h3>Last Cached Drops</h3>
+        <h3>Last Drops</h3>
         {showRefresh && lastEvents.length > 0 && !loading && page === 1 && (
           <ButtonRefresh onRefresh={onRefresh} />
         )}

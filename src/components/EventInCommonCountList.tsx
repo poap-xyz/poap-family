@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { EventInCommonCount } from 'models/api'
 import { useDrops } from 'stores/drops'
-import Timestamp from 'components/Timestamp'
 import TokenImageZoom from 'components/TokenImageZoom'
 import Loading from 'components/Loading'
 import ErrorMessage from 'components/ErrorMessage'
@@ -14,14 +13,12 @@ function EventInCommonCountList({
   maxHeight,
   tokenImageSize = 48,
   loadingSize = 'medium',
-  showCachedTs = true,
   showInCommonCount = true,
 }: {
   eventsInCommonCount: EventInCommonCount[]
   maxHeight?: number
   tokenImageSize?: number
   loadingSize?: 'icon' | 'small' | 'medium' | 'big'
-  showCachedTs?: boolean
   showInCommonCount?: boolean
 }) {
   const navigate = useNavigate()
@@ -106,22 +103,15 @@ function EventInCommonCountList({
                 <h4 title={drops[eventInCommonCount.id]?.name}>
                   {drops[eventInCommonCount.id]?.name ?? 'Loading..'}
                 </h4>
-                {(showCachedTs || showInCommonCount) && (
+                {showInCommonCount && (
                   <div className="event-in-common-count-data">
-                    {showCachedTs && (
-                      <div className="cached-ts">
-                        Cached <Timestamp ts={eventInCommonCount.cached_ts} />
-                      </div>
-                    )}
-                    {showInCommonCount && (
-                      <div>
-                        <span className="in-common-count">
-                          {eventInCommonCount.in_common_count}
-                        </span>
-                        {' '}
-                        in common
-                      </div>
-                    )}
+                    <div>
+                      <span className="in-common-count">
+                        {eventInCommonCount.in_common_count}
+                      </span>
+                      {' '}
+                      in common
+                    </div>
                   </div>
                 )}
               </div>

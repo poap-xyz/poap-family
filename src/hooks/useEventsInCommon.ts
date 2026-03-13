@@ -5,13 +5,11 @@ import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
 import { EventsInCommon } from 'models/api'
-import { filterInCommon } from 'models/in-common'
 
 function useEventsInCommon(
   dropIds: number[],
   dropsCollectors?: Record<number, string[]>,
   all: boolean = false,
-  force: boolean = false,
   local: boolean = false,
   stream: boolean = false,
 ): {
@@ -35,33 +33,6 @@ function useEventsInCommon(
   const [loadedProgress, setLoadedProgress] = useState<Record<number, DownloadProgress>>({})
   const [loadedCollectors, setLoadedCollectors] = useState<Record<number, number>>({})
   const [inCommon, setInCommon] = useState<Record<number, EventsInCommon>>({})
-
-  useEffect(
-    () => {
-      if (dropsCollectors == null) {
-        return
-      }
-      for (const dropId of dropIds) {
-        if (dropsCollectors[dropId] == null) {
-          continue
-        }
-        if (
-          completed[dropId] &&
-          (loadedCollectors[dropId] ?? 0) === dropsCollectors[dropId].length &&
-          inCommon[dropId] != null &&
-          inCommon[dropId].ts == null
-        ) {
-          const inCommonProcessed = filterInCommon(
-            inCommon[dropId].inCommon
-          )
-          if (Object.keys(inCommonProcessed).length > 0) {
-            updateCachedTs(dropId)
-          }
-        }
-      }
-    },
-    [dropIds, dropsCollectors, loadedCollectors, completed, inCommon]
-  )
 
   function addCompleted(dropId: number): void {
     setCompleted((alsoCompleted) => ({
@@ -288,7 +259,6 @@ function useEventsInCommon(
             inCommon: {
               [drop.id]: [address],
             },
-            ts: null,
           },
         }
       }
@@ -305,7 +275,6 @@ function useEventsInCommon(
                     address,
                   ],
                 },
-                ts: null,
               },
             }
           }
@@ -313,7 +282,6 @@ function useEventsInCommon(
             ...prevEventData,
             [dropId]: {
               inCommon: prevEventData[dropId].inCommon,
-              ts: null,
             },
           }
         }
@@ -324,20 +292,15 @@ function useEventsInCommon(
               ...prevEventData[dropId].inCommon,
               [drop.id]: [address],
             },
-            ts: null,
           },
         }
       }
       return {
         ...prevEventData,
         [dropId]: {
-          events: {
-            [drop.id]: drop,
-          },
           inCommon: {
             [drop.id]: [address],
           },
-          ts: null,
         },
       }
     })
@@ -351,20 +314,6 @@ function useEventsInCommon(
       ...prevEventData,
       [dropId]: {
         inCommon: data.inCommon,
-        ts: data.ts,
-      },
-    }))
-  }
-
-  function updateCachedTs(dropId: number, ts?: number): void {
-    if (ts == null) {
-      ts = Math.trunc(Date.now() / 1000)
-    }
-    setInCommon((prevEventData) => ({
-      ...(prevEventData ?? {}),
-      [dropId]: {
-        inCommon: (prevEventData ?? {})[dropId].inCommon,
-        ts,
       },
     }))
   }
@@ -438,7 +387,6 @@ function useEventsInCommon(
           if (stream) {
             result = await getInCommonEventsWithEvents(
               dropId,
-              /*refresh*/force,
               /*abortSignal*/controller.signal,
               /*onProgress*/(
                 receivedOwners,
@@ -485,7 +433,6 @@ function useEventsInCommon(
                   removeLoadedProgress(dropId)
                 }
               },
-              /*refresh*/force
             )
             removeLoadedProgress(dropId)
           }
@@ -516,7 +463,7 @@ function useEventsInCommon(
         }
       }
     },
-    [force, local, stream, processEvent]
+    [local, stream, processEvent]
   )
 
   const fetchDropsInCommon = useCallback(

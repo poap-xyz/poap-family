@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { AbortedError } from 'models/error'
 import { Drop } from 'models/drop'
 import { CountProgress, DownloadProgress } from 'models/http'
-import { InCommon, filterInCommon } from 'models/in-common'
+import { InCommon } from 'models/in-common'
 import { getInCommonEventsWithEvents, getInCommonEventsWithProgress } from 'services/api'
 import { fetchCollectorDrops } from 'services/collectors'
 
 function useEventInCommon(
   dropId: number,
   collectors: string[] | null,
-  force: boolean = false,
   local: boolean = false,
   stream: boolean = false,
 ): {
@@ -21,7 +20,6 @@ function useEventInCommon(
   loadedCollectors: number
   collectorsErrors: Array<{ address: string; error: Error }>
   inCommon: InCommon
-  cachedTs: number | null
   fetchDropInCommon: () => () => void
   retryAddress: (address: string) => void
 } {
@@ -33,23 +31,6 @@ function useEventInCommon(
   const [loadedCollectors, setLoadedCollectors] = useState<number>(0)
   const [errors, setErrors] = useState<Array<{ address: string; error: Error }>>([])
   const [inCommon, setInCommon] = useState<InCommon>({})
-  const [cachedTs, setCachedTs] = useState<number | null>(null)
-
-  useEffect(
-    () => {
-      if (collectors == null) {
-        return
-      }
-      if (loadedCollectors === collectors.length && !cachedTs) {
-        const inCommonProcessed = filterInCommon(inCommon)
-
-        if (Object.keys(inCommonProcessed).length > 0) {
-          setCachedTs(Math.trunc(Date.now() / 1000))
-        }
-      }
-    },
-    [dropId, collectors, loadedCollectors, cachedTs, inCommon]
-  )
 
   function addError(address: string, err: unknown): void {
     if (err instanceof AbortedError) {
@@ -157,7 +138,6 @@ function useEventInCommon(
           stream
             ? getInCommonEventsWithEvents(
                 dropId,
-                /*refresh*/force,
                 /*abortSignal*/controller.signal,
                 /*onProgress*/(
                   receivedOwners,
@@ -211,7 +191,6 @@ function useEventInCommon(
                     setLoadedProgress(null)
                   }
                 },
-                /*refresh*/force
               )
         ).then(
           (result) => {
@@ -226,7 +205,6 @@ function useEventInCommon(
               setLoadedCollectors(result.inCommon[dropId].length)
             }
             setInCommon(result.inCommon)
-            setCachedTs(result.ts)
           },
           (err) => {
             setLoadedInCommon(null)
@@ -253,7 +231,7 @@ function useEventInCommon(
         setInCommon({})
       }
     },
-    [dropId, collectors, force, local, stream, fetchCollectorsInCommon]
+    [dropId, collectors, local, stream, fetchCollectorsInCommon]
   )
 
   function retryAddress(address: string): () => void {
@@ -276,7 +254,6 @@ function useEventInCommon(
     loadedCollectors,
     collectorsErrors: errors,
     inCommon,
-    cachedTs,
     fetchDropInCommon,
     retryAddress,
   }
